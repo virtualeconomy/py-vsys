@@ -1,0 +1,15 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+requests = "~=2.27.1"
+python-axolotl-curve25519 = "~=0.4.1.post2"
+base58 = "~=2.1.1"
+loguru = "~=0.5.3"
+
+[dev-packages]
+pylint = "~=2.12.2"
+black = "~=21.12b0"
+pytest = "~=6.2.5"
