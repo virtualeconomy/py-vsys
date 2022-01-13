@@ -14,6 +14,8 @@ class DataEntry(abc.ABC):
     DataEntry is the abstract base class for customized data containers
     """
 
+    IDX = 0
+
     @classmethod
     @abc.abstractmethod
     def from_bytes(cls, b: bytes) -> "DataEntry":
@@ -230,6 +232,8 @@ class UnInt(Integer):
     UnInt is the data container for unsinged integer (4 bytes)
     """
 
+    IDX = 4
+
     @classmethod
     def from_bytes(cls, b: bytes) -> "UnInt":
         return cls(struct.unpack(">I", b)[0])
@@ -272,6 +276,8 @@ class Timestamp(UnLongLong):
     To avoid floating point, a second is stored as 1_000_000_000
     """
 
+    IDX = 9
+
     @classmethod
     def now(cls) -> "Timestamp":
         """
@@ -291,6 +297,8 @@ class String(DataEntry):
     """
     String is the data container for string
     """
+
+    IDX = 5
 
     def __init__(self, data: str = ""):
         self.data = data
@@ -349,6 +357,8 @@ class Bytes(DataEntry):
     """
     Bytes is the data container for bytes
     """
+
+    IDX = 11
 
     def __init__(self, data: bytes = b"") -> None:
         self.data = data
