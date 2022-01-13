@@ -164,24 +164,29 @@ class DataEntries:
         return cls(items)
 
     def serialize(
-        self, with_items_len: bool = False, with_bytes_len: bool = False
+        self, with_items_len: bool = False, with_bytes_len: bool = False,
+        **item_serial_args
     ) -> "Bytes":
         """
         serialize serializes the holding DataEntry items to bytes
 
         Args:
-            with_items_len (bool, optional): Whether or not to prepend size bytes for the length of items. Defaults to False.
+            with_items_len (bool, optional): Whether or not to prepend size bytes for the amount of items. Defaults to False.
             with_bytes_len (bool, optional): Whether or not to prepend size bytes for the length of bytes. Defaults to False.
 
+        Kwargs: 
+            item_serial_args (Dict[str, Any]): Keyword arguments for the serialize method of items
+
         Returns:
-            [type]: [description]
+            Bytes: The serialization result
         """
+
         b = b""
         if with_items_len:
             b = struct.pack(">H", len(self.items)) + b
 
         for i in self.items:
-            b += i.serialize(with_size=True).bytes
+            b += i.serialize(**item_serial_args).bytes
 
         if with_bytes_len:
             b = struct.pack(">H", len(b)) + b
