@@ -112,7 +112,7 @@ class DataEntries:
         if items is None:
             self.items = []
         else:
-        self.items = copy.deepcopy(items)
+            self.items = copy.deepcopy(items)
 
     @classmethod
     def default(cls) -> "DataEntries":
@@ -299,7 +299,7 @@ class Timestamp(UnLongLong):
         now returns the Timestamp with the current unix timestamp
 
         Returns:
-            [type]: [description]
+            Timestamp: The current Timestamp
         """
         return cls(int(time.time() * 1_000_000_000))
 
@@ -449,7 +449,8 @@ class Bytes(DataEntry):
 
 class BytesList(DataEntries):
     """
-    BytesList is the collection class for Bytes
+    BytesList is a special case of DataEntries where all internal DataEntry(s)
+    are Bytes
     """
 
     @classmethod
@@ -514,5 +515,8 @@ class Bool(DataEntry):
 
 
 class KeyPair(NamedTuple):
+    """
+    KeyPair is the data container for an asymmetric key pair
+    """
     pub: Bytes
     pri: Bytes
