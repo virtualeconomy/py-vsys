@@ -489,6 +489,23 @@ class BytesList(DataEntries):
         )
 
 
+class DataStack(DataEntries):
+    """
+    DataStack is a special case of DataEntries where all internal DataEntry(s)
+    has non-zero index(IDX)
+    """
+
+    def serialize(self, with_items_len: bool = True, with_bytes_len: bool = True) -> "Bytes":
+        return super().serialize(
+            with_items_len,
+            with_bytes_len,
+            **{
+                "with_size": True,
+                "with_idx": True,
+            },
+        )
+
+
 class Bool(DataEntry):
     """
     Bool is the data container for a boolean value
