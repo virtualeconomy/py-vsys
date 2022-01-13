@@ -79,20 +79,27 @@ class DataEntry(abc.ABC):
         """
         raise NotImplementedError
 
-    def serialize(self, with_size: bool = False) -> "Bytes":
+    def serialize(self, with_size: bool = False, with_idx: bool = False) -> "Bytes":
         """
         serialize serializes the holding data to bytes
         if with_size == True, prefix bytes for the length will be prepended
+        if with_idx == True, prefix bytes for the index will be prepended
 
         Args:
-            with_size (bool, optional): Whether or not prepend size bytes. Defaults to False.
+            with_size (bool, optional): Whether or not to prepend size bytes. Defaults to False
+            with_idx (bool, optional): Whether or not to prepend idx bytes. Defaults to False
 
         Returns:
             Bytes: The serialization result
         """
         b = self.bytes
+
         if with_size:
             b = struct.pack(">H", len(b)) + b
+
+        if with_idx:
+            b = UnChar(self.IDX).bytes + b
+
         return Bytes(b)
 
 
