@@ -77,9 +77,11 @@ class NFTCtrt(Contract):
             tx_req.ExecCtrtFuncTxReq(
                 ctrt_id=self.ctrt_id,
                 func_id=self.FuncIdx.ISSUE,
-                data_stack=md.DataStack([
-                    md.String(description),
-                ]),
+                data_stack=md.DataStack(
+                    [
+                        md.String(description),
+                    ]
+                ),
                 timestamp=md.Timestamp.now(),
                 attachment=md.String(description),
             )

@@ -174,9 +174,7 @@ class CtrtMeta:
             bytes: The serialized bytes string
         """
         stmap_bytes = (
-            b""
-            if self.lang_ver.data == 1
-            else self.state_map.serialize().bytes
+            b"" if self.lang_ver.data == 1 else self.state_map.serialize().bytes
         )
         b = (
             self.lang_code.serialize().bytes
@@ -241,8 +239,7 @@ class Contract(abc.ABC):
     @property
     def ctrt_id(self) -> md.B58Str:
         return self._ctrt_id
-    
+
     @property
     def chain(self) -> ch.Chain:
         return self._chain
-    

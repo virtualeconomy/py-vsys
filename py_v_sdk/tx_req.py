@@ -165,7 +165,7 @@ class ExecCtrtFuncTxReq(TxReq):
         self.attachment = attachment
         self.fee = fee
         self.fee_scale = fee_scale
-    
+
     @property
     def data_to_sign(self) -> md.Bytes:
         b = (
@@ -189,7 +189,7 @@ class ExecCtrtFuncTxReq(TxReq):
 
         Returns:
             Dict[str, Any]: The payload
-        """        
+        """
         return {
             "senderPublicKey": key_pair.pub.b58_str,
             "contractId": self.ctrt_id.data,

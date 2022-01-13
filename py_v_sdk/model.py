@@ -164,8 +164,10 @@ class DataEntries:
         return cls(items)
 
     def serialize(
-        self, with_items_len: bool = False, with_bytes_len: bool = False,
-        **item_serial_args
+        self,
+        with_items_len: bool = False,
+        with_bytes_len: bool = False,
+        **item_serial_args,
     ) -> "Bytes":
         """
         serialize serializes the holding DataEntry items to bytes
@@ -174,7 +176,7 @@ class DataEntries:
             with_items_len (bool, optional): Whether or not to prepend size bytes for the amount of items. Defaults to False.
             with_bytes_len (bool, optional): Whether or not to prepend size bytes for the length of bytes. Defaults to False.
 
-        Kwargs: 
+        Kwargs:
             item_serial_args (Dict[str, Any]): Keyword arguments for the serialize method of items
 
         Returns:
@@ -207,6 +209,7 @@ class UnChar(Integer):
     """
     UnChar is the data container for unsigned char integer (1 byte)
     """
+
     @classmethod
     def from_bytes(cls, b: bytes) -> "UnChar":
         return cls(struct.unpack(">B", b)[0])
@@ -311,7 +314,8 @@ class Timestamp(UnLongLong):
 class Amount(UnLongLong):
     """
     Amount is the data container for amount
-    """    
+    """
+
     IDX = 3
 
 
@@ -319,6 +323,7 @@ class Balance(UnLongLong):
     """
     Balance is the data container for account balance
     """
+
     IDX = 12
 
 
@@ -376,7 +381,7 @@ class B58Str(String):
     def from_bytes(cls, b: bytes) -> "String":
         b = base58.b58encode(b)
         return cls(bu.bytes_to_str(b))
-    
+
     @property
     def bytes(self) -> bytes:
         return base58.b58decode(self.data)
@@ -386,13 +391,15 @@ class PubKey(B58Str):
     """
     PubKey is the data container for Public Key in base58 string format
     """
+
     IDX = 1
 
 
 class Addr(B58Str):
     """
     Addr is the data container for Address in base58 string format
-    """    
+    """
+
     IDX = 2
 
 
@@ -400,6 +407,7 @@ class CtrtAcnt(B58Str):
     """
     CtrtAcnt is the data container for Contract Account
     """
+
     IDX = 6
 
 
@@ -407,6 +415,7 @@ class Acnt(B58Str):
     """
     Acnt is the data container for Account
     """
+
     IDX = 7
 
 
@@ -414,6 +423,7 @@ class TokenID(B58Str):
     """
     TokenID is the data container for Token ID
     """
+
     IDX = 8
 
 
@@ -479,7 +489,9 @@ class BytesList(DataEntries):
         """
         return [i.b58_str for i in self.items]
 
-    def serialize(self, with_items_len: bool = True, with_bytes_len: bool = True) -> "Bytes":
+    def serialize(
+        self, with_items_len: bool = True, with_bytes_len: bool = True
+    ) -> "Bytes":
         return super().serialize(
             with_items_len,
             with_bytes_len,
@@ -496,7 +508,9 @@ class DataStack(DataEntries):
     has non-zero index(IDX)
     """
 
-    def serialize(self, with_items_len: bool = True, with_bytes_len: bool = True) -> "Bytes":
+    def serialize(
+        self, with_items_len: bool = True, with_bytes_len: bool = True
+    ) -> "Bytes":
         return super().serialize(
             with_items_len,
             with_bytes_len,
@@ -511,6 +525,7 @@ class Bool(DataEntry):
     """
     Bool is the data container for a boolean value
     """
+
     IDX = 10
 
 
@@ -518,5 +533,6 @@ class KeyPair(NamedTuple):
     """
     KeyPair is the data container for an asymmetric key pair
     """
+
     pub: Bytes
     pri: Bytes
