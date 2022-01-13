@@ -2,7 +2,7 @@ import abc
 import struct
 import copy
 import time
-from typing import List, Type, NamedTuple
+from typing import List, Type, NamedTuple, Optional
 
 import base58
 
@@ -13,6 +13,8 @@ class DataEntry(abc.ABC):
     """
     DataEntry is the abstract base class for customized data containers
     """
+
+    IDX = 0
 
     @classmethod
     @abc.abstractmethod
@@ -77,20 +79,27 @@ class DataEntry(abc.ABC):
         """
         raise NotImplementedError
 
-    def serialize(self, with_size: bool = False) -> "Bytes":
+    def serialize(self, with_size: bool = False, with_idx: bool = False) -> "Bytes":
         """
         serialize serializes the holding data to bytes
         if with_size == True, prefix bytes for the length will be prepended
+        if with_idx == True, prefix bytes for the index will be prepended
 
         Args:
-            with_size (bool, optional): Whether or not prepend size bytes. Defaults to False.
+            with_size (bool, optional): Whether or not to prepend size bytes. Defaults to False
+            with_idx (bool, optional): Whether or not to prepend idx bytes. Defaults to False
 
         Returns:
             Bytes: The serialization result
         """
         b = self.bytes
+
         if with_size:
             b = struct.pack(">H", len(b)) + b
+
+        if with_idx:
+            b = UnChar(self.IDX).bytes + b
+
         return Bytes(b)
 
 
@@ -99,8 +108,11 @@ class DataEntries:
     DataEntries is the collection class for DataEntry
     """
 
-    def __init__(self, items: List[DataEntry] = []) -> None:
-        self.items = copy.deepcopy(items)
+    def __init__(self, items: Optional[List[DataEntry]] = None) -> None:
+        if items is None:
+            self.items = []
+        else:
+            self.items = copy.deepcopy(items)
 
     @classmethod
     def default(cls) -> "DataEntries":
@@ -152,24 +164,31 @@ class DataEntries:
         return cls(items)
 
     def serialize(
-        self, with_items_len: bool = False, with_bytes_len: bool = False
+        self,
+        with_items_len: bool = False,
+        with_bytes_len: bool = False,
+        **item_serial_args,
     ) -> "Bytes":
         """
         serialize serializes the holding DataEntry items to bytes
 
         Args:
-            with_items_len (bool, optional): Whether or not to prepend size bytes for the length of items. Defaults to False.
+            with_items_len (bool, optional): Whether or not to prepend size bytes for the amount of items. Defaults to False.
             with_bytes_len (bool, optional): Whether or not to prepend size bytes for the length of bytes. Defaults to False.
 
+        Kwargs:
+            item_serial_args (Dict[str, Any]): Keyword arguments for the serialize method of items
+
         Returns:
-            [type]: [description]
+            Bytes: The serialization result
         """
+
         b = b""
         if with_items_len:
             b = struct.pack(">H", len(self.items)) + b
 
         for i in self.items:
-            b += i.serialize(with_size=True).bytes
+            b += i.serialize(**item_serial_args).bytes
 
         if with_bytes_len:
             b = struct.pack(">H", len(b)) + b
@@ -190,6 +209,7 @@ class UnChar(Integer):
     """
     UnChar is the data container for unsigned char integer (1 byte)
     """
+
     @classmethod
     def from_bytes(cls, b: bytes) -> "UnChar":
         return cls(struct.unpack(">B", b)[0])
@@ -229,6 +249,8 @@ class UnInt(Integer):
     """
     UnInt is the data container for unsinged integer (4 bytes)
     """
+
+    IDX = 4
 
     @classmethod
     def from_bytes(cls, b: bytes) -> "UnInt":
@@ -272,13 +294,15 @@ class Timestamp(UnLongLong):
     To avoid floating point, a second is stored as 1_000_000_000
     """
 
+    IDX = 9
+
     @classmethod
     def now(cls) -> "Timestamp":
         """
         now returns the Timestamp with the current unix timestamp
 
         Returns:
-            [type]: [description]
+            Timestamp: The current Timestamp
         """
         return cls(int(time.time() * 1_000_000_000))
 
@@ -287,10 +311,28 @@ class Timestamp(UnLongLong):
         return cls.now()
 
 
+class Amount(UnLongLong):
+    """
+    Amount is the data container for amount
+    """
+
+    IDX = 3
+
+
+class Balance(UnLongLong):
+    """
+    Balance is the data container for account balance
+    """
+
+    IDX = 12
+
+
 class String(DataEntry):
     """
     String is the data container for string
     """
+
+    IDX = 5
 
     def __init__(self, data: str = ""):
         self.data = data
@@ -339,16 +381,58 @@ class B58Str(String):
     def from_bytes(cls, b: bytes) -> "String":
         b = base58.b58encode(b)
         return cls(bu.bytes_to_str(b))
-    
+
     @property
     def bytes(self) -> bytes:
         return base58.b58decode(self.data)
+
+
+class PubKey(B58Str):
+    """
+    PubKey is the data container for Public Key in base58 string format
+    """
+
+    IDX = 1
+
+
+class Addr(B58Str):
+    """
+    Addr is the data container for Address in base58 string format
+    """
+
+    IDX = 2
+
+
+class CtrtAcnt(B58Str):
+    """
+    CtrtAcnt is the data container for Contract Account
+    """
+
+    IDX = 6
+
+
+class Acnt(B58Str):
+    """
+    Acnt is the data container for Account
+    """
+
+    IDX = 7
+
+
+class TokenID(B58Str):
+    """
+    TokenID is the data container for Token ID
+    """
+
+    IDX = 8
 
 
 class Bytes(DataEntry):
     """
     Bytes is the data container for bytes
     """
+
+    IDX = 11
 
     def __init__(self, data: bytes = b"") -> None:
         self.data = data
@@ -375,7 +459,8 @@ class Bytes(DataEntry):
 
 class BytesList(DataEntries):
     """
-    BytesList is the collection class for Bytes
+    BytesList is a special case of DataEntries where all internal DataEntry(s)
+    are Bytes
     """
 
     @classmethod
@@ -404,7 +489,50 @@ class BytesList(DataEntries):
         """
         return [i.b58_str for i in self.items]
 
+    def serialize(
+        self, with_items_len: bool = True, with_bytes_len: bool = True
+    ) -> "Bytes":
+        return super().serialize(
+            with_items_len,
+            with_bytes_len,
+            **{
+                "with_size": True,
+                "with_idx": False,
+            },
+        )
+
+
+class DataStack(DataEntries):
+    """
+    DataStack is a special case of DataEntries where all internal DataEntry(s)
+    has non-zero index(IDX)
+    """
+
+    def serialize(
+        self, with_items_len: bool = True, with_bytes_len: bool = True
+    ) -> "Bytes":
+        return super().serialize(
+            with_items_len,
+            with_bytes_len,
+            **{
+                "with_size": True,
+                "with_idx": True,
+            },
+        )
+
+
+class Bool(DataEntry):
+    """
+    Bool is the data container for a boolean value
+    """
+
+    IDX = 10
+
 
 class KeyPair(NamedTuple):
+    """
+    KeyPair is the data container for an asymmetric key pair
+    """
+
     pub: Bytes
     pri: Bytes

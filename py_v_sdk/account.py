@@ -19,7 +19,9 @@ class Account:
         self._nonce = nonce
         self._acnt_seed_hash = self.get_acnt_seed_hash(seed, nonce)
         self._key_pair = self.get_key_pair(self._acnt_seed_hash)
-        self._addr = self.get_addr(self.key_pair.pub, self.ADDR_VER, self.chain.chain_id)
+        self._addr = self.get_addr(
+            self.key_pair.pub, self.ADDR_VER, self.chain.chain_id
+        )
 
     @property
     def chain(self) -> ch.Chain:
@@ -40,11 +42,11 @@ class Account:
     @property
     def acnt_seed_hash(self) -> md.Bytes:
         return self._acnt_seed_hash
-    
+
     @property
     def key_pair(self) -> md.KeyPair:
         return self._key_pair
-    
+
     @property
     def addr(self) -> md.Bytes:
         return self._addr
@@ -52,7 +54,9 @@ class Account:
     @staticmethod
     def get_acnt_seed_hash(seed: str, nonce: int) -> md.Bytes:
         return md.Bytes(
-            hs.sha256_hash(hs.keccak256_hash(hs.blake2b_hash(bu.str_to_bytes(f"{nonce}{seed}"))))
+            hs.sha256_hash(
+                hs.keccak256_hash(hs.blake2b_hash(bu.str_to_bytes(f"{nonce}{seed}")))
+            )
         )
 
     @staticmethod
@@ -71,27 +75,23 @@ class Account:
             return hs.keccak256_hash(hs.blake2b_hash(b))
 
         raw_addr: str = (
-            chr(addr_ver)
-            + chain_id.value
-            + bu.bytes_to_str(hash(pub_key.bytes))[:20]
+            chr(addr_ver) + chain_id.value + bu.bytes_to_str(hash(pub_key.bytes))[:20]
         )
 
-        addr_hash: str = bu.bytes_to_str(
-            hash(
-                bu.str_to_bytes(raw_addr)
-            )
-        )[:4]
+        addr_hash: str = bu.bytes_to_str(hash(bu.str_to_bytes(raw_addr)))[:4]
 
-        return md.Bytes(
-            bu.str_to_bytes(raw_addr + addr_hash)
-        )
-    
+        return md.Bytes(bu.str_to_bytes(raw_addr + addr_hash))
+
     @property
     def balance(self) -> int:
         return self.api.addr.get_balance(self.addr.b58_str)["balance"]
 
     def register_contract(self, req: tx.RegCtrtTxReq) -> Dict[str, Any]:
-        return self.api.ctrt.broadcast_register(req.to_broadcast_register_payload(self.key_pair))
+        return self.api.ctrt.broadcast_register(
+            req.to_broadcast_register_payload(self.key_pair)
+        )
 
     def execute_contract(self, req: tx.ExecCtrtFuncTxReq) -> Dict[str, Any]:
-        return self.api.ctrt.broadcast_execute(req.to_broadcast_execute_payload(self.key_pair))
+        return self.api.ctrt.broadcast_execute(
+            req.to_broadcast_execute_payload(self.key_pair)
+        )

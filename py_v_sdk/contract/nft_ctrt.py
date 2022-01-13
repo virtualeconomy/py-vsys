@@ -42,9 +42,9 @@ class NFTCtrt(Contract):
     def register(cls, by: acnt.Account) -> "NFTCtrt":
         data = by.register_contract(
             tx_req.RegCtrtTxReq(
-                data_stack=md.DataEntries.default(),
+                data_stack=md.DataStack.default(),
                 ctrt_meta=cls.CTRT_META,
-                timestamp=md.Timestamp.default(),
+                timestamp=md.Timestamp.now(),
             )
         )
         logger.debug(data)
@@ -77,10 +77,12 @@ class NFTCtrt(Contract):
             tx_req.ExecCtrtFuncTxReq(
                 ctrt_id=self.ctrt_id,
                 func_id=self.FuncIdx.ISSUE,
-                data_stack=md.DataEntries([
-                    md.String(description),
-                ]),
-                timestamp=md.Timestamp.default(),
+                data_stack=md.DataStack(
+                    [
+                        md.String(description),
+                    ]
+                ),
+                timestamp=md.Timestamp.now(),
                 attachment=md.String(description),
             )
         )

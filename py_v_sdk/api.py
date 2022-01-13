@@ -26,7 +26,7 @@ class NodeAPI:
     @property
     def host(self) -> str:
         return self.host
-    
+
     @property
     def blocks(self) -> "Blocks":
         return self._blocks
@@ -34,7 +34,7 @@ class NodeAPI:
     @property
     def node(self) -> "Node":
         return self._node
-    
+
     @property
     def ctrt(self) -> "Contract":
         return self._ctrt
@@ -68,7 +68,7 @@ class Blocks(APIGrp):
 
     def get_height(self) -> Dict[str, Any]:
         return self.get("/height")
-    
+
     def get_last_block(self) -> Dict[str, Any]:
         return self.get("/last")
 

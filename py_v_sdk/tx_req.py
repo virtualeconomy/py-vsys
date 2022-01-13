@@ -1,6 +1,5 @@
 import abc
 import enum
-import struct
 from typing import Dict, Any
 
 from py_v_sdk import model as md
@@ -73,7 +72,7 @@ class RegCtrtTxReq(TxReq):
 
     def __init__(
         self,
-        data_stack: md.DataEntries,
+        data_stack: md.DataStack,
         ctrt_meta: ctrt.CtrtMeta,
         timestamp: md.Timestamp,
         description: md.String = md.String.default(),
@@ -82,7 +81,7 @@ class RegCtrtTxReq(TxReq):
     ) -> None:
         """
         Args:
-            data_stack (md.DataEntries): The payload of this request
+            data_stack (md.DataStack): The payload of this request
             ctrt_meta (ctrt.CtrtMeta): The meta data of the contract to register
             timestamp (md.Timestamp): The timestamp of this request
             description (md.String, optional): The description for this request. Defaults to md.String.default().
@@ -100,8 +99,8 @@ class RegCtrtTxReq(TxReq):
     def data_to_sign(self) -> md.Bytes:
         b = (
             self.TX_TYPE.serialize().bytes
-            + self.ctrt_meta.serialize().serialize(True).bytes
-            + self.data_stack.serialize(True, True).bytes
+            + self.ctrt_meta.serialize().serialize(with_size=True).bytes
+            + self.data_stack.serialize().bytes
             + self.description.serialize_with_str_size().bytes
             + self.fee.bytes
             + self.fee_scale.bytes
@@ -122,7 +121,7 @@ class RegCtrtTxReq(TxReq):
         return {
             "senderPublicKey": key_pair.pub.b58_str,
             "contract": self.ctrt_meta.serialize().b58_str,
-            "initData": self.data_stack.serialize(with_items_len=True).b58_str,
+            "initData": self.data_stack.serialize(with_bytes_len=False).b58_str,
             "description": self.description.data,
             "fee": self.fee.data,
             "feeScale": self.fee_scale.data,
@@ -143,7 +142,7 @@ class ExecCtrtFuncTxReq(TxReq):
         self,
         ctrt_id: md.B58Str,
         func_id: ctrt.Contract.FuncIdx,
-        data_stack: md.DataEntries,
+        data_stack: md.DataStack,
         timestamp: md.Timestamp,
         attachment: md.String = md.String.default(),
         fee: md.TxFee = TX_FEE,
@@ -153,7 +152,7 @@ class ExecCtrtFuncTxReq(TxReq):
         Args:
             ctrt_id (md.B58Str): The contract id
             func_id (ctrt.Contract.FuncIdx): The function index
-            data_stack (md.DataEntries): The payload of this request
+            data_stack (md.DataStack): The payload of this request
             timestamp (md.Timestamp): The timestamp of this request
             attachment (md.String, optional): The attachment for this request. Defaults to md.String.default().
             fee (md.TxFee, optional): The fee for this request. Defaults to TX_FEE.
@@ -166,14 +165,14 @@ class ExecCtrtFuncTxReq(TxReq):
         self.attachment = attachment
         self.fee = fee
         self.fee_scale = fee_scale
-    
+
     @property
     def data_to_sign(self) -> md.Bytes:
         b = (
             self.TX_TYPE.serialize().bytes
             + self.ctrt_id.bytes
             + md.UnShort(self.func_id.value).bytes
-            + self.data_stack.serialize(True, True).bytes
+            + self.data_stack.serialize().bytes
             + self.attachment.serialize_with_str_size().bytes
             + self.fee.bytes
             + self.fee_scale.bytes
@@ -190,12 +189,12 @@ class ExecCtrtFuncTxReq(TxReq):
 
         Returns:
             Dict[str, Any]: The payload
-        """        
+        """
         return {
             "senderPublicKey": key_pair.pub.b58_str,
             "contractId": self.ctrt_id.data,
             "functionIndex": self.func_id.value,
-            "functionData": self.data_stack.serialize(with_items_len=True).b58_str,
+            "functionData": self.data_stack.serialize(with_bytes_len=False).b58_str,
             "attachment": self.attachment.b58_str,
             "fee": self.fee.data,
             "feeScale": self.fee_scale.data,
