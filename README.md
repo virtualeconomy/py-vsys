@@ -19,11 +19,17 @@ The official Python SDK for VSYS APIs. The [old Python SDK](https://github.com/v
 
 ## Installation
 
+> Will be published to PYPI soon
+
 ```bash
 pip install git+https://github.com/virtualeconomy/py-v-sdk.git
 ```
 
-> Will be published to PYPI soon
+If you are using `pipenv`, try
+
+```bash
+pipenv install git+https://github.com/virtualeconomy/py-v-sdk.git#egg=py_v_sdk
+```
 
 
 ## Quick Example
