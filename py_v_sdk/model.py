@@ -478,6 +478,17 @@ class BytesList(DataEntries):
         """
         return [i.b58_str for i in self.items]
 
+    def serialize(self, with_items_len: bool = True, with_bytes_len: bool = True) -> "Bytes":
+        return super().serialize(
+            with_items_len,
+            with_bytes_len,
+            **{
+                "with_size": True,
+                "with_idx": False,
+            },
+        )
+
+
 class Bool(DataEntry):
     """
     Bool is the data container for a boolean value
