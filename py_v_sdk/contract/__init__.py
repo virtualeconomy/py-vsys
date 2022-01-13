@@ -176,16 +176,16 @@ class CtrtMeta:
         stmap_bytes = (
             b""
             if self.lang_ver.data == 1
-            else self.state_map.serialize(True, True).bytes
+            else self.state_map.serialize().bytes
         )
         b = (
             self.lang_code.serialize().bytes
             + self.lang_ver.serialize().bytes
-            + self.triggers.serialize(True, True).bytes
-            + self.descriptors.serialize(True, True).bytes
-            + self.state_vars.serialize(True, True).bytes
+            + self.triggers.serialize().bytes
+            + self.descriptors.serialize().bytes
+            + self.state_vars.serialize().bytes
             + stmap_bytes
-            + self.textual.serialize(with_items_len=True).bytes
+            + self.textual.serialize(with_bytes_len=False).bytes
         )
         return md.Bytes(b)
 
