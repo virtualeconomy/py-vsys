@@ -293,6 +293,20 @@ class Timestamp(UnLongLong):
         return cls.now()
 
 
+class Amount(UnLongLong):
+    """
+    Amount is the data container for amount
+    """    
+    IDX = 3
+
+
+class Balance(UnLongLong):
+    """
+    Balance is the data container for account balance
+    """
+    IDX = 12
+
+
 class String(DataEntry):
     """
     String is the data container for string
@@ -351,6 +365,41 @@ class B58Str(String):
     @property
     def bytes(self) -> bytes:
         return base58.b58decode(self.data)
+
+
+class PubKey(B58Str):
+    """
+    PubKey is the data container for Public Key in base58 string format
+    """
+    IDX = 1
+
+
+class Addr(B58Str):
+    """
+    Addr is the data container for Address in base58 string format
+    """    
+    IDX = 2
+
+
+class CtrtAcnt(B58Str):
+    """
+    CtrtAcnt is the data container for Contract Account
+    """
+    IDX = 6
+
+
+class Acnt(B58Str):
+    """
+    Acnt is the data container for Account
+    """
+    IDX = 7
+
+
+class TokenID(B58Str):
+    """
+    TokenID is the data container for Token ID
+    """
+    IDX = 8
 
 
 class Bytes(DataEntry):
@@ -413,6 +462,12 @@ class BytesList(DataEntries):
             List[str]: The list of base58-encoded string representation
         """
         return [i.b58_str for i in self.items]
+
+class Bool(DataEntry):
+    """
+    Bool is the data container for a boolean value
+    """
+    IDX = 10
 
 
 class KeyPair(NamedTuple):
