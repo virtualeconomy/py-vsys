@@ -2,7 +2,7 @@ import abc
 import struct
 import copy
 import time
-from typing import List, Type, NamedTuple
+from typing import List, Type, NamedTuple, Optional
 
 import base58
 
