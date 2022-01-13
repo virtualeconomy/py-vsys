@@ -108,7 +108,10 @@ class DataEntries:
     DataEntries is the collection class for DataEntry
     """
 
-    def __init__(self, items: List[DataEntry] = []) -> None:
+    def __init__(self, items: Optional[List[DataEntry]] = None) -> None:
+        if items is None:
+            self.items = []
+        else:
         self.items = copy.deepcopy(items)
 
     @classmethod
