@@ -1,12 +1,75 @@
 import abc
 import enum
-from typing import Tuple
+import struct
+from typing import Tuple, List
 
 import base58
 
-from py_v_sdk import model as md
 from py_v_sdk import chain as ch
-from py_v_sdk.utils import bytes as bu
+
+
+class Bytes:
+    def __init__(self, data: bytes = b"") -> None:
+        self.data = data
+
+    @classmethod
+    def deserialize(cls, b: bytes) -> "Bytes":
+        l = struct.unpack(">H", b[:2])[0]
+        return cls(b[2 : 2 + l])
+
+    @property
+    def bytes(self) -> bytes:
+        return self.data
+
+    @property
+    def b58_str(self) -> str:
+        return base58.b58encode(self.data).decode("latin-1")
+
+    @property
+    def len_bytes(self) -> bytes:
+        """
+        len_bytes returns the length of the bytes representation of the holding data in bytes
+
+        Returns:
+            bytes: The length in bytes
+        """
+        return struct.pack(">H", len(self.bytes))
+
+    def serialize(self) -> bytes:
+        return self.len_bytes + self.bytes
+
+
+class BytesList:
+    def __init__(self, *items: Tuple[Bytes]) -> None:
+        self.items: List[Bytes] = list(items)
+
+    @classmethod
+    def deserialize(cls, b: bytes, with_bytes_len: bool = True) -> "BytesList":
+        if with_bytes_len:
+            l = struct.unpack(">H", b[:2])[0]
+            b = b[2 : 2 + l]
+
+        items_cnt = struct.unpack(">H", b[:2])[0]
+        b = b[2:]
+        items = []
+        for _ in range(items_cnt):
+            l = struct.unpack(">H", b[:2])[0]
+            item = Bytes.deserialize(b)
+            items.append(item)
+            b = b[2 + l :]
+
+        return cls(*items)
+
+    def serialize(self, with_bytes_len: bool = True) -> bytes:
+        b = struct.pack(">H", len(self.items))
+
+        for i in self.items:
+            b += i.serialize()
+
+        if with_bytes_len:
+            b = struct.pack(">H", len(b)) + b
+
+        return b
 
 
 class CtrtMeta:
@@ -18,13 +81,13 @@ class CtrtMeta:
 
     def __init__(
         self,
-        lang_code: md.String,
-        lang_ver: md.UnInt,
-        triggers: md.BytesList,
-        descriptors: md.BytesList,
-        state_vars: md.BytesList,
-        state_map: md.BytesList,
-        textual: md.BytesList,
+        lang_code: str,
+        lang_ver: int,
+        triggers: BytesList,
+        descriptors: BytesList,
+        state_vars: BytesList,
+        state_map: BytesList,
+        textual: BytesList,
     ) -> None:
         self.lang_code = lang_code
         self.lang_ver = lang_ver
@@ -36,156 +99,60 @@ class CtrtMeta:
 
     @classmethod
     def from_b58_str(cls, b58_str: str) -> "CtrtMeta":
-        ctrt_data = base58.b58decode(b58_str)
+        def parse_len(b: bytes) -> int:
+            return struct.unpack(">H", b)[0]
 
-        lang_code, lang_code_end = cls._parse_lang_code(ctrt_data, 0)
-        lang_ver, lang_ver_end = cls._parse_lang_ver(ctrt_data, lang_code_end)
-        triggers, trig_end = cls._parse_triggers(ctrt_data, lang_ver_end)
-        descriptors, desc_end = cls._parse_descriptors(ctrt_data, trig_end)
-        state_vars, stvar_end = cls._parse_state_vars(ctrt_data, desc_end)
-        state_map, stmap_end = cls._parse_state_map(ctrt_data, stvar_end, lang_ver)
-        textual = cls._parse_textual(ctrt_data, stmap_end)
+        b = base58.b58decode(b58_str)
+
+        lang_code = b[:4].decode("latin-1")
+        b = b[4:]
+
+        lang_ver = struct.unpack(">I", b[:4])[0]
+        b = b[4:]
+
+        l = parse_len(b[:2])
+        triggers = BytesList.deserialize(b)
+        b = b[2 + l :]
+
+        l = parse_len(b[:2])
+        descriptors = BytesList.deserialize(b)
+        b = b[2 + l :]
+
+        l = parse_len(b[:2])
+        state_vars = BytesList.deserialize(b)
+        b = b[2 + l :]
+
+        if lang_ver == 1:
+            state_map = BytesList()
+        else:
+            l = parse_len(b[:2])
+            state_map = BytesList.deserialize(b)
+            b = b[2 + l :]
+
+        textual = BytesList.deserialize(b, with_bytes_len=False)
 
         return cls(
             lang_code, lang_ver, triggers, descriptors, state_vars, state_map, textual
         )
 
-    @classmethod
-    def _parse_lang_code(cls, ctrt_data: bytes, pos: int) -> Tuple[md.String, int]:
-        """
-        _parse_lang_code parses the language code from the contract data
-
-        Args:
-            ctrt_data (bytes): The contract data in bytes
-            pos (int): The start position in the contract data
-
-        Returns:
-            Tuple[md.String, int]: (language code, the end position)
-        """
-        l = cls.LANG_CODE_BYTE_LEN
-        lang_code = md.String.deserialize(ctrt_data[pos : pos + l])
-        return lang_code, pos + l
-
-    @classmethod
-    def _parse_lang_ver(cls, ctrt_data: bytes, pos: int) -> Tuple[md.UnInt, int]:
-        """
-        _parse_lang_ver parses the language version from the contract data
-
-        Args:
-            ctrt_data (bytes): The contract data in bytes
-            pos (int): The start position in the contract data
-
-        Returns:
-            Tuple[md.UnInt, int]: (language version, the end position)
-        """
-        l = cls.LANG_VER_BYTE_LEN
-        lang_ver = md.UnInt.deserialize(ctrt_data[pos : pos + l])
-        return lang_ver, pos + l
-
-    @classmethod
-    def _parse_triggers(cls, ctrt_data: bytes, pos: int) -> Tuple[md.BytesList, int]:
-        """
-        _parse_triggers parses the triggers from the contract data
-
-        Args:
-            ctrt_data (bytes): The contract data in bytes
-            pos (int): The start position in the contract data
-
-        Returns:
-            Tuple[md.BytesList, int]: (triggers, the end position)
-        """
-        l = bu.bytes_to_int(ctrt_data[pos : pos + 2])
-        triggers = md.BytesList.deserialize(ctrt_data[pos + 2 : pos + 2 + l])
-        return triggers, pos + 2 + l
-
-    @classmethod
-    def _parse_descriptors(cls, ctrt_data: bytes, pos: int) -> Tuple[md.BytesList, int]:
-        """
-        _parse_descriptors parses the descriptors from the contract data
-
-        Args:
-            ctrt_data (bytes): The contract data in bytes
-            pos (int): The start position in the contract data
-
-        Returns:
-            Tuple[md.BytesList, int]: (descriptors, the end position)
-        """
-        l = bu.bytes_to_int(ctrt_data[pos : pos + 2])
-        descriptors = md.BytesList.deserialize(ctrt_data[pos + 2 : pos + 2 + l])
-        return descriptors, pos + 2 + l
-
-    @classmethod
-    def _parse_state_vars(cls, ctrt_data: bytes, pos: int) -> Tuple[md.BytesList, int]:
-        """
-        _parse_state_vars parses the state variables from the contract data
-
-        Args:
-            ctrt_data (bytes): The contract data in bytes
-            pos (int): The start position in the contract data
-
-        Returns:
-            Tuple[md.BytesList, int]: (state variables, the end position)
-        """
-        l = bu.bytes_to_int(ctrt_data[pos : pos + 2])
-        state_vars = md.BytesList.deserialize(ctrt_data[pos + 2 : pos + 2 + l])
-        return state_vars, pos + 2 + l
-
-    @classmethod
-    def _parse_state_map(
-        cls, ctrt_data: bytes, pos: int, lang_ver: md.UnInt
-    ) -> Tuple[md.BytesList, int]:
-        """
-        _parse_state_map parses the state map from the contract data
-
-        Args:
-            ctrt_data (bytes): The contract data in bytes
-            pos (int): The start position in the contract data
-            lang_ver (md.UnInt): The language version
-
-        Returns:
-            Tuple[md.BytesList, int]: (state maps, the end position)
-        """
-        if lang_ver.data == 1:
-            return md.BytesList(), pos
-
-        l = bu.bytes_to_int(ctrt_data[pos : pos + 2])
-        state_map = md.BytesList.deserialize(ctrt_data[pos + 2 : pos + 2 + l])
-        return state_map, pos + 2 + l
-
-    @classmethod
-    def _parse_textual(cls, ctrt_data: bytes, pos: int) -> md.BytesList:
-        """
-        _parse_textual parses the textual from the contract data
-
-        Args:
-            ctrt_data (bytes): The contract data in bytes
-            pos (int): The start position in the contract data
-
-        Returns:
-            md.BytesList: The parsed Textual object
-        """
-        return md.BytesList.deserialize(ctrt_data[pos:])
-
-    def serialize(self) -> md.Bytes:
+    def serialize(self) -> bytes:
         """
         serialize serializes meta content of the contract to a byte string
 
         Returns:
             bytes: The serialized bytes string
         """
-        stmap_bytes = (
-            b"" if self.lang_ver.data == 1 else self.state_map.serialize().bytes
-        )
+        stmap_bytes = b"" if self.lang_ver == 1 else self.state_map.serialize()
         b = (
-            self.lang_code.serialize().bytes
-            + self.lang_ver.serialize().bytes
-            + self.triggers.serialize().bytes
-            + self.descriptors.serialize().bytes
-            + self.state_vars.serialize().bytes
+            self.lang_code.encode("latin-1")
+            + struct.pack(">I", self.lang_ver)
+            + self.triggers.serialize()
+            + self.descriptors.serialize()
+            + self.state_vars.serialize()
             + stmap_bytes
-            + self.textual.serialize(with_bytes_len=False).bytes
+            + self.textual.serialize(with_bytes_len=False)
         )
-        return md.Bytes(b)
+        return b
 
 
 class Contract(abc.ABC):
@@ -230,14 +197,15 @@ class Contract(abc.ABC):
     """
 
     class FuncIdx(enum.Enum):
-        pass
+        def serialize(self) -> bytes:
+            return struct.pack(">H", self.value)
 
-    def __init__(self, ctrt_id: md.B58Str, chain: ch.Chain) -> None:
+    def __init__(self, ctrt_id: str, chain: ch.Chain) -> None:
         self._ctrt_id = ctrt_id
         self._chain = chain
 
     @property
-    def ctrt_id(self) -> md.B58Str:
+    def ctrt_id(self) -> str:
         return self._ctrt_id
 
     @property

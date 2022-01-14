@@ -25,7 +25,7 @@ class NodeAPI:
 
     @property
     def host(self) -> str:
-        return self.host
+        return self._host
 
     @property
     def blocks(self) -> "Blocks":

@@ -4,8 +4,8 @@ from typing import Dict, Any
 from loguru import logger
 
 from py_v_sdk import account as acnt
+from py_v_sdk import data_entry as de
 from py_v_sdk import tx_req
-from py_v_sdk import model as md
 
 from . import *
 
@@ -31,33 +31,33 @@ class NFTCtrt(Contract):
         ISSUER = 0
         MAKER = 1
 
-        def serialize(self) -> md.Bytes:
-            return md.Bytes(md.UnChar(self.value).bytes)
+        def serialize(self) -> bytes:
+            return struct.pack(">B", self.value)
 
         @property
         def b58_str(self) -> str:
-            return self.serialize().b58_str
+            return Bytes(self.serialize()).b58_str
 
     @classmethod
     def register(cls, by: acnt.Account) -> "NFTCtrt":
         data = by.register_contract(
             tx_req.RegCtrtTxReq(
-                data_stack=md.DataStack.default(),
+                data_stack=de.DataStack(),
                 ctrt_meta=cls.CTRT_META,
-                timestamp=md.Timestamp.now(),
+                timestamp=de.Timestamp.now(),
             )
         )
         logger.debug(data)
 
         return cls(
-            ctrt_id=md.B58Str(data["contractId"]),
+            data["contractId"],
             chain=by.chain,
         )
 
     @property
     def issuer(self) -> str:
         data = self.chain.api.ctrt.get_contract_data(
-            ctrt_id=self.ctrt_id.data,
+            ctrt_id=self.ctrt_id,
             db_key=self.DBKey.ISSUER.b58_str,
         )
         logger.debug(data)
@@ -66,7 +66,7 @@ class NFTCtrt(Contract):
     @property
     def maker(self) -> str:
         data = self.chain.api.ctrt.get_contract_data(
-            ctrt_id=self.ctrt_id.data,
+            ctrt_id=self.ctrt_id,
             db_key=self.DBKey.MAKER.b58_str,
         )
         logger.debug(data)
@@ -77,13 +77,11 @@ class NFTCtrt(Contract):
             tx_req.ExecCtrtFuncTxReq(
                 ctrt_id=self.ctrt_id,
                 func_id=self.FuncIdx.ISSUE,
-                data_stack=md.DataStack(
-                    [
-                        md.String(description),
-                    ]
+                data_stack=de.DataStack(
+                    de.String(description),
                 ),
-                timestamp=md.Timestamp.now(),
-                attachment=md.String(description),
+                timestamp=de.Timestamp.now(),
+                attachment=description,
             )
         )
         logger.debug(data)

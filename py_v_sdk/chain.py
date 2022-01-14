@@ -10,6 +10,17 @@ class ChainID(enum.Enum):
 
 
 class Chain:
+    class Defaults:
+        VSYS = 1_00_000_000
+        TX_FEE = int(0.1 * VSYS)
+        TX_FEE_SCALE = 100
+
+        REG_CTRT_FEE = 100 * VSYS
+        EXEC_CTRT_FEE = int(0.3 * VSYS)
+
+        CONTEND_SLOTS_FEE = 50_000 * VSYS
+        DBPUT_FEE = VSYS
+
     def __init__(self, api: api.NodeAPI, chain_id: ChainID = ChainID.TEST_NET):
         self._api = api
         self._chain_id = chain_id

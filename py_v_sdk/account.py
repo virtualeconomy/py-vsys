@@ -1,10 +1,10 @@
 from typing import Any, Dict
 
+import base58
+
 from py_v_sdk import tx_req as tx
 from py_v_sdk import chain as ch
 from py_v_sdk import api
-from py_v_sdk import model as md
-from py_v_sdk.utils import bytes as bu
 from py_v_sdk.utils.crypto import hashes as hs
 from py_v_sdk.utils.crypto import curve_25519 as curve
 
@@ -40,51 +40,24 @@ class Account:
         return self._nonce
 
     @property
-    def acnt_seed_hash(self) -> md.Bytes:
+    def acnt_seed_hash(self) -> bytes:
         return self._acnt_seed_hash
 
     @property
-    def key_pair(self) -> md.KeyPair:
+    def key_pair(self) -> curve.KeyPair:
         return self._key_pair
 
     @property
-    def addr(self) -> md.Bytes:
+    def addr(self) -> bytes:
         return self._addr
 
-    @staticmethod
-    def get_acnt_seed_hash(seed: str, nonce: int) -> md.Bytes:
-        return md.Bytes(
-            hs.sha256_hash(
-                hs.keccak256_hash(hs.blake2b_hash(bu.str_to_bytes(f"{nonce}{seed}")))
-            )
-        )
-
-    @staticmethod
-    def get_key_pair(acnt_seed_hash: md.Bytes) -> md.KeyPair:
-        pri_key = curve.gen_pri_key(acnt_seed_hash.bytes)
-        pub_key = curve.gen_pub_key(pri_key)
-
-        return curve.KeyPair(
-            pub=md.Bytes(pub_key),
-            pri=md.Bytes(pri_key),
-        )
-
-    @staticmethod
-    def get_addr(pub_key: md.Bytes, addr_ver: int, chain_id: ch.ChainID) -> md.Bytes:
-        def hash(b: bytes) -> bytes:
-            return hs.keccak256_hash(hs.blake2b_hash(b))
-
-        raw_addr: str = (
-            chr(addr_ver) + chain_id.value + bu.bytes_to_str(hash(pub_key.bytes))[:20]
-        )
-
-        addr_hash: str = bu.bytes_to_str(hash(bu.str_to_bytes(raw_addr)))[:4]
-
-        return md.Bytes(bu.str_to_bytes(raw_addr + addr_hash))
+    @property
+    def addr_b58_str(self) -> str:
+        return base58.b58encode(self.addr).decode("latin-1")
 
     @property
     def balance(self) -> int:
-        return self.api.addr.get_balance(self.addr.b58_str)["balance"]
+        return self.api.addr.get_balance(self.addr_b58_str)["balance"]
 
     def register_contract(self, req: tx.RegCtrtTxReq) -> Dict[str, Any]:
         return self.api.ctrt.broadcast_register(
@@ -94,4 +67,33 @@ class Account:
     def execute_contract(self, req: tx.ExecCtrtFuncTxReq) -> Dict[str, Any]:
         return self.api.ctrt.broadcast_execute(
             req.to_broadcast_execute_payload(self.key_pair)
+        )
+
+    @staticmethod
+    def get_key_pair(acnt_seed_hash: bytes) -> curve.KeyPair:
+        pri_key = curve.gen_pri_key(acnt_seed_hash)
+        pub_key = curve.gen_pub_key(pri_key)
+
+        return curve.KeyPair(
+            pub=pub_key,
+            pri=pri_key,
+        )
+
+    @staticmethod
+    def get_addr(pub_key: bytes, addr_ver: int, chain_id: ch.ChainID) -> bytes:
+        def hash(b: bytes) -> bytes:
+            return hs.keccak256_hash(hs.blake2b_hash(b))
+
+        raw_addr: str = (
+            chr(addr_ver) + chain_id.value + hash(pub_key).decode("latin-1")[:20]
+        )
+
+        addr_hash: str = hash(raw_addr.encode("latin-1")).decode("latin-1")[:4]
+
+        return bytes((raw_addr + addr_hash).encode("latin-1"))
+
+    @staticmethod
+    def get_acnt_seed_hash(seed: str, nonce: int) -> bytes:
+        return hs.sha256_hash(
+            hs.keccak256_hash(hs.blake2b_hash(f"{nonce}{seed}".encode("latin-1")))
         )
