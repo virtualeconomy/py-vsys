@@ -1,9 +1,8 @@
 import os
 from typing import NamedTuple
 
+import base58
 import axolotl_curve25519 as curve
-
-from py_v_sdk.utils import bytes as bu
 
 
 class KeyPair(NamedTuple):
@@ -12,11 +11,11 @@ class KeyPair(NamedTuple):
 
     @property
     def pub_b58_str(self) -> str:
-        return bu.bytes_to_b58_str(self.pub)
+        return base58.b58encode(self.pub).decode("latin-1")
 
     @property
     def pri_b58_str(self) -> str:
-        return bu.bytes_to_b58_str(self.pri)
+        return base58.b58encode(self.pri).decode("latin-1")
 
 
 def gen_pri_key(rand32: bytes) -> bytes:
