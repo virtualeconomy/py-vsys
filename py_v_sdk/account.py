@@ -85,14 +85,14 @@ class Account:
 
     @staticmethod
     def get_addr(pub_key: bytes, addr_ver: int, chain_id: ch.ChainID) -> bytes:
-        def hash(b: bytes) -> bytes:
+        def ke_bla_hash(b: bytes) -> bytes:
             return hs.keccak256_hash(hs.blake2b_hash(b))
 
         raw_addr: str = (
-            chr(addr_ver) + chain_id.value + hash(pub_key).decode("latin-1")[:20]
+            chr(addr_ver) + chain_id.value + ke_bla_hash(pub_key).decode("latin-1")[:20]
         )
 
-        addr_hash: str = hash(raw_addr.encode("latin-1")).decode("latin-1")[:4]
+        addr_hash: str = ke_bla_hash(raw_addr.encode("latin-1")).decode("latin-1")[:4]
 
         return bytes((raw_addr + addr_hash).encode("latin-1"))
 
