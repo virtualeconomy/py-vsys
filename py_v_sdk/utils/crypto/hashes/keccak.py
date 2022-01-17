@@ -3,6 +3,7 @@ The customised implementation of Keccak hash
 TODO: Add comments
 """
 
+from __future__ import annotations
 import math
 import operator
 import copy
@@ -103,12 +104,11 @@ def multirate_padding(used_bytes: int, align_bytes: int):
     # note: padding done in 'internal bit ordering', wherein LSB is leftmost
     if padlen == 1:
         return [0x81]
-    else:
-        return [0x01] + ([0x00] * (int(padlen) - 2)) + [0x80]  # int() can be removed?
+    return [0x01] + ([0x00] * (int(padlen) - 2)) + [0x80]  # int() can be removed?
 
 
-def keccak_f(state: "KeccakState") -> None:
-    def round(A, RC):
+def keccak_f(state: KeccakState) -> None:
+    def my_round(A, RC):
         W, H = state.W, state.H
         rangeW, rangeH = state.rangeW, state.rangeH
         lanew = state.lanew
@@ -142,7 +142,7 @@ def keccak_f(state: "KeccakState") -> None:
     nr = 12 + 2 * l
 
     for ir in range(nr):
-        round(state.s, RoundConstants[ir])
+        my_round(state.s, RoundConstants[ir])
 
 
 class KeccakState:
@@ -167,7 +167,7 @@ class KeccakState:
         self.s = self.zero()
 
     @classmethod
-    def zero(cls) -> "KeccakState":
+    def zero(cls) -> KeccakState:
         """
         zero returns a H * W 2d list
 
@@ -204,7 +204,7 @@ class KeccakState:
             Returns:
                 [type]: [description]
             """
-            return "%016x" % x
+            return f"{x:016x}"
 
         for y in range(cls.H):
             row = []
@@ -282,7 +282,7 @@ class KeccakSponge:
         self.permfn = permfn
         self.buffer = []
 
-    def copy(self) -> "KeccakSponge":
+    def copy(self) -> KeccakSponge:
         return copy.deepcopy(self)
 
     def absorb_block(self, bb):
@@ -292,7 +292,7 @@ class KeccakSponge:
         self.permfn(self.state)
 
     def absorb(self, s: str):
-        self.buffer = [c for c in s]
+        self.buffer = list(s)
 
         while len(self.buffer) >= self.state.bitrate_bytes:
             self.absorb_block(self.buffer[: self.state.bitrate_bytes])

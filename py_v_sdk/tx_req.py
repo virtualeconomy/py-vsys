@@ -1,12 +1,16 @@
+from __future__ import annotations
 import abc
 import enum
 import struct
-from typing import Dict, Any
+from typing import Dict, Any, TYPE_CHECKING
 
 import base58
 
-from py_v_sdk import data_entry as de
-from py_v_sdk import contract as ctrt
+# https://stackoverflow.com/a/39757388
+if TYPE_CHECKING:
+    from py_v_sdk import data_entry as de
+    from py_v_sdk import contract as ctrt
+
 from py_v_sdk import chain as ch
 from py_v_sdk.utils.crypto import curve_25519 as curve
 
@@ -100,8 +104,10 @@ class RegCtrtTxReq(TxReq):
             ctrt_meta (ctrt.CtrtMeta): The meta data of the contract to register
             timestamp (de.Timestamp): The timestamp of this request
             description (str, optional): The description for this request. Defaults to "".
-            fee (int, optional): The fee for this request. Defaults to ch.Chain.Defaults.REG_CTRT_FEE.
-            fee_scale (int, optional): The fee scale of this request. Defaults to ch.Chain.Defaults.TX_FEE_SCALE.
+            fee (int, optional): The fee for this request.
+                Defaults to ch.Chain.Defaults.REG_CTRT_FEE.
+            fee_scale (int, optional): The fee scale of this request.
+                Defaults to ch.Chain.Defaults.TX_FEE_SCALE.
         """
         self.data_stack = data_stack
         self.ctrt_meta = ctrt_meta
@@ -171,8 +177,10 @@ class ExecCtrtFuncTxReq(TxReq):
             data_stack (de.DataStack): The payload of this request
             timestamp (de.Timestamp): The timestamp of this request
             attachment (str, optional): The attachment for this request. Defaults to "".
-            fee (int, optional): The fee for this request. Defaults to ch.Chain.Defaults.EXEC_CTRT_FEE.
-            fee_scale (int, optional): The fee scale of this request. Defaults to ch.Chain.Defaults.TX_FEE_SCALE.
+            fee (int, optional): The fee for this request.
+                Defaults to ch.Chain.Defaults.EXEC_CTRT_FEE.
+            fee_scale (int, optional): The fee scale of this request.
+                Defaults to ch.Chain.Defaults.TX_FEE_SCALE.
         """
         self.ctrt_id = ctrt_id
         self.func_id = func_id

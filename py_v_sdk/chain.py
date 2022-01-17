@@ -1,7 +1,10 @@
+from __future__ import annotations
 import enum
-from typing import Dict, Any
+from typing import Dict, Any, TYPE_CHECKING
 
-from py_v_sdk import api
+# https://stackoverflow.com/a/39757388
+if TYPE_CHECKING:
+    from py_v_sdk import api
 
 
 class ChainID(enum.Enum):
@@ -21,8 +24,8 @@ class Chain:
         CONTEND_SLOTS_FEE = 50_000 * VSYS
         DBPUT_FEE = VSYS
 
-    def __init__(self, api: api.NodeAPI, chain_id: ChainID = ChainID.TEST_NET):
-        self._api = api
+    def __init__(self, node_api: api.NodeAPI, chain_id: ChainID = ChainID.TEST_NET):
+        self._api = node_api
         self._chain_id = chain_id
 
     @property

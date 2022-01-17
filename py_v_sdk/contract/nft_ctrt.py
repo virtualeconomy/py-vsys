@@ -1,13 +1,19 @@
+from __future__ import annotations
 import enum
-from typing import Dict, Any
+import struct
+from typing import Dict, Any, TYPE_CHECKING
 
 from loguru import logger
 
-from py_v_sdk import account as acnt
-from py_v_sdk import data_entry as de
-from py_v_sdk import tx_req
 
-from . import *
+# https://stackoverflow.com/a/39757388
+if TYPE_CHECKING:
+    from py_v_sdk import account as acnt
+
+from py_v_sdk import data_entry as de
+from py_v_sdk import tx_req as tx
+
+from . import Bytes, CtrtMeta, Contract
 
 
 class NFTCtrt(Contract):
@@ -39,9 +45,9 @@ class NFTCtrt(Contract):
             return Bytes(self.serialize()).b58_str
 
     @classmethod
-    def register(cls, by: acnt.Account) -> "NFTCtrt":
+    def register(cls, by: acnt.Account) -> NFTCtrt:
         data = by.register_contract(
-            tx_req.RegCtrtTxReq(
+            tx.RegCtrtTxReq(
                 data_stack=de.DataStack(),
                 ctrt_meta=cls.CTRT_META,
                 timestamp=de.Timestamp.now(),
@@ -74,7 +80,7 @@ class NFTCtrt(Contract):
 
     def issue(self, by: acnt.Account, description: str = "") -> Dict[str, Any]:
         data = by.execute_contract(
-            tx_req.ExecCtrtFuncTxReq(
+            tx.ExecCtrtFuncTxReq(
                 ctrt_id=self.ctrt_id,
                 func_id=self.FuncIdx.ISSUE,
                 data_stack=de.DataStack(

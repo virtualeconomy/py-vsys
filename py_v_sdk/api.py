@@ -1,3 +1,4 @@
+from __future__ import annotations
 import abc
 import json
 from typing import Any, Dict, Optional
@@ -28,19 +29,19 @@ class NodeAPI:
         return self._host
 
     @property
-    def blocks(self) -> "Blocks":
+    def blocks(self) -> Blocks:
         return self._blocks
 
     @property
-    def node(self) -> "Node":
+    def node(self) -> Node:
         return self._node
 
     @property
-    def ctrt(self) -> "Contract":
+    def ctrt(self) -> Contract:
         return self._ctrt
 
     @property
-    def addr(self) -> "Addresses":
+    def addr(self) -> Addresses:
         return self._addr
 
 
