@@ -24,8 +24,8 @@ class Chain:
         CONTEND_SLOTS_FEE = 50_000 * VSYS
         DBPUT_FEE = VSYS
 
-    def __init__(self, api: api.NodeAPI, chain_id: ChainID = ChainID.TEST_NET):
-        self._api = api
+    def __init__(self, node_api: api.NodeAPI, chain_id: ChainID = ChainID.TEST_NET):
+        self._api = node_api
         self._chain_id = chain_id
 
     @property
