@@ -11,7 +11,7 @@ if TYPE_CHECKING:
     from py_v_sdk import account as acnt
 
 from py_v_sdk import data_entry as de
-from py_v_sdk import tx_req
+from py_v_sdk import tx_req as tx
 
 from . import *
 
@@ -47,7 +47,7 @@ class NFTCtrt(Contract):
     @classmethod
     def register(cls, by: acnt.Account) -> NFTCtrt:
         data = by.register_contract(
-            tx_req.RegCtrtTxReq(
+            tx.RegCtrtTxReq(
                 data_stack=de.DataStack(),
                 ctrt_meta=cls.CTRT_META,
                 timestamp=de.Timestamp.now(),
@@ -80,7 +80,7 @@ class NFTCtrt(Contract):
 
     def issue(self, by: acnt.Account, description: str = "") -> Dict[str, Any]:
         data = by.execute_contract(
-            tx_req.ExecCtrtFuncTxReq(
+            tx.ExecCtrtFuncTxReq(
                 ctrt_id=self.ctrt_id,
                 func_id=self.FuncIdx.ISSUE,
                 data_stack=de.DataStack(
