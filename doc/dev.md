@@ -38,3 +38,37 @@ Commit Type must be one of the following:
 - **refactor**: A code change that neither fixes a bug nor adds a feature
 - **test**: Adding missing tests or correcting existing tests
 - **chore**: Other trivial changes
+
+## Branch & PR Naming Convention
+
+A branch and the PR comes from it should be small(i.e. contains small-scale changes for only 1 aspect). 
+
+The naming convention for branch
+```
+type/short-summary-in-lower-case
+  │               │
+  │               └─⫸ Summary in present tense. Not capitalized. No period at the end.
+  │
+  └─⫸ Commit Type: build|docs|feat|fix|refactor|test|chore
+```
+
+The naming convention for PR
+```
+type: short summary in lower case
+  │               │
+  │               └─⫸ Summary in present tense. Not capitalized. No period at the end.
+  │
+  └─⫸ Commit Type: build|docs|feat|fix|refactor|test|chore 
+```
+
+For example, say we would like to add the branch naming convention to the documentation.
+The branch name should look like
+```
+docs/add-branch-naming-convention
+```
+
+The PR should look like
+
+```
+docs: add branch naming convention
+```
