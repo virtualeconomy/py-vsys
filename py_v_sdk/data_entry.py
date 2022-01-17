@@ -94,7 +94,7 @@ class B58(DataEntry):
 
     @property
     def bytes(self) -> bytes:
-        return base58.b58encode(self.data)
+        return base58.b58decode(self.data)
 
     def serialize(self) -> bytes:
         return self.idx_bytes + self.bytes
