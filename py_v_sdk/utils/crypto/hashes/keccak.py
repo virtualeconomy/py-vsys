@@ -104,8 +104,7 @@ def multirate_padding(used_bytes: int, align_bytes: int):
     # note: padding done in 'internal bit ordering', wherein LSB is leftmost
     if padlen == 1:
         return [0x81]
-    else:
-        return [0x01] + ([0x00] * (int(padlen) - 2)) + [0x80]  # int() can be removed?
+    return [0x01] + ([0x00] * (int(padlen) - 2)) + [0x80]  # int() can be removed?
 
 
 def keccak_f(state: KeccakState) -> None:
