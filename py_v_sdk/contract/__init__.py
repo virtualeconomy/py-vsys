@@ -1,11 +1,14 @@
+from __future__ import annotations
 import abc
 import enum
 import struct
-from typing import Tuple, List
+from typing import Tuple, List, TYPE_CHECKING
 
 import base58
 
-from py_v_sdk import chain as ch
+# https://stackoverflow.com/a/39757388
+if TYPE_CHECKING:
+    from py_v_sdk import chain as ch
 
 
 class Bytes:
@@ -13,7 +16,7 @@ class Bytes:
         self.data = data
 
     @classmethod
-    def deserialize(cls, b: bytes) -> "Bytes":
+    def deserialize(cls, b: bytes) -> Bytes:
         l = struct.unpack(">H", b[:2])[0]
         return cls(b[2 : 2 + l])
 
@@ -44,7 +47,7 @@ class BytesList:
         self.items: List[Bytes] = list(items)
 
     @classmethod
-    def deserialize(cls, b: bytes, with_bytes_len: bool = True) -> "BytesList":
+    def deserialize(cls, b: bytes, with_bytes_len: bool = True) -> BytesList:
         if with_bytes_len:
             l = struct.unpack(">H", b[:2])[0]
             b = b[2 : 2 + l]
@@ -98,7 +101,7 @@ class CtrtMeta:
         self.textual = textual
 
     @classmethod
-    def from_b58_str(cls, b58_str: str) -> "CtrtMeta":
+    def from_b58_str(cls, b58_str: str) -> CtrtMeta:
         def parse_len(b: bytes) -> int:
             return struct.unpack(">H", b)[0]
 

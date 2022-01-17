@@ -1,12 +1,16 @@
+from __future__ import annotations
 import abc
 import enum
 import struct
-from typing import Dict, Any
+from typing import Dict, Any, TYPE_CHECKING
 
 import base58
 
-from py_v_sdk import data_entry as de
-from py_v_sdk import contract as ctrt
+# https://stackoverflow.com/a/39757388
+if TYPE_CHECKING:
+    from py_v_sdk import data_entry as de
+    from py_v_sdk import contract as ctrt
+
 from py_v_sdk import chain as ch
 from py_v_sdk.utils.crypto import curve_25519 as curve
 

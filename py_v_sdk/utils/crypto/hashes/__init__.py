@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 """
 crypto contains utility functions related to cryptography
 """

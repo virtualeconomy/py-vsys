@@ -1,10 +1,14 @@
-from typing import Any, Dict
+from __future__ import annotations
+from typing import Any, Dict, TYPE_CHECKING
 
 import base58
 
-from py_v_sdk import tx_req as tx
-from py_v_sdk import chain as ch
-from py_v_sdk import api
+# https://stackoverflow.com/a/39757388
+if TYPE_CHECKING:
+    from py_v_sdk import tx_req as tx
+    from py_v_sdk import chain as ch
+    from py_v_sdk import api
+
 from py_v_sdk.utils.crypto import hashes as hs
 from py_v_sdk.utils.crypto import curve_25519 as curve
 

@@ -3,6 +3,7 @@ The customised implementation of Keccak hash
 TODO: Add comments
 """
 
+from __future__ import annotations
 import math
 import operator
 import copy
@@ -107,7 +108,7 @@ def multirate_padding(used_bytes: int, align_bytes: int):
         return [0x01] + ([0x00] * (int(padlen) - 2)) + [0x80]  # int() can be removed?
 
 
-def keccak_f(state: "KeccakState") -> None:
+def keccak_f(state: KeccakState) -> None:
     def round(A, RC):
         W, H = state.W, state.H
         rangeW, rangeH = state.rangeW, state.rangeH
@@ -167,7 +168,7 @@ class KeccakState:
         self.s = self.zero()
 
     @classmethod
-    def zero(cls) -> "KeccakState":
+    def zero(cls) -> KeccakState:
         """
         zero returns a H * W 2d list
 
@@ -282,7 +283,7 @@ class KeccakSponge:
         self.permfn = permfn
         self.buffer = []
 
-    def copy(self) -> "KeccakSponge":
+    def copy(self) -> KeccakSponge:
         return copy.deepcopy(self)
 
     def absorb_block(self, bb):

@@ -1,3 +1,4 @@
+from __future__ import annotations
 import abc
 import struct
 import time
@@ -26,7 +27,7 @@ class DataEntry(abc.ABC):
         return struct.pack(">B", self.IDX)
 
     @abc.abstractclassmethod
-    def from_bytes(cls, b: bytes) -> "DataEntry":
+    def from_bytes(cls, b: bytes) -> DataEntry:
         """
         from_bytes parses the given bytes and constructs a DataEntry instance
         It is assumed that the given bytes contains only data(i.e. no other meta info like length)
@@ -40,7 +41,7 @@ class DataEntry(abc.ABC):
         pass
 
     @abc.abstractclassmethod
-    def deserialize(cls, b: bytes) -> "DataEntry":
+    def deserialize(cls, b: bytes) -> DataEntry:
         """
         deserialize parses the given bytes and constructs a DataEntry instance
         It is assumed that the given bytes has meta bytes(e.g. data entry index, size, etc) at its front.
@@ -84,11 +85,11 @@ class B58(DataEntry):
         self.data = data
 
     @classmethod
-    def from_bytes(cls, b: bytes) -> "B58":
+    def from_bytes(cls, b: bytes) -> B58:
         return cls(base58.b58encode(b).decode("latin-1"))
 
     @classmethod
-    def deserialize(cls, b: bytes) -> "B58":
+    def deserialize(cls, b: bytes) -> B58:
         return cls.from_bytes(b[1 : 1 + cls.SIZE])
 
     @property
@@ -123,11 +124,11 @@ class Long(DataEntry):
         self.data = data
 
     @classmethod
-    def from_bytes(cls, b: bytes) -> "Long":
+    def from_bytes(cls, b: bytes) -> Long:
         return cls(struct.unpack(">Q", b)[0])
 
     @classmethod
-    def deserialize(cls, b: bytes) -> "Long":
+    def deserialize(cls, b: bytes) -> Long:
         return cls.from_bytes(b[1 : 1 + cls.SIZE])
 
     @property
@@ -156,10 +157,10 @@ class INT32(DataEntry):
         self.data = data
 
     @classmethod
-    def from_bytes(cls, b: bytes) -> "INT32":
+    def from_bytes(cls, b: bytes) -> INT32:
         return cls(struct.unpack(">I", b)[0])
 
-    def deserialize(cls, b: bytes) -> "INT32":
+    def deserialize(cls, b: bytes) -> INT32:
         return cls.from_bytes(b[1 : 1 + cls.SIZE])
 
     @property
@@ -172,7 +173,7 @@ class INT32(DataEntry):
 
 class Text(DataEntry):
     @classmethod
-    def deserialize(cls, b: bytes) -> "String":
+    def deserialize(cls, b: bytes) -> String:
         l = struct.unpack(">H", b[1:3])[0]
         return cls.from_bytes(b[3 : 3 + l])
 
@@ -198,7 +199,7 @@ class String(Text):
         self.data = data
 
     @classmethod
-    def from_bytes(cls, b: bytes) -> "String":
+    def from_bytes(cls, b: bytes) -> String:
         return cls(b.decode("latin-1"))
 
     @property
@@ -232,7 +233,7 @@ class Timestamp(Long):
     IDX = 9
 
     @classmethod
-    def now(cls) -> "Timestamp":
+    def now(cls) -> Timestamp:
         """
         now returns the Timestamp with the current unix timestamp
 
@@ -255,11 +256,11 @@ class Bool(DataEntry):
         self.data = data
 
     @classmethod
-    def from_bytes(cls, b: bytes) -> "Bool":
+    def from_bytes(cls, b: bytes) -> Bool:
         return cls(struct.unpack(">?", b)[0])
 
     @classmethod
-    def deserialize(cls, b: bytes) -> "Bool":
+    def deserialize(cls, b: bytes) -> Bool:
         return cls.from_bytes(b[1 : 1 + cls.SIZE])
 
     @property
@@ -278,7 +279,7 @@ class Bytes(Text):
         self.data = data
 
     @classmethod
-    def from_bytes(cls, b: bytes) -> "Bytes":
+    def from_bytes(cls, b: bytes) -> Bytes:
         return cls(b)
 
     @property
@@ -308,7 +309,7 @@ class IndexMap:
     }
 
     @classmethod
-    def get_de_cls(cls, idx: int) -> "DataEntry":
+    def get_de_cls(cls, idx: int) -> DataEntry:
         """
         get_de_cls gets DataEntry Class as per the given index
 
@@ -330,7 +331,7 @@ class DataStack:
         self.entries: List[DataEntry] = list(data_entries)
 
     @classmethod
-    def deserialize(cls, b: bytes) -> "DataStack":
+    def deserialize(cls, b: bytes) -> DataStack:
         l = struct.unpack(">H", b[:2])[0]
         b = b[2 : 2 + l]
 

@@ -1,7 +1,10 @@
+from __future__ import annotations
 import enum
-from typing import Dict, Any
+from typing import Dict, Any, TYPE_CHECKING
 
-from py_v_sdk import api
+# https://stackoverflow.com/a/39757388
+if TYPE_CHECKING:
+    from py_v_sdk import api
 
 
 class ChainID(enum.Enum):
