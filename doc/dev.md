@@ -1,5 +1,23 @@
 # Developing Documentation
 
+## Philosophy
+
+>***Code Quality Matters! User Experience Matters!***
+
+>***Code Quality Matters! User Experience Matters!***
+
+>***Code Quality Matters! User Experience Matters!***
+
+
+- ***Keep it Simple, Stupid, Clear, & Clean***.
+
+- ***No Over-Engineering***. Don't do things for the sake of doing things. Every technical decision has to be made for specific reasons and leads to gains(e.g. improves readability, maintainability user experience, etc).
+
+- ***Premature Optimization is the Root of All Evil***. Good enough is perfect. Let it grow first and optimize it later on if necessary.
+
+- ***Iterative Mindset***. Don't try to do everything in one go. Keep every change small & clear.
+
+
 ## Workflow
 
 [Forking Workflow](https://www.atlassian.com/git/tutorials/comparing-workflows/forking-workflow) is used.
