@@ -204,7 +204,7 @@ class KeccakState:
             Returns:
                 [type]: [description]
             """
-            return "%016x" % x
+            return f"{x:016x}"
 
         for y in range(cls.H):
             row = []
