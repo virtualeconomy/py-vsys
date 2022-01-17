@@ -39,7 +39,6 @@ class DataEntry(abc.ABC):
         Returns:
             DataEntry: The DataEntry instance
         """
-        pass
 
     @classmethod
     @abc.abstractmethod
@@ -55,7 +54,6 @@ class DataEntry(abc.ABC):
         Returns:
             DataEntry: The DataEntry instance
         """
-        pass
 
     @property
     @abc.abstractmethod
@@ -67,7 +65,6 @@ class DataEntry(abc.ABC):
         Returns:
             bytes: The bytes representation of the DataEntry
         """
-        pass
 
     @abc.abstractmethod
     def serialize(self) -> bytes:
@@ -77,7 +74,6 @@ class DataEntry(abc.ABC):
         Returns:
             bytes: The serialization result
         """
-        pass
 
 
 class B58(DataEntry):
