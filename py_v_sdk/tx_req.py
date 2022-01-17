@@ -104,8 +104,10 @@ class RegCtrtTxReq(TxReq):
             ctrt_meta (ctrt.CtrtMeta): The meta data of the contract to register
             timestamp (de.Timestamp): The timestamp of this request
             description (str, optional): The description for this request. Defaults to "".
-            fee (int, optional): The fee for this request. Defaults to ch.Chain.Defaults.REG_CTRT_FEE.
-            fee_scale (int, optional): The fee scale of this request. Defaults to ch.Chain.Defaults.TX_FEE_SCALE.
+            fee (int, optional): The fee for this request. 
+                Defaults to ch.Chain.Defaults.REG_CTRT_FEE.
+            fee_scale (int, optional): The fee scale of this request.
+                Defaults to ch.Chain.Defaults.TX_FEE_SCALE.
         """
         self.data_stack = data_stack
         self.ctrt_meta = ctrt_meta
@@ -175,8 +177,10 @@ class ExecCtrtFuncTxReq(TxReq):
             data_stack (de.DataStack): The payload of this request
             timestamp (de.Timestamp): The timestamp of this request
             attachment (str, optional): The attachment for this request. Defaults to "".
-            fee (int, optional): The fee for this request. Defaults to ch.Chain.Defaults.EXEC_CTRT_FEE.
-            fee_scale (int, optional): The fee scale of this request. Defaults to ch.Chain.Defaults.TX_FEE_SCALE.
+            fee (int, optional): The fee for this request.
+                Defaults to ch.Chain.Defaults.EXEC_CTRT_FEE.
+            fee_scale (int, optional): The fee scale of this request.
+                Defaults to ch.Chain.Defaults.TX_FEE_SCALE.
         """
         self.ctrt_id = ctrt_id
         self.func_id = func_id
