@@ -46,7 +46,8 @@ class DataEntry(abc.ABC):
     def deserialize(cls, b: bytes) -> DataEntry:
         """
         deserialize parses the given bytes and constructs a DataEntry instance
-        It is assumed that the given bytes has meta bytes(e.g. data entry index, size, etc) at its front.
+        It is assumed that the given bytes has meta bytes
+        (e.g. data entry index, size, etc) at its front.
 
         Args:
             b (bytes): The bytes to parse
