@@ -10,6 +10,12 @@ The main repo will have 3 branches:
 - **develop**: The latest version that is being worked on. **The default branch**.
 - **release**: The version that is going to be released. The **release** branch shall be checked out from the **develop** branch and be tested. All fixes shall be committed to the **release** branch directly. When the test passed, the **release** branch shall be merged into the **main** branch with a tag of the released version and be merged to the **develop** branch as well if there is any fixes commits.
 
+
+## Code Style Guide
+
+[Google Python Style Guide](https://google.github.io/styleguide/pyguide.html) is adopted.
+
+
 ## Git Commit Style
 
 `py-v-sdk`'s commit style is a **simplified** version of [Angular Commit style](https://github.com/angular/angular/blob/master/CONTRIBUTING.md#-commit-message-format).
