@@ -292,7 +292,7 @@ class KeccakSponge:
         self.permfn(self.state)
 
     def absorb(self, s: str):
-        self.buffer = [c for c in s]
+        self.buffer = list(s)
 
         while len(self.buffer) >= self.state.bitrate_bytes:
             self.absorb_block(self.buffer[: self.state.bitrate_bytes])
