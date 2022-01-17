@@ -160,6 +160,7 @@ class INT32(DataEntry):
     def from_bytes(cls, b: bytes) -> INT32:
         return cls(struct.unpack(">I", b)[0])
 
+    @classmethod
     def deserialize(cls, b: bytes) -> INT32:
         return cls.from_bytes(b[1 : 1 + cls.SIZE])
 
