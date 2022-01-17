@@ -108,7 +108,7 @@ def multirate_padding(used_bytes: int, align_bytes: int):
 
 
 def keccak_f(state: KeccakState) -> None:
-    def round(A, RC):
+    def my_round(A, RC):
         W, H = state.W, state.H
         rangeW, rangeH = state.rangeW, state.rangeH
         lanew = state.lanew
@@ -142,7 +142,7 @@ def keccak_f(state: KeccakState) -> None:
     nr = 12 + 2 * l
 
     for ir in range(nr):
-        round(state.s, RoundConstants[ir])
+        my_round(state.s, RoundConstants[ir])
 
 
 class KeccakState:
