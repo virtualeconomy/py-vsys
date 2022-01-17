@@ -1,6 +1,6 @@
 from __future__ import annotations
 import enum
-from typing import Dict, Any
+import struct
 from typing import Dict, Any, TYPE_CHECKING
 
 from loguru import logger
@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 from py_v_sdk import data_entry as de
 from py_v_sdk import tx_req as tx
 
-from . import *
+from . import Bytes, CtrtMeta, Contract
 
 
 class NFTCtrt(Contract):
