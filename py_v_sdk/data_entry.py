@@ -26,7 +26,8 @@ class DataEntry(abc.ABC):
         """
         return struct.pack(">B", self.IDX)
 
-    @abc.abstractclassmethod
+    @classmethod
+    @abc.abstractmethod
     def from_bytes(cls, b: bytes) -> DataEntry:
         """
         from_bytes parses the given bytes and constructs a DataEntry instance
@@ -40,7 +41,8 @@ class DataEntry(abc.ABC):
         """
         pass
 
-    @abc.abstractclassmethod
+    @classmethod
+    @abc.abstractmethod
     def deserialize(cls, b: bytes) -> DataEntry:
         """
         deserialize parses the given bytes and constructs a DataEntry instance
@@ -54,7 +56,8 @@ class DataEntry(abc.ABC):
         """
         pass
 
-    @abc.abstractproperty
+    @property
+    @abc.abstractmethod
     def bytes(self) -> bytes:
         """
         bytes returns the bytes representation of the DataEntry
