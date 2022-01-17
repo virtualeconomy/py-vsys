@@ -3,7 +3,7 @@
 ## Workflow
 
 [Forking Workflow](https://www.atlassian.com/git/tutorials/comparing-workflows/forking-workflow) is used.
-To contribute, please work on a forked repo and create a PR from the forked repo to the main repo.
+To contribute, please work on a forked repo and create a PR from the forked repo to the `develop` branch of the main repo.
 
 The main repo will have 3 branches:
 - **main**: The latest version that is released.
