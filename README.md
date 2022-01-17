@@ -53,6 +53,9 @@ chain: pv.Chain = pv.Chain(api)
 # Account represents an account in the net
 acnt: pv.Account = pv.Account(chain, WALLET_SEED)
 
+ctrt_id = "CFB6zvcy39FCRGhxo8HH3PE6zZEG5zXevhG"
+ctrt: pv.NFTCtrt = pv.NFTCtrt(ctrt_id, chain)
+
 
 def try_api():
     # GET /blocks/last
@@ -76,16 +79,23 @@ def try_acnt():
     # Get the account's nonce'
     print(acnt.nonce)
     # Get the account's public key
-    print(acnt.key_pair.pub.b58_str)
+    print(acnt.key_pair.pub_b58_str)
     # Get the account's private key
-    print(acnt.key_pair.pri.b58_str)
+    print(acnt.key_pair.pri_b58_str)
     # Get the account's address
-    print(acnt.addr.b58_str)
+    print(acnt.addr_b58_str)
+
+
+def try_ctrt():
+  print(ctrt.maker)
+  print(ctrt.issuer)
+  print(ctrt.ctrt_id)
 
 
 try_api()
 try_chain()
 try_acnt()
+try_ctrt()
 ```
 
 
