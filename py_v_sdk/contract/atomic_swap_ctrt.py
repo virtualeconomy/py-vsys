@@ -78,7 +78,7 @@ class AtomicSwapCtrt(Ctrt):
         """
         The address of the maker of this contract
         """
-        data = self.chain.api.ctrt.get_contract_data(
+        data = self.chain.api.ctrt.get_ctrt_data(
             ctrt_id=self.ctrt_id,
             db_key=self.DBKey.for_maker().b58_str,
         )
@@ -90,7 +90,7 @@ class AtomicSwapCtrt(Ctrt):
         """
         The id of the token registered with this contract
         """
-        data = self.chain.api.ctrt.get_contract_data(
+        data = self.chain.api.ctrt.get_ctrt_data(
             ctrt_id=self.ctrt_id,
             db_key=self.DBKey.for_token_id().b58_str,
         )

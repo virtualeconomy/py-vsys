@@ -93,7 +93,7 @@ class Contract(APIGrp):
     def broadcast_execute(self, payload: Dict[str, Any]) -> Dict[str, Any]:
         return self.post("/broadcast/execute", payload)
 
-    def get_contract_data(self, ctrt_id: str, db_key: str) -> Dict[str, Any]:
+    def get_ctrt_data(self, ctrt_id: str, db_key: str) -> Dict[str, Any]:
         return self.get(f"/data/{ctrt_id}/{db_key}")
 
 
