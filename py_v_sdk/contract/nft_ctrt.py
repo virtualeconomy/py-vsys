@@ -97,7 +97,9 @@ class NFTCtrt(Ctrt):
         logger.debug(data)
         return data
 
-    def send(self, by: acnt.Account, recipient: str, tok_idx: int, attachment: str = "") -> Dict[str, Any]:
+    def send(
+        self, by: acnt.Account, recipient: str, tok_idx: int, attachment: str = ""
+    ) -> Dict[str, Any]:
         """
         send sends the NFT token from the action taker to the recipient
 
@@ -122,7 +124,14 @@ class NFTCtrt(Ctrt):
         logger.debug(data)
         return data
 
-    def transfer(self, by: acnt.Account, sender: str, recipient: str, tok_idx: int, attachment: str = "") -> Dict[str, Any]:
+    def transfer(
+        self,
+        by: acnt.Account,
+        sender: str,
+        recipient: str,
+        tok_idx: int,
+        attachment: str = "",
+    ) -> Dict[str, Any]:
         """
         transfer transfers the NFT token from the sender to the recipient
 
@@ -131,7 +140,7 @@ class NFTCtrt(Ctrt):
             sender (str): The account address of the sender
             recipient (str): The account address of the recipient
             tok_idx (int): The index of the token within this contract to operate
-        
+
         Returns:
             The response returned by the Node API
         """
@@ -151,7 +160,9 @@ class NFTCtrt(Ctrt):
         logger.debug(data)
         return data
 
-    def deposit(self, by: acnt.Account, ctrt_id: str, tok_idx: int, attachment: str = "") -> Dict[str, Any]:
+    def deposit(
+        self, by: acnt.Account, ctrt_id: str, tok_idx: int, attachment: str = ""
+    ) -> Dict[str, Any]:
         """
         deposit deposits the NFT token from the action taker to another contract
 
@@ -180,7 +191,9 @@ class NFTCtrt(Ctrt):
         logger.debug(data)
         return data
 
-    def withdraw(self, by: acnt.Account, ctrt_id: str, tok_idx: int, attachment: str = "") -> Dict[str, Any]:
+    def withdraw(
+        self, by: acnt.Account, ctrt_id: str, tok_idx: int, attachment: str = ""
+    ) -> Dict[str, Any]:
         """
         withdraw withdraws the token from another contract to the action taker
 
@@ -189,7 +202,7 @@ class NFTCtrt(Ctrt):
             ctrt_id (str): The id of the contract to withdraw from
             tok_idx (int): The index of the token within this contract to operate
             attachment (str): The attachment of this action
-        
+
         Returns:
             The response returned by the Node API
         """
@@ -209,7 +222,9 @@ class NFTCtrt(Ctrt):
         logger.debug(data)
         return data
 
-    def supersede(self, by: acnt.Account, new_issuer: str, attachment: str = "") -> Dict[str, Any]:
+    def supersede(
+        self, by: acnt.Account, new_issuer: str, attachment: str = ""
+    ) -> Dict[str, Any]:
         """
         supersede transfers the issuer role of the contract to a new account.
 
@@ -217,7 +232,7 @@ class NFTCtrt(Ctrt):
             by (acnt.Account): The action taker
             new_issuer (str): The account address of the new issuer
             attachment (str): The attachment of this action
-        
+
         Returns:
             The response returned by the Node API
         """

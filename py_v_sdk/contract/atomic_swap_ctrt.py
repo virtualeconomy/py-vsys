@@ -35,14 +35,16 @@ class AtomicSwapCtrt(Ctrt):
         def for_maker(cls) -> AtomicSwapCtrt.DBKey:
             b = AtomicSwapCtrt.StateVar.MAKER.serialize()
             return cls(b)
-        
+
         @classmethod
         def for_token_id(cls) -> AtomicSwapCtrt.DBKey:
             b = AtomicSwapCtrt.StateVar.TOKEN_ID.serialize()
             return cls(b)
 
     @classmethod
-    def register(cls, by: acnt.Account, tok_id: str, description: str = "") -> AtomicSwapCtrt:
+    def register(
+        cls, by: acnt.Account, tok_id: str, description: str = ""
+    ) -> AtomicSwapCtrt:
         """
         register registers an Atomic Swap Contract
 

@@ -215,14 +215,10 @@ class Ctrt(abc.ABC):
         data_entry: de.DataEntry
 
         def serialize(self) -> bytes:
-            b = (
-                struct.pack(">B", self.idx)
-                + self.data_entry.serialize()
-            )
+            b = struct.pack(">B", self.idx) + self.data_entry.serialize()
             return b
-    
-    class DBKey:
 
+    class DBKey:
         def __init__(self, data: bytes = b"") -> None:
             self.data = data
 
@@ -233,7 +229,6 @@ class Ctrt(abc.ABC):
         @property
         def b58_str(self) -> str:
             return base58.b58encode(self.data).decode("latin-1")
-
 
     def __init__(self, ctrt_id: str, chain: ch.Chain) -> None:
         self._ctrt_id = ctrt_id
