@@ -117,3 +117,32 @@ class NFTCtrt(Contract):
         )
         logger.debug(data)
         return data
+
+    def transfer(self, by: acnt.Account, sender: str, recipient: str, tok_idx: int, attachment: str = "") -> Dict[str, Any]:
+        """
+        transfer transfers the NFT token from the sender to the recipient
+
+        Args:
+            by (acnt.Account): The action taker
+            sender (str): The account address of the sender
+            recipient (str): The account address of the recipient
+            tok_idx (int): The index of the token within this contract to operate
+        
+        Returns:
+            The response returned by the Node API
+        """
+        data = by.execute_contract(
+            tx.ExecCtrtFuncTxReq(
+                ctrt_id=self.ctrt_id,
+                func_id=self.FuncIdx.TRANSFER,
+                data_stack=de.DataStack(
+                    de.Addr(sender),
+                    de.Addr(recipient),
+                    de.INT32(tok_idx),
+                ),
+                timestamp=de.Timestamp.now(),
+                attachment=attachment,
+            )
+        )
+        logger.debug(data)
+        return data
