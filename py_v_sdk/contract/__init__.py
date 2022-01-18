@@ -2,13 +2,15 @@ from __future__ import annotations
 import abc
 import enum
 import struct
-from typing import Tuple, List, TYPE_CHECKING
+from typing import Tuple, List, TYPE_CHECKING, NamedTuple
 
 import base58
 
 # https://stackoverflow.com/a/39757388
 if TYPE_CHECKING:
     from py_v_sdk import chain as ch
+
+from py_v_sdk import data_entry as de
 
 
 class Bytes:
@@ -202,6 +204,36 @@ class Ctrt(abc.ABC):
     class FuncIdx(enum.Enum):
         def serialize(self) -> bytes:
             return struct.pack(">H", self.value)
+
+    class StateVar(enum.Enum):
+        def serialize(self) -> bytes:
+            return struct.pack(">B", self.value)
+
+    class StateMap(NamedTuple):
+
+        idx: int
+        data_entry: de.DataEntry
+
+        def serialize(self) -> bytes:
+            b = (
+                struct.pack(">B", self.idx)
+                + self.data_entry.serialize()
+            )
+            return b
+    
+    class DBKey:
+
+        def __init__(self, data: bytes = b"") -> None:
+            self.data = data
+
+        @classmethod
+        def from_b58_str(cls, s: str) -> Ctrt.DBKey:
+            return cls(base58.b58decode(s))
+
+        @property
+        def b58_str(self) -> str:
+            return base58.b58encode(self.data).decode("latin-1")
+
 
     def __init__(self, ctrt_id: str, chain: ch.Chain) -> None:
         self._ctrt_id = ctrt_id
