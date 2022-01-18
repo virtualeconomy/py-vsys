@@ -77,7 +77,7 @@ class NFTCtrt(Ctrt):
 
     @property
     def issuer(self) -> str:
-        data = self.chain.api.ctrt.get_contract_data(
+        data = self.chain.api.ctrt.get_ctrt_data(
             ctrt_id=self.ctrt_id,
             db_key=self.DBKey.for_issuer().b58_str,
         )
@@ -86,7 +86,7 @@ class NFTCtrt(Ctrt):
 
     @property
     def maker(self) -> str:
-        data = self.chain.api.ctrt.get_contract_data(
+        data = self.chain.api.ctrt.get_ctrt_data(
             ctrt_id=self.ctrt_id,
             db_key=self.DBKey.for_maker().b58_str,
         )
