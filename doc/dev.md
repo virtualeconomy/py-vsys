@@ -29,6 +29,25 @@ The main repo will have 3 branches:
 - **release**: The version that is going to be released. The **release** branch shall be checked out from the **develop** branch and be tested. All fixes shall be committed to the **release** branch directly. When the test passed, the **release** branch shall be merged into the **main** branch with a tag of the released version and be merged to the **develop** branch as well if there is any fixes commits.
 
 
+## Set Up Development Environment
+As `py-v-sdk` is a library, [setup.py](../setup.py) contains dependencies that will get installed along the installation of `py-v-sdk`. [Pipfile](../Pipfile) & [Pipfile.lock](../Pipfile.lock) contains dependencies maintained by [Pipenv](https://github.com/pypa/pipenv) for development.
+
+To set up the development environment, go to the project root directory and
+
+1. Install dependencies with [Pipenv](https://github.com/pypa/pipenv) and use [Pipenv](https://github.com/pypa/pipenv) shell as the shell environment.
+
+    ```bash
+    pipenv install -d
+    pipenv shell
+    ```
+
+2. Install Git hooks with [pre-commit](https://github.com/pre-commit/pre-commit) in the Pipenv shell so that the Python formatter [black](https://github.com/psf/black) will be triggered for each commit.
+
+    ```bash
+    pre-commit install
+    ```
+
+
 ## Code Style Guide
 
 [Google Python Style Guide](https://google.github.io/styleguide/pyguide.html) is adopted.
