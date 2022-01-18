@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 from py_v_sdk import data_entry as de
 from py_v_sdk import tx_req as tx
 
-from . import Bytes, CtrtMeta, Ctrt
+from . import CtrtMeta, Ctrt
 
 
 class NFTCtrt(Ctrt):
@@ -33,16 +33,20 @@ class NFTCtrt(Ctrt):
         DEPOSIT = 4
         WITHDRAW = 5
 
-    class DBKey(enum.Enum):
+    class StateVar(Ctrt.StateVar):
         ISSUER = 0
         MAKER = 1
 
-        def serialize(self) -> bytes:
-            return struct.pack(">B", self.value)
+    class DBKey(Ctrt.DBKey):
+        @classmethod
+        def for_issuer(cls) -> NFTCtrt.DBKey:
+            b = NFTCtrt.StateVar.ISSUER.serialize()
+            return cls(b)
 
-        @property
-        def b58_str(self) -> str:
-            return Bytes(self.serialize()).b58_str
+        @classmethod
+        def for_maker(cls) -> NFTCtrt.DBKey:
+            b = NFTCtrt.StateVar.MAKER.serialize()
+            return cls(b)
 
     @classmethod
     def register(cls, by: acnt.Account) -> NFTCtrt:
@@ -64,7 +68,7 @@ class NFTCtrt(Ctrt):
     def issuer(self) -> str:
         data = self.chain.api.ctrt.get_contract_data(
             ctrt_id=self.ctrt_id,
-            db_key=self.DBKey.ISSUER.b58_str,
+            db_key=self.DBKey.for_issuer().b58_str,
         )
         logger.debug(data)
         return data["value"]
@@ -73,7 +77,7 @@ class NFTCtrt(Ctrt):
     def maker(self) -> str:
         data = self.chain.api.ctrt.get_contract_data(
             ctrt_id=self.ctrt_id,
-            db_key=self.DBKey.MAKER.b58_str,
+            db_key=self.DBKey.for_maker().b58_str,
         )
         logger.debug(data)
         return data["value"]
