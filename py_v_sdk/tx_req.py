@@ -163,7 +163,7 @@ class ExecCtrtFuncTxReq(TxReq):
     def __init__(
         self,
         ctrt_id: str,
-        func_id: ctrt.Contract.FuncIdx,
+        func_id: ctrt.Ctrt.FuncIdx,
         data_stack: de.DataStack,
         timestamp: de.Timestamp,
         attachment: str = "",
@@ -173,7 +173,7 @@ class ExecCtrtFuncTxReq(TxReq):
         """
         Args:
             ctrt_id (str): The contract id
-            func_id (ctrt.Contract.FuncIdx): The function index
+            func_id (ctrt.Ctrt.FuncIdx): The function index
             data_stack (de.DataStack): The payload of this request
             timestamp (de.Timestamp): The timestamp of this request
             attachment (str, optional): The attachment for this request. Defaults to "".
