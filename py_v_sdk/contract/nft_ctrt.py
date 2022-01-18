@@ -49,12 +49,23 @@ class NFTCtrt(Ctrt):
             return cls(b)
 
     @classmethod
-    def register(cls, by: acnt.Account) -> NFTCtrt:
+    def register(cls, by: acnt.Account, description: str = "") -> NFTCtrt:
+        """
+        register registers an NFT Contract
+
+        Args:
+            by (acnt.Account): The action taker
+            description (str): The description of the action
+
+        Returns:
+            NFTCtrt: The representative instance of the registered Atomic Swap Contract
+        """
         data = by.register_contract(
             tx.RegCtrtTxReq(
                 data_stack=de.DataStack(),
                 ctrt_meta=cls.CTRT_META,
                 timestamp=de.Timestamp.now(),
+                description=description,
             )
         )
         logger.debug(data)
