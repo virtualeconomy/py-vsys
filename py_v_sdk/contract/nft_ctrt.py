@@ -146,3 +146,61 @@ class NFTCtrt(Contract):
         )
         logger.debug(data)
         return data
+
+    def deposit(self, by: acnt.Account, ctrt_id: str, tok_idx: int, attachment: str = "") -> Dict[str, Any]:
+        """
+        deposit deposits the NFT token from the action taker to another contract
+
+        Args:
+            by (acnt.Account): The action taker
+            ctrt_id (str): The id of the contract to deposit into
+            tok_idx (int): The index of the token within this contract to operate
+            attachment (str): The attachment of this action
+
+        Returns:
+            The response returned by the Node API
+        """
+        data = by.execute_contract(
+            tx.ExecCtrtFuncTxReq(
+                ctrt_id=self.ctrt_id,
+                func_id=self.FuncIdx.DEPOSIT,
+                data_stack=de.DataStack(
+                    de.Addr(by.addr_b58_str),
+                    de.CtrtAcnt(ctrt_id),
+                    de.INT32(tok_idx),
+                ),
+                timestamp=de.Timestamp.now(),
+                attachment=attachment,
+            )
+        )
+        logger.debug(data)
+        return data
+
+    def withdraw(self, by: acnt.Account, ctrt_id: str, tok_idx: int, attachment: str = "") -> Dict[str, Any]:
+        """
+        withdraw withdraws the token from another contract to the action taker
+
+        Args:
+            by (acnt.Account): The action taker
+            ctrt_id (str): The id of the contract to withdraw from
+            tok_idx (int): The index of the token within this contract to operate
+            attachment (str): The attachment of this action
+        
+        Returns:
+            The response returned by the Node API
+        """
+        data = by.execute_contract(
+            tx.ExecCtrtFuncTxReq(
+                ctrt_id=self.ctrt_id,
+                func_id=self.FuncIdx.WITHDRAW,
+                data_stack=de.DataStack(
+                    de.CtrtAcnt(ctrt_id),
+                    de.Addr(by.addr_b58_str),
+                    de.INT32(tok_idx),
+                ),
+                timestamp=de.Timestamp.now(),
+                attachment=attachment,
+            )
+        )
+        logger.debug(data)
+        return data
