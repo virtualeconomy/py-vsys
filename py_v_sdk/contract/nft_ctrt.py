@@ -204,3 +204,29 @@ class NFTCtrt(Contract):
         )
         logger.debug(data)
         return data
+
+    def supersede(self, by: acnt.Account, new_issuer: str, attachment: str = "") -> Dict[str, Any]:
+        """
+        supersede transfers the issuer role of the contract to a new account.
+
+        Args:
+            by (acnt.Account): The action taker
+            new_issuer (str): The account address of the new issuer
+            attachment (str): The attachment of this action
+        
+        Returns:
+            The response returned by the Node API
+        """
+        data = by.execute_contract(
+            tx.ExecCtrtFuncTxReq(
+                ctrt_id=self.ctrt_id,
+                func_id=self.FuncIdx.SUPERSEDE,
+                data_stack=de.DataStack(
+                    de.Addr(new_issuer),
+                ),
+                timestamp=de.Timestamp.now(),
+                attachment=attachment,
+            )
+        )
+        logger.debug(data)
+        return data
