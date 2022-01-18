@@ -158,9 +158,9 @@ class CtrtMeta:
         return b
 
 
-class Contract(abc.ABC):
+class Ctrt(abc.ABC):
     """
-    Contract is the abstract base class for smart contracts
+    Ctrt is the abstract base class for smart contracts
 
     Each contract has a base58 encoded string that contains meta data of the contract.
 
