@@ -1,22 +1,7 @@
 from __future__ import annotations
 import os
-from typing import NamedTuple
 
-import base58
 import axolotl_curve25519 as curve
-
-
-class KeyPair(NamedTuple):
-    pub: bytes
-    pri: bytes
-
-    @property
-    def pub_b58_str(self) -> str:
-        return base58.b58encode(self.pub).decode("latin-1")
-
-    @property
-    def pri_b58_str(self) -> str:
-        return base58.b58encode(self.pri).decode("latin-1")
 
 
 def gen_pri_key(rand32: bytes) -> bytes:

@@ -1,10 +1,7 @@
 from __future__ import annotations
-import enum
-import struct
 from typing import Dict, Any, TYPE_CHECKING
 
 from loguru import logger
-
 
 # https://stackoverflow.com/a/39757388
 if TYPE_CHECKING:
@@ -12,6 +9,7 @@ if TYPE_CHECKING:
 
 from py_v_sdk import data_entry as de
 from py_v_sdk import tx_req as tx
+from py_v_sdk import model as md
 
 from . import CtrtMeta, Ctrt
 
@@ -49,13 +47,19 @@ class NFTCtrt(Ctrt):
             return cls(b)
 
     @classmethod
-    def register(cls, by: acnt.Account, description: str = "") -> NFTCtrt:
+    def register(
+        cls,
+        by: acnt.Account,
+        description: str = "",
+        fee: int = md.RegCtrtFee.DEFAULT,
+    ) -> NFTCtrt:
         """
         register registers an NFT Contract
 
         Args:
             by (acnt.Account): The action taker
             description (str): The description of the action
+            fee (int, optional): The fee to pay for this action. Defaults to md.RegCtrtFee.DEFAULT.
 
         Returns:
             NFTCtrt: The representative instance of the registered Atomic Swap Contract
@@ -64,8 +68,9 @@ class NFTCtrt(Ctrt):
             tx.RegCtrtTxReq(
                 data_stack=de.DataStack(),
                 ctrt_meta=cls.CTRT_META,
-                timestamp=de.Timestamp.now(),
-                description=description,
+                timestamp=md.VSYSTimestamp.now(),
+                description=md.Str(description),
+                fee=md.RegCtrtFee(fee),
             )
         )
         logger.debug(data)
@@ -93,23 +98,34 @@ class NFTCtrt(Ctrt):
         logger.debug(data)
         return data["value"]
 
-    def issue(self, by: acnt.Account, description: str = "") -> Dict[str, Any]:
+    def issue(
+        self,
+        by: acnt.Account,
+        description: str = "",
+        fee: int = md.ExecCtrtFee.DEFAULT,
+    ) -> Dict[str, Any]:
         data = by.execute_contract(
             tx.ExecCtrtFuncTxReq(
-                ctrt_id=self.ctrt_id,
+                ctrt_id=self._ctrt_id,
                 func_id=self.FuncIdx.ISSUE,
                 data_stack=de.DataStack(
-                    de.String(description),
+                    de.String(md.Str(description)),
                 ),
-                timestamp=de.Timestamp.now(),
-                attachment=description,
+                timestamp=md.VSYSTimestamp.now(),
+                attachment=md.Str(description),
+                fee=md.ExecCtrtFee(fee),
             )
         )
         logger.debug(data)
         return data
 
     def send(
-        self, by: acnt.Account, recipient: str, tok_idx: int, attachment: str = ""
+        self,
+        by: acnt.Account,
+        recipient: str,
+        tok_idx: int,
+        attachment: str = "",
+        fee: int = md.ExecCtrtFee.DEFAULT,
     ) -> Dict[str, Any]:
         """
         send sends the NFT token from the action taker to the recipient
@@ -119,17 +135,26 @@ class NFTCtrt(Ctrt):
             recipient (str): The account address of the recipient
             tok_idx (int): The index of the token within this contract to operate
             attachment (str): The attachment of this action
+            fee (int, optional): The fee to pay for this action. Defaults to md.ExecCtrtFee.DEFAULT.
+
+        Returns:
+            Dict[str, Any]: The response returned by the Node API
         """
+
+        rcpt_md = md.Addr(recipient)
+        rcpt_md.must_on(by.chain)
+
         data = by.execute_contract(
             tx.ExecCtrtFuncTxReq(
-                ctrt_id=self.ctrt_id,
+                ctrt_id=self._ctrt_id,
                 func_id=self.FuncIdx.SEND,
                 data_stack=de.DataStack(
-                    de.Addr(recipient),
-                    de.INT32(tok_idx),
+                    de.Addr(rcpt_md),
+                    de.INT32(md.TokenIdx(tok_idx)),
                 ),
-                timestamp=de.Timestamp.now(),
-                attachment=attachment,
+                timestamp=md.VSYSTimestamp.now(),
+                attachment=md.Str(attachment),
+                fee=md.ExecCtrtFee(fee),
             )
         )
         logger.debug(data)
@@ -142,6 +167,7 @@ class NFTCtrt(Ctrt):
         recipient: str,
         tok_idx: int,
         attachment: str = "",
+        fee: int = md.ExecCtrtFee.DEFAULT,
     ) -> Dict[str, Any]:
         """
         transfer transfers the NFT token from the sender to the recipient
@@ -151,28 +177,42 @@ class NFTCtrt(Ctrt):
             sender (str): The account address of the sender
             recipient (str): The account address of the recipient
             tok_idx (int): The index of the token within this contract to operate
+            attachment (str, optional): The attachment of this action. Defaults to "".
+            fee (int, optional): The fee to pay for this action. Defaults to md.ExecCtrtFee.DEFAULT.
 
         Returns:
-            The response returned by the Node API
+            Dict[str, Any]: The response returned by the Node API
         """
+        sender_md = md.Addr(sender)
+        rcpt_md = md.Addr(recipient)
+
+        sender_md.must_on(by.chain)
+        rcpt_md.must_on(by.chain)
+
         data = by.execute_contract(
             tx.ExecCtrtFuncTxReq(
-                ctrt_id=self.ctrt_id,
+                ctrt_id=self._ctrt_id,
                 func_id=self.FuncIdx.TRANSFER,
                 data_stack=de.DataStack(
-                    de.Addr(sender),
-                    de.Addr(recipient),
-                    de.INT32(tok_idx),
+                    de.Addr(sender_md),
+                    de.Addr(rcpt_md),
+                    de.INT32(md.TokenIdx(tok_idx)),
                 ),
-                timestamp=de.Timestamp.now(),
-                attachment=attachment,
+                timestamp=md.VSYSTimestamp.now(),
+                attachment=md.Str(attachment),
+                fee=md.ExecCtrtFee(fee),
             )
         )
         logger.debug(data)
         return data
 
     def deposit(
-        self, by: acnt.Account, ctrt_id: str, tok_idx: int, attachment: str = ""
+        self,
+        by: acnt.Account,
+        ctrt_id: str,
+        tok_idx: int,
+        attachment: str = "",
+        fee: int = md.ExecCtrtFee.DEFAULT,
     ) -> Dict[str, Any]:
         """
         deposit deposits the NFT token from the action taker to another contract
@@ -182,28 +222,35 @@ class NFTCtrt(Ctrt):
             ctrt_id (str): The id of the contract to deposit into
             tok_idx (int): The index of the token within this contract to operate
             attachment (str): The attachment of this action
+            fee (int, optional): The fee to pay for this action. Defaults to md.ExecCtrtFee.DEFAULT.
 
         Returns:
-            The response returned by the Node API
+            Dict[str, Any]: The response returned by the Node API
         """
         data = by.execute_contract(
             tx.ExecCtrtFuncTxReq(
-                ctrt_id=self.ctrt_id,
+                ctrt_id=self._ctrt_id,
                 func_id=self.FuncIdx.DEPOSIT,
                 data_stack=de.DataStack(
-                    de.Addr(by.addr_b58_str),
-                    de.CtrtAcnt(ctrt_id),
-                    de.INT32(tok_idx),
+                    de.Addr(md.Addr(by.addr.b58_str)),
+                    de.CtrtAcnt(md.CtrtID(ctrt_id)),
+                    de.INT32(md.TokenIdx(tok_idx)),
                 ),
-                timestamp=de.Timestamp.now(),
-                attachment=attachment,
+                timestamp=md.VSYSTimestamp.now(),
+                attachment=md.Str(attachment),
+                fee=md.ExecCtrtFee(fee),
             )
         )
         logger.debug(data)
         return data
 
     def withdraw(
-        self, by: acnt.Account, ctrt_id: str, tok_idx: int, attachment: str = ""
+        self,
+        by: acnt.Account,
+        ctrt_id: str,
+        tok_idx: int,
+        attachment: str = "",
+        fee: int = md.ExecCtrtFee.DEFAULT,
     ) -> Dict[str, Any]:
         """
         withdraw withdraws the token from another contract to the action taker
@@ -213,28 +260,34 @@ class NFTCtrt(Ctrt):
             ctrt_id (str): The id of the contract to withdraw from
             tok_idx (int): The index of the token within this contract to operate
             attachment (str): The attachment of this action
+            fee (int, optional): The fee to pay for this action. Defaults to md.ExecCtrtFee.DEFAULT.
 
         Returns:
-            The response returned by the Node API
+            Dict[str, Any]: The response returned by the Node API
         """
         data = by.execute_contract(
             tx.ExecCtrtFuncTxReq(
-                ctrt_id=self.ctrt_id,
+                ctrt_id=self._ctrt_id,
                 func_id=self.FuncIdx.WITHDRAW,
                 data_stack=de.DataStack(
-                    de.CtrtAcnt(ctrt_id),
-                    de.Addr(by.addr_b58_str),
-                    de.INT32(tok_idx),
+                    de.CtrtAcnt(md.CtrtID(ctrt_id)),
+                    de.Addr(md.Addr(by.addr.b58_str)),
+                    de.INT32(md.TokenIdx(tok_idx)),
                 ),
-                timestamp=de.Timestamp.now(),
-                attachment=attachment,
+                timestamp=md.VSYSTimestamp.now(),
+                attachment=md.Str(attachment),
+                fee=md.ExecCtrtFee(fee),
             )
         )
         logger.debug(data)
         return data
 
     def supersede(
-        self, by: acnt.Account, new_issuer: str, attachment: str = ""
+        self,
+        by: acnt.Account,
+        new_issuer: str,
+        attachment: str = "",
+        fee: int = md.ExecCtrtFee.DEFAULT,
     ) -> Dict[str, Any]:
         """
         supersede transfers the issuer role of the contract to a new account.
@@ -243,19 +296,25 @@ class NFTCtrt(Ctrt):
             by (acnt.Account): The action taker
             new_issuer (str): The account address of the new issuer
             attachment (str): The attachment of this action
+            fee (int, optional): The fee to pay for this action. Defaults to md.ExecCtrtFee.DEFAULT.
 
         Returns:
-            The response returned by the Node API
+            Dict[str, Any]: The response returned by the Node API
         """
+
+        new_issuer_md = md.Addr(new_issuer)
+        new_issuer_md.must_on(by.chain)
+
         data = by.execute_contract(
             tx.ExecCtrtFuncTxReq(
-                ctrt_id=self.ctrt_id,
+                ctrt_id=self._ctrt_id,
                 func_id=self.FuncIdx.SUPERSEDE,
                 data_stack=de.DataStack(
-                    de.Addr(new_issuer),
+                    de.Addr(new_issuer_md),
                 ),
-                timestamp=de.Timestamp.now(),
-                attachment=attachment,
+                timestamp=md.VSYSTimestamp.now(),
+                attachment=md.Str(attachment),
+                fee=md.ExecCtrtFee(fee),
             )
         )
         logger.debug(data)

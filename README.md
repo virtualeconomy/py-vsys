@@ -83,7 +83,7 @@ def try_acnt():
     # Get the account's private key
     print(acnt.key_pair.pri_b58_str)
     # Get the account's address
-    print(acnt.addr_b58_str)
+    print(acnt.addr.b58_str)
 
 
 def try_ctrt():
