@@ -9,6 +9,7 @@ if TYPE_CHECKING:
 
 from py_v_sdk import data_entry as de
 from py_v_sdk import tx_req as tx
+from py_v_sdk import model as md
 from . import CtrtMeta, Ctrt
 
 
@@ -43,7 +44,12 @@ class AtomicSwapCtrt(Ctrt):
 
     @classmethod
     def register(
-        cls, by: acnt.Account, tok_id: str, description: str = ""
+        cls,
+        by: acnt.Account,
+        tok_id: str,
+        description: str = "",
+        fee: int = md.RegCtrtFee.DEFAULT,
+        ee: int = md.ExecCtrtFee.DEFAULT,
     ) -> AtomicSwapCtrt:
         """
         register registers an Atomic Swap Contract
@@ -52,6 +58,7 @@ class AtomicSwapCtrt(Ctrt):
             by (acnt.Account): The action taker
             tok_id (str): The id of the token to atomic swap
             description (str): The description of the action
+            fee (int, optional): The fee to pay for this action. Defaults to md.RegCtrtFee.DEFAULT.
 
         Returns:
             AtomicSwapCtrt: The representative instance of the registered Atomic Swap Contract
@@ -59,11 +66,12 @@ class AtomicSwapCtrt(Ctrt):
         data = by.register_contract(
             tx.RegCtrtTxReq(
                 data_stack=de.DataStack(
-                    de.TokenID(tok_id),
+                    de.TokenID(md.TokenID(tok_id)),
                 ),
                 ctrt_meta=cls.CTRT_META,
-                timestamp=de.Timestamp.now(),
-                description=description,
+                timestamp=md.VSYSTimestamp.now(),
+                description=md.Str(description),
+                fee=md.RegCtrtFee(fee),
             )
         )
         logger.debug(data)

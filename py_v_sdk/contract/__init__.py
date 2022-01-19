@@ -11,6 +11,7 @@ if TYPE_CHECKING:
     from py_v_sdk import chain as ch
 
 from py_v_sdk import data_entry as de
+from py_v_sdk import model as md
 
 
 class Bytes:
@@ -231,12 +232,12 @@ class Ctrt(abc.ABC):
             return base58.b58encode(self.data).decode("latin-1")
 
     def __init__(self, ctrt_id: str, chain: ch.Chain) -> None:
-        self._ctrt_id = ctrt_id
+        self._ctrt_id = md.CtrtID(ctrt_id)
         self._chain = chain
 
     @property
     def ctrt_id(self) -> str:
-        return self._ctrt_id
+        return self._ctrt_id.data
 
     @property
     def chain(self) -> ch.Chain:

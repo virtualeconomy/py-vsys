@@ -1,10 +1,10 @@
 from __future__ import annotations
 import abc
 import struct
-import time
 from typing import Tuple, List
 
-import base58
+
+from py_v_sdk import model as md
 
 
 class DataEntry(abc.ABC):
@@ -76,56 +76,64 @@ class DataEntry(abc.ABC):
         """
 
 
-class B58(DataEntry):
-    def __init__(self, data: str) -> None:
-        """
-        Args:
-            data (str): The string in base58 format
-        """
+class B58Str(DataEntry):
+
+    MODEL = md.B58Str
+
+    def __init__(self, data: md.B58Str = md.B58Str()) -> None:
         self.data = data
 
     @classmethod
-    def from_bytes(cls, b: bytes) -> B58:
-        return cls(base58.b58encode(b).decode("latin-1"))
+    def from_bytes(cls, b: bytes) -> B58Str:
+        return cls(cls.MODEL.from_bytes(b))
 
     @classmethod
-    def deserialize(cls, b: bytes) -> B58:
+    def deserialize(cls, b: bytes) -> B58Str:
         return cls.from_bytes(b[1 : 1 + cls.SIZE])
 
     @property
     def bytes(self) -> bytes:
-        return base58.b58decode(self.data)
+        return self.data.bytes
 
     def serialize(self) -> bytes:
         return self.idx_bytes + self.bytes
 
 
-class PubKey(B58):
+class PubKey(B58Str):
+
+    MODEL = md.PubKey
 
     IDX = 1
     SIZE = 32
 
+    def __init__(self, data: md.PubKey) -> None:
+        self.data = data
 
-class Addr(B58):
+
+class Addr(B58Str):
+
+    MODEL = md.Addr
 
     IDX = 2
     SIZE = 26
 
+    def __init__(self, data: md.Addr) -> None:
+        self.data = data
 
-class Long(DataEntry):
+
+class Int(DataEntry):
+    def __init__(self, data: md.Int = md.Int()) -> None:
+        self.data = data
+
+
+class Long(Int):
 
     SIZE = 8
 
-    def __init__(self, data: int) -> None:
-        """
-        Args:
-            data (int): The integer data
-        """
-        self.data = data
-
     @classmethod
     def from_bytes(cls, b: bytes) -> Long:
-        return cls(struct.unpack(">Q", b)[0])
+        i = struct.unpack(">Q", b)[0]
+        return cls(md.Int(i))
 
     @classmethod
     def deserialize(cls, b: bytes) -> Long:
@@ -133,7 +141,7 @@ class Long(DataEntry):
 
     @property
     def bytes(self) -> bytes:
-        return struct.pack(">Q", self.data)
+        return struct.pack(">Q", self.data.data)
 
     def serialize(self) -> bytes:
         return self.idx_bytes + self.bytes
@@ -144,21 +152,15 @@ class Amount(Long):
     IDX = 3
 
 
-class INT32(DataEntry):
+class INT32(Int):
 
     IDX = 4
     SIZE = 4
 
-    def __init__(self, data: int) -> None:
-        """
-        Args:
-            data (int): The integer data
-        """
-        self.data = data
-
     @classmethod
     def from_bytes(cls, b: bytes) -> INT32:
-        return cls(struct.unpack(">I", b)[0])
+        i = struct.unpack(">I", b)[0]
+        return cls(md.Int(i))
 
     @classmethod
     def deserialize(cls, b: bytes) -> INT32:
@@ -166,7 +168,7 @@ class INT32(DataEntry):
 
     @property
     def bytes(self) -> bytes:
-        return struct.pack(">I", self.data)
+        return struct.pack(">I", self.data.data)
 
     def serialize(self) -> bytes:
         return self.idx_bytes + self.bytes
@@ -196,42 +198,57 @@ class String(Text):
 
     IDX = 5
 
-    def __init__(self, data: str = ""):
+    def __init__(self, data: md.Str = md.Str()):
         self.data = data
 
     @classmethod
     def from_bytes(cls, b: bytes) -> String:
-        return cls(b.decode("latin-1"))
+        return cls(md.Str.from_bytes(b))
 
     @property
     def bytes(self) -> bytes:
-        return self.data.encode("latin-1")
+        return self.data.bytes
 
 
-class CtrtAcnt(B58):
+class CtrtAcnt(B58Str):
+
+    MODEL = md.CtrtID
 
     IDX = 6
     SIZE = 26
 
+    def __init__(self, data: md.CtrtID) -> None:
+        self.data = data
 
-class Acnt(B58):
+
+class Acnt(B58Str):
+
+    MODEL = md.Addr
 
     IDX = 7
     SIZE = 26
 
+    def __init__(self, data: md.Addr) -> None:
+        self.data = data
 
-class TokenID(B58):
-    """
-    TokenID is the data container for Token ID
-    """
+
+class TokenID(B58Str):
+
+    MODEL = md.TokenID
 
     IDX = 8
     SIZE = 30
+
+    def __init__(self, data: md.TokenID) -> None:
+        self.data = data
 
 
 class Timestamp(Long):
 
     IDX = 9
+
+    def __init__(self, data: md.VSYSTimestamp) -> None:
+        self.data = data
 
     @classmethod
     def now(cls) -> Timestamp:
@@ -241,7 +258,8 @@ class Timestamp(Long):
         Returns:
             Timestamp: The current Timestamp
         """
-        return cls(int(time.time() * 1_000_000_000))
+        n = md.VSYSTimestamp.now()
+        return cls(n)
 
 
 class Bool(DataEntry):
@@ -249,16 +267,13 @@ class Bool(DataEntry):
     IDX = 10
     SIZE = 1
 
-    def __init__(self, data: bool) -> None:
-        """
-        Args:
-            data (bool): The boolean data
-        """
+    def __init__(self, data: md.Bool = md.Bool()) -> None:
         self.data = data
 
     @classmethod
     def from_bytes(cls, b: bytes) -> Bool:
-        return cls(struct.unpack(">?", b)[0])
+        v = struct.unpack(">?", b)[0]
+        return cls(md.Bool(v))
 
     @classmethod
     def deserialize(cls, b: bytes) -> Bool:
@@ -266,7 +281,7 @@ class Bool(DataEntry):
 
     @property
     def bytes(self) -> bytes:
-        return struct.pack(">?", self.data)
+        return struct.pack(">?", self.data.data)
 
     def serialize(self) -> bytes:
         return self.idx_bytes + self.bytes
@@ -276,16 +291,16 @@ class Bytes(Text):
 
     IDX = 11
 
-    def __init__(self, data: bytes = b"") -> None:
+    def __init__(self, data: md.Bytes = md.Bytes()) -> None:
         self.data = data
 
     @classmethod
     def from_bytes(cls, b: bytes) -> Bytes:
-        return cls(b)
+        return cls(md.Bytes(b))
 
     @property
     def bytes(self) -> bytes:
-        return self.data
+        return self.data.data
 
 
 class Balance(Long):
