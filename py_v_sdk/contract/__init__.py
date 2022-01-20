@@ -1,3 +1,6 @@
+"""
+contract contains shared resources for smart contracts
+"""
 from __future__ import annotations
 import abc
 import enum
