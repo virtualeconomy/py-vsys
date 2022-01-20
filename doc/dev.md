@@ -1,5 +1,14 @@
 # Developing Documentation
 
+- [Developing Documentation](#developing-documentation)
+  - [Philosophy](#philosophy)
+  - [Workflow](#workflow)
+  - [Set Up Development Environment](#set-up-development-environment)
+  - [Code Style Guide](#code-style-guide)
+  - [Git Commit Style](#git-commit-style)
+    - [Commit Format](#commit-format)
+  - [Branch & PR Naming Convention](#branch--pr-naming-convention)
+
 ## Philosophy
 
 >***Code Quality Matters! User Experience Matters!***
