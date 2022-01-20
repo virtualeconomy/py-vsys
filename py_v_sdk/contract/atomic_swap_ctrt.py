@@ -1,3 +1,6 @@
+"""
+atomic_swap_ctrt contains Atomic Swap contract.
+"""
 from __future__ import annotations
 from typing import TYPE_CHECKING
 
@@ -15,7 +18,7 @@ from . import CtrtMeta, Ctrt
 
 class AtomicSwapCtrt(Ctrt):
     """
-    AtomicSwapCtrt is the class that encapsulates behaviours of the VSYS Atomic Swap Contract
+    AtomicSwapCtrt is the class for VSYS Atomic Swap contract.
     """
 
     CTRT_META = CtrtMeta.from_b58_str(
@@ -23,22 +26,46 @@ class AtomicSwapCtrt(Ctrt):
     )
 
     class FuncIdx(Ctrt.FuncIdx):
+        """
+        FuncIdx is the enum class for function indexes of a contract.
+        """
+
         LOCK = 0
         SOLVE_PUZZLE = 1
         EXPIRE_WITHDRAW = 2
 
     class StateVar(Ctrt.StateVar):
+        """
+        StateVar is the enum class for state variables of a contract.
+        """
+
         MAKER = 0
         TOKEN_ID = 1
 
     class DBKey(Ctrt.DBKey):
+        """
+        DBKey is the class for DB key of a contract used to query data.
+        """
+
         @classmethod
         def for_maker(cls) -> AtomicSwapCtrt.DBKey:
+            """
+            for_maker returns the AtomicSwapCtrt.DBKey object for querying the maker.
+
+            Returns:
+                AtomicSwapCtrt.DBKey: The AtomicSwapCtrt.DBKey object.
+            """
             b = AtomicSwapCtrt.StateVar.MAKER.serialize()
             return cls(b)
 
         @classmethod
         def for_token_id(cls) -> AtomicSwapCtrt.DBKey:
+            """
+            for_token_id returns the AtomicSwapCtrt.DBKey object for querying the token_id.
+
+            Returns:
+                AtomicSwapCtrt.DBKey: The AtomicSwapCtrt.DBKey object.
+            """
             b = AtomicSwapCtrt.StateVar.TOKEN_ID.serialize()
             return cls(b)
 
@@ -49,19 +76,18 @@ class AtomicSwapCtrt(Ctrt):
         tok_id: str,
         description: str = "",
         fee: int = md.RegCtrtFee.DEFAULT,
-        ee: int = md.ExecCtrtFee.DEFAULT,
     ) -> AtomicSwapCtrt:
         """
         register registers an Atomic Swap Contract
 
         Args:
-            by (acnt.Account): The action taker
-            tok_id (str): The id of the token to atomic swap
-            description (str): The description of the action
+            by (acnt.Account): The action taker.
+            tok_id (str): The id of the token to atomic swap.
+            description (str): The description of the action.
             fee (int, optional): The fee to pay for this action. Defaults to md.RegCtrtFee.DEFAULT.
 
         Returns:
-            AtomicSwapCtrt: The representative instance of the registered Atomic Swap Contract
+            AtomicSwapCtrt: The AtomicSwapCtrt object of the registered Atomic Swap contract.
         """
         data = by.register_contract(
             tx.RegCtrtTxReq(
@@ -84,7 +110,10 @@ class AtomicSwapCtrt(Ctrt):
     @property
     def maker(self) -> str:
         """
-        The address of the maker of this contract
+        maker queries & returns the maker of the contract.
+
+        Returns:
+            str: The address of the maker of the contract.
         """
         data = self.chain.api.ctrt.get_ctrt_data(
             ctrt_id=self.ctrt_id,
@@ -96,7 +125,10 @@ class AtomicSwapCtrt(Ctrt):
     @property
     def token_id(self) -> str:
         """
-        The id of the token registered with this contract
+        token_id queries & returns the token_id of the contract.
+
+        Returns:
+            str: The token_id of the contract.
         """
         data = self.chain.api.ctrt.get_ctrt_data(
             ctrt_id=self.ctrt_id,
