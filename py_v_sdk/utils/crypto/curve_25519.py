@@ -1,3 +1,7 @@
+"""
+curve_25519 contains functions for asymmertric cryptographic operations of curve25519
+E.g. generate key pair, sign, verify signature
+"""
 from __future__ import annotations
 import os
 
@@ -32,10 +36,9 @@ def gen_pub_key(pri_key: bytes) -> bytes:
 
 def sign(pri_key: bytes, msg: bytes) -> bytes:
     """
-    sign signs the given message with the given private key & 64-bytes random bytes
+    sign signs the given message with the given private key
 
     Args:
-        rand64 (bytes): The random 64-bytes bytes
         pri_key (bytes): The private key
         msg (bytes): The message to sign
 
@@ -48,7 +51,7 @@ def sign(pri_key: bytes, msg: bytes) -> bytes:
 
 def verify_sig(pub_key: bytes, msg: bytes, sig: bytes) -> bool:
     """
-    verify_sig verifies the given signature against the public key & message
+    verify_sig verifies the given signature with the public key & message
 
     Args:
         pub_key (bytes): The public key
