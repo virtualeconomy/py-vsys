@@ -1,3 +1,6 @@
+"""
+tx_req contains Transaction requests
+"""
 from __future__ import annotations
 import abc
 import enum
@@ -101,6 +104,12 @@ class RegCtrtTxReq(TxReq):
 
     @property
     def data_to_sign(self) -> bytes:
+        """
+        data_to_sign returns the data to be signed for this request in the format of bytes
+
+        Returns:
+            bytes: The data to be signed for this request
+        """
         ctrt_meta = self.ctrt_meta.serialize()
         data_stack = self.data_stack.serialize()
 
@@ -175,6 +184,12 @@ class ExecCtrtFuncTxReq(TxReq):
 
     @property
     def data_to_sign(self) -> bytes:
+        """
+        data_to_sign returns the data to be signed for this request in the format of bytes
+
+        Returns:
+            bytes: The data to be signed for this request
+        """
         data_stack = self.data_stack.serialize()
 
         return (
