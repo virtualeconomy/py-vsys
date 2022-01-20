@@ -1,3 +1,6 @@
+"""
+nft_ctrt contains NFT contract.
+"""
 from __future__ import annotations
 from typing import Dict, Any, TYPE_CHECKING
 
@@ -16,7 +19,7 @@ from . import CtrtMeta, Ctrt
 
 class NFTCtrt(Ctrt):
     """
-    NFTCtrt is the class that encapsulates behaviours of the VSYS NFT contract V1
+    NFTCtrt is the class for VSYS NFT contract V1
     """
 
     CTRT_META = CtrtMeta.from_b58_str(
@@ -24,6 +27,10 @@ class NFTCtrt(Ctrt):
     )
 
     class FuncIdx(Ctrt.FuncIdx):
+        """
+        FuncIdx is the enum class for function indexes of a contract.
+        """
+
         SUPERSEDE = 0
         ISSUE = 1
         SEND = 2
@@ -32,17 +39,37 @@ class NFTCtrt(Ctrt):
         WITHDRAW = 5
 
     class StateVar(Ctrt.StateVar):
+        """
+        StateVar is the enum class for state variables of a contract.
+        """
+
         ISSUER = 0
         MAKER = 1
 
     class DBKey(Ctrt.DBKey):
+        """
+        DBKey is the class for DB key of a contract used to query data.
+        """
+
         @classmethod
         def for_issuer(cls) -> NFTCtrt.DBKey:
+            """
+            for_issuer returns the NFTCtrt.DBKey object for querying the issuer.
+
+            Returns:
+                NFTCtrt.DBKey: The NFTCtrt.DBKey object.
+            """
             b = NFTCtrt.StateVar.ISSUER.serialize()
             return cls(b)
 
         @classmethod
         def for_maker(cls) -> NFTCtrt.DBKey:
+            """
+            for_maker returns the NFTCtrt.DBKey object for querying the maker.
+
+            Returns:
+                NFTCtrt.DBKey: The NFTCtrt.DBKey object.
+            """
             b = NFTCtrt.StateVar.MAKER.serialize()
             return cls(b)
 
@@ -54,15 +81,15 @@ class NFTCtrt(Ctrt):
         fee: int = md.RegCtrtFee.DEFAULT,
     ) -> NFTCtrt:
         """
-        register registers an NFT Contract
+        register registers an NFT Contract.
 
         Args:
-            by (acnt.Account): The action taker
-            description (str): The description of the action
+            by (acnt.Account): The action taker.
+            description (str, optional): The description of the action. Defaults to "".
             fee (int, optional): The fee to pay for this action. Defaults to md.RegCtrtFee.DEFAULT.
 
         Returns:
-            NFTCtrt: The representative instance of the registered Atomic Swap Contract
+            NFTCtrt: The NFTCtrt object of the registered NFT contract.
         """
         data = by.register_contract(
             tx.RegCtrtTxReq(
@@ -82,6 +109,12 @@ class NFTCtrt(Ctrt):
 
     @property
     def issuer(self) -> str:
+        """
+        issuer queries & returns the issuer of the contract.
+
+        Returns:
+            str: The address of the issuer of the contract.
+        """
         data = self.chain.api.ctrt.get_ctrt_data(
             ctrt_id=self.ctrt_id,
             db_key=self.DBKey.for_issuer().b58_str,
@@ -91,6 +124,12 @@ class NFTCtrt(Ctrt):
 
     @property
     def maker(self) -> str:
+        """
+        maker queries & returns the maker of the contract.
+
+        Returns:
+            str: The address of the maker of the contract.
+        """
         data = self.chain.api.ctrt.get_ctrt_data(
             ctrt_id=self.ctrt_id,
             db_key=self.DBKey.for_maker().b58_str,
@@ -101,18 +140,29 @@ class NFTCtrt(Ctrt):
     def issue(
         self,
         by: acnt.Account,
-        description: str = "",
+        attachment: str = "",
         fee: int = md.ExecCtrtFee.DEFAULT,
     ) -> Dict[str, Any]:
+        """
+        issue issues a token of the NFT contract.
+
+        Args:
+            by (acnt.Account): The action taker.
+            attachment (str, optional): The attachment of the action. Defaults to "".
+            fee (int, optional): The fee to pay for this action. Defaults to md.ExecCtrtFee.DEFAULT.
+
+        Returns:
+            Dict[str, Any]: The response returned by the Node API
+        """
         data = by.execute_contract(
             tx.ExecCtrtFuncTxReq(
                 ctrt_id=self._ctrt_id,
                 func_id=self.FuncIdx.ISSUE,
                 data_stack=de.DataStack(
-                    de.String(md.Str(description)),
+                    de.String(md.Str(attachment)),
                 ),
                 timestamp=md.VSYSTimestamp.now(),
-                attachment=md.Str(description),
+                attachment=md.Str(attachment),
                 fee=md.ExecCtrtFee(fee),
             )
         )
@@ -128,13 +178,13 @@ class NFTCtrt(Ctrt):
         fee: int = md.ExecCtrtFee.DEFAULT,
     ) -> Dict[str, Any]:
         """
-        send sends the NFT token from the action taker to the recipient
+        send sends the NFT token from the action taker to the recipient.
 
         Args:
-            by (acnt.Account): The action taker
-            recipient (str): The account address of the recipient
-            tok_idx (int): The index of the token within this contract to operate
-            attachment (str): The attachment of this action
+            by (acnt.Account): The action taker.
+            recipient (str): The account address of the recipient.
+            tok_idx (int): The index of the token within this contract to send.
+            attachment (str, optional): The attachment of the action. Defaults to "".
             fee (int, optional): The fee to pay for this action. Defaults to md.ExecCtrtFee.DEFAULT.
 
         Returns:
@@ -170,13 +220,13 @@ class NFTCtrt(Ctrt):
         fee: int = md.ExecCtrtFee.DEFAULT,
     ) -> Dict[str, Any]:
         """
-        transfer transfers the NFT token from the sender to the recipient
+        transfer transfers the NFT token from the sender to the recipient.
 
         Args:
-            by (acnt.Account): The action taker
-            sender (str): The account address of the sender
-            recipient (str): The account address of the recipient
-            tok_idx (int): The index of the token within this contract to operate
+            by (acnt.Account): The action taker.
+            sender (str): The account address of the sender.
+            recipient (str): The account address of the recipient.
+            tok_idx (int): The index of the token within this contract to transfer.
             attachment (str, optional): The attachment of this action. Defaults to "".
             fee (int, optional): The fee to pay for this action. Defaults to md.ExecCtrtFee.DEFAULT.
 
@@ -215,13 +265,13 @@ class NFTCtrt(Ctrt):
         fee: int = md.ExecCtrtFee.DEFAULT,
     ) -> Dict[str, Any]:
         """
-        deposit deposits the NFT token from the action taker to another contract
+        deposit deposits the NFT token from the action taker to another contract.
 
         Args:
-            by (acnt.Account): The action taker
-            ctrt_id (str): The id of the contract to deposit into
-            tok_idx (int): The index of the token within this contract to operate
-            attachment (str): The attachment of this action
+            by (acnt.Account): The action taker.
+            ctrt_id (str): The id of the contract to deposit into.
+            tok_idx (int): The index of the token within this contract to deposit.
+            attachment (str, optional): The attachment of this action. Defaults to "".
             fee (int, optional): The fee to pay for this action. Defaults to md.ExecCtrtFee.DEFAULT.
 
         Returns:
@@ -253,13 +303,13 @@ class NFTCtrt(Ctrt):
         fee: int = md.ExecCtrtFee.DEFAULT,
     ) -> Dict[str, Any]:
         """
-        withdraw withdraws the token from another contract to the action taker
+        withdraw withdraws the token from another contract to the action taker.
 
         Args:
-            by (acnt.Account): The action taker
-            ctrt_id (str): The id of the contract to withdraw from
-            tok_idx (int): The index of the token within this contract to operate
-            attachment (str): The attachment of this action
+            by (acnt.Account): The action taker.
+            ctrt_id (str): The id of the contract to withdraw from.
+            tok_idx (int): The index of the token within this contract to withdraw.
+            attachment (str, optional): The attachment of this action. Defaults to "".
             fee (int, optional): The fee to pay for this action. Defaults to md.ExecCtrtFee.DEFAULT.
 
         Returns:
@@ -293,9 +343,9 @@ class NFTCtrt(Ctrt):
         supersede transfers the issuer role of the contract to a new account.
 
         Args:
-            by (acnt.Account): The action taker
-            new_issuer (str): The account address of the new issuer
-            attachment (str): The attachment of this action
+            by (acnt.Account): The action taker.
+            new_issuer (str): The account address of the new issuer.
+            attachment (str, optional): The attachment of this action. Defaults to "".
             fee (int, optional): The fee to pay for this action. Defaults to md.ExecCtrtFee.DEFAULT.
 
         Returns:
