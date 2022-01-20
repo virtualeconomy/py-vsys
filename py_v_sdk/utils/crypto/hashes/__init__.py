@@ -1,5 +1,5 @@
 """
-crypto contains utility functions related to cryptography
+hashes contains utility functions related to hashing
 """
 
 from __future__ import annotations

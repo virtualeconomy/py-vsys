@@ -1,6 +1,5 @@
 """
-The customised implementation of Keccak hash
-TODO: Add comments
+keccak is the customised implementation of Keccak hash
 """
 
 from __future__ import annotations
@@ -41,6 +40,7 @@ Masks = [(1 << i) - 1 for i in range(65)]
 def how_many_bytes(bits: int) -> int:
     """
     how_many_bytes calculates how many bytes are needed to to hold the given number of bits
+
     E.g.
     => how_many_bytes(bits=0) == 0
     => how_many_bytes(bits=8) == 1
@@ -58,6 +58,7 @@ def how_many_bytes(bits: int) -> int:
 def rol(value: int, left: int, bits: int) -> int:
     """
     rol is the bitwise operation that rotates the given value left
+
     E.g.
     rol(3, 1, 4)
     => Rotate "0011" (the 4-bit binary representation of 3) left by 1 bit
@@ -65,7 +66,7 @@ def rol(value: int, left: int, bits: int) -> int:
 
     Args:
         value (int): The value to rotate
-        left (int): The number of bits to rotate
+        left (int): The number of bits to rotate left
         bits (int): The total bits of the number
 
     Returns:
@@ -79,6 +80,7 @@ def rol(value: int, left: int, bits: int) -> int:
 def ror(value: int, right: int, bits: int) -> int:
     """
     ror is the bitwise operation that rotates the given value right
+
     E.g.
     ror(3, 1, 4)
     => Rotate "0011" (the 4-bit binary representation of 3) right by 1 bit
@@ -86,7 +88,7 @@ def ror(value: int, right: int, bits: int) -> int:
 
     Args:
         value (int): The value to rotate
-        right (int): The number of bits to rotate
+        right (int): The number of bits to rotate right
         bits (int): The total bits of the number
 
     Returns:
@@ -167,49 +169,64 @@ class KeccakState:
         self.s = self.zero()
 
     @classmethod
-    def zero(cls) -> KeccakState:
+    def zero(cls) -> List[List[int]]:
         """
-        zero returns a H * W 2d list
+        zero returns a cls.H * cls.W 2d list full of zeros
 
         Returns:
-            [type]: [description]
+            List[List[int]]: The 2d list of zeros
         """
         return [[0] * cls.W for _ in range(cls.H)]
 
     @classmethod
-    def format(cls, st: List[List[int]]):
+    def format(cls, st: List[List[int]]) -> str:
         """
-        format formats the given 2d list to a string
+        format formats the given 2d(cls.H * cls.W) list to a string.
+
+        E.g.
+        st == [[i] * 5 for i in range(5)]
+           == [
+               [0, 0, 0, 0, 0],
+               [1, 1, 1, 1, 1],
+               [2, 2, 2, 2, 2],
+               [3, 3, 3, 3, 3],
+               [4, 4, 4, 4, 4],
+            ]
+        formatted string == '0000000000000000 0000000000000001 0000000000000002 0000000000000003 0000000000000004\n0000000000000000 0000000000000001 0000000000000002 0000000000000003 0000000000000004\n0000000000000000 0000000000000001 0000000000000002 0000000000000003 0000000000000004\n0000000000000000 0000000000000001 0000000000000002 0000000000000003 0000000000000004\n0000000000000000 0000000000000001 0000000000000002 0000000000000003 0000000000000004'
 
         Args:
-            st (List[List[int]]): [description]
+            st (List[List[int]]): The 2d list of int.
 
         Returns:
-            [type]: [description]
+            str: The format result.
         """
         rows = []
 
-        def fmt(x: int) -> str:
+        def pad_hex_fmt(x: int) -> str:
             """
-            # TODO:
-            Finish comment
+            pad_hex_fmt formats the given int to a string where
+            - the int is represented in hexdecimal format
+            - zeros are padded to the left if necessary
+            - the total length is 16
+
             E.g.
             >>> "%016x" % 4
             '0000000000000004'
             >>> "%016x" % 100
             '0000000000000064'
+
             Args:
-                x ([type]): [description]
+                x (int): The int to format
 
             Returns:
-                [type]: [description]
+                str: The format result.
             """
             return f"{x:016x}"
 
         for y in range(cls.H):
             row = []
             for x in range(cls.W):
-                row.append(fmt(st[x][y]))
+                row.append(pad_hex_fmt(st[x][y]))
             rows.append(" ".join(row))
         return "\n".join(rows)
 
@@ -325,7 +342,6 @@ class KeccakHash:
             width=(bitrate_bits + capacity_bits),
             padfn=multirate_padding,
             permfn=keccak_f,
-            # bitrate_bits, bitrate_bits + capacity_bits, multirate_padding, keccak_f
         )
         self.digest_size = how_many_bytes(output_bits)
         self.block_size = how_many_bytes(bitrate_bits)
