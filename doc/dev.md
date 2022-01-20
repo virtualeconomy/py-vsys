@@ -8,6 +8,7 @@
   - [Git Commit Style](#git-commit-style)
     - [Commit Format](#commit-format)
   - [Branch & PR Naming Convention](#branch--pr-naming-convention)
+  - [Doc String Guide](#doc-string-guide)
 
 ## Philosophy
 
@@ -118,3 +119,31 @@ The PR should look like
 ```
 docs: add branch naming convention
 ```
+
+## Doc String Guide
+
+Doc string is a must for wherever it is applicable (e.g. module, class, function, method, etc) so that API references documentation can be auto-generated out of it.
+
+`py-v-sdk` follows [Google Style](https://stackoverflow.com/a/24385103) and borrows from Golang the idea of starting the commentary always with the name of the object you'd like to comment.
+
+Below is an example.
+
+```python
+@abstractmethod
+def issue(self, by: acnt.Account, description: str = "") -> Dict[str, Any]:
+    """
+    issue issues a token.
+
+    Args:
+        by (acnt.Account): The action taker.
+        description (str): The description of this action. Defaults to "".
+
+    Returns:
+        Dict[str, Any]: The response returned by the Node API.
+
+    Raises:
+        NotImplementedError: Left to be implemented by the sub class.
+    """
+    raise NotImplementedError
+```
+For folks using VSCode, the plugin [Python Docstring Generator](https://marketplace.visualstudio.com/items?itemName=njpwerner.autodocstring) is recommended to quickly generate the doc string template.
