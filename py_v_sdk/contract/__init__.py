@@ -18,42 +18,98 @@ from py_v_sdk import model as md
 
 
 class Bytes:
+    """
+    Bytes is the helper data container for bytes used in contract meta data
+    with handy methods.
+    """
+
     def __init__(self, data: bytes = b"") -> None:
+        """
+        Args:
+            data (bytes, optional): The data to contain. Defaults to b"".
+        """
         self.data = data
 
     @classmethod
     def deserialize(cls, b: bytes) -> Bytes:
+        """
+        deserialize deserializes the given bytes and creates a Bytes object.
+
+        Args:
+            b (bytes): The bytes to deserialize.
+
+        Returns:
+            Bytes: The Bytes object created by deserialization.
+        """
         l = struct.unpack(">H", b[:2])[0]
         return cls(b[2 : 2 + l])
 
     @property
     def bytes(self) -> bytes:
+        """
+        bytes returns the containing bytes data
+
+        Returns:
+            bytes: the containing bytes data
+        """
         return self.data
 
     @property
     def b58_str(self) -> str:
+        """
+        b58_str returns the base58 string representation of the containing bytes data.
+
+        Returns:
+            str: The base58 string representation of data
+        """
         return base58.b58encode(self.data).decode("latin-1")
 
     @property
     def len_bytes(self) -> bytes:
         """
-        len_bytes returns the length of the bytes representation of the holding data in bytes
+        len_bytes returns the length in bytes of the containing data.
 
         Returns:
-            bytes: The length in bytes
+            bytes: The length in bytes.
         """
         return struct.pack(">H", len(self.bytes))
 
     def serialize(self) -> bytes:
+        """
+        serialize serializes Bytes object to bytes.
+
+        Returns:
+            bytes: The serialization result.
+        """
         return self.len_bytes + self.bytes
 
 
 class BytesList:
+    """
+    BytesList is a collection of Bytes
+    """
+
     def __init__(self, *items: Tuple[Bytes]) -> None:
+        """
+        Args:
+            *items (Tuple[Bytes]): Bytes objects to contain
+        """
         self.items: List[Bytes] = list(items)
 
     @classmethod
     def deserialize(cls, b: bytes, with_bytes_len: bool = True) -> BytesList:
+        """
+        deserialize deserializes the given bytes and creates a BytesList object.
+
+        Args:
+            b (bytes): The bytes to deserialize.
+            with_bytes_len (bool, optional): If the first 2 bytes of the given data
+                should be treated as the meta data that indicates the length for the data.
+                Defaults to True.
+
+        Returns:
+            BytesList: The BytesList object created by deserialization.
+        """
         if with_bytes_len:
             l = struct.unpack(">H", b[:2])[0]
             b = b[2 : 2 + l]
@@ -70,6 +126,17 @@ class BytesList:
         return cls(*items)
 
     def serialize(self, with_bytes_len: bool = True) -> bytes:
+        """
+        serialize serializes BytesList object to bytes.
+
+        Args:
+            with_bytes_len (bool, optional): If the 2-bytes meta data that indicates
+                the length of the data should be prepended.
+                Defaults to True.
+
+        Returns:
+            bytes: The serialization result.
+        """
         b = struct.pack(">H", len(self.items))
 
         for i in self.items:
@@ -98,6 +165,16 @@ class CtrtMeta:
         state_map: BytesList,
         textual: BytesList,
     ) -> None:
+        """
+        Args:
+            lang_code (str): The language code of the contract. E.g. "vdds".
+            lang_ver (int): The language version of the contract. E.g. 1
+            triggers (BytesList): The triggers of the contract.
+            descriptors (BytesList): The descriptors of the contract.
+            state_vars (BytesList): The state variables of the contract.
+            state_map (BytesList): The state map of the contract.
+            textual (BytesList): The textual of the contract.
+        """
         self.lang_code = lang_code
         self.lang_ver = lang_ver
         self.triggers = triggers
@@ -108,7 +185,26 @@ class CtrtMeta:
 
     @classmethod
     def from_b58_str(cls, b58_str: str) -> CtrtMeta:
+        """
+        from_b58_str creates a CtrtMeta object from the given base58 string.
+
+        Args:
+            b58_str (str): The base58 string to parse.
+
+        Returns:
+            CtrtMeta: The result CtrtMeta object.
+        """
+
         def parse_len(b: bytes) -> int:
+            """
+            parse_len unpacks the given 2 bytes as an unsigned short integer.
+
+            Args:
+                b (bytes): The bytes to unpack.
+
+            Returns:
+                int: The unpacked value.
+            """
             return struct.unpack(">H", b)[0]
 
         b = base58.b58decode(b58_str)
@@ -146,10 +242,10 @@ class CtrtMeta:
 
     def serialize(self) -> bytes:
         """
-        serialize serializes meta content of the contract to a byte string
+        serialize serializes CtrtMeta to a bytes.
 
         Returns:
-            bytes: The serialized bytes string
+            bytes: The serialization result.
         """
         stmap_bytes = b"" if self.lang_ver == 1 else self.state_map.serialize()
         b = (
@@ -166,8 +262,7 @@ class CtrtMeta:
 
 class Ctrt(abc.ABC):
     """
-    Ctrt is the abstract base class for smart contracts
-
+    Ctrt is the abstract base class for smart contracts.
     Each contract has a base58 encoded string that contains meta data of the contract.
 
     Below is an example response from the node api `contract/content/{contractId}
@@ -206,42 +301,111 @@ class Ctrt(abc.ABC):
     """
 
     class FuncIdx(enum.Enum):
+        """
+        FuncIdx is the enum class for function indexes of a contract.
+        """
+
         def serialize(self) -> bytes:
+            """
+            serialize serializes the FuncIdx object to bytes.
+
+            Returns:
+                bytes: The serialization result.
+            """
             return struct.pack(">H", self.value)
 
     class StateVar(enum.Enum):
+        """
+        StateVar is the enum class for state variables of a contract.
+        """
+
         def serialize(self) -> bytes:
+            """
+            serialize serializes the StateVar object to bytes.
+
+            Returns:
+                bytes: The serialization result.
+            """
             return struct.pack(">B", self.value)
 
     class StateMap(NamedTuple):
+        """
+        StateMap is the class for state map of a contract.
+        """
 
         idx: int
         data_entry: de.DataEntry
 
         def serialize(self) -> bytes:
+            """
+            serialize serializes the StateMap object to bytes.
+
+            Returns:
+                bytes: The serialization result.
+            """
             b = struct.pack(">B", self.idx) + self.data_entry.serialize()
             return b
 
     class DBKey:
+        """
+        DBKey is the class for DB key of a contract used to query data.
+        """
+
         def __init__(self, data: bytes = b"") -> None:
+            """
+            Args:
+                data (bytes, optional): The data to contain. Defaults to b"".
+            """
             self.data = data
 
         @classmethod
         def from_b58_str(cls, s: str) -> Ctrt.DBKey:
+            """
+            from_b58_str creates a DBKey object from the given base58 string.
+
+            Args:
+                s (str): The base58 string to parse.
+
+            Returns:
+                Ctrt.DBKey: The result Ctrt.DBKey object.
+            """
             return cls(base58.b58decode(s))
 
         @property
         def b58_str(self) -> str:
+            """
+            b58_str returns the base58 string representation of the containing bytes data.
+
+            Returns:
+                str: The base58 string representation of data
+            """
             return base58.b58encode(self.data).decode("latin-1")
 
     def __init__(self, ctrt_id: str, chain: ch.Chain) -> None:
+        """
+        Args:
+            ctrt_id (str): The id of the contract.
+            chain (ch.Chain): The object of the chain where the contract is on.
+        """
         self._ctrt_id = md.CtrtID(ctrt_id)
         self._chain = chain
 
     @property
     def ctrt_id(self) -> str:
+        """
+        ctrt_id returns the contract id in base58 string format.
+
+        Returns:
+            str: The contract id in base58 string format.
+        """
         return self._ctrt_id.data
 
     @property
     def chain(self) -> ch.Chain:
+        """
+        chain returns the chain object of the contract.
+
+        Returns:
+            ch.Chain: The chain object of the contract.
+        """
         return self._chain
