@@ -36,6 +36,7 @@ class NodeAPI:
         self._node = Node(self._host, self._sess)
         self._ctrt = Contract(self._host, self._sess)
         self._addr = Addresses(self._host, self._sess)
+        self._vsys = VSYS(self._host, self._sess)
 
     @property
     def host(self) -> str:
@@ -86,6 +87,16 @@ class NodeAPI:
             Addresses: The API group "addresses".
         """
         return self._addr
+
+    @property
+    def vsys(self) -> VSYS:
+        """
+        vsys returns the API group "vsys" of the NodeAPI.
+
+        Returns:
+            VSYS: The API group "vsys".
+        """
+        return self._vsys
 
 
 class APIGrp(abc.ABC):
@@ -208,7 +219,7 @@ class Contract(APIGrp):
         broadcast_register broadcasts the register contract request.
 
         Args:
-            payload (Dict[str, Any]): The payload to broadcast.
+            payload (Dict[str, Any]): The payload for the API call.
 
         Returns:
             Dict[str, Any]: The response.
@@ -220,7 +231,7 @@ class Contract(APIGrp):
         broadcast_execute broadcasts the execute contract request.
 
         Args:
-            payload (Dict[str, Any]): The payload to broadcast.
+            payload (Dict[str, Any]): The payload for the API call.
 
         Returns:
             Dict[str, Any]: The response.
@@ -271,3 +282,35 @@ class Addresses(APIGrp):
             Dict[str, Any]: The response.
         """
         return self.get(f"/balance/{addr}")
+
+
+class VSYS(APIGrp):
+    """
+    VSYS is the API group "vsys"
+    """
+
+    PREFIX = "/vsys"
+
+    def broadcast_payment(self, payload: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        broadcast_payment broadcasts the request for payment of VSYS coins.
+
+        Args:
+            payload (Dict[str, Any]): The payload for the API call.
+
+        Returns:
+            Dict[str, Any]: The response.
+        """
+        return self.post("/broadcast/payment", payload)
+
+    def payment(self, payload: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        payment makes the payment of VSYS coins for one of the built-in account of the node (API Key required).
+
+        Args:
+            payload (Dict[str, Any]): The payload for the API call.
+
+        Returns:
+            Dict[str, Any]: The response.
+        """
+        return self.post("/payment", payload)
