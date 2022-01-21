@@ -140,7 +140,7 @@ class Account:
         amount: int | float,
         attachment: str = "",
         fee: int = md.PaymentFee.DEFAULT,
-    ):
+    ) -> Dict[str, Any]:
         """
         pay pays the VSYS coins from the action taker to the recipient.
 
@@ -149,6 +149,9 @@ class Account:
             amount (int | float): The amount of VSYS coins to send.
             attachment (str, optional): The attachment of the action. Defaults to "".
             fee (int, optional): The fee to pay for this action. Defaults to md.PaymentFee.DEFAULT.
+
+        Returns:
+            Dict[str, Any]: The response returned by the Node API.
         """
         rcpt_md = md.Addr(recipient)
         rcpt_md.must_on(self.chain)
