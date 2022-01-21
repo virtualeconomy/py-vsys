@@ -411,7 +411,7 @@ class VSYS(NonNegativeInt):
 
         if int(data) < data:
             raise ValueError(
-                f"Invalid amount: {amount}. The minimal valid amount granularity is {1 / cls.UNIT}"
+                f"Invalid amount for {cls.__name__}: {amount}. The minimal valid amount granularity is {1 / cls.UNIT}"
             )
 
         return cls(int(data))
