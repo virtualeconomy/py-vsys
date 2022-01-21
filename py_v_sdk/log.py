@@ -1,3 +1,6 @@
+"""
+log contains logger initialization operations.
+"""
 import sys
 from loguru import logger
 

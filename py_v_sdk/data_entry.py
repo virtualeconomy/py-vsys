@@ -1,3 +1,6 @@
+"""
+data_entry contains DataEntry-related resources.
+"""
 from __future__ import annotations
 import abc
 import struct
@@ -9,8 +12,7 @@ from py_v_sdk import model as md
 
 class DataEntry(abc.ABC):
     """
-    DataEntry is the container for data(e.g. function_data for executing contract function)
-    passed to & received from smart contracts
+    DataEntry is the container for data used in interacting with smart contracts.
     """
 
     IDX = 0
@@ -60,7 +62,7 @@ class DataEntry(abc.ABC):
     def bytes(self) -> bytes:
         """
         bytes returns the bytes representation of the DataEntry
-        It converts only the data to bytes.
+        It converts the data to bytes only.
 
         Returns:
             bytes: The bytes representation of the DataEntry
@@ -69,7 +71,7 @@ class DataEntry(abc.ABC):
     @abc.abstractmethod
     def serialize(self) -> bytes:
         """
-        serialize serializes the holding data to bytes
+        serialize serializes the containing data to bytes
 
         Returns:
             bytes: The serialization result
@@ -77,10 +79,17 @@ class DataEntry(abc.ABC):
 
 
 class B58Str(DataEntry):
+    """
+    B58Str is the data entry base class for a base58 string.
+    """
 
     MODEL = md.B58Str
 
     def __init__(self, data: md.B58Str = md.B58Str()) -> None:
+        """
+        Args:
+            data (md.B58Str, optional): The containing data. Defaults to md.B58Str().
+        """
         self.data = data
 
     @classmethod
@@ -100,6 +109,9 @@ class B58Str(DataEntry):
 
 
 class PubKey(B58Str):
+    """
+    PubKey is the data entry for a public key.
+    """
 
     MODEL = md.PubKey
 
@@ -107,10 +119,17 @@ class PubKey(B58Str):
     SIZE = 32
 
     def __init__(self, data: md.PubKey) -> None:
+        """
+        Args:
+            data (md.PubKey): The containing data.
+        """
         self.data = data
 
 
 class Addr(B58Str):
+    """
+    Addr is the data entry for an address.
+    """
 
     MODEL = md.Addr
 
@@ -118,15 +137,30 @@ class Addr(B58Str):
     SIZE = 26
 
     def __init__(self, data: md.Addr) -> None:
+        """
+        Args:
+            data (md.Addr): The containing data.
+        """
         self.data = data
 
 
 class Int(DataEntry):
+    """
+    Int is the data entry base class for an integer.
+    """
+
     def __init__(self, data: md.Int = md.Int()) -> None:
+        """
+        Args:
+            data (md.Int, optional): The containing data. Defaults to md.Int().
+        """
         self.data = data
 
 
 class Long(Int):
+    """
+    Long is the data entry base class for a 8-bytes integer.
+    """
 
     SIZE = 8
 
@@ -148,11 +182,17 @@ class Long(Int):
 
 
 class Amount(Long):
+    """
+    Amount is the data entry for amount.
+    """
 
     IDX = 3
 
 
 class INT32(Int):
+    """
+    INT32 is the data entry for a 4-bytes integer.
+    """
 
     IDX = 4
     SIZE = 4
@@ -175,6 +215,10 @@ class INT32(Int):
 
 
 class Text(DataEntry):
+    """
+    Text is the data entry base class for texts(e.g. string, bytes)
+    """
+
     @classmethod
     def deserialize(cls, b: bytes) -> String:
         l = struct.unpack(">H", b[1:3])[0]
@@ -183,7 +227,7 @@ class Text(DataEntry):
     @property
     def len_bytes(self) -> bytes:
         """
-        len_bytes returns the length of the bytes representation of the holding data in bytes
+        len_bytes returns the length of the bytes representation of the containing data in bytes
 
         Returns:
             bytes: The length in bytes
@@ -195,10 +239,17 @@ class Text(DataEntry):
 
 
 class String(Text):
+    """
+    String is the data entry for a string.
+    """
 
     IDX = 5
 
     def __init__(self, data: md.Str = md.Str()):
+        """
+        Args:
+            data (md.Str, optional): The containing data. Defaults to md.Str().
+        """
         self.data = data
 
     @classmethod
@@ -211,6 +262,9 @@ class String(Text):
 
 
 class CtrtAcnt(B58Str):
+    """
+    CtrtAcnt is the data entry for contract account.
+    """
 
     MODEL = md.CtrtID
 
@@ -218,10 +272,17 @@ class CtrtAcnt(B58Str):
     SIZE = 26
 
     def __init__(self, data: md.CtrtID) -> None:
+        """
+        Args:
+            data (md.CtrtID): The containing data.
+        """
         self.data = data
 
 
 class Acnt(B58Str):
+    """
+    Acnt is the data entry for account.
+    """
 
     MODEL = md.Addr
 
@@ -229,10 +290,17 @@ class Acnt(B58Str):
     SIZE = 26
 
     def __init__(self, data: md.Addr) -> None:
+        """
+        Args:
+            data (md.Addr): The containing data.
+        """
         self.data = data
 
 
 class TokenID(B58Str):
+    """
+    TokenID is the data entry for token ID.
+    """
 
     MODEL = md.TokenID
 
@@ -240,14 +308,25 @@ class TokenID(B58Str):
     SIZE = 30
 
     def __init__(self, data: md.TokenID) -> None:
+        """
+        Args:
+            data (md.TokenID): The containing data.
+        """
         self.data = data
 
 
 class Timestamp(Long):
+    """
+    Timestamp is the data entry for timestamp.
+    """
 
     IDX = 9
 
     def __init__(self, data: md.VSYSTimestamp) -> None:
+        """
+        Args:
+            data (md.VSYSTimestamp): The containing data.
+        """
         self.data = data
 
     @classmethod
@@ -263,11 +342,18 @@ class Timestamp(Long):
 
 
 class Bool(DataEntry):
+    """
+    Bool is the data entry for a boolean value.
+    """
 
     IDX = 10
     SIZE = 1
 
     def __init__(self, data: md.Bool = md.Bool()) -> None:
+        """
+        Args:
+            data (md.Bool, optional): The containing data. Defaults to md.Bool().
+        """
         self.data = data
 
     @classmethod
@@ -288,10 +374,17 @@ class Bool(DataEntry):
 
 
 class Bytes(Text):
+    """
+    Bytes is the data entry for bytes
+    """
 
     IDX = 11
 
     def __init__(self, data: md.Bytes = md.Bytes()) -> None:
+        """
+        Args:
+            data (md.Bytes, optional): The containing data. Defaults to md.Bytes().
+        """
         self.data = data
 
     @classmethod
@@ -304,11 +397,18 @@ class Bytes(Text):
 
 
 class Balance(Long):
+    """
+    Balance is the data entry for balance.
+    """
 
     IDX = 12
 
 
 class IndexMap:
+    """
+    IndexMap is the map between the data entry index & corresponding data entry class.
+    """
+
     MAP = {
         1: PubKey,
         2: Addr,
@@ -330,7 +430,7 @@ class IndexMap:
         get_de_cls gets DataEntry Class as per the given index
 
         Args:
-            idx (int): The index to a DataEntry
+            idx (int): The data entry index.
 
         Returns:
             DataEntry: The DataEntry class
@@ -344,10 +444,23 @@ class DataStack:
     """
 
     def __init__(self, *data_entries: Tuple[DataEntry]) -> None:
+        """
+        Args:
+            *data_entries: (Tuple[DataEntry]): Data entries to contain.
+        """
         self.entries: List[DataEntry] = list(data_entries)
 
     @classmethod
     def deserialize(cls, b: bytes) -> DataStack:
+        """
+        deserialize deserializes the given bytes and creates a DataStack object.
+
+        Args:
+            b (bytes): The bytes to deserialize.
+
+        Returns:
+            DataStack: The DataStack object created by deserialization.
+        """
         l = struct.unpack(">H", b[:2])[0]
         b = b[2 : 2 + l]
 
@@ -365,6 +478,12 @@ class DataStack:
         return cls(*entries)
 
     def serialize(self) -> bytes:
+        """
+        serialize serializes the DataStack object to bytes.
+
+        Returns:
+            bytes: The serializes result.
+        """
         b = struct.pack(">H", len(self.entries))
 
         for de in self.entries:
