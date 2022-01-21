@@ -1,6 +1,6 @@
 # py-v-sdk
 [![Python version](https://img.shields.io/badge/Python-3.7%2B-blue)](https://www.python.org/downloads/)
-[![MIT License](https://img.shields.io/apm/l/atomic-design-ui.svg?)](https://github.com/tterb/atomic-design-ui/blob/master/LICENSEs)
+[![License](https://img.shields.io/badge/License-BSD_4--Clause-green.svg)](./LICENSE)
 
 > ***Under active development. Contributions are always welcome!***
 
