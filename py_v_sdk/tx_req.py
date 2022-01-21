@@ -50,17 +50,14 @@ class TxReq(abc.ABC):
     FEE_SCALE = 100
 
     @property
+    @abc.abstractmethod
     def data_to_sign(self) -> bytes:
         """
         data_to_sign returns the data to be signed for this request in the format of bytes
 
-        Raises:
-            NotImplementedError: Left to be implemented by subclasses
-
         Returns:
             bytes: The data to be signed for this request
         """
-        raise NotImplementedError
 
     def sign(self, key_pair: md.KeyPair) -> bytes:
         """
@@ -70,6 +67,70 @@ class TxReq(abc.ABC):
             bytes: The signature for this request
         """
         return curve.sign(key_pair.pri.bytes, self.data_to_sign)
+
+
+class PaymentTxReq(TxReq):
+    """
+    PaymentTxReq is Payment Transaction Request
+    """
+
+    TX_TYPE = TxType.PAYMENT
+
+    def __init__(
+        self,
+        recipient: md.Addr,
+        amount: md.VSYS,
+        timestamp: md.VSYSTimestamp,
+        attachment: md.Str = md.Str(),
+        fee: md.PaymentFee = md.PaymentFee(),
+    ) -> None:
+        """
+        Args:
+            recipient (md.Addr): The address of the recipient.
+            amount (md.VSYS): The amount of VSYS coins to send.
+            timestamp (md.VSYSTimestamp): The timestamp of this request.
+            attachment (md.Str, optional): The attachment for this request. Defaults to md.Str().
+            fee (md.PaymentFee, optional): The fee for this request. Defaults to md.PaymentFee().
+        """
+        self.recipient = recipient
+        self.amount = amount
+        self.timestamp = timestamp
+        self.attachment = attachment
+        self.fee = fee
+
+    @property
+    def data_to_sign(self) -> bytes:
+        return (
+            self.TX_TYPE.serialize()
+            + struct.pack(">Q", self.timestamp.data)
+            + struct.pack(">Q", self.amount.data)
+            + struct.pack(">Q", self.fee.data)
+            + struct.pack(">H", self.FEE_SCALE)
+            + self.recipient.bytes
+            + struct.pack(">H", len(self.attachment.data))
+            + self.attachment.bytes
+        )
+
+    def to_broadcast_payment_payload(self, key_pair: md.KeyPair) -> Dict[str, Any]:
+        """
+        to_broadcast_payment_payload returns the payload for node api /vsys/broadcast/payment
+
+        Args:
+            key_pair (md.KeyPair): The key pair to sign the request
+
+        Returns:
+            Dict[str, Any]: The payload
+        """
+        return {
+            "senderPublicKey": key_pair.pub.data,
+            "recipient": self.recipient.data,
+            "amount": self.amount.data,
+            "fee": self.fee.data,
+            "feeScale": self.FEE_SCALE,
+            "timestamp": self.timestamp.data,
+            "attachment": self.attachment.b58_str,
+            "signature": md.Bytes(self.sign(key_pair)).b58_str,
+        }
 
 
 class RegCtrtTxReq(TxReq):

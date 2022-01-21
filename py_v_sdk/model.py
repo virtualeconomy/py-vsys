@@ -379,12 +379,12 @@ class VSYS(NonNegativeInt):
     @classmethod
     def one(cls) -> VSYS:
         """
-        one creates a new VSYS where the denomination is equal to ONE VSYS coin on the VSYS blockchain.
+        one creates a new VSYS where the amount is equal to ONE VSYS coin on the VSYS blockchain.
 
         Returns:
             VSYS: The VSYS.
         """
-        return cls(cls.UNIT)
+        return cls.for_amount(1)
 
     @property
     def amount(self) -> float:
@@ -395,6 +395,26 @@ class VSYS(NonNegativeInt):
             float: The amount of VSYS coins.
         """
         return self.data / self.UNIT
+
+    @classmethod
+    def for_amount(cls, amount: int | float) -> VSYS:
+        """
+        for_amount creates a new VSYS where the amount is equal to the given amount.
+
+        Args:
+            amount (int | float): The amount.
+
+        Returns:
+            VSYS: The VSYS.
+        """
+        data = amount * cls.UNIT
+
+        if int(data) < data:
+            raise ValueError(
+                f"Invalid amount for {cls.__name__}: {amount}. The minimal valid amount granularity is {1 / cls.UNIT}"
+            )
+
+        return cls(int(data))
 
     def __mul__(self, factor: int | float) -> VSYS:
         """
@@ -438,6 +458,22 @@ class Fee(VSYS):
             raise ValueError(
                 f"Data in {cls_name} must be equal or greater than {self.DEFAULT}"
             )
+
+
+class BasicFee(VSYS):
+    """
+    BasicFee is the data model for the basic transaction fee.
+    """
+
+    DEFAULT = int(VSYS.UNIT * 0.1)
+
+
+class PaymentFee(BasicFee):
+    """
+    PaymentFee is the data model for the fee of a transaction where the type is Payment.
+    """
+
+    pass
 
 
 class RegCtrtFee(Fee):
