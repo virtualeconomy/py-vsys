@@ -460,6 +460,22 @@ class Fee(VSYS):
             )
 
 
+class BasicFee(VSYS):
+    """
+    BasicFee is the data model for the basic transaction fee.
+    """
+
+    DEFAULT = int(VSYS.UNIT * 0.1)
+
+
+class PaymentFee(BasicFee):
+    """
+    PaymentFee is the data model for the fee of a transaction where the type is Payment.
+    """
+
+    pass
+
+
 class RegCtrtFee(Fee):
     """
     RegCtrtFee is the data model for the fee of a transaction where the type is Register Contract.
