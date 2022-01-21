@@ -8,6 +8,7 @@
   - [Git Commit Style](#git-commit-style)
     - [Commit Format](#commit-format)
   - [Branch & PR Naming Convention](#branch--pr-naming-convention)
+  - [Github Issue Naming Convention](#github-issue-naming-convention)
   - [Doc String Guide](#doc-string-guide)
 
 ## Philosophy
@@ -119,6 +120,31 @@ The PR should look like
 ```
 docs: add branch naming convention
 ```
+
+## Github Issue Naming Convention
+
+The naming convention for Github issues conforms to the PR one.
+
+```
+type: short summary in lower case
+  │               │
+  │               └─⫸ Summary in present tense. Not capitalized. No period at the end.
+  │
+  └─⫸ Commit Type: build|docs|feat|fix|refactor|test|chore 
+```
+
+For example, to suggest adding test cases, the issue name should look like
+
+```
+test: add test cases for XXX
+```
+
+To file a bug, the issue name should look like
+
+```
+fix: XXX is incorrect
+```
+
 
 ## Doc String Guide
 
