@@ -4,13 +4,15 @@ account contains account-related resources
 from __future__ import annotations
 from typing import Any, Dict, TYPE_CHECKING
 
+from loguru import logger
+
 # https://stackoverflow.com/a/39757388
 if TYPE_CHECKING:
-    from py_v_sdk import tx_req as tx
     from py_v_sdk import chain as ch
     from py_v_sdk import api
 
 from py_v_sdk import model as md
+from py_v_sdk import tx_req as tx
 from py_v_sdk.utils.crypto import hashes as hs
 from py_v_sdk.utils.crypto import curve_25519 as curve
 
@@ -117,6 +119,51 @@ class Account:
             int: The account's balance.
         """
         return self.api.addr.get_balance(self.addr.b58_str)["balance"]
+
+    def _pay(self, req: tx.PaymentTxReq) -> Dict[str, Any]:
+        """
+        _pay sends a payment transaction request on behalf of the account.
+
+        Args:
+            req (tx.PaymentTxReq): The payment transaction request.
+
+        Returns:
+            Dict[str, Any]: The response returned by the Node API.
+        """
+        return self.api.vsys.broadcast_payment(
+            req.to_broadcast_payment_payload(self.key_pair)
+        )
+
+    def pay(
+        self,
+        recipient: str,
+        amount: int | float,
+        attachment: str = "",
+        fee: int = md.PaymentFee.DEFAULT,
+    ):
+        """
+        pay pays the VSYS coins from the action taker to the recipient.
+
+        Args:
+            recipient (str): The account address of the recipient.
+            amount (int | float): The amount of VSYS coins to send.
+            attachment (str, optional): The attachment of the action. Defaults to "".
+            fee (int, optional): The fee to pay for this action. Defaults to md.PaymentFee.DEFAULT.
+        """
+        rcpt_md = md.Addr(recipient)
+        rcpt_md.must_on(self.chain)
+
+        data = self._pay(
+            tx.PaymentTxReq(
+                recipient=rcpt_md,
+                amount=md.VSYS.for_amount(amount),
+                timestamp=md.VSYSTimestamp.now(),
+                attachment=md.Str(attachment),
+                fee=md.PaymentFee(fee),
+            )
+        )
+        logger.debug(data)
+        return data
 
     def register_contract(self, req: tx.RegCtrtTxReq) -> Dict[str, Any]:
         """
