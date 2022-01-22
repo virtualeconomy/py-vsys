@@ -194,9 +194,9 @@ class Blocks(APIGrp):
         """
         return await self._get("/height")
 
-    async def get_last_block(self) -> Dict[str, Any]:
+    async def get_last(self) -> Dict[str, Any]:
         """
-        get_last_block gets the last block of the chain.
+        get_last gets the last block of the chain.
 
         Returns:
             Dict[str, Any]: The response.

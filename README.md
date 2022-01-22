@@ -59,7 +59,7 @@ ctrt: pv.NFTCtrt = pv.NFTCtrt(ctrt_id, chain)
 
 def try_api():
     # GET /blocks/last
-    print(api.blocks.get_last_block())
+    print(api.blocks.get_last())
     # GET /node/version
     print(api.node.get_version())
 
