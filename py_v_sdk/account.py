@@ -168,9 +168,9 @@ class Account:
         logger.debug(data)
         return data
 
-    async def register_contract(self, req: tx.RegCtrtTxReq) -> Dict[str, Any]:
+    async def _register_contract(self, req: tx.RegCtrtTxReq) -> Dict[str, Any]:
         """
-        register_contract sends a register contract transaction on behalf of the account.
+        _register_contract sends a register contract transaction on behalf of the account.
 
         Args:
             req (tx.RegCtrtTxReq): The register contract transaction request.
@@ -182,9 +182,9 @@ class Account:
             req.to_broadcast_register_payload(self.key_pair)
         )
 
-    async def execute_contract(self, req: tx.ExecCtrtFuncTxReq) -> Dict[str, Any]:
+    async def _execute_contract(self, req: tx.ExecCtrtFuncTxReq) -> Dict[str, Any]:
         """
-        execute_contract sends an execute contract transaction on behalf of the account.
+        _execute_contract sends an execute contract transaction on behalf of the account.
 
         Args:
             req (tx.ExecCtrtFuncTxReq): The execute contract transaction request.

@@ -89,7 +89,7 @@ class AtomicSwapCtrt(Ctrt):
         Returns:
             AtomicSwapCtrt: The AtomicSwapCtrt object of the registered Atomic Swap contract.
         """
-        data = by.register_contract(
+        data = by._register_contract(
             tx.RegCtrtTxReq(
                 data_stack=de.DataStack(
                     de.TokenID(md.TokenID(tok_id)),

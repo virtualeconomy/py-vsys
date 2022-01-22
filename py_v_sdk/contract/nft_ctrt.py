@@ -91,7 +91,7 @@ class NFTCtrt(Ctrt):
         Returns:
             NFTCtrt: The NFTCtrt object of the registered NFT contract.
         """
-        data = by.register_contract(
+        data = by._register_contract(
             tx.RegCtrtTxReq(
                 data_stack=de.DataStack(),
                 ctrt_meta=cls.CTRT_META,
@@ -154,7 +154,7 @@ class NFTCtrt(Ctrt):
         Returns:
             Dict[str, Any]: The response returned by the Node API
         """
-        data = by.execute_contract(
+        data = by._execute_contract(
             tx.ExecCtrtFuncTxReq(
                 ctrt_id=self._ctrt_id,
                 func_id=self.FuncIdx.ISSUE,
@@ -194,7 +194,7 @@ class NFTCtrt(Ctrt):
         rcpt_md = md.Addr(recipient)
         rcpt_md.must_on(by.chain)
 
-        data = by.execute_contract(
+        data = by._execute_contract(
             tx.ExecCtrtFuncTxReq(
                 ctrt_id=self._ctrt_id,
                 func_id=self.FuncIdx.SEND,
@@ -239,7 +239,7 @@ class NFTCtrt(Ctrt):
         sender_md.must_on(by.chain)
         rcpt_md.must_on(by.chain)
 
-        data = by.execute_contract(
+        data = by._execute_contract(
             tx.ExecCtrtFuncTxReq(
                 ctrt_id=self._ctrt_id,
                 func_id=self.FuncIdx.TRANSFER,
@@ -277,7 +277,7 @@ class NFTCtrt(Ctrt):
         Returns:
             Dict[str, Any]: The response returned by the Node API
         """
-        data = by.execute_contract(
+        data = by._execute_contract(
             tx.ExecCtrtFuncTxReq(
                 ctrt_id=self._ctrt_id,
                 func_id=self.FuncIdx.DEPOSIT,
@@ -315,7 +315,7 @@ class NFTCtrt(Ctrt):
         Returns:
             Dict[str, Any]: The response returned by the Node API
         """
-        data = by.execute_contract(
+        data = by._execute_contract(
             tx.ExecCtrtFuncTxReq(
                 ctrt_id=self._ctrt_id,
                 func_id=self.FuncIdx.WITHDRAW,
@@ -355,7 +355,7 @@ class NFTCtrt(Ctrt):
         new_issuer_md = md.Addr(new_issuer)
         new_issuer_md.must_on(by.chain)
 
-        data = by.execute_contract(
+        data = by._execute_contract(
             tx.ExecCtrtFuncTxReq(
                 ctrt_id=self._ctrt_id,
                 func_id=self.FuncIdx.SUPERSEDE,
