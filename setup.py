@@ -27,7 +27,7 @@ setuptools.setup(
     license="MIT",
     packages=setuptools.find_packages(),
     install_requires=[
-        "requests~=2.27.1",
+        "aiohttp~=3.8.1",
         "python-axolotl-curve25519~=0.4.1.post2",
         "base58~=2.1.1",
         "loguru~=0.5.3",

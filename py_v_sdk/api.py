@@ -3,10 +3,11 @@ api contains NodeAPI-related resources.
 """
 from __future__ import annotations
 import abc
+import asyncio
 import json
 from typing import Any, Dict, Optional
 
-import requests
+import aiohttp
 
 
 class NodeAPI:
@@ -14,29 +15,39 @@ class NodeAPI:
     NodeAPI is the wrapper class for RESTful APIs exposed by a node in the VSYS chain network.
     """
 
-    def __init__(
-        self, host: str, api_key: Optional[str] = None, timeout: Optional[int] = None
-    ):
+    def __init__(self, sess: aiohttp.ClientSession):
+        self._sess = sess
+        self._blocks = Blocks(sess)
+        self._node = Node(sess)
+        self._utils = Utils(sess)
+        self._ctrt = Contract(sess)
+        self._addr = Addresses(sess)
+        self._vsys = VSYS(sess)
+
+    def __del__(self) -> None:
+        asyncio.get_event_loop().create_task(self._sess.close())
+
+    @classmethod
+    async def new(
+        cls, host: str, api_key: Optional[str] = None, timeout: Optional[float] = None
+    ) -> NodeAPI:
         """
         Args:
             host (str): The host of the node(with the port). E.g. http://veldidina.vos.systems:9928
             api_key (Optional[str], optional): The API key to that node. Defaults to None.
-            timeout (Optional[int], optional): The timeout value. Defaults to None.
+            timeout (Optional[float], optional): The timeout value in seconds. Defaults to None.
         """
-        self._host = host
+        headers: Dict[str, str] = {"Content-type": "application/json"}
 
-        self._sess = requests.Session()
-        self._sess.headers.update({"Content-Type": "application/json"})
         if api_key:
-            self._sess.headers.update({"api_key": api_key})
-        if timeout:
-            self._sess.timeout = timeout
+            headers["api_key"] = api_key
 
-        self._blocks = Blocks(self._host, self._sess)
-        self._node = Node(self._host, self._sess)
-        self._ctrt = Contract(self._host, self._sess)
-        self._addr = Addresses(self._host, self._sess)
-        self._vsys = VSYS(self._host, self._sess)
+        sess = aiohttp.ClientSession(
+            base_url=host,
+            headers=headers,
+            timeout=aiohttp.ClientTimeout(total=timeout),
+        )
+        return cls(sess)
 
     @property
     def host(self) -> str:
@@ -67,6 +78,16 @@ class NodeAPI:
             Node: The API group "node".
         """
         return self._node
+
+    @property
+    def utils(self) -> Utils:
+        """
+        utils return the API group "utils" of the NodeAPI.
+
+        Returns:
+            Utils: The API group "utils".
+        """
+        return self._utils
 
     @property
     def ctrt(self) -> Contract:
@@ -106,13 +127,11 @@ class APIGrp(abc.ABC):
 
     PREFIX = ""
 
-    def __init__(self, host: str, sess: requests.Session):
+    def __init__(self, sess: aiohttp.ClientSession):
         """
         Args:
-            host (str): The host of the node(with the port). E.g. http://veldidina.vos.systems:9928
-            sess (requests.Session): The HTTP request session.
+            sess (aiohttp.ClientSession): The HTTP request session.
         """
-        self._host = host
         self._sess = sess
 
     def _make_url(self, edpt: str) -> str:
@@ -125,9 +144,9 @@ class APIGrp(abc.ABC):
         Returns:
             str: The full url.
         """
-        return self._host + self.PREFIX + edpt
+        return self.PREFIX + edpt
 
-    def get(self, edpt: str) -> Dict[str, Any]:
+    async def _get(self, edpt: str) -> Dict[str, Any]:
         """
         get calls the given endpoint with HTTP GET.
 
@@ -138,21 +157,25 @@ class APIGrp(abc.ABC):
             Dict[str, Any]: The response.
         """
         url = self._make_url(edpt)
-        return self._sess.get(url).json()
 
-    def post(self, edpt: str, payload: Dict[str, Any]) -> Dict[str, Any]:
+        async with self._sess.get(url) as resp:
+            return await resp.json()
+
+    async def _post(self, edpt: str, data: str) -> Dict[str, Any]:
         """
-        post calls the given endpoint with HTTP POST with the given payload.
+        post calls the given endpoint with HTTP POST with the given data.
 
         Args:
             edpt (str): The endpoint name.
-            payload (Dict[str, Any]): The payload.
+            data (str): The payload. Either a JSON string or a plain text string.
 
         Returns:
             Dict[str, Any]: The response.
         """
         url = self._make_url(edpt)
-        return self._sess.post(url, json.dumps(payload)).json()
+
+        async with self._sess.post(url, data=data) as resp:
+            return await resp.json()
 
 
 class Blocks(APIGrp):
@@ -162,23 +185,31 @@ class Blocks(APIGrp):
 
     PREFIX = "/blocks"
 
-    def get_height(self) -> Dict[str, Any]:
+    async def get_height(self) -> Dict[str, Any]:
         """
         get_height gets the height of the last block.
 
         Returns:
             Dict[str, Any]: The response.
         """
-        return self.get("/height")
+        return await self._get("/height")
 
-    def get_last_block(self) -> Dict[str, Any]:
+    async def get_last(self) -> Dict[str, Any]:
         """
-        get_last_block gets the last block of the chain.
+        get_last gets the last block of the chain.
 
         Returns:
             Dict[str, Any]: The response.
         """
-        return self.get("/last")
+        return await self._get("/last")
+
+
+class Utils(APIGrp):
+
+    PREFIX = "/utils"
+
+    async def hash_fast(self, data: str) -> Dict[str, Any]:
+        return await self._post("/hash/fast", data)
 
 
 class Node(APIGrp):
@@ -188,23 +219,23 @@ class Node(APIGrp):
 
     PREFIX = "/node"
 
-    def get_status(self) -> Dict[str, Any]:
+    async def get_status(self) -> Dict[str, Any]:
         """
         get_status gets the status of the node.
 
         Returns:
             Dict[str, Any]: The response.
         """
-        return self.get("/status")
+        return await self._get("/status")
 
-    def get_version(self) -> Dict[str, Any]:
+    async def get_version(self) -> Dict[str, Any]:
         """
         get_version gets the version of the node.
 
         Returns:
             Dict[str, Any]: The response.
         """
-        return self.get("/version")
+        return await self._get("/version")
 
 
 class Contract(APIGrp):
@@ -214,31 +245,31 @@ class Contract(APIGrp):
 
     PREFIX = "/contract"
 
-    def broadcast_register(self, payload: Dict[str, Any]) -> Dict[str, Any]:
+    async def broadcast_register(self, data: Dict[str, Any]) -> Dict[str, Any]:
         """
         broadcast_register broadcasts the register contract request.
 
         Args:
-            payload (Dict[str, Any]): The payload for the API call.
+            data (Dict[str, Any]): The payload for the API call.
 
         Returns:
             Dict[str, Any]: The response.
         """
-        return self.post("/broadcast/register", payload)
+        return await self._post("/broadcast/register", json.dumps(data))
 
-    def broadcast_execute(self, payload: Dict[str, Any]) -> Dict[str, Any]:
+    async def broadcast_execute(self, data: Dict[str, Any]) -> Dict[str, Any]:
         """
         broadcast_execute broadcasts the execute contract request.
 
         Args:
-            payload (Dict[str, Any]): The payload for the API call.
+            data (Dict[str, Any]): The payload for the API call.
 
         Returns:
             Dict[str, Any]: The response.
         """
-        return self.post("/broadcast/execute", payload)
+        return await self._post("/broadcast/execute", json.dumps(data))
 
-    def get_ctrt_data(self, ctrt_id: str, db_key: str) -> Dict[str, Any]:
+    async def get_ctrt_data(self, ctrt_id: str, db_key: str) -> Dict[str, Any]:
         """
         get_ctrt_data gets the data of a contract with the given DB key.
 
@@ -249,7 +280,7 @@ class Contract(APIGrp):
         Returns:
             Dict[str, Any]: The response.
         """
-        return self.get(f"/data/{ctrt_id}/{db_key}")
+        return await self._get(f"/data/{ctrt_id}/{db_key}")
 
 
 class Addresses(APIGrp):
@@ -259,7 +290,7 @@ class Addresses(APIGrp):
 
     PREFIX = "/addresses"
 
-    def get_addr(self, pub_key: str) -> Dict[str, Any]:
+    async def get_addr(self, pub_key: str) -> Dict[str, Any]:
         """
         get_addr gets the address from the public key.
 
@@ -269,9 +300,9 @@ class Addresses(APIGrp):
         Returns:
             Dict[str, Any]: The response.
         """
-        return self.get(f"/publicKey/{pub_key}")
+        return await self._get(f"/publicKey/{pub_key}")
 
-    def get_balance(self, addr: str) -> Dict[str, Any]:
+    async def get_balance(self, addr: str) -> Dict[str, Any]:
         """
         get_balance gets the balance of the given address.
 
@@ -281,7 +312,7 @@ class Addresses(APIGrp):
         Returns:
             Dict[str, Any]: The response.
         """
-        return self.get(f"/balance/{addr}")
+        return await self._get(f"/balance/{addr}")
 
 
 class VSYS(APIGrp):
@@ -291,26 +322,26 @@ class VSYS(APIGrp):
 
     PREFIX = "/vsys"
 
-    def broadcast_payment(self, payload: Dict[str, Any]) -> Dict[str, Any]:
+    async def broadcast_payment(self, data: Dict[str, Any]) -> Dict[str, Any]:
         """
         broadcast_payment broadcasts the request for payment of VSYS coins.
 
         Args:
-            payload (Dict[str, Any]): The payload for the API call.
+            data (Dict[str, Any]): The payload for the API call.
 
         Returns:
             Dict[str, Any]: The response.
         """
-        return self.post("/broadcast/payment", payload)
+        return await self._post("/broadcast/payment", json.dumps(data))
 
-    def payment(self, payload: Dict[str, Any]) -> Dict[str, Any]:
+    async def payment(self, data: Dict[str, Any]) -> Dict[str, Any]:
         """
         payment makes the payment of VSYS coins for one of the built-in account of the node (API Key required).
 
         Args:
-            payload (Dict[str, Any]): The payload for the API call.
+            data (Dict[str, Any]): The payload for the API call.
 
         Returns:
             Dict[str, Any]: The response.
         """
-        return self.post("/payment", payload)
+        return await self._post("/payment", json.dumps(data))
