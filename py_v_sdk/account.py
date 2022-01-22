@@ -111,16 +111,16 @@ class Account:
         return self._addr
 
     @property
-    def balance(self) -> int:
+    async def balance(self) -> int:
         """
         balance returns the account's balance.
 
         Returns:
             int: The account's balance.
         """
-        return self.api.addr.get_balance(self.addr.b58_str)["balance"]
+        return await self.api.addr.get_balance(self.addr.b58_str)["balance"]
 
-    def _pay(self, req: tx.PaymentTxReq) -> Dict[str, Any]:
+    async def _pay(self, req: tx.PaymentTxReq) -> Dict[str, Any]:
         """
         _pay sends a payment transaction request on behalf of the account.
 
@@ -130,11 +130,11 @@ class Account:
         Returns:
             Dict[str, Any]: The response returned by the Node API.
         """
-        return self.api.vsys.broadcast_payment(
+        return await self.api.vsys.broadcast_payment(
             req.to_broadcast_payment_payload(self.key_pair)
         )
 
-    def pay(
+    async def pay(
         self,
         recipient: str,
         amount: int | float,
@@ -156,7 +156,7 @@ class Account:
         rcpt_md = md.Addr(recipient)
         rcpt_md.must_on(self.chain)
 
-        data = self._pay(
+        data = await self._pay(
             tx.PaymentTxReq(
                 recipient=rcpt_md,
                 amount=md.VSYS.for_amount(amount),
@@ -168,7 +168,7 @@ class Account:
         logger.debug(data)
         return data
 
-    def register_contract(self, req: tx.RegCtrtTxReq) -> Dict[str, Any]:
+    async def register_contract(self, req: tx.RegCtrtTxReq) -> Dict[str, Any]:
         """
         register_contract sends a register contract transaction on behalf of the account.
 
@@ -178,11 +178,11 @@ class Account:
         Returns:
             Dict[str, Any]: The response returned by the Node API.
         """
-        return self.api.ctrt.broadcast_register(
+        return await self.api.ctrt.broadcast_register(
             req.to_broadcast_register_payload(self.key_pair)
         )
 
-    def execute_contract(self, req: tx.ExecCtrtFuncTxReq) -> Dict[str, Any]:
+    async def execute_contract(self, req: tx.ExecCtrtFuncTxReq) -> Dict[str, Any]:
         """
         execute_contract sends an execute contract transaction on behalf of the account.
 
@@ -192,7 +192,7 @@ class Account:
         Returns:
             Dict[str, Any]: The response returned by the Node API.
         """
-        return self.api.ctrt.broadcast_execute(
+        return await self.api.ctrt.broadcast_execute(
             req.to_broadcast_execute_payload(self.key_pair)
         )
 
