@@ -15,9 +15,22 @@ class NodeAPI:
     NodeAPI is the wrapper class for RESTful APIs exposed by a node in the VSYS chain network.
     """
 
-    def __init__(
-        self, host: str, api_key: Optional[str] = None, timeout: Optional[float] = None
-    ):
+    def __init__(self, sess: aiohttp.ClientSession):
+        self._sess = sess
+        self._blocks = Blocks(sess)
+        self._node = Node(sess)
+        self._utils = Utils(sess)
+        self._ctrt = Contract(sess)
+        self._addr = Addresses(sess)
+        self._vsys = VSYS(sess)
+
+    def __del__(self) -> None:
+        asyncio.get_event_loop().create_task(self._sess.close())
+
+    @classmethod
+    async def new(
+        cls, host: str, api_key: Optional[str] = None, timeout: Optional[float] = None
+    ) -> NodeAPI:
         """
         Args:
             host (str): The host of the node(with the port). E.g. http://veldidina.vos.systems:9928
@@ -29,22 +42,12 @@ class NodeAPI:
         if api_key:
             headers["api_key"] = api_key
 
-        self._sess = aiohttp.ClientSession(
+        sess = aiohttp.ClientSession(
             base_url=host,
             headers=headers,
             timeout=aiohttp.ClientTimeout(total=timeout),
         )
-
-        self._host = host
-        self._blocks = Blocks(self._sess)
-        self._node = Node(self._sess)
-        self._utils = Utils(self._sess)
-        self._ctrt = Contract(self._sess)
-        self._addr = Addresses(self._sess)
-        self._vsys = VSYS(self._sess)
-
-    def __del__(self) -> None:
-        asyncio.get_event_loop().create_task(self._sess.close())
+        return cls(sess)
 
     @property
     def host(self) -> str:
