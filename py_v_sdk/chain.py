@@ -55,21 +55,21 @@ class Chain:
         return self._chain_id
 
     @property
-    def height(self) -> int:
+    async def height(self) -> int:
         """
         height queries & returns the height of the chain.
 
         Returns:
             int: The height of the chain.
         """
-        return self.api.blocks.get_height()["height"]
+        return await self.api.blocks.get_height()["height"]
 
     @property
-    def last_block(self) -> Dict[str, Any]:
+    async def last_block(self) -> Dict[str, Any]:
         """
         last_block queries & returns the last_block of the chain.
 
         Returns:
             Dict[str, Any]: The last block data of the chain.
         """
-        return self.api.blocks.get_last_block()
+        return await self.api.blocks.get_last()
