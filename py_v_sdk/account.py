@@ -118,7 +118,8 @@ class Account:
         Returns:
             int: The account's balance.
         """
-        return await self.api.addr.get_balance(self.addr.b58_str)["balance"]
+        resp = await self.api.addr.get_balance(self.addr.b58_str)
+        return resp["balance"]
 
     async def _pay(self, req: tx.PaymentTxReq) -> Dict[str, Any]:
         """

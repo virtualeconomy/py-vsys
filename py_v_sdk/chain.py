@@ -62,7 +62,8 @@ class Chain:
         Returns:
             int: The height of the chain.
         """
-        return await self.api.blocks.get_height()["height"]
+        resp = await self.api.blocks.get_height()
+        return resp["height"]
 
     @property
     async def last_block(self) -> Dict[str, Any]:
