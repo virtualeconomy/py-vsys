@@ -74,7 +74,7 @@ class NFTCtrt(Ctrt):
             return cls(b)
 
     @classmethod
-    def register(
+    async def register(
         cls,
         by: acnt.Account,
         description: str = "",
@@ -91,7 +91,7 @@ class NFTCtrt(Ctrt):
         Returns:
             NFTCtrt: The NFTCtrt object of the registered NFT contract.
         """
-        data = by._register_contract(
+        data = await by._register_contract(
             tx.RegCtrtTxReq(
                 data_stack=de.DataStack(),
                 ctrt_meta=cls.CTRT_META,
@@ -108,14 +108,14 @@ class NFTCtrt(Ctrt):
         )
 
     @property
-    def issuer(self) -> str:
+    async def issuer(self) -> str:
         """
         issuer queries & returns the issuer of the contract.
 
         Returns:
             str: The address of the issuer of the contract.
         """
-        data = self.chain.api.ctrt.get_ctrt_data(
+        data = await self.chain.api.ctrt.get_ctrt_data(
             ctrt_id=self.ctrt_id,
             db_key=self.DBKey.for_issuer().b58_str,
         )
@@ -123,21 +123,21 @@ class NFTCtrt(Ctrt):
         return data["value"]
 
     @property
-    def maker(self) -> str:
+    async def maker(self) -> str:
         """
         maker queries & returns the maker of the contract.
 
         Returns:
             str: The address of the maker of the contract.
         """
-        data = self.chain.api.ctrt.get_ctrt_data(
+        data = await self.chain.api.ctrt.get_ctrt_data(
             ctrt_id=self.ctrt_id,
             db_key=self.DBKey.for_maker().b58_str,
         )
         logger.debug(data)
         return data["value"]
 
-    def issue(
+    async def issue(
         self,
         by: acnt.Account,
         attachment: str = "",
@@ -154,7 +154,7 @@ class NFTCtrt(Ctrt):
         Returns:
             Dict[str, Any]: The response returned by the Node API
         """
-        data = by._execute_contract(
+        data = await by._execute_contract(
             tx.ExecCtrtFuncTxReq(
                 ctrt_id=self._ctrt_id,
                 func_id=self.FuncIdx.ISSUE,
@@ -169,7 +169,7 @@ class NFTCtrt(Ctrt):
         logger.debug(data)
         return data
 
-    def send(
+    async def send(
         self,
         by: acnt.Account,
         recipient: str,
@@ -194,7 +194,7 @@ class NFTCtrt(Ctrt):
         rcpt_md = md.Addr(recipient)
         rcpt_md.must_on(by.chain)
 
-        data = by._execute_contract(
+        data = await by._execute_contract(
             tx.ExecCtrtFuncTxReq(
                 ctrt_id=self._ctrt_id,
                 func_id=self.FuncIdx.SEND,
@@ -210,7 +210,7 @@ class NFTCtrt(Ctrt):
         logger.debug(data)
         return data
 
-    def transfer(
+    async def transfer(
         self,
         by: acnt.Account,
         sender: str,
@@ -239,7 +239,7 @@ class NFTCtrt(Ctrt):
         sender_md.must_on(by.chain)
         rcpt_md.must_on(by.chain)
 
-        data = by._execute_contract(
+        data = await by._execute_contract(
             tx.ExecCtrtFuncTxReq(
                 ctrt_id=self._ctrt_id,
                 func_id=self.FuncIdx.TRANSFER,
@@ -256,7 +256,7 @@ class NFTCtrt(Ctrt):
         logger.debug(data)
         return data
 
-    def deposit(
+    async def deposit(
         self,
         by: acnt.Account,
         ctrt_id: str,
@@ -277,7 +277,7 @@ class NFTCtrt(Ctrt):
         Returns:
             Dict[str, Any]: The response returned by the Node API
         """
-        data = by._execute_contract(
+        data = await by._execute_contract(
             tx.ExecCtrtFuncTxReq(
                 ctrt_id=self._ctrt_id,
                 func_id=self.FuncIdx.DEPOSIT,
@@ -294,7 +294,7 @@ class NFTCtrt(Ctrt):
         logger.debug(data)
         return data
 
-    def withdraw(
+    async def withdraw(
         self,
         by: acnt.Account,
         ctrt_id: str,
@@ -315,7 +315,7 @@ class NFTCtrt(Ctrt):
         Returns:
             Dict[str, Any]: The response returned by the Node API
         """
-        data = by._execute_contract(
+        data = await by._execute_contract(
             tx.ExecCtrtFuncTxReq(
                 ctrt_id=self._ctrt_id,
                 func_id=self.FuncIdx.WITHDRAW,
@@ -332,7 +332,7 @@ class NFTCtrt(Ctrt):
         logger.debug(data)
         return data
 
-    def supersede(
+    async def supersede(
         self,
         by: acnt.Account,
         new_issuer: str,
@@ -355,7 +355,7 @@ class NFTCtrt(Ctrt):
         new_issuer_md = md.Addr(new_issuer)
         new_issuer_md.must_on(by.chain)
 
-        data = by._execute_contract(
+        data = await by._execute_contract(
             tx.ExecCtrtFuncTxReq(
                 ctrt_id=self._ctrt_id,
                 func_id=self.FuncIdx.SUPERSEDE,
