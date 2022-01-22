@@ -70,7 +70,7 @@ class AtomicSwapCtrt(Ctrt):
             return cls(b)
 
     @classmethod
-    def register(
+    async def register(
         cls,
         by: acnt.Account,
         tok_id: str,
@@ -89,7 +89,7 @@ class AtomicSwapCtrt(Ctrt):
         Returns:
             AtomicSwapCtrt: The AtomicSwapCtrt object of the registered Atomic Swap contract.
         """
-        data = by._register_contract(
+        data = await by._register_contract(
             tx.RegCtrtTxReq(
                 data_stack=de.DataStack(
                     de.TokenID(md.TokenID(tok_id)),
@@ -108,14 +108,14 @@ class AtomicSwapCtrt(Ctrt):
         )
 
     @property
-    def maker(self) -> str:
+    async def maker(self) -> str:
         """
         maker queries & returns the maker of the contract.
 
         Returns:
             str: The address of the maker of the contract.
         """
-        data = self.chain.api.ctrt.get_ctrt_data(
+        data = await self.chain.api.ctrt.get_ctrt_data(
             ctrt_id=self.ctrt_id,
             db_key=self.DBKey.for_maker().b58_str,
         )
@@ -123,14 +123,14 @@ class AtomicSwapCtrt(Ctrt):
         return data["value"]
 
     @property
-    def token_id(self) -> str:
+    async def token_id(self) -> str:
         """
         token_id queries & returns the token_id of the contract.
 
         Returns:
             str: The token_id of the contract.
         """
-        data = self.chain.api.ctrt.get_ctrt_data(
+        data = await self.chain.api.ctrt.get_ctrt_data(
             ctrt_id=self.ctrt_id,
             db_key=self.DBKey.for_token_id().b58_str,
         )
