@@ -2,7 +2,8 @@
 atomic_swap_ctrt contains Atomic Swap contract.
 """
 from __future__ import annotations
-from typing import TYPE_CHECKING
+import imp
+from typing import TYPE_CHECKING, Dict, Any
 
 from loguru import logger
 
@@ -15,6 +16,8 @@ from py_v_sdk import tx_req as tx
 from py_v_sdk import model as md
 from . import CtrtMeta, Ctrt
 
+from py_v_sdk.utils.crypto.hashes import sha256_hash
+import base58
 
 class AtomicSwapCtrt(Ctrt):
     """
@@ -136,3 +139,125 @@ class AtomicSwapCtrt(Ctrt):
         )
         logger.debug(data)
         return data["value"]
+
+
+    def lock(
+        self,
+        by: acnt.Account,
+        amount: int,
+        recipient: str,
+        puzzle: str,
+        expire_time: int,
+        attachment: str= "",
+        fee: int = md.ExecCtrtFee.DEFAULT
+        ) -> Dict[str, Any]:
+        """ transfer tokens from sender to recipient
+
+        Args:
+            by (acnt.Account): The action taker
+            sender (str): The sender account
+            recipient (str): The recipient account
+            amount (int): The amount to transfer
+            attachment (str, optional): The attachment of this action. Defaults to "".
+            fee (int, optional): Execution fee of this tx. Defaults to md.ExecCtrtFee.DEFAULT.
+
+        Returns:
+            Dict[str, Any]: The response returned by the Node API
+        """
+        
+        puzzle_bytes =  base58.b58encode(sha256_hash(puzzle))
+        puzzle_str = "".join(map(chr,puzzle))
+
+        data=by.execute_contract(
+            tx.ExecCtrtFuncTxReq(
+                ctrt_id=self._ctrt_id,
+                func_id=self.FuncIdx.LOCK,
+                data_stack=de.DataStack(
+                    de.Amount(md.Int(amount)),
+                    de.Addr(md.Addr(recipient)),
+                    de.B58Str(md.B58Str(puzzle_str)),
+                    de.expire_time(md.VSYSTimestamp(expire_time))
+                ),
+                timestamp=md.VSYSTimestamp.now(),
+                attachment=md.Str(attachment),
+                fee=md.ExecCtrtFee(fee),
+            )
+        )
+        logger.debug(data)
+        return data
+
+    def solve(
+    self,
+    by: acnt.Account,
+    tx_id: str,
+    key: str,
+    attachment: str= "",
+    fee: int = md.ExecCtrtFee.DEFAULT
+    ) -> Dict[str, Any]:
+        """ transfer tokens from sender to recipient
+
+        Args:
+            by (acnt.Account): The action taker
+            sender (str): The sender account
+            recipient (str): The recipient account
+            amount (int): The amount to transfer
+            attachment (str, optional): The attachment of this action. Defaults to "".
+            fee (int, optional): Execution fee of this tx. Defaults to md.ExecCtrtFee.DEFAULT.
+
+        Returns:
+            Dict[str, Any]: The response returned by the Node API
+        """
+    
+        data=by.execute_contract(
+            tx.ExecCtrtFuncTxReq(
+                ctrt_id=self._ctrt_id,
+                func_id=self.FuncIdx.LOCK,
+                data_stack=de.DataStack(
+                    de.Bytes(md.Bytes(tx_id.encode('latin-1'))),
+                    de.Bytes(md.Bytes(key.encode('latin-1'))),
+                ),
+                timestamp=md.VSYSTimestamp.now(),
+                attachment=md.Str(attachment),
+                fee=md.ExecCtrtFee(fee),
+            )
+        )
+        logger.debug(data)
+        return data
+
+    def exp_withdraw(
+        self,
+        by: acnt.Account,
+        tx_id: str,
+        attachment: str= "",
+        fee: int = md.ExecCtrtFee.DEFAULT
+        ) -> Dict[str, Any]:
+            """ transfer tokens from sender to recipient
+
+            Args:
+                by (acnt.Account): The action taker
+                sender (str): The sender account
+                recipient (str): The recipient account
+                amount (int): The amount to transfer
+                attachment (str, optional): The attachment of this action. Defaults to "".
+                fee (int, optional): Execution fee of this tx. Defaults to md.ExecCtrtFee.DEFAULT.
+
+            Returns:
+                Dict[str, Any]: The response returned by the Node API
+            """
+        
+            data=by.execute_contract(
+                tx.ExecCtrtFuncTxReq(
+                    ctrt_id=self._ctrt_id,
+                    func_id=self.FuncIdx.LOCK,
+                    data_stack=de.DataStack(
+                        de.Bytes(md.Bytes(tx_id.encode('latin-1'))),
+                    ),
+                    timestamp=md.VSYSTimestamp.now(),
+                    attachment=md.Str(attachment),
+                    fee=md.ExecCtrtFee(fee),
+                )
+            )
+            logger.debug(data)
+            return data
+
+    
