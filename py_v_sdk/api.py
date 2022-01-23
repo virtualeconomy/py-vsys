@@ -24,9 +24,6 @@ class NodeAPI:
         self._addr = Addresses(sess)
         self._vsys = VSYS(sess)
 
-    def __del__(self) -> None:
-        asyncio.get_event_loop().create_task(self._sess.close())
-
     @classmethod
     async def new(
         cls, host: str, api_key: Optional[str] = None, timeout: Optional[float] = None
