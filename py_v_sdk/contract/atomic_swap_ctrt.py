@@ -136,3 +136,24 @@ class AtomicSwapCtrt(Ctrt):
         )
         logger.debug(data)
         return data["value"]
+
+    async def get_token_balance(self, addr: str) -> int:
+        """
+        token_balance queries & returns the balance of the token deposited into the contract.
+
+        Args:
+            addr (str): The account address that deposits the token.
+
+        Returns:
+            int: The balance of the token.
+        """
+        stmp = self.StateMap(
+            idx=0,
+            data_entry=de.Addr(md.Addr(addr)),
+        )
+
+        data = await self.chain.api.ctrt.get_ctrt_data(
+            ctrt_id=self.ctrt_id, db_key=md.Bytes(stmp.serialize()).b58_str
+        )
+        logger.debug(data)
+        return data["value"]
