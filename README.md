@@ -12,6 +12,8 @@ The official Python SDK for VSYS APIs. The [old Python SDK](https://github.com/v
 - [py-v-sdk](#py-v-sdk)
   - [Installation](#installation)
   - [Quick Example](#quick-example)
+  - [Run Tests](#run-tests)
+    - [Functional Tests](#functional-tests)
   - [Logging](#logging)
   - [Usage](#usage)
     - [Smart Contracts](#smart-contracts)
@@ -122,6 +124,28 @@ Maker: AU6BNRK34SLuc27evpzJbAswB6ntHV2hmjD
 Issuer: AU6BNRK34SLuc27evpzJbAswB6ntHV2hmjD
 Contract id:  CFB6zvcy39FCRGhxo8HH3PE6zZEG5zXevhG
 ```
+
+## Run Tests
+
+### Functional Tests
+Functional tests are scripts that simulate the behaviour of a normal user to interact wtih `py_v_sdk`(e.g. register a smart contract & call functions of it).
+
+To run it, ensure that you have `pytest` properly installed(it is a development dependency of `py_v_sdk` and can be installed via `pipenv install -d`).
+
+Then go to the root of the of the project and run.
+
+```bash
+python -m pytest -v test/func_test
+```
+
+The above command will test each aspect(e.g. function `send` of NFT contract) individually and have required resources set up before testing(e.g. register a new contract, issue a token, etc). It's good for testing a specific aspect while it might consume too much resources to test every aspect in this way.
+
+To test as a whole, use the `whole` marker like below.
+
+```bash
+python -m pytest -v test/func_test -m whole
+```
+Take NFT contract for an example, it will register a contract first and then execute functions like `send`, `transfer`, `deposit`, etc in a pre-orchestrated manner so that some common set up(e.g. register a contract) will be done only once.
 
 
 ## Logging
