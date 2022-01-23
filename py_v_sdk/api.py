@@ -47,14 +47,8 @@ class NodeAPI:
         return cls(sess)
 
     @property
-    def host(self) -> str:
-        """
-        host returns the host of the NodeAPI.
-
-        Returns:
-            str: The host of the NodeAPI.
-        """
-        return self._host
+    def sess(self) -> aiohttp.ClientSession:
+        return self._sess
 
     @property
     def blocks(self) -> Blocks:
