@@ -3,7 +3,6 @@ api contains NodeAPI-related resources.
 """
 from __future__ import annotations
 import abc
-import asyncio
 import json
 from typing import Any, Dict, Optional
 
@@ -19,6 +18,7 @@ class NodeAPI:
         self._sess = sess
         self._blocks = Blocks(sess)
         self._node = Node(sess)
+        self._tx = Transactions(sess)
         self._utils = Utils(sess)
         self._ctrt = Contract(sess)
         self._addr = Addresses(sess)
@@ -69,6 +69,16 @@ class NodeAPI:
             Node: The API group "node".
         """
         return self._node
+
+    @property
+    def tx(self) -> Transactions:
+        """
+        tx returns the API group "tx" of the NodeAPI.
+
+        Returns:
+            Transactions: The API group "transactions".
+        """
+        return self._tx
 
     @property
     def utils(self) -> Utils:
@@ -229,12 +239,45 @@ class Node(APIGrp):
         return await self._get("/version")
 
 
+class Transactions(APIGrp):
+    """
+    Transactions is the API group "transactions".
+    """
+
+    PREFIX = "/transactions"
+
+    async def get_info(self, tx_id: str) -> Dict[str, Any]:
+        """
+        get_info gets the information about a transaction.
+
+        Args:
+            tx_id (str): The transaction ID.
+
+        Returns:
+            Dict[str, Any]: The response.
+        """
+        return await self._get(f"/info/{tx_id}")
+
+
 class Contract(APIGrp):
     """
     Contract is the API group "contract"
     """
 
     PREFIX = "/contract"
+
+    async def get_tok_id(self, ctrt_id: str, tok_idx: int) -> Dict[str, Any]:
+        """
+        get_tok_id gets the token ID of the given contract with the given token index.
+
+        Args:
+            ctrt_id (str): The contract ID.
+            tok_idx (int): The token index.
+
+        Returns:
+            Dict[str, Any]: The response.
+        """
+        return await self._get(f"/contractId/{ctrt_id}/tokenIndex/{tok_idx}")
 
     async def broadcast_register(self, data: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -272,6 +315,19 @@ class Contract(APIGrp):
             Dict[str, Any]: The response.
         """
         return await self._get(f"/data/{ctrt_id}/{db_key}")
+
+    async def get_tok_balance(self, addr: str, tok_id: str) -> Dict[str, Any]:
+        """
+        get_tok_balance gets the balance of the token for the account address.
+
+        Args:
+            addr (str): The account address.
+            tok_id (str): The token ID.
+
+        Returns:
+            Dict[str, Any]: The response.
+        """
+        return await self._get(f"/balance/{addr}/{tok_id}")
 
 
 class Addresses(APIGrp):
