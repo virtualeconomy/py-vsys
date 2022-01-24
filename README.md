@@ -147,6 +147,12 @@ python -m pytest -v test/func_test -m whole
 ```
 Take NFT contract for an example, it will register a contract first and then execute functions like `send`, `transfer`, `deposit`, etc in a pre-orchestrated manner so that some common set up(e.g. register a contract) will be done only once.
 
+To run a single test, say method `test_pay` of class `TestAccount`, run
+
+```bash
+python -m pytest -v test/func_test/test_acnt.py::TestAccount::test_pay
+```
+
 
 ## Logging
 Logging for `py-v-sdk` is supported by [loguru](https://github.com/Delgan/loguru) and is disabled by default.
