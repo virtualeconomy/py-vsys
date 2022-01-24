@@ -84,7 +84,7 @@ class TokenCtrtWithoutSplit(Ctrt):
             TokenCtrtWithoutSplit: A token contract without split
         """
 
-        data = await by.register_contract(
+        data = await by._register_contract(
             tx.RegCtrtTxReq(
                 data_stack=de.DataStack(
                     de.INT32(md.Int(max)),
@@ -155,7 +155,7 @@ class TokenCtrtWithoutSplit(Ctrt):
             Dict[str,any]: The response returned by the Node API
         """
 
-        data =await by.execute_contract(
+        data =await by._execute_contract(
             tx.ExecCtrtFuncTxReq(
                 ctrt_id = self._ctrt_id,
                 func_id = self.FuncIdx.SUPERSEDE,
@@ -189,7 +189,7 @@ class TokenCtrtWithoutSplit(Ctrt):
         Returns:
             Dict[str,any]: The response returned by the Node API
         """
-        data = await by.execute_contract(
+        data = await by._execute_contract(
             tx.ExecCtrtFuncTxReq(
                 ctrt_id = self._ctrt_id,
                 func_id = self.FuncIdx.ISSUE,
@@ -230,7 +230,7 @@ class TokenCtrtWithoutSplit(Ctrt):
         rcpt_md.must_on(by.chain)
 
 
-        data= await by.execute_contract(
+        data= await by._execute_contract(
             tx.ExecCtrtFuncTxReq(
                 ctrt_id=self._ctrt_id,
                 func_id=self.FuncIdx.SEND,
@@ -267,7 +267,7 @@ class TokenCtrtWithoutSplit(Ctrt):
         """
 
 
-        data=await by.execute_contract(
+        data=await by._execute_contract(
             tx.ExecCtrtFuncTxReq(
                 ctrt_id=self._ctrt_id,
                 func_id=self.FuncIdx.DESTROY,
@@ -312,7 +312,7 @@ class TokenCtrtWithoutSplit(Ctrt):
         rcpt_md.must_on(by.chain)
 
 
-        data=await by.execute_contract(
+        data=await by._execute_contract(
             tx.ExecCtrtFuncTxReq(
                 ctrt_id=self._ctrt_id,
                 func_id=self.FuncIdx.TRANSFER,
@@ -356,7 +356,7 @@ class TokenCtrtWithoutSplit(Ctrt):
         sender_md.must_on(by.chain)
 
 
-        data=await by.execute_contract(
+        data=await by._execute_contract(
             tx.ExecCtrtFuncTxReq(
                 ctrt_id=self._ctrt_id,
                 func_id=self.FuncIdx.DEPOSIT,
@@ -400,7 +400,7 @@ class TokenCtrtWithoutSplit(Ctrt):
         rcpt_md.must_on(by.chain)
 
 
-        data=await by.execute_contract(
+        data=await by._execute_contract(
             tx.ExecCtrtFuncTxReq(
                 ctrt_id=self._ctrt_id,
                 func_id=self.FuncIdx.WITHDRAW,
@@ -435,7 +435,7 @@ class TokenCtrtWithoutSplit(Ctrt):
         """
 
 
-        data=await by.execute_contract(
+        data=await by._execute_contract(
             tx.ExecCtrtFuncTxReq(
                 ctrt_id=self._ctrt_id,
                 func_id=self.FuncIdx.TOTALSUPPLY,
@@ -470,7 +470,7 @@ class TokenCtrtWithoutSplit(Ctrt):
         rcpt_md.must_on(by.chain)
 
 
-        data=await by.execute_contract(
+        data=await by._execute_contract(
             tx.ExecCtrtFuncTxReq(
                 ctrt_id=self._ctrt_id,
                 func_id=self.FuncIdx.MAXSUPPLY,
@@ -504,7 +504,7 @@ class TokenCtrtWithoutSplit(Ctrt):
         """
 
 
-        data=await by.execute_contract(
+        data=await by._execute_contract(
             tx.ExecCtrtFuncTxReq(
                 ctrt_id=self._ctrt_id,
                 func_id=self.FuncIdx.BALANCEOF,
@@ -537,7 +537,7 @@ class TokenCtrtWithoutSplit(Ctrt):
         """
 
 
-        data=await by.execute_contract(
+        data=await by._execute_contract(
             tx.ExecCtrtFuncTxReq(
                 ctrt_id=self._ctrt_id,
                 func_id=self.FuncIdx.GETISSUER,
@@ -591,7 +591,7 @@ class TokenCtrtWithSplit(TokenCtrtWithoutSplit):
         """
 
 
-        data = await by.execute_contract(
+        data = await by._execute_contract(
             tx.ExecCtrtFuncTxReq(
                 ctrt_id=self._ctrt_id,
                 func_id=self.FuncIdx.SPLIT,

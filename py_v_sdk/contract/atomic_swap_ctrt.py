@@ -169,7 +169,7 @@ class AtomicSwapCtrt(Ctrt):
         puzzle_bytes =  base58.b58encode(sha256_hash(puzzle))
         puzzle_str = "".join(map(chr,puzzle))
 
-        data=await by.execute_contract(
+        data=await by._execute_contract(
             tx.ExecCtrtFuncTxReq(
                 ctrt_id=self._ctrt_id,
                 func_id=self.FuncIdx.LOCK,
@@ -208,7 +208,7 @@ class AtomicSwapCtrt(Ctrt):
                 Dict[str, Any]: The response returned by the Node API
             """
         
-            data=await by.execute_contract(
+            data=await by._execute_contract(
                 tx.ExecCtrtFuncTxReq(
                     ctrt_id=self._ctrt_id,
                     func_id=self.FuncIdx.LOCK,
@@ -243,7 +243,7 @@ class AtomicSwapCtrt(Ctrt):
             Dict[str, Any]: The response returned by the Node API
         """
         
-        data= await by.execute_contract(
+        data= await by._execute_contract(
             tx.ExecCtrtFuncTxReq(
                 ctrt_id=self._ctrt_id,
                 func_id=self.FuncIdx.LOCK,
