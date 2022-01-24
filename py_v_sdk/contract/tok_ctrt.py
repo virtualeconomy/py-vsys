@@ -60,7 +60,7 @@ class TokenCtrtWithoutSplit(Ctrt):
             return cls(b)
          
     @classmethod
-    def register(
+    async def register(
         cls,
         by: acnt.Account,
         max: int,
@@ -84,7 +84,7 @@ class TokenCtrtWithoutSplit(Ctrt):
             TokenCtrtWithoutSplit: A token contract without split
         """
 
-        data = by.register_contract(
+        data = await by.register_contract(
             tx.RegCtrtTxReq(
                 data_stack=de.DataStack(
                     de.INT32(md.Int(max)),
@@ -106,14 +106,14 @@ class TokenCtrtWithoutSplit(Ctrt):
         
     @property
 
-    def issuer(self) -> str:
+    async def issuer(self) -> str:
         """
         issuer queries & returns the issuer of the contract.
         Returns:
             str: The address of the issuer of the contract.
         """
 
-        data = self.chain.api.ctrt.get_ctrt_data(
+        data = await self.chain.api.ctrt.get_ctrt_data(
             ctrt_id=self.ctrt_id,
             db_key=self.DBKey.for_issuer().b58_str,
         )
@@ -121,14 +121,14 @@ class TokenCtrtWithoutSplit(Ctrt):
         return data["value"]
 
     @property
-    def maker(self) -> str:
+    async def maker(self) -> str:
         """
         maker queries & returns the maker of the contract.
         Returns:
             str: The address of the maker of the contract.
         """
 
-        data = self.chain.api.ctrt.get_ctrt_data(
+        data = await self.chain.api.ctrt.get_ctrt_data(
             ctrt_id=self.ctrt_id,
             db_key=self.DBKey.for_maker().b58_str,
         )
@@ -136,7 +136,7 @@ class TokenCtrtWithoutSplit(Ctrt):
         return data["value"]
 
 
-    def supersede(
+    async def supersede(
         self,
         by: acnt.Account,
         new_issuer: str,
@@ -155,7 +155,7 @@ class TokenCtrtWithoutSplit(Ctrt):
             Dict[str,any]: The response returned by the Node API
         """
 
-        data = by.execute_contract(
+        data =await by.execute_contract(
             tx.ExecCtrtFuncTxReq(
                 ctrt_id = self._ctrt_id,
                 func_id = self.FuncIdx.SUPERSEDE,
@@ -171,7 +171,7 @@ class TokenCtrtWithoutSplit(Ctrt):
         return data
 
 
-    def issue(
+    async def issue(
         self,
         by: acnt.Account,
         amount: int,
@@ -189,7 +189,7 @@ class TokenCtrtWithoutSplit(Ctrt):
         Returns:
             Dict[str,any]: The response returned by the Node API
         """
-        data = by.execute_contract(
+        data = await by.execute_contract(
             tx.ExecCtrtFuncTxReq(
                 ctrt_id = self._ctrt_id,
                 func_id = self.FuncIdx.ISSUE,
@@ -205,7 +205,7 @@ class TokenCtrtWithoutSplit(Ctrt):
         return data
     
 
-    def send(
+    async def send(
         self,
         by: acnt.Account,
         recipient: str,
@@ -230,7 +230,7 @@ class TokenCtrtWithoutSplit(Ctrt):
         rcpt_md.must_on(by.chain)
 
 
-        data=by.execute_contract(
+        data= await by.execute_contract(
             tx.ExecCtrtFuncTxReq(
                 ctrt_id=self._ctrt_id,
                 func_id=self.FuncIdx.SEND,
@@ -248,7 +248,7 @@ class TokenCtrtWithoutSplit(Ctrt):
 
         
 
-    def destroy(self,
+    async def destroy(self,
         by: acnt.Account,
         amount: int,
         attachment: str= "",
@@ -267,7 +267,7 @@ class TokenCtrtWithoutSplit(Ctrt):
         """
 
 
-        data=by.execute_contract(
+        data=await by.execute_contract(
             tx.ExecCtrtFuncTxReq(
                 ctrt_id=self._ctrt_id,
                 func_id=self.FuncIdx.DESTROY,
@@ -283,7 +283,7 @@ class TokenCtrtWithoutSplit(Ctrt):
         return data
 
 
-    def transfer(self,
+    async def transfer(self,
         by: acnt.Account,
         sender: str,
         recipient: str,
@@ -312,7 +312,7 @@ class TokenCtrtWithoutSplit(Ctrt):
         rcpt_md.must_on(by.chain)
 
 
-        data=by.execute_contract(
+        data=await by.execute_contract(
             tx.ExecCtrtFuncTxReq(
                 ctrt_id=self._ctrt_id,
                 func_id=self.FuncIdx.TRANSFER,
@@ -330,7 +330,7 @@ class TokenCtrtWithoutSplit(Ctrt):
         return data
 
 
-    def deposit(self,
+    async def deposit(self,
         by: acnt.Account,
         sender : str,
         contract : str,
@@ -356,7 +356,7 @@ class TokenCtrtWithoutSplit(Ctrt):
         sender_md.must_on(by.chain)
 
 
-        data=by.execute_contract(
+        data=await by.execute_contract(
             tx.ExecCtrtFuncTxReq(
                 ctrt_id=self._ctrt_id,
                 func_id=self.FuncIdx.DEPOSIT,
@@ -374,7 +374,7 @@ class TokenCtrtWithoutSplit(Ctrt):
         return data
 
 
-    def withdraw(self,
+    async def withdraw(self,
         by: acnt.Account,
         contract : str,
         recipient: str,
@@ -400,7 +400,7 @@ class TokenCtrtWithoutSplit(Ctrt):
         rcpt_md.must_on(by.chain)
 
 
-        data=by.execute_contract(
+        data=await by.execute_contract(
             tx.ExecCtrtFuncTxReq(
                 ctrt_id=self._ctrt_id,
                 func_id=self.FuncIdx.WITHDRAW,
@@ -418,7 +418,7 @@ class TokenCtrtWithoutSplit(Ctrt):
         return data
 
 
-    def totalsupply(self,
+    async def totalsupply(self,
         by: acnt.Account,
         attachment: str= "",
         fee: int = md.ExecCtrtFee.DEFAULT
@@ -435,7 +435,7 @@ class TokenCtrtWithoutSplit(Ctrt):
         """
 
 
-        data=by.execute_contract(
+        data=await by.execute_contract(
             tx.ExecCtrtFuncTxReq(
                 ctrt_id=self._ctrt_id,
                 func_id=self.FuncIdx.TOTALSUPPLY,
@@ -450,7 +450,7 @@ class TokenCtrtWithoutSplit(Ctrt):
         return data
 
 
-    def maxsupply(self,
+    async def maxsupply(self,
         by: acnt.Account,
         attachment: str= "",
         fee: int = md.ExecCtrtFee.DEFAULT
@@ -470,7 +470,7 @@ class TokenCtrtWithoutSplit(Ctrt):
         rcpt_md.must_on(by.chain)
 
 
-        data=by.execute_contract(
+        data=await by.execute_contract(
             tx.ExecCtrtFuncTxReq(
                 ctrt_id=self._ctrt_id,
                 func_id=self.FuncIdx.MAXSUPPLY,
@@ -485,7 +485,7 @@ class TokenCtrtWithoutSplit(Ctrt):
         return data
 
 
-    def balance_of(self,
+    async def balance_of(self,
         by: acnt.Account,
         address: str,
         attachment: str= "",
@@ -504,7 +504,7 @@ class TokenCtrtWithoutSplit(Ctrt):
         """
 
 
-        data=by.execute_contract(
+        data=await by.execute_contract(
             tx.ExecCtrtFuncTxReq(
                 ctrt_id=self._ctrt_id,
                 func_id=self.FuncIdx.BALANCEOF,
@@ -520,7 +520,7 @@ class TokenCtrtWithoutSplit(Ctrt):
         return data
 
 
-    def get_issuer(self,
+    async def get_issuer(self,
         by: acnt.Account,
         attachment: str= "",
         fee: int = md.ExecCtrtFee.DEFAULT
@@ -537,7 +537,7 @@ class TokenCtrtWithoutSplit(Ctrt):
         """
 
 
-        data=by.execute_contract(
+        data=await by.execute_contract(
             tx.ExecCtrtFuncTxReq(
                 ctrt_id=self._ctrt_id,
                 func_id=self.FuncIdx.GETISSUER,
@@ -571,8 +571,8 @@ class TokenCtrtWithSplit(TokenCtrtWithoutSplit):
         BALANCEOF = 10
         GETISSUER = 11
     
-    @classmethod
-    def split(self,
+    
+    async def split(self,
     by: acnt.Account,
     new_unit: int,
     attachment: str= "",
@@ -591,7 +591,7 @@ class TokenCtrtWithSplit(TokenCtrtWithoutSplit):
         """
 
 
-        data = by.execute_contract(
+        data = await by.execute_contract(
             tx.ExecCtrtFuncTxReq(
                 ctrt_id=self._ctrt_id,
                 func_id=self.FuncIdx.SPLIT,
