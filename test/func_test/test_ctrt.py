@@ -1,31 +1,10 @@
 """
 test_ctrt contains functional tests for smart contracts.
 """
-import asyncio
-
 import pytest
 
 import py_v_sdk as pv
-
-
-async def wait_for_block() -> None:
-    """
-    wait_for_block waits for the transaction to be packed into a block.
-    """
-    await asyncio.sleep(6)
-
-
-async def assert_tx_success(api: pv.NodeAPI, tx_id: str) -> None:
-    """
-    assert_tx_success asserts the status of the transaction of the given
-    ID is success.
-
-    Args:
-        api (pv.NodeAPI): The NodeAPI object.
-        tx_id (str): The transaction ID.
-    """
-    resp = await api.tx.get_info(tx_id)
-    assert resp["status"] == "Success"
+from . import conftest as cft
 
 
 async def get_tok_id(api: pv.NodeAPI, ctrt_id: str, tok_idx: int) -> str:
@@ -77,7 +56,7 @@ class TestNFTCtrt:
             pv.NFTCtrt: The NFTCtrt instance.
         """
         nc = await pv.NFTCtrt.register(acnt0)
-        await wait_for_block()
+        await cft.wait_for_block()
         return nc
 
     @pytest.fixture
@@ -96,7 +75,7 @@ class TestNFTCtrt:
         """
         nc = new_ctrt
         await nc.issue(acnt0)
-        await wait_for_block()
+        await cft.wait_for_block()
         return nc
 
     async def test_register(self, acnt0: pv.Account):
@@ -107,7 +86,7 @@ class TestNFTCtrt:
             acnt0 (pv.Account): The account of nonce 0.
         """
         nc = await pv.NFTCtrt.register(acnt0)
-        await wait_for_block()
+        await cft.wait_for_block()
         assert (await nc.issuer) == acnt0.addr.b58_str
         assert (await nc.maker) == acnt0.addr.b58_str
 
@@ -123,9 +102,9 @@ class TestNFTCtrt:
         api = nc.chain.api
 
         resp = await nc.issue(acnt0)
-        await wait_for_block()
+        await cft.wait_for_block()
 
-        await assert_tx_success(api, resp["id"])
+        await cft.assert_tx_success(api, resp["id"])
 
         tok_id = await get_tok_id(api, nc.ctrt_id, 0)
         tok_bal = await get_tok_bal(api, acnt0.addr.b58_str, tok_id)
@@ -154,8 +133,8 @@ class TestNFTCtrt:
         assert tok_bal_acnt1 == 0
 
         resp = await nc.send(acnt0, acnt1.addr.b58_str, 0)
-        await wait_for_block()
-        await assert_tx_success(api, resp["id"])
+        await cft.wait_for_block()
+        await cft.assert_tx_success(api, resp["id"])
 
         tok_bal_acnt0 = await get_tok_bal(api, acnt0.addr.b58_str, tok_id)
         assert tok_bal_acnt0 == 0
@@ -186,8 +165,8 @@ class TestNFTCtrt:
         assert tok_bal_acnt1 == 0
 
         resp = await nc.transfer(acnt0, acnt0.addr.b58_str, acnt1.addr.b58_str, 0)
-        await wait_for_block()
-        await assert_tx_success(api, resp["id"])
+        await cft.wait_for_block()
+        await cft.assert_tx_success(api, resp["id"])
 
         tok_bal_acnt0 = await get_tok_bal(api, acnt0.addr.b58_str, tok_id)
         assert tok_bal_acnt0 == 0
@@ -208,7 +187,7 @@ class TestNFTCtrt:
 
         tok_id = await get_tok_id(api, nc.ctrt_id, 0)
         ac = await pv.AtomicSwapCtrt.register(acnt0, tok_id)
-        await wait_for_block()
+        await cft.wait_for_block()
         assert (await ac.maker) == acnt0.addr.b58_str
         assert (await ac.token_id) == tok_id
 
@@ -216,7 +195,7 @@ class TestNFTCtrt:
         assert tok_bal == 1
 
         resp = await nc.deposit(acnt0, ac.ctrt_id, 0)
-        await wait_for_block()
+        await cft.wait_for_block()
         tx_info = await api.tx.get_info(resp["id"])
         assert tx_info["status"] == "Success"
 
@@ -239,12 +218,12 @@ class TestNFTCtrt:
 
         tok_id = await get_tok_id(api, nc.ctrt_id, 0)
         ac = await pv.AtomicSwapCtrt.register(acnt0, tok_id)
-        await wait_for_block()
+        await cft.wait_for_block()
         assert (await ac.maker) == acnt0.addr.b58_str
         assert (await ac.token_id) == tok_id
 
         await nc.deposit(acnt0, ac.ctrt_id, 0)
-        await wait_for_block()
+        await cft.wait_for_block()
 
         tok_bal = await get_tok_bal(api, acnt0.addr.b58_str, tok_id)
         assert tok_bal == 0
@@ -253,7 +232,7 @@ class TestNFTCtrt:
         assert deposited_tok_bal == 1
 
         await nc.withdraw(acnt0, ac.ctrt_id, 0)
-        await wait_for_block()
+        await cft.wait_for_block()
 
         tok_bal = await get_tok_bal(api, acnt0.addr.b58_str, tok_id)
         assert tok_bal == 1
@@ -278,8 +257,8 @@ class TestNFTCtrt:
         assert (await nc.issuer) == acnt0.addr.b58_str
 
         resp = await nc.supersede(acnt0, acnt1.addr.b58_str)
-        await wait_for_block()
-        await assert_tx_success(api, resp["id"])
+        await cft.wait_for_block()
+        await cft.assert_tx_success(api, resp["id"])
 
         assert (await nc.issuer) == acnt1.addr.b58_str
 
@@ -296,22 +275,22 @@ class TestNFTCtrt:
 
         # test register
         nc = await pv.NFTCtrt.register(acnt0)
-        await wait_for_block()
+        await cft.wait_for_block()
         assert (await nc.issuer) == acnt0.addr.b58_str
         assert (await nc.maker) == acnt0.addr.b58_str
 
         # test issue
         resp = await nc.issue(acnt0)
-        await wait_for_block()
-        await assert_tx_success(api, resp["id"])
+        await cft.wait_for_block()
+        await cft.assert_tx_success(api, resp["id"])
         tok_id = await get_tok_id(api, nc.ctrt_id, 0)
         tok_bal = await get_tok_bal(api, acnt0.addr.b58_str, tok_id)
         assert tok_bal == 1
 
         # test send
         resp = await nc.send(acnt0, acnt1.addr.b58_str, 0)
-        await wait_for_block()
-        await assert_tx_success(api, resp["id"])
+        await cft.wait_for_block()
+        await cft.assert_tx_success(api, resp["id"])
         tok_bal_acnt0 = await get_tok_bal(api, acnt0.addr.b58_str, tok_id)
         assert tok_bal_acnt0 == 0
         tok_bal_acnt1 = await get_tok_bal(api, acnt1.addr.b58_str, tok_id)
@@ -319,8 +298,8 @@ class TestNFTCtrt:
 
         # test transfer
         resp = await nc.transfer(acnt1, acnt1.addr.b58_str, acnt0.addr.b58_str, 0)
-        await wait_for_block()
-        await assert_tx_success(api, resp["id"])
+        await cft.wait_for_block()
+        await cft.assert_tx_success(api, resp["id"])
         tok_bal_acnt0 = await get_tok_bal(api, acnt0.addr.b58_str, tok_id)
         assert tok_bal_acnt0 == 1
         tok_bal_acnt1 = await get_tok_bal(api, acnt1.addr.b58_str, tok_id)
@@ -328,7 +307,7 @@ class TestNFTCtrt:
 
         # create atomic swap contract instance for testing deposit & withdraw
         ac = await pv.AtomicSwapCtrt.register(acnt0, tok_id)
-        await wait_for_block()
+        await cft.wait_for_block()
         assert (await ac.maker) == acnt0.addr.b58_str
         assert (await ac.token_id) == tok_id
 
@@ -336,7 +315,7 @@ class TestNFTCtrt:
         tok_bal_acnt0 = await get_tok_bal(api, acnt0.addr.b58_str, tok_id)
         assert tok_bal_acnt0 == 1
         await nc.deposit(acnt0, ac.ctrt_id, 0)
-        await wait_for_block()
+        await cft.wait_for_block()
         tok_bal_acnt0 = await get_tok_bal(api, acnt0.addr.b58_str, tok_id)
         assert tok_bal_acnt0 == 0
         deposited_tok_bal = await ac.get_token_balance(acnt0.addr.b58_str)
@@ -344,8 +323,8 @@ class TestNFTCtrt:
 
         # test withdraw
         resp = await nc.withdraw(acnt0, ac.ctrt_id, 0)
-        await wait_for_block()
-        await assert_tx_success(api, resp["id"])
+        await cft.wait_for_block()
+        await cft.assert_tx_success(api, resp["id"])
         tok_bal_acnt0 = await get_tok_bal(api, acnt0.addr.b58_str, tok_id)
         assert tok_bal_acnt0 == 1
         deposited_tok_bal = await ac.get_token_balance(acnt0.addr.b58_str)
@@ -354,6 +333,6 @@ class TestNFTCtrt:
         # test supersede
         assert (await nc.issuer) == acnt0.addr.b58_str
         resp = await nc.supersede(acnt0, acnt1.addr.b58_str)
-        await wait_for_block()
-        await assert_tx_success(api, resp["id"])
+        await cft.wait_for_block()
+        await cft.assert_tx_success(api, resp["id"])
         assert (await nc.issuer) == acnt1.addr.b58_str

@@ -1,3 +1,5 @@
+import asyncio
+
 import pytest
 
 import py_v_sdk as pv
@@ -62,3 +64,23 @@ def acnt1(chain: pv.Chain, seed: str) -> pv.Account:
         pv.Account: The account.
     """
     return pv.Account(chain, seed, 1)
+
+
+async def wait_for_block() -> None:
+    """
+    wait_for_block waits for the transaction to be packed into a block.
+    """
+    await asyncio.sleep(6)
+
+
+async def assert_tx_success(api: pv.NodeAPI, tx_id: str) -> None:
+    """
+    assert_tx_success asserts the status of the transaction of the given
+    ID is success.
+
+    Args:
+        api (pv.NodeAPI): The NodeAPI object.
+        tx_id (str): The transaction ID.
+    """
+    resp = await api.tx.get_info(tx_id)
+    assert resp["status"] == "Success"
