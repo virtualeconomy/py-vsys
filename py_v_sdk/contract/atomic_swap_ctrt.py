@@ -2,7 +2,8 @@
 atomic_swap_ctrt contains Atomic Swap contract.
 """
 from __future__ import annotations
-from typing import TYPE_CHECKING
+import imp
+from typing import TYPE_CHECKING, Dict, Any
 
 from loguru import logger
 
@@ -15,6 +16,8 @@ from py_v_sdk import tx_req as tx
 from py_v_sdk import model as md
 from . import CtrtMeta, Ctrt
 
+from py_v_sdk.utils.crypto.hashes import sha256_hash
+import base58
 
 class AtomicSwapCtrt(Ctrt):
     """
@@ -137,23 +140,3 @@ class AtomicSwapCtrt(Ctrt):
         logger.debug(data)
         return data["value"]
 
-    async def get_token_balance(self, addr: str) -> int:
-        """
-        token_balance queries & returns the balance of the token deposited into the contract.
-
-        Args:
-            addr (str): The account address that deposits the token.
-
-        Returns:
-            int: The balance of the token.
-        """
-        stmp = self.StateMap(
-            idx=0,
-            data_entry=de.Addr(md.Addr(addr)),
-        )
-
-        data = await self.chain.api.ctrt.get_ctrt_data(
-            ctrt_id=self.ctrt_id, db_key=md.Bytes(stmp.serialize()).b58_str
-        )
-        logger.debug(data)
-        return data["value"]
