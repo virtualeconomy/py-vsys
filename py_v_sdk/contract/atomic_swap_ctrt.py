@@ -2,7 +2,7 @@
 atomic_swap_ctrt contains Atomic Swap contract.
 """
 from __future__ import annotations
-import imp
+
 from typing import TYPE_CHECKING, Dict, Any
 
 from loguru import logger
