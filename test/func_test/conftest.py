@@ -32,3 +32,33 @@ def chain(api: pv.NodeAPI) -> pv.Chain:
 @pytest.fixture
 def seed() -> str:
     return SEED
+
+
+@pytest.fixture
+def acnt0(chain: pv.Chain, seed: str) -> pv.Account:
+    """
+    acnt0 is the fixture that returns the account of nonce 0.
+
+    Args:
+        chain (pv.Chain): The Chain object.
+        seed (str): The account seed.
+
+    Returns:
+        pv.Account: The account.
+    """
+    return pv.Account(chain, seed, 0)
+
+
+@pytest.fixture
+def acnt1(chain: pv.Chain, seed: str) -> pv.Account:
+    """
+    acnt1 is the fixture that returns the account of nonce 1.
+
+    Args:
+        chain (pv.Chain): The Chain object.
+        seed (str): The account seed.
+
+    Returns:
+        pv.Account: The account.
+    """
+    return pv.Account(chain, seed, 1)

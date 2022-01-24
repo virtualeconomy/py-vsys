@@ -60,36 +60,6 @@ async def get_tok_bal(api: pv.NodeAPI, addr: str, tok_id: str) -> int:
     return resp["balance"]
 
 
-@pytest.fixture
-def acnt0(chain: pv.Chain, seed: str) -> pv.Account:
-    """
-    acnt0 is the fixture that returns the account of nonce 0.
-
-    Args:
-        chain (pv.Chain): The Chain object.
-        seed (str): The account seed.
-
-    Returns:
-        pv.Account: The account.
-    """
-    return pv.Account(chain, seed, 0)
-
-
-@pytest.fixture
-def acnt1(chain: pv.Chain, seed: str) -> pv.Account:
-    """
-    acnt1 is the fixture that returns the account of nonce 1.
-
-    Args:
-        chain (pv.Chain): The Chain object.
-        seed (str): The account seed.
-
-    Returns:
-        pv.Account: The account.
-    """
-    return pv.Account(chain, seed, 1)
-
-
 class TestNFTCtrt:
     """
     TestNFTCtrt is the collection of functional tests of NFT contract.
