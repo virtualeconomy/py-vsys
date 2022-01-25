@@ -2,7 +2,7 @@
 account contains account-related resources
 """
 from __future__ import annotations
-from typing import Any, Dict, TYPE_CHECKING
+from typing import Any, Dict, TYPE_CHECKING, Type
 
 from loguru import logger
 
@@ -13,6 +13,7 @@ if TYPE_CHECKING:
 
 from py_v_sdk import model as md
 from py_v_sdk import tx_req as tx
+from py_v_sdk import dbput as dp
 from py_v_sdk.utils.crypto import hashes as hs
 from py_v_sdk.utils.crypto import curve_25519 as curve
 
@@ -292,6 +293,51 @@ class Account:
         return await self.api.ctrt.broadcast_execute(
             req.to_broadcast_execute_payload(self.key_pair)
         )
+
+    async def _db_put(self, req: tx.DBPutTxReq) -> Dict[str, Any]:
+        """
+        _db_put sends a DB Put transaction on behalf of the account.
+
+        Args:
+            req (tx.DBPutTxReq): The DB Put transaction request.
+
+        Returns:
+            Dict[str, Any]: The response returned by the Node API.
+        """
+        return await self.api.db.broadcasts_put(
+            req.to_broadcast_put_payload(self.key_pair)
+        )
+
+    async def db_put(
+        self,
+        db_key: str,
+        data: str,
+        data_type: Type[dp.DBPutData] = dp.ByteArray,
+        fee: int = md.DBPutFee.DEFAULT,
+    ) -> Dict[str, Any]:
+        """
+        db_put stores the data under the key onto the chain.
+
+        Args:
+            db_key (str): The db key of the data.
+            data (str): The data to put.
+            data_type (Type[dp.DBPutData], optional): The type of the data(i.e. how should the string be parsed).
+                Defaults to dp.ByteArray.
+            fee (int, optional): The fee to pay for this action. Defaults to md.DBPutFee.DEFAULT.
+
+        Returns:
+            Dict[str, Any]: The response returned by the Node API.
+        """
+        data = await self._db_put(
+            tx.DBPutTxReq(
+                db_key=dp.DBPutKey.from_str(db_key),
+                data=dp.DBPutData.new(data, data_type),
+                timestamp=md.VSYSTimestamp.now(),
+                fee=md.DBPutFee(fee),
+            )
+        )
+        logger.debug(data)
+        return data
 
     @staticmethod
     def get_key_pair(acnt_seed_hash: bytes) -> md.KeyPair:
