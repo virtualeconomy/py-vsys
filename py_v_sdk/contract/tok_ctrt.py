@@ -379,6 +379,7 @@ class TokenCtrtWithoutSplit(Ctrt):
         withdraw tokens from another contract
 
         Args:
+            by (acnt.Account): The action maker.
             contract (str): The contract id that you want to withdraw token from
             amount (int): The amount to withdraw
             attachment (str, optional): The attachment of this action. Defaults to "".
