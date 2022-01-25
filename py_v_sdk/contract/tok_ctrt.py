@@ -466,8 +466,6 @@ class TokenCtrtWithoutSplit(Ctrt):
             Dict[str, Any]: The response returned by the Node API
         """
 
-        rcpt_md = md.Addr(recipient)
-        rcpt_md.must_on(by.chain)
 
 
         data=await by._execute_contract(
