@@ -130,7 +130,7 @@ Contract id:  CFB6zvcy39FCRGhxo8HH3PE6zZEG5zXevhG
 ### Functional Tests
 Functional tests are scripts that simulate the behaviour of a normal user to interact wtih `py_v_sdk`(e.g. register a smart contract & call functions of it).
 
-To run it, ensure that you have `pytest` properly installed(it is a development dependency of `py_v_sdk` and can be installed via `pipenv install -d`).
+To run it, ensure that you have `pytest` properly installed(it is a development dependency of `py_v_sdk` and can be installed via `pipenv install -d`) and configures the test environment defined as global variables in [conftest.py](./test/func_test/conftest.py).
 
 Then go to the root of the of the project and run.
 
