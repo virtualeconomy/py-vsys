@@ -46,3 +46,23 @@ class TestAccount:
         assert (
             await acnt0.effective_balance
         ) == eff_bal_old - amount.data - pv.LeasingFee.DEFAULT
+
+    async def test_cancel_lease(self, acnt0: pv.Account, supernode_addr: str):
+        api = acnt0.api
+
+        amount = pv.VSYS.for_amount(5)
+        resp = await acnt0.lease(supernode_addr, amount.amount)
+        await cft.wait_for_block()
+
+        leasing_tx_id = resp["id"]
+        await cft.assert_tx_success(api, leasing_tx_id)
+
+        eff_bal_old = await acnt0.effective_balance
+
+        resp = await acnt0.cancel_lease(leasing_tx_id)
+        await cft.wait_for_block()
+        await cft.assert_tx_success(api, resp["id"])
+
+        eff_bal = await acnt0.effective_balance
+
+        assert eff_bal == eff_bal_old + amount.data - pv.LeasingCancelFee.DEFAULT
