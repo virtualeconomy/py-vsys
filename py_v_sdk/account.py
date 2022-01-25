@@ -169,6 +169,51 @@ class Account:
         logger.debug(data)
         return data
 
+    async def _lease(self, req: tx.LeaseTxReq) -> Dict[str, Any]:
+        """
+        _lease sends a leasing transaction request on behalf of the account.
+
+        Args:
+            req (tx.LeaseTxReq): The leasing transaction request.
+
+        Returns:
+            Dict[str, Any]: The response returned by the Node API.
+        """
+        return await self.api.leasing.broadcast_lease(
+            req.to_broadcast_leasing_payload(self.key_pair)
+        )
+
+    async def lease(
+        self,
+        recipient: str,
+        amount: int | float,
+        fee: int = md.LeasingFee.DEFAULT,
+    ):
+        """
+        lease leases the VSYS coins from the action taker to the recipient(a supernode).
+
+        Args:
+            recipient (str): The account address of the recipient.
+            amount (int | float): The amount of VSYS coins to send.
+            fee (int, optional): The fee to pay for this action. Defaults to md.LeasingFee.DEFAULT.
+
+        Returns:
+            Dict[str, Any]: The response returned by the Node API.
+        """
+        rcpt_md = md.Addr(recipient)
+        rcpt_md.must_on(self.chain)
+
+        data = await self._lease(
+            tx.LeaseTxReq(
+                recipient=rcpt_md,
+                amount=md.VSYS.for_amount(amount),
+                timestamp=md.VSYSTimestamp.now(),
+                fee=md.LeasingFee(fee),
+            )
+        )
+        logger.debug(data)
+        return data
+
     async def _register_contract(self, req: tx.RegCtrtTxReq) -> Dict[str, Any]:
         """
         _register_contract sends a register contract transaction on behalf of the account.
