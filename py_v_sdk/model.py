@@ -468,15 +468,7 @@ class Fee(VSYS):
             )
 
 
-class BasicFee(VSYS):
-    """
-    BasicFee is the data model for the basic transaction fee.
-    """
-
-    DEFAULT = int(VSYS.UNIT * 0.1)
-
-
-class PaymentFee(BasicFee):
+class PaymentFee(Fee):
     """
     PaymentFee is the data model for the fee of a transaction where the type is Payment.
     """
@@ -484,7 +476,7 @@ class PaymentFee(BasicFee):
     pass
 
 
-class LeasingFee(BasicFee):
+class LeasingFee(Fee):
     """
     LeasingFee is the data model for the fee of a transaction where the type is Leasing.
     """
@@ -492,7 +484,7 @@ class LeasingFee(BasicFee):
     pass
 
 
-class LeasingCancelFee(BasicFee):
+class LeasingCancelFee(Fee):
     """
     LeasingCancelFee is the data model for the fee of a transaction where the type is Leasing Cancel.
     """
