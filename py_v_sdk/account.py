@@ -225,6 +225,46 @@ class Account:
         logger.debug(data)
         return data
 
+    async def _cancel_lease(self, req: tx.LeaseCancelTxReq) -> Dict[str, Any]:
+        """
+        _cancel_lease sends a leasing cancel transaction request on behalf of the account.
+
+        Args:
+            req (tx.LeaseCancelTxReq): The leasing cancel transaction request.
+
+        Returns:
+            Dict[str, Any]: The response returned by the Node API.
+        """
+        return await self.api.leasing.broadcast_cancel(
+            req.to_broadcast_cancel_payload(self.key_pair)
+        )
+
+    async def cancel_lease(
+        self,
+        leasing_tx_id: str,
+        fee: int = md.LeasingCancelFee.DEFAULT,
+    ) -> Dict[str, Any]:
+        """
+        cancel_lease cancels the leasing.
+
+        Args:
+            leasing_tx_id (str): The transaction ID of the leasing.
+            fee (int, optional): The fee to pay for this action. Defaults to md.LeasingCancelFee.DEFAULT.
+
+        Returns:
+            Dict[str, Any]: The response returned by the Node API.
+        """
+
+        data = await self._lease(
+            tx.LeaseCancelTxReq(
+                leasing_tx_id=md.TXID(leasing_tx_id),
+                timestamp=md.VSYSTimestamp.now(),
+                fee=md.LeasingCancelFee(fee),
+            )
+        )
+        logger.debug(data)
+        return data
+
     async def _register_contract(self, req: tx.RegCtrtTxReq) -> Dict[str, Any]:
         """
         _register_contract sends a register contract transaction on behalf of the account.
