@@ -476,6 +476,22 @@ class PaymentFee(BasicFee):
     pass
 
 
+class LeasingFee(BasicFee):
+    """
+    LeasingFee is the data model for the fee of a transaction where the type is Leasing.
+    """
+
+    pass
+
+
+class LeasingCancelFee(BasicFee):
+    """
+    LeasingCancelFee is the data model for the fee of a transaction where the type is Leasing Cancel.
+    """
+
+    pass
+
+
 class RegCtrtFee(Fee):
     """
     RegCtrtFee is the data model for the fee of a transaction where the type is Register Contract.
