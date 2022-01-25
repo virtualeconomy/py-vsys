@@ -121,6 +121,17 @@ class Account:
         resp = await self.api.addr.get_balance(self.addr.b58_str)
         return resp["balance"]
 
+    @property
+    async def effective_balance(self) -> int:
+        """
+        effective_balance returns the account's effective balance(i.e. The balance that can be spent).
+
+        Returns:
+            int: The account's effective balance.
+        """
+        resp = await self.api.addr.get_effective_balance(self.addr.b58_str)
+        return resp["balance"]
+
     async def _pay(self, req: tx.PaymentTxReq) -> Dict[str, Any]:
         """
         _pay sends a payment transaction request on behalf of the account.
@@ -164,6 +175,91 @@ class Account:
                 timestamp=md.VSYSTimestamp.now(),
                 attachment=md.Str(attachment),
                 fee=md.PaymentFee(fee),
+            )
+        )
+        logger.debug(data)
+        return data
+
+    async def _lease(self, req: tx.LeaseTxReq) -> Dict[str, Any]:
+        """
+        _lease sends a leasing transaction request on behalf of the account.
+
+        Args:
+            req (tx.LeaseTxReq): The leasing transaction request.
+
+        Returns:
+            Dict[str, Any]: The response returned by the Node API.
+        """
+        return await self.api.leasing.broadcast_lease(
+            req.to_broadcast_leasing_payload(self.key_pair)
+        )
+
+    async def lease(
+        self,
+        supernode_addr: str,
+        amount: int | float,
+        fee: int = md.LeasingFee.DEFAULT,
+    ) -> Dict[str, Any]:
+        """
+        lease leases the VSYS coins from the action taker to the recipient(a supernode).
+
+        Args:
+            supernode_addr (str): The account address of the supernode to lease to.
+            amount (int | float): The amount of VSYS coins to send.
+            fee (int, optional): The fee to pay for this action. Defaults to md.LeasingFee.DEFAULT.
+
+        Returns:
+            Dict[str, Any]: The response returned by the Node API.
+        """
+        addr_md = md.Addr(supernode_addr)
+        addr_md.must_on(self.chain)
+
+        data = await self._lease(
+            tx.LeaseTxReq(
+                supernode_addr=addr_md,
+                amount=md.VSYS.for_amount(amount),
+                timestamp=md.VSYSTimestamp.now(),
+                fee=md.LeasingFee(fee),
+            )
+        )
+        logger.debug(data)
+        return data
+
+    async def _cancel_lease(self, req: tx.LeaseCancelTxReq) -> Dict[str, Any]:
+        """
+        _cancel_lease sends a leasing cancel transaction request on behalf of the account.
+
+        Args:
+            req (tx.LeaseCancelTxReq): The leasing cancel transaction request.
+
+        Returns:
+            Dict[str, Any]: The response returned by the Node API.
+        """
+        return await self.api.leasing.broadcast_cancel(
+            req.to_broadcast_cancel_payload(self.key_pair)
+        )
+
+    async def cancel_lease(
+        self,
+        leasing_tx_id: str,
+        fee: int = md.LeasingCancelFee.DEFAULT,
+    ) -> Dict[str, Any]:
+        """
+        cancel_lease cancels the leasing.
+
+        Args:
+            leasing_tx_id (str): The transaction ID of the leasing.
+            fee (int, optional): The fee to pay for this action. Defaults to md.LeasingCancelFee.DEFAULT.
+
+        Returns:
+            Dict[str, Any]: The response returned by the Node API.
+        """
+
+        data = await self._cancel_lease(
+            tx.LeaseCancelTxReq(
+                leasing_tx_id=md.TXID(leasing_tx_id),
+                timestamp=md.VSYSTimestamp.now(),
+                fee=md.LeasingCancelFee(fee),
             )
         )
         logger.debug(data)
