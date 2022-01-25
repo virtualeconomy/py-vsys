@@ -366,6 +366,18 @@ class Addresses(APIGrp):
         """
         return await self._get(f"/balance/{addr}")
 
+    async def get_effective_balance(self, addr: str) -> Dict[str, Any]:
+        """
+        get_effective_balance gets the effective balance of the given address.
+
+        Args:
+            addr (str): The account address in base58 string format.
+
+        Returns:
+            Dict[str, Any]: The response.
+        """
+        return await self._get(f"/effectiveBalance/{addr}")
+
 
 class Leasing(APIGrp):
     """

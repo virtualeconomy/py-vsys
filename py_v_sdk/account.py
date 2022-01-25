@@ -121,6 +121,17 @@ class Account:
         resp = await self.api.addr.get_balance(self.addr.b58_str)
         return resp["balance"]
 
+    @property
+    async def effective_balance(self) -> int:
+        """
+        effective_balance returns the account's effective balance(i.e. The balance that can be spent).
+
+        Returns:
+            int: The account's effective balance.
+        """
+        resp = await self.api.addr.get_effective_balance(self.addr.b58_str)
+        return resp["balance"]
+
     async def _pay(self, req: tx.PaymentTxReq) -> Dict[str, Any]:
         """
         _pay sends a payment transaction request on behalf of the account.
