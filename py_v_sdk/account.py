@@ -199,7 +199,7 @@ class Account:
         recipient: str,
         amount: int | float,
         fee: int = md.LeasingFee.DEFAULT,
-    ):
+    ) -> Dict[str, Any]:
         """
         lease leases the VSYS coins from the action taker to the recipient(a supernode).
 
