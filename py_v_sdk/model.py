@@ -257,6 +257,14 @@ class TokenID(FixedSizeB58Str):
     BYTES_LEN = 30
 
 
+class TXID(FixedSizeB58Str):
+    """
+    TXID is the data model for transaction ID.
+    """
+
+    BYTES_LEN = 32
+
+
 class PubKey(FixedSizeB58Str):
     """
     PubKey is the data model for public key.
