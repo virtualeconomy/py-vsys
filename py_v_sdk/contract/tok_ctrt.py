@@ -31,10 +31,10 @@ class TokenCtrtWithoutSplit(Ctrt):
         TRANSFER = 4
         DEPOSIT = 5
         WITHDRAW = 6
-        TOTALSUPPLY = 7
-        MAXSUPPLY = 8
-        BALANCEOF = 9
-        GETISSUER = 10
+        TOTAL_SUPPLY = 7
+        MAX_SUPPLY = 8
+        BALANCE_OF = 9
+        GET_ISSUER = 10
     
     
     class StateVar(Ctrt.StateVar): 
@@ -65,8 +65,8 @@ class TokenCtrtWithoutSplit(Ctrt):
         by: acnt.Account,
         max: int,
         unit: int,
-        token_description: str,
-        ctrtDescription: str = "",
+        token_description: str = "",
+        ctrt_description: str = "",
         fee: int = md.RegCtrtFee.DEFAULT,
     ) -> TokenCtrtWithoutSplit:
         """
@@ -77,7 +77,7 @@ class TokenCtrtWithoutSplit(Ctrt):
             max (int): The max amount that can be issued
             unit (int): The granularity of splitting a token
             token_description (str): The description of the token
-            ctrtDescription (str, optional): The description of the contract. Defaults to "".
+            ctrt_description (str, optional): The description of the contract. Defaults to "".
             fee (int, optional):  Register fee. Defaults to md.RegCtrtFee.DEFAULT.
 
         Returns:
@@ -93,7 +93,7 @@ class TokenCtrtWithoutSplit(Ctrt):
                 ),
             ctrt_meta=cls.CTRT_META,
             timestamp=md.VSYSTimestamp.now(),
-            description=md.Str(ctrtDescription),
+            description=md.Str(ctrt_description),
             fee=md.RegCtrtFee(fee),
             )
         )   
@@ -143,7 +143,8 @@ class TokenCtrtWithoutSplit(Ctrt):
         attachment: str= "",
         fee: int = md.ExecCtrtFee.DEFAULT,
     ) -> Dict[str,any]:
-        """ Transfer the issuing right of the contract to another account
+        """ 
+        Transfer the issuing right of the contract to another account
 
         Args:
             by (acnt.Account): The action taker
@@ -155,7 +156,7 @@ class TokenCtrtWithoutSplit(Ctrt):
             Dict[str,any]: The response returned by the Node API
         """
 
-        data =await by._execute_contract(
+        data = await by._execute_contract(
             tx.ExecCtrtFuncTxReq(
                 ctrt_id = self._ctrt_id,
                 func_id = self.FuncIdx.SUPERSEDE,
@@ -178,7 +179,8 @@ class TokenCtrtWithoutSplit(Ctrt):
         attachment: str = "",
         fee: int = md.ExecCtrtFee.DEFAULT,
     ) -> Dict[str,any]:
-        """ Issue new Tokens by account who has the issuing right
+        """ 
+        Issue new Tokens by account who has the issuing right
 
         Args:
             by (acnt.Account): The action taker
@@ -213,7 +215,8 @@ class TokenCtrtWithoutSplit(Ctrt):
         attachment: str= "",
         fee: int = md.ExecCtrtFee.DEFAULT,
     ) -> Dict[str, Any]:
-        """ send tokens to another account
+        """ 
+        send tokens to another account
 
         Args:
             by (acnt.Account): The action taker
@@ -230,7 +233,7 @@ class TokenCtrtWithoutSplit(Ctrt):
         rcpt_md.must_on(by.chain)
 
 
-        data= await by._execute_contract(
+        data = await by._execute_contract(
             tx.ExecCtrtFuncTxReq(
                 ctrt_id=self._ctrt_id,
                 func_id=self.FuncIdx.SEND,
@@ -254,7 +257,8 @@ class TokenCtrtWithoutSplit(Ctrt):
         attachment: str= "",
         fee: int = md.ExecCtrtFee.DEFAULT
     ) -> Dict[str, Any]:
-        """ Destroy an amount of tokens by account who has the issuing right
+        """ 
+        Destroy an amount of tokens by account who has the issuing right
 
         Args:
             by (acnt.Account): The action taker
@@ -267,7 +271,7 @@ class TokenCtrtWithoutSplit(Ctrt):
         """
 
 
-        data=await by._execute_contract(
+        data = await by._execute_contract(
             tx.ExecCtrtFuncTxReq(
                 ctrt_id=self._ctrt_id,
                 func_id=self.FuncIdx.DESTROY,
@@ -291,7 +295,8 @@ class TokenCtrtWithoutSplit(Ctrt):
         attachment: str= "",
         fee: int = md.ExecCtrtFee.DEFAULT
     ) -> Dict[str, Any]:
-        """ transfer tokens from sender to recipient
+        """ 
+        transfer tokens from sender to recipient
 
         Args:
             by (acnt.Account): The action taker
@@ -312,7 +317,7 @@ class TokenCtrtWithoutSplit(Ctrt):
         rcpt_md.must_on(by.chain)
 
 
-        data=await by._execute_contract(
+        data = await by._execute_contract(
             tx.ExecCtrtFuncTxReq(
                 ctrt_id=self._ctrt_id,
                 func_id=self.FuncIdx.TRANSFER,
@@ -331,17 +336,15 @@ class TokenCtrtWithoutSplit(Ctrt):
 
 
     async def deposit(self,
-        by: acnt.Account,
         sender : str,
         contract : str,
         amount: int,
         attachment: str= "",
         fee: int = md.ExecCtrtFee.DEFAULT
     ) -> Dict[str, Any]:
-        """[summary]
+        """deposit the tokens into the contract
 
         Args:
-            by (acnt.Account): The action taker
             sender (str): The sender account
             contract (str): The contract id to deposit into
             amount (int): The amount to deposit
@@ -356,7 +359,7 @@ class TokenCtrtWithoutSplit(Ctrt):
         sender_md.must_on(by.chain)
 
 
-        data=await by._execute_contract(
+        data = await acnt.Account._execute_contract(
             tx.ExecCtrtFuncTxReq(
                 ctrt_id=self._ctrt_id,
                 func_id=self.FuncIdx.DEPOSIT,
@@ -375,17 +378,16 @@ class TokenCtrtWithoutSplit(Ctrt):
 
 
     async def withdraw(self,
-        by: acnt.Account,
         contract : str,
         recipient: str,
         amount: int,
         attachment: str= "",
         fee: int = md.ExecCtrtFee.DEFAULT
     ) -> Dict[str, Any]:
-        """ withdraw tokens from another contract
+        """ 
+        withdraw tokens from another contract
 
         Args:
-            by (acnt.Account): The action taker
             contract (str): The contract id that you want to withdraw token from
             recipient (str): The recipient account
             amount (int): The amount to withdraw
@@ -400,7 +402,7 @@ class TokenCtrtWithoutSplit(Ctrt):
         rcpt_md.must_on(by.chain)
 
 
-        data=await by._execute_contract(
+        data = await acnt.Account._execute_contract(
             tx.ExecCtrtFuncTxReq(
                 ctrt_id=self._ctrt_id,
                 func_id=self.FuncIdx.WITHDRAW,
@@ -418,12 +420,13 @@ class TokenCtrtWithoutSplit(Ctrt):
         return data
 
 
-    async def totalsupply(self,
+    async def get_total_supply(self,
         by: acnt.Account,
         attachment: str= "",
         fee: int = md.ExecCtrtFee.DEFAULT
     ) -> Dict[str, Any]:
-        """ Total token supply of the contract
+        """ 
+        Total token supply of the contract
 
         Args:
             by (acnt.Account): The action taker
@@ -435,10 +438,10 @@ class TokenCtrtWithoutSplit(Ctrt):
         """
 
 
-        data=await by._execute_contract(
+        data = await by._execute_contract(
             tx.ExecCtrtFuncTxReq(
                 ctrt_id=self._ctrt_id,
-                func_id=self.FuncIdx.TOTALSUPPLY,
+                func_id=self.FuncIdx.TOTAL_SUPPLY,
                 data_stack=de.DataStack(
                 ),
                 timestamp=md.VSYSTimestamp.now(),
@@ -450,12 +453,13 @@ class TokenCtrtWithoutSplit(Ctrt):
         return data
 
 
-    async def maxsupply(self,
+    async def get_max_supply(self,
         by: acnt.Account,
         attachment: str= "",
         fee: int = md.ExecCtrtFee.DEFAULT
     ) -> Dict[str, Any]:
-        """ The max supply of the contract
+        """ 
+        The max supply of the contract
 
         Args:
             by (acnt.Account): The action taker
@@ -468,10 +472,10 @@ class TokenCtrtWithoutSplit(Ctrt):
 
 
 
-        data=await by._execute_contract(
+        data = await by._execute_contract(
             tx.ExecCtrtFuncTxReq(
                 ctrt_id=self._ctrt_id,
-                func_id=self.FuncIdx.MAXSUPPLY,
+                func_id=self.FuncIdx.MAX_SUPPLY,
                 data_stack=de.DataStack(
                 ),
                 timestamp=md.VSYSTimestamp.now(),
@@ -483,13 +487,14 @@ class TokenCtrtWithoutSplit(Ctrt):
         return data
 
 
-    async def balance_of(self,
+    async def get_balance_of(self,
         by: acnt.Account,
         address: str,
         attachment: str= "",
         fee: int = md.ExecCtrtFee.DEFAULT
     ) -> Dict[str, Any]:
-        """ The balance of the address
+        """ 
+        The balance of the address
 
         Args:
             by (acnt.Account): The action taker
@@ -502,10 +507,10 @@ class TokenCtrtWithoutSplit(Ctrt):
         """
 
 
-        data=await by._execute_contract(
+        data = await by._execute_contract(
             tx.ExecCtrtFuncTxReq(
                 ctrt_id=self._ctrt_id,
-                func_id=self.FuncIdx.BALANCEOF,
+                func_id=self.FuncIdx.BALANCE_OF,
                 data_stack=de.DataStack(
                     de.Addr(md.Addr(address)),
                 ),
@@ -523,7 +528,8 @@ class TokenCtrtWithoutSplit(Ctrt):
         attachment: str= "",
         fee: int = md.ExecCtrtFee.DEFAULT
     ) -> Dict[str, Any]:
-        """Get the issuer account of the contract
+        """
+        Get the issuer account of the contract
 
         Args:
             by (acnt.Account): The action maker
@@ -535,10 +541,10 @@ class TokenCtrtWithoutSplit(Ctrt):
         """
 
 
-        data=await by._execute_contract(
+        data = await by._execute_contract(
             tx.ExecCtrtFuncTxReq(
                 ctrt_id=self._ctrt_id,
-                func_id=self.FuncIdx.GETISSUER,
+                func_id=self.FuncIdx.GET_ISSUER,
                 data_stack=de.DataStack(
                 ),
                 timestamp=md.VSYSTimestamp.now(),
@@ -576,7 +582,8 @@ class TokenCtrtWithSplit(TokenCtrtWithoutSplit):
     attachment: str= "",
     fee: int = md.ExecCtrtFee.DEFAULT
     ) -> Dict[str, Any]:
-        """ update the unit
+        """ 
+        update the unit
 
         Args:
             by (acnt.Account): The action taker
