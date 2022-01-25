@@ -255,7 +255,7 @@ class Account:
             Dict[str, Any]: The response returned by the Node API.
         """
 
-        data = await self._lease(
+        data = await self._cancel_lease(
             tx.LeaseCancelTxReq(
                 leasing_tx_id=md.TXID(leasing_tx_id),
                 timestamp=md.VSYSTimestamp.now(),
