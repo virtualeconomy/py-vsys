@@ -22,6 +22,7 @@ class NodeAPI:
         self._utils = Utils(sess)
         self._ctrt = Contract(sess)
         self._addr = Addresses(sess)
+        self._leasing = Leasing(sess)
         self._vsys = VSYS(sess)
 
     @classmethod
@@ -109,6 +110,10 @@ class NodeAPI:
             Addresses: The API group "addresses".
         """
         return self._addr
+
+    @property
+    def leasing(self) -> Leasing:
+        return self._leasing
 
     @property
     def vsys(self) -> VSYS:
@@ -360,6 +365,38 @@ class Addresses(APIGrp):
             Dict[str, Any]: The response.
         """
         return await self._get(f"/balance/{addr}")
+
+
+class Leasing(APIGrp):
+    """
+    Leasing is the API group "leasing"
+    """
+
+    PREFIX = "/leasing"
+
+    async def broadcast_lease(self, data: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        broadcast_lease broadcasts the lease request.
+
+        Args:
+            data (Dict[str, Any]): The payload for the API call.
+
+        Returns:
+            Dict[str, Any]: The response.
+        """
+        return await self._post("/broadcast/lease", json.dumps(data))
+
+    async def broadcast_cancel(self, data: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        broadcast_cancel broadcasts the lease cancel request.
+
+        Args:
+            data (Dict[str, Any]): The payload for the API call.
+
+        Returns:
+            Dict[str, Any]: The response.
+        """
+        return await self._post("/broadcast/cancel", json.dumps(data))
 
 
 class VSYS(APIGrp):
