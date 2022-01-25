@@ -196,7 +196,7 @@ class Account:
 
     async def lease(
         self,
-        recipient: str,
+        supernode_addr: str,
         amount: int | float,
         fee: int = md.LeasingFee.DEFAULT,
     ) -> Dict[str, Any]:
@@ -204,19 +204,19 @@ class Account:
         lease leases the VSYS coins from the action taker to the recipient(a supernode).
 
         Args:
-            recipient (str): The account address of the recipient.
+            supernode_addr (str): The account address of the supernode to lease to.
             amount (int | float): The amount of VSYS coins to send.
             fee (int, optional): The fee to pay for this action. Defaults to md.LeasingFee.DEFAULT.
 
         Returns:
             Dict[str, Any]: The response returned by the Node API.
         """
-        rcpt_md = md.Addr(recipient)
-        rcpt_md.must_on(self.chain)
+        addr_md = md.Addr(supernode_addr)
+        addr_md.must_on(self.chain)
 
         data = await self._lease(
             tx.LeaseTxReq(
-                recipient=rcpt_md,
+                supernode_addr=addr_md,
                 amount=md.VSYS.for_amount(amount),
                 timestamp=md.VSYSTimestamp.now(),
                 fee=md.LeasingFee(fee),

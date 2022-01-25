@@ -142,19 +142,19 @@ class LeaseTxReq(TxReq):
 
     def __init__(
         self,
-        recipient: md.Addr,
+        supernode_addr: md.Addr,
         amount: md.VSYS,
         timestamp: md.VSYSTimestamp,
         fee: md.LeasingFee = md.LeasingFee(),
     ) -> None:
         """
         Args:
-            recipient (md.Addr): The address of the recipient.
+            supernode_addr (md.Addr): The address of the supernode to lease to.
             amount (md.VSYS): The amount of VSYS coins to send.
             timestamp (md.VSYSTimestamp): The timestamp of this request.
             fee (md.LeasingFee, optional): The fee for this request. Defaults to md.LeasingFee().
         """
-        self.recipient = recipient
+        self.supernode_addr = supernode_addr
         self.amount = amount
         self.timestamp = timestamp
         self.fee = fee
@@ -163,7 +163,7 @@ class LeaseTxReq(TxReq):
     def data_to_sign(self) -> bytes:
         return (
             self.TX_TYPE.serialize()
-            + self.recipient.bytes
+            + self.supernode_addr.bytes
             + struct.pack(">Q", self.amount.data)
             + struct.pack(">Q", self.fee.data)
             + struct.pack(">H", self.FEE_SCALE)
@@ -173,7 +173,7 @@ class LeaseTxReq(TxReq):
     def to_broadcast_leasing_payload(self, key_pair: md.KeyPair) -> Dict[str, Any]:
         return {
             "senderPublicKey": key_pair.pub.data,
-            "recipient": self.recipient.data,
+            "recipient": self.supernode_addr.data,
             "amount": self.amount.data,
             "fee": self.fee.data,
             "feeScale": self.FEE_SCALE,
