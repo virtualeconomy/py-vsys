@@ -380,7 +380,6 @@ class TokenCtrtWithoutSplit(Ctrt):
 
         Args:
             contract (str): The contract id that you want to withdraw token from
-            recipient (str): The recipient account
             amount (int): The amount to withdraw
             attachment (str, optional): The attachment of this action. Defaults to "".
             fee (int, optional): Execution fee of this tx. Defaults to md.ExecCtrtFee.DEFAULT.
