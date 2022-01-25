@@ -6,7 +6,7 @@ import abc
 import time
 from typing import Any, NamedTuple
 
-import base58
+from base58 import b58decode, b58encode
 
 from py_v_sdk import chain as ch
 from py_v_sdk.utils.crypto import hashes as hs
@@ -87,7 +87,7 @@ class Str(Model):
         Returns:
             str: The base58 string representation.
         """
-        return base58.b58encode(self.data).decode("latin-1")
+        return b58encode(self.data).decode("latin-1")
 
     def validate(self) -> None:
         cls_name = self.__class__.__name__
@@ -112,7 +112,7 @@ class B58Str(Str):
         Returns:
             B58Str: The B58Str instance.
         """
-        return cls(base58.b58encode(b).decode("latin-1"))
+        return cls(b58encode(b).decode("latin-1"))
 
     @property
     def bytes(self) -> bytes:
@@ -122,7 +122,7 @@ class B58Str(Str):
         Returns:
             bytes: The bytes representation.
         """
-        return base58.b58decode(self.data)
+        return b58decode(self.data)
 
     def validate(self) -> None:
         super().validate()
@@ -553,7 +553,7 @@ class Bytes(Model):
         Returns:
             str: The base58 string representation.
         """
-        return base58.b58encode(self.data).decode("latin-1")
+        return b58encode(self.data).decode("latin-1")
 
     def validate(self) -> None:
         cls_name = self.__class__.__name__
