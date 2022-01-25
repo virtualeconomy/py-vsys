@@ -1,4 +1,8 @@
+"""
+tok_ctrt contains Token contract.
+"""
 from __future__ import annotations
+from re import A
 
 from typing import Dict, Any, TYPE_CHECKING
 
@@ -71,7 +75,7 @@ class TokenCtrtWithoutSplit(Ctrt):
         fee: int = md.RegCtrtFee.DEFAULT,
     ) -> TokenCtrtWithoutSplit:
         """
-        register a token contract without split
+        register registers a token contract without split
 
         Args:
             by (acnt.Account): The action taker
@@ -143,7 +147,7 @@ class TokenCtrtWithoutSplit(Ctrt):
         fee: int = md.ExecCtrtFee.DEFAULT,
     ) -> Dict[str, any]:
         """
-        Transfer the issuing right of the contract to another account
+        supersede transfers the issuing right of the contract to another account
 
         Args:
             by (acnt.Account): The action taker
@@ -171,16 +175,16 @@ class TokenCtrtWithoutSplit(Ctrt):
     async def issue(
         self,
         by: acnt.Account,
-        amount: int,
+        amount: int | float,
         attachment: str = "",
         fee: int = md.ExecCtrtFee.DEFAULT,
     ) -> Dict[str, any]:
         """
-        Issue new Tokens by account who has the issuing right
+        issue issues new Tokens by account who has the issuing right
 
         Args:
             by (acnt.Account): The action taker
-            amount (int): The amount of token will be issued
+            amount (int | float): The amount of token will be issued
             attachment (str, optional): The attachment of this action. Defaults to "".
             fee (int, optional): Execution fee of this tx. Defaults to md.ExecCtrtFee.DEFAULT.
 
@@ -206,17 +210,17 @@ class TokenCtrtWithoutSplit(Ctrt):
         self,
         by: acnt.Account,
         recipient: str,
-        amount: int,
+        amount: int | float,
         attachment: str = "",
         fee: int = md.ExecCtrtFee.DEFAULT,
     ) -> Dict[str, Any]:
         """
-        send tokens to another account
+        send sends tokens to another account
 
         Args:
             by (acnt.Account): The action taker
             recipient (str): The recipient account
-            amount (int): The amount of token to be sent
+            amount (int | float): The amount of token to be sent
             attachment (str, optional): The attachment of this action. Defaults to "".
             fee (int, optional): Execution fee of this tx. Defaults to md.ExecCtrtFee.DEFAULT.
 
@@ -233,7 +237,7 @@ class TokenCtrtWithoutSplit(Ctrt):
                 func_id=self.FuncIdx.SEND,
                 data_stack=de.DataStack(
                     de.Addr(rcpt_md),
-                    de.Amount(md.Int(amount)),
+                    de.Amount.for_vsys_amount(amount),
                 ),
                 timestamp=md.VSYSTimestamp.now(),
                 attachment=md.Str(attachment),
@@ -246,16 +250,16 @@ class TokenCtrtWithoutSplit(Ctrt):
     async def destroy(
         self,
         by: acnt.Account,
-        amount: int,
+        amount: int | float,
         attachment: str = "",
         fee: int = md.ExecCtrtFee.DEFAULT,
     ) -> Dict[str, Any]:
         """
-        Destroy an amount of tokens by account who has the issuing right
+        destroy destroys an amount of tokens by account who has the issuing right
 
         Args:
             by (acnt.Account): The action taker
-            amount (int): The amount of token to be destroyed
+            amount (int | float): The amount of token to be destroyed
             attachment (str, optional): The attachment of this action. Defaults to "".
             fee (int, optional): Execution fee of this tx. Defaults to md.ExecCtrtFee.DEFAULT.
 
@@ -268,7 +272,7 @@ class TokenCtrtWithoutSplit(Ctrt):
                 ctrt_id=self._ctrt_id,
                 func_id=self.FuncIdx.DESTROY,
                 data_stack=de.DataStack(
-                    de.Amount(md.Int(amount)),
+                    de.Amount.for_vsys_amount(amount),
                 ),
                 timestamp=md.VSYSTimestamp.now(),
                 attachment=md.Str(attachment),
@@ -283,18 +287,18 @@ class TokenCtrtWithoutSplit(Ctrt):
         by: acnt.Account,
         sender: str,
         recipient: str,
-        amount: int,
+        amount: int | float,
         attachment: str = "",
         fee: int = md.ExecCtrtFee.DEFAULT,
     ) -> Dict[str, Any]:
         """
-        transfer tokens from sender to recipient
+        transfer transfers tokens from sender to recipient
 
         Args:
             by (acnt.Account): The action taker
             sender (str): The sender account
             recipient (str): The recipient account
-            amount (int): The amount to transfer
+            amount (int | float): The amount to transfer
             attachment (str, optional): The attachment of this action. Defaults to "".
             fee (int, optional): Execution fee of this tx. Defaults to md.ExecCtrtFee.DEFAULT.
 
@@ -315,7 +319,7 @@ class TokenCtrtWithoutSplit(Ctrt):
                 data_stack=de.DataStack(
                     de.Addr(sender_md),
                     de.Addr(rcpt_md),
-                    de.Amount(md.Int(amount)),
+                    de.Amount.for_vsys_amount(amount),
                 ),
                 timestamp=md.VSYSTimestamp.now(),
                 attachment=md.Str(attachment),
@@ -329,17 +333,17 @@ class TokenCtrtWithoutSplit(Ctrt):
         self,
         by: acnt.Account,
         contract: str,
-        amount: int,
+        amount: int | float,
         attachment: str = "",
         fee: int = md.ExecCtrtFee.DEFAULT,
     ) -> Dict[str, Any]:
         """
-        deposit the tokens into the contract
+        deposit deposits the tokens into the contract
 
         Args:
             by (acnt.Account): The action maker.
             contract (str): The contract id to deposit into
-            amount (int): The amount to deposit
+            amount (int | float): The amount to deposit
             attachment (str, optional): The attachment of this action. Defaults to "".
             fee (int, optional): Execution fee of this tx. Defaults to md.ExecCtrtFee.DEFAULT.
 
@@ -357,7 +361,7 @@ class TokenCtrtWithoutSplit(Ctrt):
                 data_stack=de.DataStack(
                     de.Addr(sender_md),
                     de.CtrtAcnt(md.CtrtID(contract)),
-                    de.Amount(md.Int(amount)),
+                    de.Amount.for_vsys_amount(amount),
                 ),
                 timestamp=md.VSYSTimestamp.now(),
                 attachment=md.Str(attachment),
@@ -371,17 +375,17 @@ class TokenCtrtWithoutSplit(Ctrt):
         self,
         by: acnt.Account,
         contract: str,
-        amount: int,
+        amount: int | float,
         attachment: str = "",
         fee: int = md.ExecCtrtFee.DEFAULT,
     ) -> Dict[str, Any]:
         """
-        withdraw tokens from another contract
+        withdraw withdraws tokens from another contract
 
         Args:
             by (acnt.Account): The action maker.
             contract (str): The contract id that you want to withdraw token from
-            amount (int): The amount to withdraw
+            amount (int | float): The amount to withdraw
             attachment (str, optional): The attachment of this action. Defaults to "".
             fee (int, optional): Execution fee of this tx. Defaults to md.ExecCtrtFee.DEFAULT.
 
@@ -399,7 +403,7 @@ class TokenCtrtWithoutSplit(Ctrt):
                 data_stack=de.DataStack(
                     de.CtrtAcnt(md.CtrtID(contract)),
                     de.Addr(rcpt_md),
-                    de.Amount(md.Int(amount)),
+                    de.Amount.for_vsys_amount(amount),
                 ),
                 timestamp=md.VSYSTimestamp.now(),
                 attachment=md.Str(attachment),
@@ -413,7 +417,7 @@ class TokenCtrtWithoutSplit(Ctrt):
         self, by: acnt.Account, attachment: str = "", fee: int = md.ExecCtrtFee.DEFAULT
     ) -> Dict[str, Any]:
         """
-        Get the total token supply of the contract
+        get_total_supply gets the total token supply of the contract
 
         Args:
             by (acnt.Account): The action taker
@@ -441,7 +445,7 @@ class TokenCtrtWithoutSplit(Ctrt):
         self, by: acnt.Account, attachment: str = "", fee: int = md.ExecCtrtFee.DEFAULT
     ) -> Dict[str, Any]:
         """
-        Get the max supply of the contract
+        get_max_supply gets the max supply of the contract
 
         Args:
             by (acnt.Account): The action taker
@@ -473,7 +477,7 @@ class TokenCtrtWithoutSplit(Ctrt):
         fee: int = md.ExecCtrtFee.DEFAULT,
     ) -> Dict[str, Any]:
         """
-        Get the balance of the address
+        get_balance_of gets the balance of the address
 
         Args:
             by (acnt.Account): The action taker
@@ -504,7 +508,7 @@ class TokenCtrtWithoutSplit(Ctrt):
         self, by: acnt.Account, attachment: str = "", fee: int = md.ExecCtrtFee.DEFAULT
     ) -> Dict[str, Any]:
         """
-        Get the issuer account of the contract
+        get_issuer gets the issuer account of the contract
 
         Args:
             by (acnt.Account): The action maker
@@ -544,10 +548,10 @@ class TokenCtrtWithSplit(TokenCtrtWithoutSplit):
         TRANSFER = 5
         DEPOSIT = 6
         WITHDRAW = 7
-        TOTALSUPPLY = 8
-        MAXSUPPLY = 9
-        BALANCEOF = 10
-        GETISSUER = 11
+        TOTAL_SUPPLY = 8
+        MAX_SUPPLY = 9
+        BALANCE_OF = 10
+        GET_ISSUER = 11
 
     async def split(
         self,
@@ -557,7 +561,7 @@ class TokenCtrtWithSplit(TokenCtrtWithoutSplit):
         fee: int = md.ExecCtrtFee.DEFAULT,
     ) -> Dict[str, Any]:
         """
-        Update the unit
+        split updates the unit
 
         Args:
             by (acnt.Account): The action taker
@@ -574,7 +578,7 @@ class TokenCtrtWithSplit(TokenCtrtWithoutSplit):
                 ctrt_id=self._ctrt_id,
                 func_id=self.FuncIdx.SPLIT,
                 data_stack=de.DataStack(
-                    de.Amount(md.Int(new_unit)),
+                    de.INT32(md.Int(new_unit)),
                 ),
                 timestamp=md.VSYSTimestamp.now(),
                 attachment=md.Str(attachment),
