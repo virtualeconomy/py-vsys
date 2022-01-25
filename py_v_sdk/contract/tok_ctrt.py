@@ -342,7 +342,8 @@ class TokenCtrtWithoutSplit(Ctrt):
         attachment: str= "",
         fee: int = md.ExecCtrtFee.DEFAULT
     ) -> Dict[str, Any]:
-        """deposit the tokens into the contract
+        """
+        deposit the tokens into the contract
 
         Args:
             sender (str): The sender account
@@ -426,7 +427,7 @@ class TokenCtrtWithoutSplit(Ctrt):
         fee: int = md.ExecCtrtFee.DEFAULT
     ) -> Dict[str, Any]:
         """ 
-        Total token supply of the contract
+        Get the total token supply of the contract
 
         Args:
             by (acnt.Account): The action taker
@@ -459,7 +460,7 @@ class TokenCtrtWithoutSplit(Ctrt):
         fee: int = md.ExecCtrtFee.DEFAULT
     ) -> Dict[str, Any]:
         """ 
-        The max supply of the contract
+        Get the max supply of the contract
 
         Args:
             by (acnt.Account): The action taker
@@ -494,7 +495,7 @@ class TokenCtrtWithoutSplit(Ctrt):
         fee: int = md.ExecCtrtFee.DEFAULT
     ) -> Dict[str, Any]:
         """ 
-        The balance of the address
+        Get the balance of the address
 
         Args:
             by (acnt.Account): The action taker
@@ -583,7 +584,7 @@ class TokenCtrtWithSplit(TokenCtrtWithoutSplit):
     fee: int = md.ExecCtrtFee.DEFAULT
     ) -> Dict[str, Any]:
         """ 
-        update the unit
+        Update the unit
 
         Args:
             by (acnt.Account): The action taker
