@@ -182,6 +182,59 @@ class LeaseTxReq(TxReq):
         }
 
 
+class LeaseCancelTxReq(TxReq):
+    """
+    LeaseCancelTxReq is the Lease Cancel Transaction Request.
+    """
+
+    TX_TYPE = TxType.LEASE_CANCEL
+
+    def __init__(
+        self,
+        leasing_tx_id: md.TXID,
+        timestamp: md.VSYSTimestamp,
+        fee: md.LeasingCancelFee = md.LeasingCancelFee(),
+    ) -> None:
+        """
+        Args:
+            leasing_tx_id (md.TXID): The transaction ID for the leasing to cancel.
+            timestamp (md.VSYSTimestamp): The timestamp of this request.
+            fee (md.LeasingCancelFee, optional): The fee for this request. Defaults to md.LeasingCancelFee().
+        """
+        self.leasing_tx_id = leasing_tx_id
+        self.timestamp = timestamp
+        self.fee = fee
+
+    @property
+    def data_to_sign(self) -> bytes:
+        return (
+            self.TX_TYPE.serialize()
+            + struct.pack(">Q", self.fee.data)
+            + struct.pack(">H", self.FEE_SCALE)
+            + struct.pack(">Q", self.timestamp.data)
+            + self.leasing_tx_id.bytes
+        )
+
+    def to_broadcast_cancel_payload(self, key_pair: md.KeyPair) -> Dict[str, Any]:
+        """
+        to_broadcast_cancel_payload returns the payload for node api /leasing/broadcast/cancel
+
+        Args:
+            key_pair (md.KeyPair): The key pair to sign the request
+
+        Returns:
+            Dict[str, Any]: The payload
+        """
+        return {
+            "senderPublicKey": key_pair.pub.data,
+            "txId": self.leasing_tx_id.data,
+            "fee": self.fee.data,
+            "feeScale": self.FEE_SCALE,
+            "timestamp": self.timestamp.data,
+            "signature": md.Bytes(self.sign(key_pair)).b58_str,
+        }
+
+
 class RegCtrtTxReq(TxReq):
     """
     RegCtrtTxReq is Register Contract Transaction Request
