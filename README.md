@@ -28,7 +28,7 @@ The official Python SDK for VSYS APIs. The [old Python SDK](https://github.com/v
 pip install git+https://github.com/virtualeconomy/py-v-sdk.git@main
 ```
 
-`@mian` is necessary as the default branch is `develop`
+`@main` is necessary as the default branch is `develop`
 
 If you are using `pipenv`, try
 
