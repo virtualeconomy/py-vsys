@@ -2,7 +2,6 @@
 tok_ctrt contains Token contract.
 """
 from __future__ import annotations
-from re import A
 
 from typing import Dict, Any, TYPE_CHECKING
 
