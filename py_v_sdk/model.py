@@ -257,6 +257,14 @@ class TokenID(FixedSizeB58Str):
     BYTES_LEN = 30
 
 
+class TXID(FixedSizeB58Str):
+    """
+    TXID is the data model for transaction ID.
+    """
+
+    BYTES_LEN = 32
+
+
 class PubKey(FixedSizeB58Str):
     """
     PubKey is the data model for public key.
@@ -460,17 +468,25 @@ class Fee(VSYS):
             )
 
 
-class BasicFee(VSYS):
-    """
-    BasicFee is the data model for the basic transaction fee.
-    """
-
-    DEFAULT = int(VSYS.UNIT * 0.1)
-
-
-class PaymentFee(BasicFee):
+class PaymentFee(Fee):
     """
     PaymentFee is the data model for the fee of a transaction where the type is Payment.
+    """
+
+    pass
+
+
+class LeasingFee(Fee):
+    """
+    LeasingFee is the data model for the fee of a transaction where the type is Leasing.
+    """
+
+    pass
+
+
+class LeasingCancelFee(Fee):
+    """
+    LeasingCancelFee is the data model for the fee of a transaction where the type is Leasing Cancel.
     """
 
     pass

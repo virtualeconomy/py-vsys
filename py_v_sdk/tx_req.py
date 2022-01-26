@@ -13,6 +13,7 @@ if TYPE_CHECKING:
     from py_v_sdk import contract as ctrt
 
 from py_v_sdk import model as md
+from py_v_sdk import dbput as dp
 from py_v_sdk.utils.crypto import curve_25519 as curve
 
 
@@ -129,6 +130,108 @@ class PaymentTxReq(TxReq):
             "feeScale": self.FEE_SCALE,
             "timestamp": self.timestamp.data,
             "attachment": self.attachment.b58_str,
+            "signature": md.Bytes(self.sign(key_pair)).b58_str,
+        }
+
+
+class LeaseTxReq(TxReq):
+    """
+    LeaseTxReq is the Lease Transaction Request
+    """
+
+    TX_TYPE = TxType.LEASE
+
+    def __init__(
+        self,
+        supernode_addr: md.Addr,
+        amount: md.VSYS,
+        timestamp: md.VSYSTimestamp,
+        fee: md.LeasingFee = md.LeasingFee(),
+    ) -> None:
+        """
+        Args:
+            supernode_addr (md.Addr): The address of the supernode to lease to.
+            amount (md.VSYS): The amount of VSYS coins to send.
+            timestamp (md.VSYSTimestamp): The timestamp of this request.
+            fee (md.LeasingFee, optional): The fee for this request. Defaults to md.LeasingFee().
+        """
+        self.supernode_addr = supernode_addr
+        self.amount = amount
+        self.timestamp = timestamp
+        self.fee = fee
+
+    @property
+    def data_to_sign(self) -> bytes:
+        return (
+            self.TX_TYPE.serialize()
+            + self.supernode_addr.bytes
+            + struct.pack(">Q", self.amount.data)
+            + struct.pack(">Q", self.fee.data)
+            + struct.pack(">H", self.FEE_SCALE)
+            + struct.pack(">Q", self.timestamp.data)
+        )
+
+    def to_broadcast_leasing_payload(self, key_pair: md.KeyPair) -> Dict[str, Any]:
+        return {
+            "senderPublicKey": key_pair.pub.data,
+            "recipient": self.supernode_addr.data,
+            "amount": self.amount.data,
+            "fee": self.fee.data,
+            "feeScale": self.FEE_SCALE,
+            "timestamp": self.timestamp.data,
+            "signature": md.Bytes(self.sign(key_pair)).b58_str,
+        }
+
+
+class LeaseCancelTxReq(TxReq):
+    """
+    LeaseCancelTxReq is the Lease Cancel Transaction Request.
+    """
+
+    TX_TYPE = TxType.LEASE_CANCEL
+
+    def __init__(
+        self,
+        leasing_tx_id: md.TXID,
+        timestamp: md.VSYSTimestamp,
+        fee: md.LeasingCancelFee = md.LeasingCancelFee(),
+    ) -> None:
+        """
+        Args:
+            leasing_tx_id (md.TXID): The transaction ID for the leasing to cancel.
+            timestamp (md.VSYSTimestamp): The timestamp of this request.
+            fee (md.LeasingCancelFee, optional): The fee for this request. Defaults to md.LeasingCancelFee().
+        """
+        self.leasing_tx_id = leasing_tx_id
+        self.timestamp = timestamp
+        self.fee = fee
+
+    @property
+    def data_to_sign(self) -> bytes:
+        return (
+            self.TX_TYPE.serialize()
+            + struct.pack(">Q", self.fee.data)
+            + struct.pack(">H", self.FEE_SCALE)
+            + struct.pack(">Q", self.timestamp.data)
+            + self.leasing_tx_id.bytes
+        )
+
+    def to_broadcast_cancel_payload(self, key_pair: md.KeyPair) -> Dict[str, Any]:
+        """
+        to_broadcast_cancel_payload returns the payload for node api /leasing/broadcast/cancel
+
+        Args:
+            key_pair (md.KeyPair): The key pair to sign the request
+
+        Returns:
+            Dict[str, Any]: The payload
+        """
+        return {
+            "senderPublicKey": key_pair.pub.data,
+            "txId": self.leasing_tx_id.data,
+            "fee": self.fee.data,
+            "feeScale": self.FEE_SCALE,
+            "timestamp": self.timestamp.data,
             "signature": md.Bytes(self.sign(key_pair)).b58_str,
         }
 
@@ -282,6 +385,65 @@ class ExecCtrtFuncTxReq(TxReq):
             "functionIndex": self.func_id.value,
             "functionData": md.Bytes(self.data_stack.serialize()).b58_str,
             "attachment": self.attachment.b58_str,
+            "fee": self.fee.data,
+            "feeScale": self.FEE_SCALE,
+            "timestamp": self.timestamp.data,
+            "signature": md.Bytes(self.sign(key_pair)).b58_str,
+        }
+
+
+class DBPutTxReq(TxReq):
+    """
+    DBPutTxReq is DB Put Transaction Request.
+    """
+
+    TX_TYPE = TxType.DB_PUT
+
+    def __init__(
+        self,
+        db_key: dp.DBPutKey,
+        data: dp.DBPutData,
+        timestamp: md.VSYSTimestamp,
+        fee: md.DBPutFee = md.DBPutFee(),
+    ):
+        """
+        Args:
+            db_key (dp.DBPutKey): The db key of the data.
+            data (dp.DBPutData): The data to put.
+            timestamp (md.VSYSTimestamp): The timestamp of this request.
+            fee (md.DBPutFee, optional): The fee for this request. Defaults to md.DBPutFee().
+        """
+        self.db_key = db_key
+        self.data = data
+        self.timestamp = timestamp
+        self.fee = fee
+
+    @property
+    def data_to_sign(self) -> bytes:
+        return (
+            self.TX_TYPE.serialize()
+            + self.db_key.serialize()
+            + self.data.serialize()
+            + struct.pack(">Q", self.fee.data)
+            + struct.pack(">H", self.FEE_SCALE)
+            + struct.pack(">Q", self.timestamp.data)
+        )
+
+    def to_broadcast_put_payload(self, key_pair: md.KeyPair) -> Dict[str, Any]:
+        """
+        to_broadcast_put_payload returns the payload for node api /database/broadcast/put
+
+        Args:
+            key_pair (md.KeyPair): The key pair to sign the request.
+
+        Returns:
+            Dict[str, Any]: The payload.
+        """
+        return {
+            "senderPublicKey": key_pair.pub.data,
+            "dbKey": self.db_key.data.data,
+            "dataType": self.data.__class__.__name__,
+            "data": self.data.data.data,
             "fee": self.fee.data,
             "feeScale": self.FEE_SCALE,
             "timestamp": self.timestamp.data,
