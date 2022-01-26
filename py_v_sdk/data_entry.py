@@ -186,6 +186,13 @@ class Amount(Long):
     Amount is the data entry for amount.
     """
 
+    def __init__(self, data: md.VSYS) -> None:
+        self.data = data
+
+    @classmethod
+    def for_vsys_amount(cls, amount: int | float) -> Amount:
+        return cls(md.VSYS.for_amount(amount))
+
     IDX = 3
 
 
