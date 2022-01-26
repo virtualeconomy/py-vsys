@@ -22,6 +22,8 @@ class NodeAPI:
         self._utils = Utils(sess)
         self._ctrt = Contract(sess)
         self._addr = Addresses(sess)
+        self._db = Database(sess)
+        self._leasing = Leasing(sess)
         self._vsys = VSYS(sess)
 
     @classmethod
@@ -109,6 +111,14 @@ class NodeAPI:
             Addresses: The API group "addresses".
         """
         return self._addr
+
+    @property
+    def db(self) -> Database:
+        return self._db
+
+    @property
+    def leasing(self) -> Leasing:
+        return self._leasing
 
     @property
     def vsys(self) -> VSYS:
@@ -360,6 +370,83 @@ class Addresses(APIGrp):
             Dict[str, Any]: The response.
         """
         return await self._get(f"/balance/{addr}")
+
+    async def get_effective_balance(self, addr: str) -> Dict[str, Any]:
+        """
+        get_effective_balance gets the effective balance of the given address.
+
+        Args:
+            addr (str): The account address in base58 string format.
+
+        Returns:
+            Dict[str, Any]: The response.
+        """
+        return await self._get(f"/effectiveBalance/{addr}")
+
+
+class Database(APIGrp):
+    """
+    Database is the API group "database"
+    """
+
+    PREFIX = "/database"
+
+    async def broadcasts_put(self, data: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        broadcasts_put broadcasts the DB Put request.
+
+        Args:
+            data (Dict[str, Any]): The payload for the API call.
+
+        Returns:
+            Dict[str, Any]: The response.
+        """
+        return await self._post("/broadcast/put", json.dumps(data))
+
+    async def get(self, addr: str, db_key: str) -> Dict[str, Any]:
+        """
+        get gets the data of the given address & the db key.
+
+        Args:
+            addr (str): The address that owns the data.
+            db_key (str): The db key of the data.
+
+        Returns:
+            Dict[str, Any]: The response.
+        """
+        return await self._get(f"/get/{addr}/{db_key}")
+
+
+class Leasing(APIGrp):
+    """
+    Leasing is the API group "leasing"
+    """
+
+    PREFIX = "/leasing"
+
+    async def broadcast_lease(self, data: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        broadcast_lease broadcasts the lease request.
+
+        Args:
+            data (Dict[str, Any]): The payload for the API call.
+
+        Returns:
+            Dict[str, Any]: The response.
+        """
+        return await self._post("/broadcast/lease", json.dumps(data))
+
+    async def broadcast_cancel(self, data: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        broadcast_cancel broadcasts the lease cancel request.
+
+        Args:
+            data (Dict[str, Any]): The payload for the API call.
+
+        Returns:
+            Dict[str, Any]: The response.
+        """
+        return await self._post("/broadcast/cancel", json.dumps(data))
 
 
 class VSYS(APIGrp):

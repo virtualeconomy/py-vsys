@@ -2,7 +2,7 @@
 account contains account-related resources
 """
 from __future__ import annotations
-from typing import Any, Dict, TYPE_CHECKING
+from typing import Any, Dict, TYPE_CHECKING, Type
 
 from loguru import logger
 
@@ -13,6 +13,7 @@ if TYPE_CHECKING:
 
 from py_v_sdk import model as md
 from py_v_sdk import tx_req as tx
+from py_v_sdk import dbput as dp
 from py_v_sdk.utils.crypto import hashes as hs
 from py_v_sdk.utils.crypto import curve_25519 as curve
 
@@ -121,6 +122,17 @@ class Account:
         resp = await self.api.addr.get_balance(self.addr.b58_str)
         return resp["balance"]
 
+    @property
+    async def effective_balance(self) -> int:
+        """
+        effective_balance returns the account's effective balance(i.e. The balance that can be spent).
+
+        Returns:
+            int: The account's effective balance.
+        """
+        resp = await self.api.addr.get_effective_balance(self.addr.b58_str)
+        return resp["balance"]
+
     async def _pay(self, req: tx.PaymentTxReq) -> Dict[str, Any]:
         """
         _pay sends a payment transaction request on behalf of the account.
@@ -169,6 +181,91 @@ class Account:
         logger.debug(data)
         return data
 
+    async def _lease(self, req: tx.LeaseTxReq) -> Dict[str, Any]:
+        """
+        _lease sends a leasing transaction request on behalf of the account.
+
+        Args:
+            req (tx.LeaseTxReq): The leasing transaction request.
+
+        Returns:
+            Dict[str, Any]: The response returned by the Node API.
+        """
+        return await self.api.leasing.broadcast_lease(
+            req.to_broadcast_leasing_payload(self.key_pair)
+        )
+
+    async def lease(
+        self,
+        supernode_addr: str,
+        amount: int | float,
+        fee: int = md.LeasingFee.DEFAULT,
+    ) -> Dict[str, Any]:
+        """
+        lease leases the VSYS coins from the action taker to the recipient(a supernode).
+
+        Args:
+            supernode_addr (str): The account address of the supernode to lease to.
+            amount (int | float): The amount of VSYS coins to send.
+            fee (int, optional): The fee to pay for this action. Defaults to md.LeasingFee.DEFAULT.
+
+        Returns:
+            Dict[str, Any]: The response returned by the Node API.
+        """
+        addr_md = md.Addr(supernode_addr)
+        addr_md.must_on(self.chain)
+
+        data = await self._lease(
+            tx.LeaseTxReq(
+                supernode_addr=addr_md,
+                amount=md.VSYS.for_amount(amount),
+                timestamp=md.VSYSTimestamp.now(),
+                fee=md.LeasingFee(fee),
+            )
+        )
+        logger.debug(data)
+        return data
+
+    async def _cancel_lease(self, req: tx.LeaseCancelTxReq) -> Dict[str, Any]:
+        """
+        _cancel_lease sends a leasing cancel transaction request on behalf of the account.
+
+        Args:
+            req (tx.LeaseCancelTxReq): The leasing cancel transaction request.
+
+        Returns:
+            Dict[str, Any]: The response returned by the Node API.
+        """
+        return await self.api.leasing.broadcast_cancel(
+            req.to_broadcast_cancel_payload(self.key_pair)
+        )
+
+    async def cancel_lease(
+        self,
+        leasing_tx_id: str,
+        fee: int = md.LeasingCancelFee.DEFAULT,
+    ) -> Dict[str, Any]:
+        """
+        cancel_lease cancels the leasing.
+
+        Args:
+            leasing_tx_id (str): The transaction ID of the leasing.
+            fee (int, optional): The fee to pay for this action. Defaults to md.LeasingCancelFee.DEFAULT.
+
+        Returns:
+            Dict[str, Any]: The response returned by the Node API.
+        """
+
+        data = await self._cancel_lease(
+            tx.LeaseCancelTxReq(
+                leasing_tx_id=md.TXID(leasing_tx_id),
+                timestamp=md.VSYSTimestamp.now(),
+                fee=md.LeasingCancelFee(fee),
+            )
+        )
+        logger.debug(data)
+        return data
+
     async def _register_contract(self, req: tx.RegCtrtTxReq) -> Dict[str, Any]:
         """
         _register_contract sends a register contract transaction on behalf of the account.
@@ -196,6 +293,51 @@ class Account:
         return await self.api.ctrt.broadcast_execute(
             req.to_broadcast_execute_payload(self.key_pair)
         )
+
+    async def _db_put(self, req: tx.DBPutTxReq) -> Dict[str, Any]:
+        """
+        _db_put sends a DB Put transaction on behalf of the account.
+
+        Args:
+            req (tx.DBPutTxReq): The DB Put transaction request.
+
+        Returns:
+            Dict[str, Any]: The response returned by the Node API.
+        """
+        return await self.api.db.broadcasts_put(
+            req.to_broadcast_put_payload(self.key_pair)
+        )
+
+    async def db_put(
+        self,
+        db_key: str,
+        data: str,
+        data_type: Type[dp.DBPutData] = dp.ByteArray,
+        fee: int = md.DBPutFee.DEFAULT,
+    ) -> Dict[str, Any]:
+        """
+        db_put stores the data under the key onto the chain.
+
+        Args:
+            db_key (str): The db key of the data.
+            data (str): The data to put.
+            data_type (Type[dp.DBPutData], optional): The type of the data(i.e. how should the string be parsed).
+                Defaults to dp.ByteArray.
+            fee (int, optional): The fee to pay for this action. Defaults to md.DBPutFee.DEFAULT.
+
+        Returns:
+            Dict[str, Any]: The response returned by the Node API.
+        """
+        data = await self._db_put(
+            tx.DBPutTxReq(
+                db_key=dp.DBPutKey.from_str(db_key),
+                data=dp.DBPutData.new(data, data_type),
+                timestamp=md.VSYSTimestamp.now(),
+                fee=md.DBPutFee(fee),
+            )
+        )
+        logger.debug(data)
+        return data
 
     @staticmethod
     def get_key_pair(acnt_seed_hash: bytes) -> md.KeyPair:
