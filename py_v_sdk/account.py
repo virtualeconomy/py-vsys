@@ -187,7 +187,7 @@ class Account:
         """
         self._chain = chain
         self._wallet = wallet
-        self._nonce = nonce
+        self._nonce = md.Nonce(nonce)
 
         self._acnt_seed_hash = wallet.get_acnt_seed_hash(wallet.seed.data, nonce)
         self._key_pair = wallet.get_key_pair(self._acnt_seed_hash.data)
@@ -226,14 +226,14 @@ class Account:
         return self._wallet
 
     @property
-    def nonce(self) -> int:
+    def nonce(self) -> md.Nonce:
         """
         nonce returns the account's nonce.
 
         Returns:
             int: The account's nonce.
         """
-        return self._nonce.data
+        return self._nonce
 
     @property
     def acnt_seed_hash(self) -> md.Bytes:
