@@ -41,7 +41,6 @@ pipenv install git+https://github.com/virtualeconomy/py-v-sdk.git@main#egg=py_v_
 
 ```python
 import asyncio
-
 import py_v_sdk as pv
 
 # The RESTful API host address to a node in a public test net
@@ -73,13 +72,12 @@ async def main():
 
     print_heading("Try out Account")
     # Account represents an account in the net
-    acnt: pv.Account = pv.Account(chain, SEED, nonce=0)
+    wallet: pv.Wallet = pv.Wallet.from_seed_str(SEED)
+    acnt: pv.Account = wallet.get_account(chain, nonce=0)
     # Get the account's balance
     print("Balance:", await acnt.balance)
-    # Get the account's seed
-    print("Seed:", acnt.seed)
     # Get the account's nonce'
-    print("Nonce:", acnt.nonce)
+    print("Nonce:", acnt.nonce.data)
     # Get the account's public key
     print("Public key: ", acnt.key_pair.pub.b58_str)
     # Get the account's private key
@@ -97,10 +95,11 @@ async def main():
     # Get the contract's ID
     print("Contract id: ", ctrt.ctrt_id)
 
+    await api.sess.close()
+
 
 if __name__ == "__main__":
     asyncio.run(main())
-
 ```
 
 Example output
