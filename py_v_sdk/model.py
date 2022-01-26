@@ -9,6 +9,7 @@ from typing import Any, NamedTuple
 import base58
 
 from py_v_sdk import chain as ch
+from py_v_sdk import words as wd
 from py_v_sdk.utils.crypto import hashes as hs
 
 
@@ -94,6 +95,24 @@ class Str(Model):
 
         if not isinstance(self.data, str):
             raise TypeError(f"Data in {cls_name} must be a str")
+
+
+class Seed(Str):
+    WORD_CNT = 15
+
+    def validate(self) -> None:
+        super().validate()
+        cls_name = self.__class__.__name__
+
+        words = self.data.split(" ")
+        if len(words) != self.WORD_CNT:
+            raise ValueError(
+                f"Data in {cls_name} must consist exactly {self.WORD_CNT} words"
+            )
+
+        for w in words:
+            if not w in wd.WORDS_SET:
+                raise ValueError(f"Data in {cls_name} contains invalid words")
 
 
 class B58Str(Str):
