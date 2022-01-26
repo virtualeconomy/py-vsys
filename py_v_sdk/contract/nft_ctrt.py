@@ -369,3 +369,86 @@ class NFTCtrt(Ctrt):
         )
         logger.debug(data)
         return data
+
+
+class NFTCtrtV2Whitelist(NFTCtrt):
+    """
+    NFTCtrtV2Whitelist is the class for VSYS NFT contract V2 with whitelist
+    """
+
+    CTRT_META = CtrtMeta.from_b58_str(
+        "RVbUxLpK4Vi15qHaDvy1e4kjNmQqLrcdDqXBjMBHB1RH3xPQS7tcuEEoxHZ72mUVttTa3EHMmD6gRUcKSXW1kQkNpBNEFzgfM2qSS2BRvdHdke9xNPgu6i2m8KbViKeBiq9ydsHMMkyZL5ShfpfBD8BfJmTiSERjgx7voeusYwhTWT2VDg4E2k3krqDmbCVTtvxm6nydPxxwDH9RBBWJwLjkMHRdaoDFXrDBA5KXc6YgSnT9P6JZKRAbTYAzAEF1514oGEvRjgz8HUhCzjVjmTUgjHXeYT416f8soj1xzmQW4LCZszSGeo1hMh5HZWshg9NwJGkJW9C2HVXr31RvSvKcLK6NgDEnxaci6H9mjBagXW5MNTp7KKKmEuurKVHw1GydPE2Zx91cvFzQ5Q4xiUWhRtMCyMmDp5AH4STRgcdyK4DsFR2unaxhQgEHzxCVR3EPe6cddnW6ZdGDvSV6KzDz1RBPUu6Ex7PUJ6L8GAdbunppVJrmLYER7aySP67Z2j7mqaRwCTDYSMeh47a3aCpuhG9dGoTMF9UZhxBZu5irg7fwzifPWJKQBKPp2JvefKanEwxPqLUbFq5a1Gu8dqFxaa6cC248EHHK1WqHtkZcUdFN65V2rhGCxPvNKADwH7STsn7awHuowUTJJe1EnTHvyJ9Yzd8Kg8JFn1Q5tTEAQTFujCMnriXxbqmjNYhQghqxyxjVL447NDmvYBqey7jcp4CBde9myjbFdxDvbtVDawwxoGvGnzosn14RsBBBZjxcqKDHAMbkJLdWkjL5n8yjXxiAZfbEt4Bk5uDK4YP8YgbGSHKVhGWYWbmKxEDGAziRnGTdwy79RPtTsb6zx8fCGfU3gCD4skY6ny6bM28Ue81YBMPt89TKm6Gt8GLhXHft8vSp9cUiV6dDauVHmyu1vgACcN7kpu1yMZExZEazUDSBf9SuiyEZWXsDkXjm4ayauX7oTakMuFFyRACtrAVowB9thQGt1jWeLdg1kVhucrdLJ2fj2NWRX87Q6UqAjmtjyVBKyntpheWpJTg8GzLbH2ASVF556pgpC1jNQXo3HxEBoTGnNzf4v3E8xqibBGxE3wY7hvpvEXv7ww3Yw1TxLjxtMDjqLuZvXrMWoqYxQEanHBfJkz3bCMeDajJbYwyqsVkgTXCpGNgXdUGYD1w5TV5DhbbPjxFnJ73aVJ7ANVmNi6UYNxCLWPkVmNNnRMWpGc2sBw9cK7GpChQedwK1u5GaRd1yR3JVTCn7GdwELFF8BWSiWCShh8aVNz1EThqz8uMUeU6iUr5W1LTVTFiJ1kfEDVZyLEKZbZWSJSV83c9bHW4jFm3rRraEwQiMaRvBkq3ELeFpZKMwKtKte9UWUniZU9QbAZwMvNAEQqkUavNwKQS7haUxCUR5jv6iBj6hZ25qVZU9CduqH3YZAmonAQsm9WVTbh91qeFVtjBAmVvfUJT1y6AGSWyHhpyzSrGqAeornSkwdcaZtTDwsVMqy6Y1tha2493HmQ7dE8Cty8VH"
+    )
+
+    class FuncIdx(Ctrt.FuncIdx):
+        """
+        FuncIdx is the enum class for function indexes of a contract.
+        """
+
+        SUPERSEDE = 0
+        ISSUE = 1
+        UPDATE_LIST = 2
+        SEND = 3
+        TRANSFER = 4
+        DEPOSIT = 5
+        WITHDRAW = 6
+
+    async def _update_list(
+        self,
+        by: acnt.Account,
+        addr: str,
+        val: bool,
+        attachment: str = "",
+        fee: int = md.ExecCtrtFee.DEFAULT,
+        for_user: bool = True,
+    ) -> Dict[str, Any]:
+        addr_de = de.Addr if for_user else de.CtrtAcnt
+
+        addr_md = md.Addr(addr)
+        addr_md.must_on(by.chain)
+
+        data = await by._execute_contract(
+            tx.ExecCtrtFuncTxReq(
+                ctrt_id=self._ctrt_id,
+                func_id=self.FuncIdx.UPDATE_LIST,
+                data_stack=de.DataStack(
+                    addr_de(addr_md),
+                    de.Bool(md.Bool(val)),
+                ),
+                timestamp=md.VSYSTimestamp.now(),
+                attachment=md.Str(attachment),
+                fee=md.ExecCtrtFee(fee),
+            )
+        )
+        logger.debug(data)
+        return data
+
+    async def update_list_user(
+        self,
+        by: acnt.Account,
+        addr: str,
+        val: bool,
+        attachment: str = "",
+        fee: int = md.ExecCtrtFee.DEFAULT,
+    ) -> Dict[str, Any]:
+        return await self._update_list(by, addr, val, attachment, fee, True)
+
+    async def update_list_ctrt(
+        self,
+        by: acnt.Account,
+        addr: str,
+        val: bool,
+        attachment: str = "",
+        fee: int = md.ExecCtrtFee.DEFAULT,
+    ) -> Dict[str, Any]:
+        return await self._update_list(by, addr, val, attachment, fee, False)
+
+
+class NFTCtrtV2Blacklist(NFTCtrtV2Whitelist):
+    """
+    NFTCtrtV2Blacklist is the class for VSYS NFT contract V2 with blacklist
+    """
+
+    CTRT_META = CtrtMeta.from_b58_str(
+        "RVbUxLpK4Vi15qHaDvy1e4kjNmQqLrcdDqXBjMBHB1RH3xPQS7tcuEEoxHZ72mUVttTa3EHMmD6gRUcKSXW1kQkNpBNEFzgfM2qSS2BRvdHdke9xNPgu6i2m8KbViKeBiq9ydsHMMkyZL5ShfpfBD8BfJmTiSERjgx7voeusYwhTWT2VDg4E2k3krqDmbCVTtvxm6nydPxxwDH9RBBWJwLjkMHRdaoDFXrDBA5KXc6YgSnT9P6JZKRAbTYAzAEF1514oGEvRjgz8HUhCzjVjmTUgjHXdpR6yuM3CwR8EYGbH9HNEcnUoTEcjLwGNCtUb2QBRJLzpu2VzhqJTZkXrrjuREfFpkBPN8WCYgi4LguF7avFQA4atahzVKU98j7UG9byW4ERkdHFduxSWX6nun8NYxgw4k1LyGe7A6NEo6vfAeBryYb5V2CowTiXb4xxhzjytuNPEckZYJcMLkgxtfzmcbfnqx7ff4hgWX2L5AWh5y9K21BDhrCWzjnb81atVvwBivMSBvaoFGNRj5RJ8Qz4r7cGyZ34PqcdZsbTvnTJTzHNLUxSyMQNqNBa3vwzifuuwPBUfZ7xKXGbQVo19D7BWzgVhmye1CKNxsW3QRNRYqrWZaiUqRmb1ids8BfAoyNEk9HzpJ3zYq28rjmZ4nZp8TCnaH7jZxUDeVhBfzQEmEbSSHDaPSnDNtLQ9VKQa9ov3ZTC2muUw7P8hUR3N5casgZpG3a23uYCLT4TKSRxQU9JZ3kPe2r8wVUvhmeJP9EJiUi4CmArEGQoGhQZLZuCneVZdWbreqMhnQLVjVekv5NPWwEf4UNgFH5RS6XQ2mcHqHd5KHAG9xa5qaPDQ6YZ4Fagh2bw92fw4CiDYiCodsPVYFqYDrWRJmbdY9xQmRZ4M4w4UKQU8HmwYhqCEtSLrH3dmuia2JkvEv8f47QZq78rLaUmcY5Fch9zjEZTe63StcdB1GycZoHK7iCoHrt1AjJ8Ex5J9xgJxbQ5nZEAS3vrqy9znznEuhawtL9PYn5VYEbFX6VdCTxbYcjehKXQRCxouyYAS35BqmoYuVYM54qtLUbgrXPUTefQ9XGGGAazeaSDkS3hASwx3DuLU7MYDmpYgyoefxEVVi8D2GVH6TaiU34qFTiTEK1348ZzruUugT5DZRwFgf5t197iYngD9AKb71TBsA2ZnJueNVFEFXmXgFKMU2eZvAZBFcoH1EAUttCgSztBwXMS9Cwqa5kXXwr1cxNUESzNoDgZWaEAHPiCB2PAjBdsgWGTbkepSBMbQTj5aKV4LybHoWs8JNKpHMMwSBeRLNmk3ibGkNu2qe7ZcZZJJqNz9vZjvhKJ8Ws1HYrqaPb7ysBHW7fU1mrh95y7AkSZGsKEbGNpyijpT66Q4wxpuysU6L3wDMdapdQLjdyBs3rjQtXRbhSiRyYZLShXUantffsBkMWmwD2WZg6Dp6hpZWBEFGq3kD1ysVbi47HqDTsD1aWTuE5hCY9XHmveE3WmRd8p56YZxmrXKh9Ns"
+    )
