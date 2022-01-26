@@ -1,4 +1,5 @@
 import asyncio
+from typing import Optional
 
 import pytest
 
@@ -15,7 +16,7 @@ def host() -> str:
 
 
 @pytest.fixture
-def api_key() -> str | None:
+def api_key() -> Optional[str]:
     return API_KEY or None
 
 

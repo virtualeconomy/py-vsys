@@ -3,7 +3,7 @@ account contains account-related resources
 """
 from __future__ import annotations
 import os
-from typing import Any, Dict, TYPE_CHECKING, Type
+from typing import Any, Dict, TYPE_CHECKING, Type, Union
 
 from loguru import logger
 
@@ -304,7 +304,7 @@ class Account:
     async def pay(
         self,
         recipient: str,
-        amount: int | float,
+        amount: Union[int, float],
         attachment: str = "",
         fee: int = md.PaymentFee.DEFAULT,
     ) -> Dict[str, Any]:
@@ -313,7 +313,7 @@ class Account:
 
         Args:
             recipient (str): The account address of the recipient.
-            amount (int | float): The amount of VSYS coins to send.
+            amount (Union[int, float]): The amount of VSYS coins to send.
             attachment (str, optional): The attachment of the action. Defaults to "".
             fee (int, optional): The fee to pay for this action. Defaults to md.PaymentFee.DEFAULT.
 
@@ -352,7 +352,7 @@ class Account:
     async def lease(
         self,
         supernode_addr: str,
-        amount: int | float,
+        amount: Union[int, float],
         fee: int = md.LeasingFee.DEFAULT,
     ) -> Dict[str, Any]:
         """
@@ -360,7 +360,7 @@ class Account:
 
         Args:
             supernode_addr (str): The account address of the supernode to lease to.
-            amount (int | float): The amount of VSYS coins to send.
+            amount (Union[int, float]): The amount of VSYS coins to send.
             fee (int, optional): The fee to pay for this action. Defaults to md.LeasingFee.DEFAULT.
 
         Returns:

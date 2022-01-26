@@ -4,7 +4,7 @@ model contains data model related resources.
 from __future__ import annotations
 import abc
 import time
-from typing import Any, NamedTuple
+from typing import Any, NamedTuple, Union
 
 import base58
 
@@ -356,12 +356,12 @@ class VSYSTimestamp(NonNegativeInt):
     SCALE = 1_000_000_000
 
     @classmethod
-    def from_unix_ts(cls, ux_ts: int | float) -> VSYSTimestamp:
+    def from_unix_ts(cls, ux_ts: Union[int, float]) -> VSYSTimestamp:
         """
         from_unix_ts creates a new VSYSTimestamp from the given UNIX timestamp.
 
         Args:
-            ux_ts (int | float): The UNIX timestamp.
+            ux_ts (Union[int, float]): The UNIX timestamp.
 
         Raises:
             TypeError: If the type of the given UNIX timestamp is neither int nor float.
@@ -424,12 +424,12 @@ class VSYS(NonNegativeInt):
         return self.data / self.UNIT
 
     @classmethod
-    def for_amount(cls, amount: int | float) -> VSYS:
+    def for_amount(cls, amount: Union[int, float]) -> VSYS:
         """
         for_amount creates a new VSYS where the amount is equal to the given amount.
 
         Args:
-            amount (int | float): The amount.
+            amount (Union[int, float]): The amount.
 
         Returns:
             VSYS: The VSYS.
@@ -443,7 +443,7 @@ class VSYS(NonNegativeInt):
 
         return cls(int(data))
 
-    def __mul__(self, factor: int | float) -> VSYS:
+    def __mul__(self, factor: Union[int, float]) -> VSYS:
         """
         __mul__ defiens the behaviour of the '*' operator.
 
@@ -453,7 +453,7 @@ class VSYS(NonNegativeInt):
             v2 = v20 * 0.1
 
         Args:
-            factor (int | float): The factor to multiply.
+            factor (Union[int, float]): The factor to multiply.
 
         Returns:
             VSYS: The result of the multiplication.
