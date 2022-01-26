@@ -196,7 +196,7 @@ class TokenCtrtWithoutSplit(Ctrt):
                 ctrt_id=self._ctrt_id,
                 func_id=self.FuncIdx.ISSUE,
                 data_stack=de.DataStack(
-                    de.Long(md.Int(amount)),
+                    de.Amount.for_vsys_amount(amount),
                 ),
                 timestamp=md.VSYSTimestamp.now(),
                 attachment=md.Str(attachment),
