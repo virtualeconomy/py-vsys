@@ -7,7 +7,9 @@ import py_v_sdk as pv
 
 HOST = ""
 API_KEY = ""
+SEED = ""
 SUPERNODE_ADDR = ""
+AVG_BLOCK_DELAY = 6  # in seconds
 
 
 @pytest.fixture
@@ -76,7 +78,7 @@ async def wait_for_block() -> None:
     """
     wait_for_block waits for the transaction to be packed into a block.
     """
-    await asyncio.sleep(6)
+    await asyncio.sleep(AVG_BLOCK_DELAY)
 
 
 async def assert_tx_success(api: pv.NodeAPI, tx_id: str) -> None:
