@@ -15,11 +15,19 @@ jobs:
         with:
           python-version: "3.9"
 
-      - name: Install dependencies
+      - name: Install pipenv
         run: |
-          pip3 install -r requirements.txt
-          pip3 install -r requirements-dev.txt
+          python -m pip install --upgrade pipenv wheel
+      - id: cache-pipenv
+        uses: actions/cache@v1
+        with:
+          path: ~/.local/share/virtualenvs
+          key: ${{ runner.os }}-pipenv-${{ hashFiles('**/Pipfile.lock') }}
 
+      - name: Install dependencies
+        if: steps.cache-pipenv.outputs.cache-hit != 'true'
+        run: |
+          pipenv install --deploy --dev
       - name: Run test suite
         run: |
-          python3 -m pytest -v test/func_test
+          pipenv run test
