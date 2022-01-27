@@ -396,23 +396,32 @@ class NFTCtrtV2Whitelist(NFTCtrt):
     async def _update_list(
         self,
         by: acnt.Account,
-        addr: str,
+        addr_data_entry: Union[de.Addr, de.CtrtAcnt],
         val: bool,
         attachment: str = "",
         fee: int = md.ExecCtrtFee.DEFAULT,
-        for_user: bool = True,
     ) -> Dict[str, Any]:
-        addr_de = de.Addr if for_user else de.CtrtAcnt
+        """
+        _update_list updates the presence of the address within the given data entry in the list.
+        It's the helper method for update_list.
 
-        addr_md = md.Addr(addr)
-        addr_md.must_on(by.chain)
+        Args:
+            by (acnt.Account): The action taker.
+            addr_data_entry (Union[de.Addr, de.CtrtAcnt]): The data entry for the address to update.
+            val (bool): The value to update to.
+            attachment (str, optional): The attachment of this action. Defaults to "".
+            fee (int, optional): The fee to pay for this action. Defaults to md.ExecCtrtFee.DEFAULT.
+
+        Returns:
+            Dict[str, Any]: The response returned by the Node API
+        """
 
         data = await by._execute_contract(
             tx.ExecCtrtFuncTxReq(
                 ctrt_id=self._ctrt_id,
                 func_id=self.FuncIdx.UPDATE_LIST,
                 data_stack=de.DataStack(
-                    addr_de(addr_md),
+                    addr_data_entry,
                     de.Bool(md.Bool(val)),
                 ),
                 timestamp=md.VSYSTimestamp.now(),
@@ -431,7 +440,22 @@ class NFTCtrtV2Whitelist(NFTCtrt):
         attachment: str = "",
         fee: int = md.ExecCtrtFee.DEFAULT,
     ) -> Dict[str, Any]:
-        return await self._update_list(by, addr, val, attachment, fee, True)
+        """
+        update_list_user updates the presence of the user address in the list.
+
+        Args:
+            by (acnt.Account): The action taker.
+            addr (str): The account address of the user.
+            val (bool): The value to update to.
+            attachment (str, optional): The attachment of this action. Defaults to "".
+            fee (int, optional): The fee to pay for this action. Defaults to md.ExecCtrtFee.DEFAULT.
+
+        Returns:
+            Dict[str, Any]: The response returned by the Node API
+        """
+        user_md = md.Addr(addr)
+        user_md.must_on(by.chain)
+        return await self._update_list(by, user_md, val, attachment, fee)
 
     async def update_list_ctrt(
         self,
@@ -441,7 +465,21 @@ class NFTCtrtV2Whitelist(NFTCtrt):
         attachment: str = "",
         fee: int = md.ExecCtrtFee.DEFAULT,
     ) -> Dict[str, Any]:
-        return await self._update_list(by, addr, val, attachment, fee, False)
+        """
+        update_list_user updates the presence of the contract address in the list.
+
+        Args:
+            by (acnt.Account): The action taker.
+            addr (str): The account address of the contract.
+            val (bool): The value to update to.
+            attachment (str, optional): The attachment of this action. Defaults to "".
+            fee (int, optional): The fee to pay for this action. Defaults to md.ExecCtrtFee.DEFAULT.
+
+        Returns:
+            Dict[str, Any]: The response returned by the Node API
+        """
+        ctrt_md = md.CtrtID(addr)
+        return await self._update_list(by, ctrt_md, val, attachment, fee)
 
 
 class NFTCtrtV2Blacklist(NFTCtrtV2Whitelist):
