@@ -481,7 +481,7 @@ class NFTCtrtV2Whitelist(NFTCtrt):
 
     async def is_user_in_list(self, addr: str) -> bool:
         """
-        is_user_in_list queries & returns the status of wether the user address in the white/black list.
+        is_user_in_list queries & returns the status of whether the user address in the white/black list.
 
         Args:
             addr (str): The address to check.
@@ -498,7 +498,7 @@ class NFTCtrtV2Whitelist(NFTCtrt):
 
     async def is_ctrt_in_list(self, addr: str) -> bool:
         """
-        is_ctrt_in_list queries & returns the status of wether the contract address in the white/black list.
+        is_ctrt_in_list queries & returns the status of whether the contract address in the white/black list.
 
         Args:
             addr (str): The address to check.
