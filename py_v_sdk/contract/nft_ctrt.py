@@ -479,6 +479,24 @@ class NFTCtrtV2Whitelist(NFTCtrt):
         logger.debug(data)
         return data["value"]
 
+    async def _is_in_list(self, db_key: NFTCtrtV2Whitelist.DBKey) -> bool:
+        """
+        _is_in_list queries & returns the status of whether the address is
+        in the list for the given db_key.
+
+        Args:
+            db_key (NFTCtrtV2Whitelist.DBKey): The DBKey for the query.
+
+        Returns:
+            bool: If the address is in the list.
+        """
+        data = await self.chain.api.ctrt.get_ctrt_data(
+            ctrt_id=self.ctrt_id,
+            db_key=db_key.b58_str,
+        )
+        logger.debug(data)
+        return True if data["value"] == "true" else False
+
     async def is_user_in_list(self, addr: str) -> bool:
         """
         is_user_in_list queries & returns the status of whether the user address in the white/black list.
@@ -489,12 +507,7 @@ class NFTCtrtV2Whitelist(NFTCtrt):
         Returns:
             bool: If the address is in the list.
         """
-        data = await self.chain.api.ctrt.get_ctrt_data(
-            ctrt_id=self.ctrt_id,
-            db_key=self.DBKey.for_is_user_in_list(addr).b58_str,
-        )
-        logger.debug(data)
-        return bool(data["value"])
+        return await self._is_in_list(self.DBKey.for_is_user_in_list(addr))
 
     async def is_ctrt_in_list(self, addr: str) -> bool:
         """
@@ -506,13 +519,7 @@ class NFTCtrtV2Whitelist(NFTCtrt):
         Returns:
             bool: If the address is in the list.
         """
-
-        data = await self.chain.api.ctrt.get_ctrt_data(
-            ctrt_id=self.ctrt_id,
-            db_key=self.DBKey.for_is_ctrt_in_list(addr).b58_str,
-        )
-        logger.debug(data)
-        return bool(data["value"])
+        return await self._is_in_list(self.DBKey.for_is_ctrt_in_list(addr))
 
     async def _update_list(
         self,
