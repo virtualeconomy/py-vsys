@@ -1,7 +1,5 @@
 # py-v-sdk
-[![Python version](https://img.shields.io/badge/Python-3.7%2B-blue)](https://www.python.org/downloads/)
-
-[![License](https://img.shields.io/badge/License-BSD_4--Clause-green.svg)](./LICENSE)
+[![Python](https://img.shields.io/badge/Python-3.9%2B-blue)](https://www.python.org/downloads/) [![License](https://img.shields.io/badge/License-BSD_4--Clause-green.svg)](./LICENSE)
 
 > ***Under active development. Contributions are always welcome!***
 
@@ -28,7 +26,7 @@ The official Python SDK for VSYS APIs. The [old Python SDK](https://github.com/v
 pip install git+https://github.com/virtualeconomy/py-v-sdk.git@main
 ```
 
-`@mian` is necessary as the default branch is `develop`
+`@main` is necessary as the default branch is `develop`
 
 If you are using `pipenv`, try
 
@@ -41,7 +39,6 @@ pipenv install git+https://github.com/virtualeconomy/py-v-sdk.git@main#egg=py_v_
 
 ```python
 import asyncio
-
 import py_v_sdk as pv
 
 # The RESTful API host address to a node in a public test net
@@ -73,13 +70,12 @@ async def main():
 
     print_heading("Try out Account")
     # Account represents an account in the net
-    acnt: pv.Account = pv.Account(chain, SEED, nonce=0)
+    wallet: pv.Wallet = pv.Wallet.from_seed_str(SEED)
+    acnt: pv.Account = wallet.get_account(chain, nonce=0)
     # Get the account's balance
     print("Balance:", await acnt.balance)
-    # Get the account's seed
-    print("Seed:", acnt.seed)
     # Get the account's nonce'
-    print("Nonce:", acnt.nonce)
+    print("Nonce:", acnt.nonce.data)
     # Get the account's public key
     print("Public key: ", acnt.key_pair.pub.b58_str)
     # Get the account's private key
@@ -97,10 +93,11 @@ async def main():
     # Get the contract's ID
     print("Contract id: ", ctrt.ctrt_id)
 
+    await api.sess.close()
+
 
 if __name__ == "__main__":
     asyncio.run(main())
-
 ```
 
 Example output
@@ -130,7 +127,9 @@ Contract id:  CFB6zvcy39FCRGhxo8HH3PE6zZEG5zXevhG
 ### Functional Tests
 Functional tests are scripts that simulate the behaviour of a normal user to interact wtih `py_v_sdk`(e.g. register a smart contract & call functions of it).
 
-To run it, ensure that you have `pytest` properly installed(it is a development dependency of `py_v_sdk` and can be installed via `pipenv install -d`) and configures the test environment defined as global variables in [conftest.py](./test/func_test/conftest.py).
+To run it, ensure that you have `pytest` properly installed(it is a development dependency of `py_v_sdk` and can be installed via `pipenv install -d`).
+
+> NOTE that the test environment defined as global variables in [conftest.py](./test/func_test/conftest.py) has to be configured before the test cases can be executed.
 
 Then go to the root of the of the project and run.
 

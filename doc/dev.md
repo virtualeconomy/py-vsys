@@ -41,7 +41,7 @@ The main repo will have 3 branches:
 
 
 ## Set Up Development Environment
-As `py-v-sdk` is a library, [setup.py](../setup.py) contains dependencies that will get installed along the installation of `py-v-sdk`. [Pipfile](../Pipfile) & [Pipfile.lock](../Pipfile.lock) contains dependencies maintained by [Pipenv](https://github.com/pypa/pipenv) for development.
+The development requires `Python 3.10+`. Dependencies for development will be managed by [Pipenv](https://github.com/pypa/pipenv).
 
 To set up the development environment, go to the project root directory and
 

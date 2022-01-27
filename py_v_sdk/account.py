@@ -2,7 +2,8 @@
 account contains account-related resources
 """
 from __future__ import annotations
-from typing import Any, Dict, TYPE_CHECKING
+import os
+from typing import Any, Dict, TYPE_CHECKING, Type, Union
 
 from loguru import logger
 
@@ -13,8 +14,161 @@ if TYPE_CHECKING:
 
 from py_v_sdk import model as md
 from py_v_sdk import tx_req as tx
+from py_v_sdk import dbput as dp
 from py_v_sdk.utils.crypto import hashes as hs
 from py_v_sdk.utils.crypto import curve_25519 as curve
+from py_v_sdk import words as wd
+
+
+class Wallet:
+    """
+    Wallet is a collection of accounts.
+    """
+
+    def __init__(self, seed: md.Seed) -> None:
+        """
+        Args:
+            seed (md.Seed): The seed of the wallet.
+        """
+        self._seed = seed
+
+    @property
+    def seed(self) -> md.Seed:
+        """
+        seed returns the seed of the wallet.
+
+        Returns:
+            md.Seed: The seed of the wallet.
+        """
+        return self._seed
+
+    @classmethod
+    def from_seed_str(cls, s: str) -> Wallet:
+        """
+        from_seed_str creates a wallet from a seed string.
+
+        Args:
+            s (str): The seed string.
+
+        Returns:
+            Wallet: The wallet.
+        """
+        return cls(md.Seed(s))
+
+    @classmethod
+    def register(cls) -> Wallet:
+        """
+        register creates a new wallet with a newly generated seed.
+
+        Returns:
+            Wallet: The wallet.
+        """
+        return cls(cls.new_seed())
+
+    def get_account(self, chain: ch.Chain, nonce: int = 0) -> Account:
+        """
+        get_account gets the account of the nonce of the wallet on the given chain.
+
+        Args:
+            chain (ch.Chain): The chain that the account is on.
+            nonce (int, optional): The nonce of the account. Defaults to 0.
+
+        Returns:
+            Account: The account.
+        """
+        return Account(
+            chain=chain,
+            wallet=self,
+            nonce=nonce,
+        )
+
+    @staticmethod
+    def new_seed() -> md.Seed:
+        """
+        new_seed generates a seed for a wallet
+
+        Returns:
+            md.Seed: The generated seed.
+        """
+        word_cnt = 2048
+        words = []
+
+        for _ in range(5):
+            r = os.urandom(4)
+            x = r[3] + (r[2] << 8) + (r[1] << 16) + (r[0] << 24)
+
+            w1 = x % word_cnt
+            w2 = (x // word_cnt + w1) % word_cnt
+            w3 = (x // word_cnt // word_cnt + w2) % word_cnt
+
+            words.append(wd.WORDS[w1])
+            words.append(wd.WORDS[w2])
+            words.append(wd.WORDS[w3])
+
+        s = " ".join(words)
+        return md.Seed(s)
+
+    @staticmethod
+    def get_key_pair(acnt_seed_hash: bytes) -> md.KeyPair:
+        """
+        get_key_pair generates a key pair based on the given account seed hash.
+
+        Args:
+            acnt_seed_hash (bytes): The account seed hash.
+
+        Returns:
+            md.KeyPair: The generated key pair.
+        """
+        pri_key = curve.gen_pri_key(acnt_seed_hash)
+        pub_key = curve.gen_pub_key(pri_key)
+
+        return md.KeyPair(
+            pub=md.PubKey.from_bytes(pub_key),
+            pri=md.PriKey.from_bytes(pri_key),
+        )
+
+    @staticmethod
+    def get_addr(pub_key: bytes, addr_ver: int, chain_id: ch.ChainID) -> md.Bytes:
+        """
+        get_addr generates the address based on the given data.
+
+        Args:
+            pub_key (bytes): The public key.
+            addr_ver (int): The address version.
+            chain_id (ch.ChainID): The chain ID.
+
+        Returns:
+            md.Bytes: The generated address.
+        """
+
+        def ke_bla_hash(b: bytes) -> bytes:
+            return hs.keccak256_hash(hs.blake2b_hash(b))
+
+        raw_addr: str = (
+            chr(addr_ver) + chain_id.value + ke_bla_hash(pub_key).decode("latin-1")[:20]
+        )
+
+        checksum: str = ke_bla_hash(raw_addr.encode("latin-1")).decode("latin-1")[:4]
+
+        b = bytes((raw_addr + checksum).encode("latin-1"))
+        return md.Bytes(b)
+
+    @staticmethod
+    def get_acnt_seed_hash(seed: str, nonce: int) -> md.Bytes:
+        """
+        get_acnt_seed_hash generates account seed hash based on the given seed & nonce.
+
+        Args:
+            seed (str): The account seed.
+            nonce (int): The account nonce.
+
+        Returns:
+            md.Bytes: The generated account seed hash.
+        """
+        b = hs.sha256_hash(
+            hs.keccak256_hash(hs.blake2b_hash(f"{nonce}{seed}".encode("latin-1")))
+        )
+        return md.Bytes(b)
 
 
 class Account:
@@ -24,19 +178,20 @@ class Account:
 
     ADDR_VER = 5
 
-    def __init__(self, chain: ch.Chain, seed: str, nonce: int = 0) -> None:
+    def __init__(self, chain: ch.Chain, wallet: Wallet, nonce: int = 0) -> Account:
         """
         Args:
             chain (ch.Chain): The chain that the account is on.
-            seed (str): The seed string of the account.
+            wallet (Wallet): The wallet that owns the account.
             nonce (int, optional): The nonce of the account. Defaults to 0.
         """
         self._chain = chain
-        self._seed = md.Str(seed)
+        self._wallet = wallet
         self._nonce = md.Nonce(nonce)
-        self._acnt_seed_hash = self.get_acnt_seed_hash(seed, nonce)
-        self._key_pair = self.get_key_pair(self._acnt_seed_hash.data)
-        self._addr = self.get_addr(
+
+        self._acnt_seed_hash = wallet.get_acnt_seed_hash(wallet.seed.data, nonce)
+        self._key_pair = wallet.get_key_pair(self._acnt_seed_hash.data)
+        self._addr = wallet.get_addr(
             self.key_pair.pub.bytes, self.ADDR_VER, self.chain.chain_id
         )
 
@@ -61,24 +216,24 @@ class Account:
         return self._chain.api
 
     @property
-    def seed(self) -> str:
+    def wallet(self) -> Wallet:
         """
-        seed returns the account's seed string.
+        wallet returns the Wallet object for the wallet the account belongs to.
 
         Returns:
-            str: The account's seed string.
+            Wallet: The wallet object.
         """
-        return self._seed.data
+        return self._wallet
 
     @property
-    def nonce(self) -> int:
+    def nonce(self) -> md.Nonce:
         """
         nonce returns the account's nonce.
 
         Returns:
             int: The account's nonce.
         """
-        return self._nonce.data
+        return self._nonce
 
     @property
     def acnt_seed_hash(self) -> md.Bytes:
@@ -149,7 +304,7 @@ class Account:
     async def pay(
         self,
         recipient: str,
-        amount: int | float,
+        amount: Union[int, float],
         attachment: str = "",
         fee: int = md.PaymentFee.DEFAULT,
     ) -> Dict[str, Any]:
@@ -158,7 +313,7 @@ class Account:
 
         Args:
             recipient (str): The account address of the recipient.
-            amount (int | float): The amount of VSYS coins to send.
+            amount (Union[int, float]): The amount of VSYS coins to send.
             attachment (str, optional): The attachment of the action. Defaults to "".
             fee (int, optional): The fee to pay for this action. Defaults to md.PaymentFee.DEFAULT.
 
@@ -197,7 +352,7 @@ class Account:
     async def lease(
         self,
         supernode_addr: str,
-        amount: int | float,
+        amount: Union[int, float],
         fee: int = md.LeasingFee.DEFAULT,
     ) -> Dict[str, Any]:
         """
@@ -205,7 +360,7 @@ class Account:
 
         Args:
             supernode_addr (str): The account address of the supernode to lease to.
-            amount (int | float): The amount of VSYS coins to send.
+            amount (Union[int, float]): The amount of VSYS coins to send.
             fee (int, optional): The fee to pay for this action. Defaults to md.LeasingFee.DEFAULT.
 
         Returns:
@@ -293,64 +448,47 @@ class Account:
             req.to_broadcast_execute_payload(self.key_pair)
         )
 
-    @staticmethod
-    def get_key_pair(acnt_seed_hash: bytes) -> md.KeyPair:
+    async def _db_put(self, req: tx.DBPutTxReq) -> Dict[str, Any]:
         """
-        get_key_pair generates a key pair based on the given account seed hash.
+        _db_put sends a DB Put transaction on behalf of the account.
 
         Args:
-            acnt_seed_hash (bytes): The account seed hash.
+            req (tx.DBPutTxReq): The DB Put transaction request.
 
         Returns:
-            md.KeyPair: The generated key pair.
+            Dict[str, Any]: The response returned by the Node API.
         """
-        pri_key = curve.gen_pri_key(acnt_seed_hash)
-        pub_key = curve.gen_pub_key(pri_key)
-
-        return md.KeyPair(
-            pub=md.PubKey.from_bytes(pub_key),
-            pri=md.PriKey.from_bytes(pri_key),
+        return await self.api.db.broadcasts_put(
+            req.to_broadcast_put_payload(self.key_pair)
         )
 
-    @staticmethod
-    def get_addr(pub_key: bytes, addr_ver: int, chain_id: ch.ChainID) -> md.Bytes:
+    async def db_put(
+        self,
+        db_key: str,
+        data: str,
+        data_type: Type[dp.DBPutData] = dp.ByteArray,
+        fee: int = md.DBPutFee.DEFAULT,
+    ) -> Dict[str, Any]:
         """
-        get_addr generates the address based on the given data.
+        db_put stores the data under the key onto the chain.
 
         Args:
-            pub_key (bytes): The public key.
-            addr_ver (int): The address version.
-            chain_id (ch.ChainID): The chain ID.
+            db_key (str): The db key of the data.
+            data (str): The data to put.
+            data_type (Type[dp.DBPutData], optional): The type of the data(i.e. how should the string be parsed).
+                Defaults to dp.ByteArray.
+            fee (int, optional): The fee to pay for this action. Defaults to md.DBPutFee.DEFAULT.
 
         Returns:
-            md.Bytes: The generated address.
+            Dict[str, Any]: The response returned by the Node API.
         """
-
-        def ke_bla_hash(b: bytes) -> bytes:
-            return hs.keccak256_hash(hs.blake2b_hash(b))
-
-        raw_addr: str = (
-            chr(addr_ver) + chain_id.value + ke_bla_hash(pub_key).decode("latin-1")[:20]
+        data = await self._db_put(
+            tx.DBPutTxReq(
+                db_key=dp.DBPutKey.from_str(db_key),
+                data=dp.DBPutData.new(data, data_type),
+                timestamp=md.VSYSTimestamp.now(),
+                fee=md.DBPutFee(fee),
+            )
         )
-
-        checksum: str = ke_bla_hash(raw_addr.encode("latin-1")).decode("latin-1")[:4]
-
-        b = bytes((raw_addr + checksum).encode("latin-1"))
-        return md.Bytes(b)
-
-    @staticmethod
-    def get_acnt_seed_hash(seed: str, nonce: int) -> md.Bytes:
-        """
-        get_acnt_seed_hash generates account seed hash based on the given seed & nonce.
-
-        Args:
-            seed (str): The account seed.
-            nonce (int): The account nonce.
-
-        Returns:
-            md.Bytes: The generated account seed hash.
-        """
-        b = hs.sha256_hash(
-            hs.keccak256_hash(hs.blake2b_hash(f"{nonce}{seed}".encode("latin-1")))
-        )
-        return md.Bytes(b)
+        logger.debug(data)
+        return data

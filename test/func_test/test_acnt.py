@@ -1,6 +1,8 @@
 """
 test_acnt contains functional tests for Account.
 """
+
+import uuid
 import pytest
 
 import py_v_sdk as pv
@@ -66,3 +68,16 @@ class TestAccount:
         eff_bal = await acnt0.effective_balance
 
         assert eff_bal == eff_bal_old + amount.data - pv.LeasingCancelFee.DEFAULT
+
+    async def test_db_put(self, acnt0: pv.Account):
+        api = acnt0.api
+
+        db_key = "func_test"
+        data = str(uuid.uuid4())
+
+        resp = await acnt0.db_put(db_key, data)
+        await cft.wait_for_block()
+        await cft.assert_tx_success(api, resp["id"])
+
+        resp = await api.db.get(acnt0.addr.b58_str, db_key)
+        assert resp["data"] == data

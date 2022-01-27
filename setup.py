@@ -32,5 +32,5 @@ setuptools.setup(
         "base58~=2.1.1",
         "loguru~=0.5.3",
     ],
-    python_requires=">=3.7",
+    python_requires=">=3.9",
 )
