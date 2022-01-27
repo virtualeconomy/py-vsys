@@ -576,7 +576,7 @@ class NFTCtrtV2Whitelist(NFTCtrt):
         """
         user_md = md.Addr(addr)
         user_md.must_on(by.chain)
-        return await self._update_list(by, user_md, val, attachment, fee)
+        return await self._update_list(by, de.Addr(user_md), val, attachment, fee)
 
     async def update_list_ctrt(
         self,
@@ -600,7 +600,7 @@ class NFTCtrtV2Whitelist(NFTCtrt):
             Dict[str, Any]: The response returned by the Node API
         """
         ctrt_md = md.CtrtID(addr)
-        return await self._update_list(by, ctrt_md, val, attachment, fee)
+        return await self._update_list(by, de.CtrtAcnt(ctrt_md), val, attachment, fee)
 
     async def supersede(
         self,
