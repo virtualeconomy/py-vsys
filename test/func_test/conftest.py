@@ -7,6 +7,7 @@ import py_v_sdk as pv
 
 HOST = ""
 API_KEY = ""
+SEED = ""
 SUPERNODE_ADDR = ""
 
 
