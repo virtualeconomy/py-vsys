@@ -481,6 +481,50 @@ class NFTCtrtV2Whitelist(NFTCtrt):
         ctrt_md = md.CtrtID(addr)
         return await self._update_list(by, ctrt_md, val, attachment, fee)
 
+    async def supersede(
+        self,
+        by: acnt.Account,
+        new_issuer: str,
+        new_regulator: str,
+        attachment: str = "",
+        fee: int = md.ExecCtrtFee.DEFAULT,
+    ) -> Dict[str, Any]:
+        """
+        supersede transfers the issuer role of the contract to a new account.
+
+        Args:
+            by (acnt.Account): The action taker.
+            new_issuer (str): The account address of the new issuer.
+            new_regulator (str): The account address of the new regulator.
+            attachment (str, optional): The attachment of this action. Defaults to "".
+            fee (int, optional): The fee to pay for this action. Defaults to md.ExecCtrtFee.DEFAULT.
+
+        Returns:
+            Dict[str, Any]: The response returned by the Node API
+        """
+
+        new_issuer_md = md.Addr(new_issuer)
+        new_issuer_md.must_on(by.chain)
+
+        new_regulator_md = md.Addr(new_regulator)
+        new_regulator_md.must_on(by.chain)
+
+        data = await by._execute_contract(
+            tx.ExecCtrtFuncTxReq(
+                ctrt_id=self._ctrt_id,
+                func_id=self.FuncIdx.SUPERSEDE,
+                data_stack=de.DataStack(
+                    de.Addr(new_issuer_md),
+                    de.Addr(new_regulator_md),
+                ),
+                timestamp=md.VSYSTimestamp.now(),
+                attachment=md.Str(attachment),
+                fee=md.ExecCtrtFee(fee),
+            )
+        )
+        logger.debug(data)
+        return data
+
 
 class NFTCtrtV2Blacklist(NFTCtrtV2Whitelist):
     """
