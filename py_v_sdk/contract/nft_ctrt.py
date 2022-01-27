@@ -2,7 +2,7 @@
 nft_ctrt contains NFT contract.
 """
 from __future__ import annotations
-from typing import Dict, Any, TYPE_CHECKING
+from typing import Dict, Any, TYPE_CHECKING, Union
 
 from loguru import logger
 
@@ -392,6 +392,127 @@ class NFTCtrtV2Whitelist(NFTCtrt):
         TRANSFER = 4
         DEPOSIT = 5
         WITHDRAW = 6
+
+    class StateVar(Ctrt.StateVar):
+        """
+        StateVar is the enum class for state variables of a contract.
+        """
+
+        ISSUER = 0
+        MAKER = 1
+        REGULATOR = 2
+
+    class DBKey(NFTCtrt.DBKey):
+        """
+        DBKey is the class for DB key of a contract used to query data.
+        """
+
+        @classmethod
+        def for_regulator(cls) -> NFTCtrtV2Whitelist.DBKey:
+            """
+            for_regulator returns the DBKey for querying the regulator.
+
+            Returns:
+                NFTCtrtV2Whitelist.DBKey: The DBKey.
+            """
+            b = NFTCtrtV2Whitelist.StateVar.REGULATOR.serialize()
+            return cls(b)
+
+        @classmethod
+        def _for_is_in_list(
+            cls, addr_data_entry: Union[de.Addr, de.CtrtAcnt]
+        ) -> NFTCtrtV2Whitelist.DBKey:
+            """
+            _for_is_in_list returns the DBKey for querying the status of if the address in the given data entry
+            is in the list.
+            It's a helper method for is_XXX_in_list
+
+            Args:
+                addr_data_entry (Union[de.Addr, de.CtrtAcnt]): The data entry for the address.
+
+            Returns:
+                NFTCtrtV2Whitelist.DBKey: The DBKey.
+            """
+            stmp = NFTCtrtV2Whitelist.StateMap(
+                idx=0,
+                data_entry=addr_data_entry,
+            )
+            b = stmp.serialize()
+            return cls(b)
+
+        @classmethod
+        def for_is_user_in_list(cls, addr: str) -> NFTCtrtV2Whitelist.DBKey:
+            """
+            for_is_user_in_list returns the DBKey for querying the status of if
+            the given user address is in the list.
+
+            Returns:
+                NFTCtrtV2Whitelist.DBKey: The DBKey.
+            """
+            addr_de = de.Addr(md.Addr(addr))
+            return cls._for_is_in_list(addr_de)
+
+        @classmethod
+        def for_is_ctrt_in_list(cls, addr: str) -> NFTCtrtV2Whitelist.DBKey:
+            """
+            for_is_ctrt_in_list returns the DBKey for querying the status of if
+            the given contract address is in the list.
+
+            Returns:
+                NFTCtrtV2Whitelist.DBKey: The DBKey.
+            """
+            addr_de = de.CtrtAcnt(md.CtrtID(addr))
+            return cls._for_is_in_list(addr_de)
+
+    @property
+    async def regulator(self) -> str:
+        """
+        regulator queries & returns the regulator of the contract.
+
+        Returns:
+            str: The address of the regulator of the contract.
+        """
+        data = await self.chain.api.ctrt.get_ctrt_data(
+            ctrt_id=self.ctrt_id,
+            db_key=self.DBKey.for_regulator().b58_str,
+        )
+        logger.debug(data)
+        return data["value"]
+
+    async def is_user_in_list(self, addr: str) -> bool:
+        """
+        is_in_list queries & returns the status of wether the user address in the white/black list.
+
+        Args:
+            addr (str): The address to check.
+
+        Returns:
+            bool: If the address is in the list.
+        """
+        data = await self.chain.api.ctrt.get_ctrt_data(
+            ctrt_id=self.ctrt_id,
+            db_key=self.DBKey.for_is_user_in_list(addr).b58_str,
+        )
+        logger.debug(data)
+        return bool(data["value"])
+
+    async def is_ctrt_in_list(self, addr: str) -> bool:
+        """
+        is_in_list queries & returns the status of wether the contract address in the white/black list.
+
+        Args:
+            addr (str): The address to check.
+
+        Returns:
+            bool: If the address is in the list.
+        """
+
+        data = await self.chain.api.ctrt.get_ctrt_data(
+            ctrt_id=self.ctrt_id,
+            db_key=self.DBKey.for_is_ctrt_in_list(addr).b58_str,
+        )
+        logger.debug(data)
+        return bool(data["value"])
 
     async def _update_list(
         self,
