@@ -158,6 +158,8 @@ class TokenCtrtWithoutSplit(Ctrt):
     @property
     async def tok_id(self) -> str:
         """
+        TODO: tok_id can be computed locally.
+
         tok_id queries & returns the token ID of the contract.
 
         Returns:
