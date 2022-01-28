@@ -10,7 +10,7 @@ from loguru import logger
 # https://stackoverflow.com/a/39757388
 if TYPE_CHECKING:
     from py_v_sdk import account as acnt
-
+    from py_v_sdk import chain as ch
 from py_v_sdk import data_entry as de
 from py_v_sdk import tx_req as tx
 from py_v_sdk import model as md
@@ -26,6 +26,21 @@ class TokenCtrtWithoutSplit(Ctrt):
     CTRT_META = CtrtMeta.from_b58_str(
         "3GQnJtxDQc3zFuUwXKbrev1TL7VGxk5XNZ7kUveKK6BsneC1zTSTRjgBTdDrksHtVMv6nwy9Wy6MHRgydAJgEegDmL4yx7tdNjdnU38b8FrCzFhA1aRNxhEC3ez7JCi3a5dgVPr93hS96XmSDnHYvyiCuL6dggahs2hKXjdz4SGgyiUUP4246xnELkjhuCF4KqRncUDcZyWQA8UrfNCNSt9MRKTj89sKsV1hbcGaTcX2qqqSU841HyokLcoQSgmaP3uBBMdgSYVtovPLEFmpXFMoHWXAxQZDaEtZcHPkrhJyG6CdTgkNLUQKWtQdYzjxCc9AsUGMJvWrxWMi6RQpcqYk3aszbEyAh4r4fcszHHAJg64ovDgMNUDnWQWJerm5CjvN76J2MVN6FqQkS9YrM3FoHFTj1weiRbtuTc3mCR4iMcu2eoxcGYRmUHxKiRoZcWnWMX2mzDw31SbvHqqRbF3t44kouJznTyJM6z1ruiyQW6LfFZuV6VxsKLX3KQ46SxNsaJoUpvaXmVj2hULoGKHpwPrTVzVpzKvYQJmz19vXeZiqQ2J3tVcSFH17ahSzwRkXYJ5HP655FHqTr6Vvt8pBt8N5vixJdYtfx7igfKX4aViHgWkreAqBK3trH4VGJ36e28RJP8Xrt6NYG2icsHsoERqHik7GdjPAmXpnffDL6P7NBfyKWtp9g9C289TDGUykS8CNiW9L4sbUabdrqsdkdPRjJHzzrb2gKTf2vB56rZmreTUbJ53KsvpZht5bixZ59VbCNZaHfZyprvzzhyTAudAmhp8Nrks7SV1wTySZdmfLyw7vsNmTEi3hmuPmYqExp4PoLPUwT4TYt2doYUX1ds3CesnRSjFqMhXnLmTgYXsAXvvT2E6PWTY5nPCycQv5pozvQuw1onFtGwY9n5s2VFjxS9W6FkCiqyyZAhCXP5o44wkmD5SVqyqoL5HmgNc8SJL7uMMMDDwecy7Sh9vvt3RXirH7F7bpUv3VsaepVGCHLfDp9GMG59ZiWK9Rmzf66e8Tw4unphu7gFNZuqeBk2YjCBj3i4eXbJvBEgCRB51FATRQY9JUzdMv9Mbkaq4DW69AgdqbES8aHeoax1UDDBi3raM8WpP2cKVEqoeeCGYM2vfN6zBAh7Tu3M4NcNFJmkNtd8Mpc2Md1kxRsusVzHiYxnsZjo"
     )
+
+    def __init__(self, ctrt_id: str, chain: ch.Chain, unit: int = 1) -> None:
+        self._ctrt_id = md.CtrtID(ctrt_id)
+        self._chain = chain
+        self._unit = md.Int(unit)
+
+    @property
+    def get_unit(self) -> int:
+        """
+        get_unit returns the unit in int format.
+
+        Returns:
+            int: The unit in integer format.
+        """
+        return self._unit.data
 
     class FuncIdx(Ctrt.FuncIdx):
         SUPERSEDE = 0
@@ -67,8 +82,8 @@ class TokenCtrtWithoutSplit(Ctrt):
     async def register(
         cls,
         by: acnt.Account,
-        max: int,
-        unit: int,
+        max: int | float = 100,
+        unit: int = 2,
         token_description: str = "",
         ctrt_description: str = "",
         fee: int = md.RegCtrtFee.DEFAULT,
@@ -91,8 +106,8 @@ class TokenCtrtWithoutSplit(Ctrt):
         data = await by._register_contract(
             tx.RegCtrtTxReq(
                 data_stack=de.DataStack(
-                    de.INT32(md.Int(max)),
-                    de.INT32(md.Int(unit)),
+                    de.Amount.for_tok_amount(max, unit),
+                    de.Amount(md.Int(unit)),
                     de.String(md.Str(token_description)),
                 ),
                 ctrt_meta=cls.CTRT_META,
@@ -102,10 +117,12 @@ class TokenCtrtWithoutSplit(Ctrt):
             )
         )
         logger.debug(data)
+        print(data)
 
         return cls(
             data["contractId"],
             chain=by.chain,
+            unit=unit,
         )
 
     @property
@@ -195,7 +212,7 @@ class TokenCtrtWithoutSplit(Ctrt):
                 ctrt_id=self._ctrt_id,
                 func_id=self.FuncIdx.ISSUE,
                 data_stack=de.DataStack(
-                    de.Amount.for_vsys_amount(amount),
+                    de.Amount.for_tok_amount(amount, self.get_unit),
                 ),
                 timestamp=md.VSYSTimestamp.now(),
                 attachment=md.Str(attachment),
@@ -236,7 +253,7 @@ class TokenCtrtWithoutSplit(Ctrt):
                 func_id=self.FuncIdx.SEND,
                 data_stack=de.DataStack(
                     de.Addr(rcpt_md),
-                    de.Amount.for_vsys_amount(amount),
+                    de.Amount.for_tok_amount(amount, self.get_unit),
                 ),
                 timestamp=md.VSYSTimestamp.now(),
                 attachment=md.Str(attachment),
@@ -271,7 +288,7 @@ class TokenCtrtWithoutSplit(Ctrt):
                 ctrt_id=self._ctrt_id,
                 func_id=self.FuncIdx.DESTROY,
                 data_stack=de.DataStack(
-                    de.Amount.for_vsys_amount(amount),
+                    de.Amount.for_tok_amount(amount, self.get_unit),
                 ),
                 timestamp=md.VSYSTimestamp.now(),
                 attachment=md.Str(attachment),
@@ -318,7 +335,7 @@ class TokenCtrtWithoutSplit(Ctrt):
                 data_stack=de.DataStack(
                     de.Addr(sender_md),
                     de.Addr(rcpt_md),
-                    de.Amount.for_vsys_amount(amount),
+                    de.Amount.for_tok_amount(amount, self.get_unit),
                 ),
                 timestamp=md.VSYSTimestamp.now(),
                 attachment=md.Str(attachment),
@@ -360,7 +377,7 @@ class TokenCtrtWithoutSplit(Ctrt):
                 data_stack=de.DataStack(
                     de.Addr(sender_md),
                     de.CtrtAcnt(md.CtrtID(contract)),
-                    de.Amount.for_vsys_amount(amount),
+                    de.Amount.for_tok_amount(amount, self.get_unit),
                 ),
                 timestamp=md.VSYSTimestamp.now(),
                 attachment=md.Str(attachment),
@@ -402,7 +419,7 @@ class TokenCtrtWithoutSplit(Ctrt):
                 data_stack=de.DataStack(
                     de.CtrtAcnt(md.CtrtID(contract)),
                     de.Addr(rcpt_md),
-                    de.Amount.for_vsys_amount(amount),
+                    de.Amount.for_tok_amount(amount, self.get_unit),
                 ),
                 timestamp=md.VSYSTimestamp.now(),
                 attachment=md.Str(attachment),

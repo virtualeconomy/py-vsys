@@ -3,6 +3,7 @@ data_entry contains DataEntry-related resources.
 """
 from __future__ import annotations
 import abc
+from re import U
 import struct
 from typing import Tuple, List
 
@@ -192,6 +193,10 @@ class Amount(Long):
     @classmethod
     def for_vsys_amount(cls, amount: int | float) -> Amount:
         return cls(md.VSYS.for_amount(amount))
+
+    @classmethod
+    def for_tok_amount(cls, amount: int | float, unit: int = 1) -> Amount:
+        return cls(md.Token.for_amount(amount, unit))
 
     IDX = 3
 
