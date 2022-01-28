@@ -4,7 +4,7 @@ data_entry contains DataEntry-related resources.
 from __future__ import annotations
 import abc
 import struct
-from typing import Tuple, List
+from typing import Tuple, List, Union
 
 
 from py_v_sdk import model as md
@@ -190,11 +190,11 @@ class Amount(Long):
         self.data = data
 
     @classmethod
-    def for_vsys_amount(cls, amount: int | float) -> Amount:
+    def for_vsys_amount(cls, amount: Union[int, float]) -> Amount:
         return cls(md.VSYS.for_amount(amount))
 
     @classmethod
-    def for_tok_amount(cls, amount: int | float, unit: int) -> Amount:
+    def for_tok_amount(cls, amount: Union[int, float], unit: int) -> Amount:
         return cls(md.Token.for_amount(amount, unit))
 
     IDX = 3
