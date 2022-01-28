@@ -91,7 +91,7 @@ class AtomicSwapCtrt(Ctrt):
         cls,
         by: acnt.Account,
         tok_id: str,
-        description: str = "",
+        ctrt_description: str = "",
         fee: int = md.RegCtrtFee.DEFAULT,
     ) -> AtomicSwapCtrt:
         """
@@ -100,7 +100,7 @@ class AtomicSwapCtrt(Ctrt):
         Args:
             by (acnt.Account): The action taker.
             tok_id (str): The id of the token to atomic swap.
-            description (str): The description of the action.
+            ctrt_description (str, optional): The description of the contract. Defaults to "".
             fee (int, optional): The fee to pay for this action. Defaults to md.RegCtrtFee.DEFAULT.
 
         Returns:
@@ -113,7 +113,7 @@ class AtomicSwapCtrt(Ctrt):
                 ),
                 ctrt_meta=cls.CTRT_META,
                 timestamp=md.VSYSTimestamp.now(),
-                description=md.Str(description),
+                description=md.Str(ctrt_description),
                 fee=md.RegCtrtFee(fee),
             )
         )
