@@ -77,7 +77,7 @@ class NFTCtrt(Ctrt):
     async def register(
         cls,
         by: acnt.Account,
-        description: str = "",
+        ctrt_description: str = "",
         fee: int = md.RegCtrtFee.DEFAULT,
     ) -> NFTCtrt:
         """
@@ -85,7 +85,7 @@ class NFTCtrt(Ctrt):
 
         Args:
             by (acnt.Account): The action taker.
-            description (str, optional): The description of the action. Defaults to "".
+            ctrt_description (str, optional): The description of the contract. Defaults to "".
             fee (int, optional): The fee to pay for this action. Defaults to md.RegCtrtFee.DEFAULT.
 
         Returns:
@@ -96,7 +96,7 @@ class NFTCtrt(Ctrt):
                 data_stack=de.DataStack(),
                 ctrt_meta=cls.CTRT_META,
                 timestamp=md.VSYSTimestamp.now(),
-                description=md.Str(description),
+                description=md.Str(ctrt_description),
                 fee=md.RegCtrtFee(fee),
             )
         )
