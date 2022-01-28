@@ -181,7 +181,7 @@ class TokenCtrtWithoutSplit(Ctrt):
                 func_id=self.FuncIdx.SUPERSEDE,
                 data_stack=de.DataStack(de.Addr(md.Addr(new_issuer))),
                 timestamp=md.VSYSTimestamp.now(),
-                attachment=md.Str(new_issuer),
+                attachment=md.Str(attachment),
                 fee=md.ExecCtrtFee(fee),
             )
         )
