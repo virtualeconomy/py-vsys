@@ -195,7 +195,7 @@ class Amount(Long):
         return cls(md.VSYS.for_amount(amount))
 
     @classmethod
-    def for_tok_amount(cls, amount: int | float, unit: int = 1) -> Amount:
+    def for_tok_amount(cls, amount: int | float, unit: int) -> Amount:
         return cls(md.Token.for_amount(amount, unit))
 
     IDX = 3

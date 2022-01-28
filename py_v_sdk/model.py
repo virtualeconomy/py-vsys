@@ -410,7 +410,7 @@ class Token(NonNegativeInt):
         return self.data / self.unit
 
     @classmethod
-    def for_amount(cls, amount: int | float, unit: int = 1) -> VSYS:
+    def for_amount(cls, amount: int | float, unit: int) -> VSYS:
         data = amount * unit
 
         if int(data) < data:
