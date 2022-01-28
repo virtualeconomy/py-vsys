@@ -3,7 +3,6 @@ data_entry contains DataEntry-related resources.
 """
 from __future__ import annotations
 import abc
-from re import U
 import struct
 from typing import Tuple, List
 
