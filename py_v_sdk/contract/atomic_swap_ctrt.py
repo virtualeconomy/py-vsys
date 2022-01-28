@@ -69,6 +69,23 @@ class AtomicSwapCtrt(Ctrt):
             b = AtomicSwapCtrt.StateVar.TOKEN_ID.serialize()
             return cls(b)
 
+        @classmethod
+        def for_token_balance(cls, addr: str) -> AtomicSwapCtrt.DBKey:
+            """
+            for_token_balance [summary]
+
+            Args:
+                addr (str): [description]
+
+            Returns:
+                AtomicSwapCtrt.DBKey: [description]
+            """
+            b = AtomicSwapCtrt.StateMap(
+                idx=0,
+                data_entry=de.Addr(md.Addr(addr)),
+            ).serialize()
+            return cls(b)
+
     @classmethod
     async def register(
         cls,
@@ -115,12 +132,7 @@ class AtomicSwapCtrt(Ctrt):
         Returns:
             str: The address of the maker of the contract.
         """
-        data = await self.chain.api.ctrt.get_ctrt_data(
-            ctrt_id=self.ctrt_id,
-            db_key=self.DBKey.for_maker().b58_str,
-        )
-        logger.debug(data)
-        return data["value"]
+        return await self._query_db_key(self.DBKey.for_maker())
 
     @property
     async def token_id(self) -> str:
@@ -130,12 +142,7 @@ class AtomicSwapCtrt(Ctrt):
         Returns:
             str: The token_id of the contract.
         """
-        data = await self.chain.api.ctrt.get_ctrt_data(
-            ctrt_id=self.ctrt_id,
-            db_key=self.DBKey.for_token_id().b58_str,
-        )
-        logger.debug(data)
-        return data["value"]
+        return await self._query_db_key(self.DBKey.for_token_id())
 
     async def get_token_balance(self, addr: str) -> int:
         """
@@ -147,13 +154,4 @@ class AtomicSwapCtrt(Ctrt):
         Returns:
             int: The balance of the token.
         """
-        stmp = self.StateMap(
-            idx=0,
-            data_entry=de.Addr(md.Addr(addr)),
-        )
-
-        data = await self.chain.api.ctrt.get_ctrt_data(
-            ctrt_id=self.ctrt_id, db_key=md.Bytes(stmp.serialize()).b58_str
-        )
-        logger.debug(data)
-        return data["value"]
+        return await self._query_db_key(self.DBKey.for_token_balance(addr))

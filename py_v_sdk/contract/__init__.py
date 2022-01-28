@@ -5,9 +5,10 @@ from __future__ import annotations
 import abc
 import enum
 import struct
-from typing import Tuple, List, TYPE_CHECKING, NamedTuple
+from typing import Tuple, List, TYPE_CHECKING, NamedTuple, Any
 
 import base58
+from loguru import logger
 
 # https://stackoverflow.com/a/39757388
 if TYPE_CHECKING:
@@ -409,3 +410,20 @@ class Ctrt(abc.ABC):
             ch.Chain: The chain object of the contract.
         """
         return self._chain
+
+    async def _query_db_key(self, db_key: Ctrt.DBKey) -> Any:
+        """
+        _query_db_key queries the data by the given db_key.
+
+        Args:
+            db_key (Ctrt.DBKey): The db key.
+
+        Returns:
+            Any: The result.
+        """
+        data = await self.chain.api.ctrt.get_ctrt_data(
+            ctrt_id=self.ctrt_id,
+            db_key=db_key.b58_str,
+        )
+        logger.debug(data)
+        return data["value"]
