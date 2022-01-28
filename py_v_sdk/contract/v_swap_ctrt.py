@@ -170,9 +170,9 @@ class VSwapCtrt(Ctrt):
             return cls(b)
 
         @classmethod
-        def for_total_supply(cls) -> VSwapCtrt.DBKey:
+        def for_total_liq_tok_supply(cls) -> VSwapCtrt.DBKey:
             """
-            for_total_supply returns the VSwapCtrt.DBKey object for querying
+            for_total_liq_tok_supply returns the VSwapCtrt.DBKey object for querying
             the total amount of liquidity tokens that can be minted.
 
             Returns:
@@ -185,7 +185,7 @@ class VSwapCtrt(Ctrt):
         def for_liq_tok_left(cls) -> VSwapCtrt.DBKey:
             """
             for_liq_tok_left returns the VSwapCtrt.DBKey object for querying
-            the amount of liquidity tokens to be minted.
+            the amount of liquidity tokens left to be minted.
 
             Returns:
                 VSwapCtrt.DBKey: The VSwapCtrt.DBKey object.
@@ -249,3 +249,191 @@ class VSwapCtrt(Ctrt):
                 data_entry=de.Addr(md.Addr(addr)),
             ).serialize()
             return cls(b)
+
+    @property
+    async def maker(self) -> str:
+        """
+        maker queries & returns the maker of the contract.
+
+        Returns:
+            str: The address of the maker of the contract.
+        """
+        return await self._query_db_key(self.DBKey.for_maker())
+
+    @property
+    async def tok_a_id(self) -> str:
+        """
+        tok_a_id queries & returns the token A ID of the contract.
+
+        Returns:
+            str: The token A ID of the contract.
+        """
+        return await self._query_db_key(self.DBKey.for_tok_a_id())
+
+    @property
+    async def tok_b_id(self) -> str:
+        """
+        tok_b_id queries & returns the token B ID of the contract.
+
+        Returns:
+            str: The token B ID of the contract.
+        """
+        return await self._query_db_key(self.DBKey.for_tok_b_id())
+
+    @property
+    async def liq_tok_id(self) -> str:
+        """
+        liq_tok_id queries & returns the liquidity token ID of the contract.
+
+        Returns:
+            str: The liquidity token ID of the contract.
+        """
+        return await self._query_db_key(self.DBKey.for_liq_tok_id())
+
+    @property
+    async def is_swap_active(self) -> bool:
+        """
+        swap_status queries & returns the swap status of whether or not
+        the swap is currently active.
+
+        Returns:
+            bool: Whether or not the swap is currently active.
+        """
+        return await self._query_db_key(self.DBKey.for_swap_status())
+
+    @property
+    async def min_liq(self) -> int:
+        """
+        min_liq queries & returns the minimum liquidity of the contract.
+
+        Returns:
+            int: The minimum liquidity of the contract.
+        """
+        return await self._query_db_key(self.DBKey.for_min_liq())
+
+    @property
+    async def tok_a_reserved(self) -> int:
+        """
+        tok_a_reserved queries & returns the amount of token A inside the pool.
+
+        Returns:
+            int: The amount of token A inside the pool.
+        """
+        return await self._query_db_key(self.DBKey.for_tok_a_reserved())
+
+    @property
+    async def tok_b_reserved(self) -> int:
+        """
+        tok_b_reserved queries & returns the amount of token B inside the pool.
+
+        Returns:
+            int: The amount of token B inside the pool.
+        """
+        return await self._query_db_key(self.DBKey.for_tok_b_reserved())
+
+    @property
+    async def total_liq_tok_supply(self) -> int:
+        """
+        total_liq_tok_supply queries & returns the total amount of liquidity tokens
+        that can be minted.
+
+        Returns:
+            int: The total amount of liquidity tokens that can be minted.
+        """
+        return await self._query_db_key(self.DBKey.for_total_liq_tok_supply())
+
+    @property
+    async def liq_tok_left(self) -> int:
+        """
+        liq_tok_left queries & returns the amount of liquidity tokens left to be minted.
+
+        Returns:
+            int: The amount of liquidity tokens left to be minted.
+        """
+        return await self._query_db_key(self.DBKey.for_liq_tok_left())
+
+    async def get_tok_a_bal(self, addr: str) -> int:
+        """
+        get_tok_a_bal queries & returns the balance of token A stored within the contract belonging
+        to the given user address.
+
+        Args:
+            addr (str): The address of the user.
+
+        Returns:
+            int: The balance.
+        """
+        return await self._query_db_key(self.DBKey.for_tok_a_bal(addr))
+
+    async def get_tok_b_bal(self, addr: str) -> int:
+        """
+        get_tok_b_bal queries & returns the balance of token B stored within the contract belonging
+        to the given user address.
+
+        Args:
+            addr (str): The address of the user.
+
+        Returns:
+            int: The balance.
+        """
+        return await self._query_db_key(self.DBKey.for_tok_b_bal(addr))
+
+    async def get_liq_tok_bal(self, addr: str) -> int:
+        """
+        get_liq_tok_bal queries & returns the balance of the liquidity token stored within the contract belonging
+        to the given user address.
+
+        Args:
+            addr (str): The address of the user.
+
+        Returns:
+            int: The balance.
+        """
+        return await self._query_db_key(self.DBKey.for_liq_tok_bal(addr))
+
+    @classmethod
+    async def register(
+        cls,
+        by: acnt.Account,
+        tok_a_id: str,
+        tok_b_id: str,
+        liq_tok_id: str,
+        min_liq: int,
+        ctrt_description: str = "",
+        fee: int = md.RegCtrtFee.DEFAULT,
+    ) -> VSwapCtrt:
+        """
+        register registers a V Swap contract.
+
+        Args:
+            by (acnt.Account): The action taker.
+            tok_a_id (str): The ID of token A.
+            tok_b_id (str): The ID of token B.
+            liq_tok_id (str): The ID of liquidity token.
+            min_liq (int): The minimum liquidity of the contract.
+            ctrt_description (str, optional): The description of the contract. Defaults to "".
+            fee (int, optional): The fee to pay for this action. Defaults to md.RegCtrtFee.DEFAULT.
+
+        Returns:
+            VSwapCtrt: The VSwapCtrt object of the registered contract.
+        """
+        data = await by._register_contract(
+            tx.RegCtrtTxReq(
+                data_stack=de.DataStack(
+                    de.TokenID(md.TokenID(tok_a_id)),
+                    de.TokenID(md.TokenID(tok_b_id)),
+                    de.TokenID(md.TokenID(liq_tok_id)),
+                    de.Amount(md.NonNegativeInt(min_liq)),
+                ),
+                ctrt_meta=cls.CTRT_META,
+                timestamp=md.VSYSTimestamp.now(),
+                description=md.Str(ctrt_description),
+                fee=md.RegCtrtFee(fee),
+            )
+        )
+        logger.debug(data)
+
+        return cls(
+            data["contractId"],
+            chain=by.chain,
+        )
