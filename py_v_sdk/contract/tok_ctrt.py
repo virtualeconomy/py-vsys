@@ -163,7 +163,8 @@ class TokenCtrtWithoutSplit(Ctrt):
         Returns:
             str: The token ID.
         """
-        return self.chain.api.ctrt.get_tok_id(self.ctrt_id, 0)["tokenId"]
+        data = await self.chain.api.ctrt.get_tok_id(self.ctrt_id, 0)
+        return data["tokenId"]
 
     async def get_tok_bal(self, addr: str) -> int:
         """
@@ -175,7 +176,9 @@ class TokenCtrtWithoutSplit(Ctrt):
         Returns:
             int: The balance.
         """
-        return await self.chain.api.ctrt.get_tok_bal(addr, self.ctrt_id)["balance"]
+        tok_id = await self.tok_id
+        data = await self.chain.api.ctrt.get_tok_bal(addr, tok_id)
+        return data["balance"]
 
     async def supersede(
         self,
