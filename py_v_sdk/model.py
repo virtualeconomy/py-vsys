@@ -396,6 +396,31 @@ class VSYSTimestamp(NonNegativeInt):
             raise ValueError(f"Data in {cls_name} must be greater than {self.SCALE}")
 
 
+class Token(NonNegativeInt):
+    def __init__(self, data: int = 0, unit: int = 0) -> None:
+        super().__init__(data)
+        self.unit = unit
+
+    @classmethod
+    def one(cls) -> Token:
+        return cls.for_amount(1)
+
+    @property
+    def amount(self) -> float:
+        return self.data / self.unit
+
+    @classmethod
+    def for_amount(cls, amount: int | float, unit: int) -> VSYS:
+        data = amount * unit
+
+        if int(data) < data:
+            raise ValueError(
+                f"Invalid amount for {cls.__name__}: {amount}. The minimal valid amount granularity is {1 / unit}"
+            )
+
+        return cls(int(data), unit)
+
+
 class VSYS(NonNegativeInt):
     """
     VSYS is the data model for VSYS(the native token on VSYS blockchain).
@@ -445,7 +470,7 @@ class VSYS(NonNegativeInt):
 
     def __mul__(self, factor: Union[int, float]) -> VSYS:
         """
-        __mul__ defiens the behaviour of the '*' operator.
+        __mul__ defines the behaviour of the '*' operator.
 
         E.g.
             v1 = VSYS.one()
