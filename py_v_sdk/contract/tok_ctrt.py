@@ -3,7 +3,7 @@ tok_ctrt contains Token contract.
 """
 from __future__ import annotations
 
-from typing import Dict, Any, TYPE_CHECKING
+from typing import Dict, Any, TYPE_CHECKING, Union
 
 from loguru import logger
 
@@ -82,7 +82,7 @@ class TokenCtrtWithoutSplit(Ctrt):
     async def register(
         cls,
         by: acnt.Account,
-        max: int | float,
+        max: Union[int, float],
         unit: int,
         token_description: str = "",
         ctrt_description: str = "",
@@ -181,7 +181,7 @@ class TokenCtrtWithoutSplit(Ctrt):
                 func_id=self.FuncIdx.SUPERSEDE,
                 data_stack=de.DataStack(de.Addr(md.Addr(new_issuer))),
                 timestamp=md.VSYSTimestamp.now(),
-                attachment=md.Str(new_issuer),
+                attachment=md.Str(attachment),
                 fee=md.ExecCtrtFee(fee),
             )
         )
@@ -191,7 +191,7 @@ class TokenCtrtWithoutSplit(Ctrt):
     async def issue(
         self,
         by: acnt.Account,
-        amount: int | float,
+        amount: Union[int, float],
         attachment: str = "",
         fee: int = md.ExecCtrtFee.DEFAULT,
     ) -> Dict[str, any]:
@@ -200,7 +200,7 @@ class TokenCtrtWithoutSplit(Ctrt):
 
         Args:
             by (acnt.Account): The action taker
-            amount (int | float): The amount of token will be issued
+            amount (Union[int, float]): The amount of token will be issued
             attachment (str, optional): The attachment of this action. Defaults to "".
             fee (int, optional): Execution fee of this tx. Defaults to md.ExecCtrtFee.DEFAULT.
 
@@ -226,7 +226,7 @@ class TokenCtrtWithoutSplit(Ctrt):
         self,
         by: acnt.Account,
         recipient: str,
-        amount: int | float,
+        amount: Union[int, float],
         attachment: str = "",
         fee: int = md.ExecCtrtFee.DEFAULT,
     ) -> Dict[str, Any]:
@@ -236,7 +236,7 @@ class TokenCtrtWithoutSplit(Ctrt):
         Args:
             by (acnt.Account): The action taker
             recipient (str): The recipient account
-            amount (int | float): The amount of token to be sent
+            amount (Union[int, float]): The amount of token to be sent
             attachment (str, optional): The attachment of this action. Defaults to "".
             fee (int, optional): Execution fee of this tx. Defaults to md.ExecCtrtFee.DEFAULT.
 
@@ -266,7 +266,7 @@ class TokenCtrtWithoutSplit(Ctrt):
     async def destroy(
         self,
         by: acnt.Account,
-        amount: int | float,
+        amount: Union[int, float],
         attachment: str = "",
         fee: int = md.ExecCtrtFee.DEFAULT,
     ) -> Dict[str, Any]:
@@ -275,7 +275,7 @@ class TokenCtrtWithoutSplit(Ctrt):
 
         Args:
             by (acnt.Account): The action taker
-            amount (int | float): The amount of token to be destroyed
+            amount (Union[int, float]): The amount of token to be destroyed
             attachment (str, optional): The attachment of this action. Defaults to "".
             fee (int, optional): Execution fee of this tx. Defaults to md.ExecCtrtFee.DEFAULT.
 
@@ -303,7 +303,7 @@ class TokenCtrtWithoutSplit(Ctrt):
         by: acnt.Account,
         sender: str,
         recipient: str,
-        amount: int | float,
+        amount: Union[int, float],
         attachment: str = "",
         fee: int = md.ExecCtrtFee.DEFAULT,
     ) -> Dict[str, Any]:
@@ -314,7 +314,7 @@ class TokenCtrtWithoutSplit(Ctrt):
             by (acnt.Account): The action taker
             sender (str): The sender account
             recipient (str): The recipient account
-            amount (int | float): The amount to transfer
+            amount (Union[int, float]): The amount to transfer
             attachment (str, optional): The attachment of this action. Defaults to "".
             fee (int, optional): Execution fee of this tx. Defaults to md.ExecCtrtFee.DEFAULT.
 
@@ -349,7 +349,7 @@ class TokenCtrtWithoutSplit(Ctrt):
         self,
         by: acnt.Account,
         contract: str,
-        amount: int | float,
+        amount: Union[int, float],
         attachment: str = "",
         fee: int = md.ExecCtrtFee.DEFAULT,
     ) -> Dict[str, Any]:
@@ -359,7 +359,7 @@ class TokenCtrtWithoutSplit(Ctrt):
         Args:
             by (acnt.Account): The action maker.
             contract (str): The contract id to deposit into
-            amount (int | float): The amount to deposit
+            amount (Union[int, float]): The amount to deposit
             attachment (str, optional): The attachment of this action. Defaults to "".
             fee (int, optional): Execution fee of this tx. Defaults to md.ExecCtrtFee.DEFAULT.
 
@@ -391,7 +391,7 @@ class TokenCtrtWithoutSplit(Ctrt):
         self,
         by: acnt.Account,
         contract: str,
-        amount: int | float,
+        amount: Union[int, float],
         attachment: str = "",
         fee: int = md.ExecCtrtFee.DEFAULT,
     ) -> Dict[str, Any]:
@@ -401,7 +401,7 @@ class TokenCtrtWithoutSplit(Ctrt):
         Args:
             by (acnt.Account): The action maker.
             contract (str): The contract id that you want to withdraw token from
-            amount (int | float): The amount to withdraw
+            amount (Union[int, float]): The amount to withdraw
             attachment (str, optional): The attachment of this action. Defaults to "".
             fee (int, optional): Execution fee of this tx. Defaults to md.ExecCtrtFee.DEFAULT.
 

@@ -397,20 +397,50 @@ class VSYSTimestamp(NonNegativeInt):
 
 
 class Token(NonNegativeInt):
+    """
+    Token is the data model for tokens.
+    """
+
     def __init__(self, data: int = 0, unit: int = 0) -> None:
+        """
+        Args:
+            data (int, optional): The data to contain. Defaults to 0.
+            unit (int, optional): The unit of the token. Defaults to 0.
+        """
         super().__init__(data)
         self.unit = unit
 
     @classmethod
     def one(cls) -> Token:
+        """
+        one creates a new Token where the amount is equal to ONE.
+
+        Returns:
+            Token: The Token.
+        """
         return cls.for_amount(1)
 
     @property
     def amount(self) -> float:
+        """
+        amount returns the amount of Token the Token object represents.
+
+        Returns:
+            float: The amount of Token.
+        """
         return self.data / self.unit
 
     @classmethod
-    def for_amount(cls, amount: int | float, unit: int) -> VSYS:
+    def for_amount(cls, amount: Union[int, float], unit: int) -> VSYS:
+        """
+        for_amount creates a new Token where the amount is equal to the given amount.
+
+        Args:
+            amount (Union[int, float]): The amount.
+
+        Returns:
+            Token: The Token.
+        """
         data = amount * unit
 
         if int(data) < data:
