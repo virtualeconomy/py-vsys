@@ -196,14 +196,17 @@ class Blocks(APIGrp):
 
     PREFIX = "/blocks"
 
-    async def get_height(self) -> Dict[str, Any]:
+    async def get_height_by_signature(self, sig: str) -> Dict[str, int]:
         """
-        get_height gets the height of the last block.
+        get_height_by_signature gets the height of a block as per its signature.
+
+        Args:
+            sig (str): The signature of the block to get the height.
 
         Returns:
-            Dict[str, Any]: The response.
+            Dict[str, int]: The response
         """
-        return await self._get("/height")
+        return await self._get(f"/height/{sig}")
 
     async def get_last(self) -> Dict[str, Any]:
         """
@@ -213,6 +216,29 @@ class Blocks(APIGrp):
             Dict[str, Any]: The response.
         """
         return await self._get("/last")
+
+    async def get_avg_delay(self, sig: str, num: int) -> Dict[str, int]:
+        """
+        get_avg_delay gets the average delay in milliseconds for a few blocks starting from the block
+        of which the signature is given.
+
+        Args:
+            sig (str): The signature of the starting block.
+            num (int): The number of blocks to count starting from the block of which the signature is given.
+
+        Returns:
+            Dict[str, int]: The response.
+        """
+        return await self._get(f"/delay/{sig}/{num}")
+
+    async def get_height(self) -> Dict[str, int]:
+        """
+        get_height gets the height of the last block.
+
+        Returns:
+            Dict[str, int]: The response.
+        """
+        return await self._get("/height")
 
 
 class Utils(APIGrp):
