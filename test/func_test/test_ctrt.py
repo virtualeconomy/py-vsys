@@ -78,15 +78,32 @@ class TestNFTCtrt:
         await cft.wait_for_block()
         return nc
 
+    @pytest.fixture
     async def new_atomic_swap_ctrt(
         self,
-        tok_id: str,
+        new_ctrt_with_tok: pv.NFTCtrt,
         acnt0: pv.Account,
     ) -> pv.AtomicSwapCtrt:
+        """
+        new_atomic_swap_ctrt is the fixture that registers a new atomic swap contract.
+
+        Args:
+            new_ctrt_with_tok (pv.NFTCtrt): The fixture that registers a new NFT contract and issues an NFT token right after it.
+            acnt0 (pv.Account): The account of nonce 0.
+
+        Returns:
+            pv.AtomicSwapCtrt: The AtomicSwapCtrt instance.
+        """
+        nc = new_ctrt_with_tok
+        api = nc.chain.api
+
+        tok_id = await get_tok_id(api, nc.ctrt_id, 0)
         ac = await pv.AtomicSwapCtrt.register(acnt0, tok_id)
+
         await cft.wait_for_block()
         assert (await ac.maker) == acnt0.addr.b58_str
         assert (await ac.token_id) == tok_id
+
         return ac
 
     async def test_register(self, acnt0: pv.Account) -> pv.NFTCtrt:
@@ -191,20 +208,24 @@ class TestNFTCtrt:
         assert tok_bal_acnt1 == 1
 
     async def test_deposit_withdraw(
-        self, new_ctrt_with_tok: pv.NFTCtrt, acnt0: pv.Account
+        self,
+        new_ctrt_with_tok: pv.NFTCtrt,
+        new_atomic_swap_ctrt: pv.AtomicSwapCtrt,
+        acnt0: pv.Account,
     ):
         """
         test_deposit_withdraw tests the method deposit & withdraw.
 
         Args:
             new_ctrt_with_tok (pv.NFTCtrt): The fixture that registers a new NFT contract and issues an NFT token right after it.
+            new_atomic_swap_ctrt (pv.AtomicSwapCtrt): The fixture that registers a new atomic swap contract.
             acnt0 (pv.Account): The account of nonce 0.
         """
         nc = new_ctrt_with_tok
         api = nc.chain.api
 
         tok_id = await get_tok_id(api, nc.ctrt_id, 0)
-        ac = await self.new_atomic_swap_ctrt(tok_id, acnt0)
+        ac = new_atomic_swap_ctrt
 
         tok_bal = await get_tok_bal(api, acnt0.addr.b58_str, tok_id)
         assert tok_bal == 1
@@ -252,19 +273,32 @@ class TestNFTCtrt:
         assert (await nc.issuer) == acnt1.addr.b58_str
 
     @pytest.mark.whole
-    async def test_as_whole(self, acnt0: pv.Account, acnt1: pv.Account):
+    async def test_as_whole(
+        self,
+        new_ctrt_with_tok: pv.NFTCtrt,
+        new_atomic_swap_ctrt: pv.AtomicSwapCtrt,
+        acnt0: pv.Account,
+        acnt1: pv.Account,
+    ):
+
         """
         test_as_whole tests methods of NFTCtrt as a whole so as to reduce resource consumption.
 
         Args:
+            new_ctrt_with_tok (pv.NFTCtrt): The fixture that registers a new NFT contract and issues an NFT token right after it.
+            new_atomic_swap_ctrt (pv.AtomicSwapCtrt): The fixture that registers a new atomic swap contract.
             acnt0 (pv.Account): The account of nonce 0.
             acnt1 (pv.Account): The account of nonce 1.
         """
         nc = await self.test_register(acnt0)
         await self.test_issue(nc, acnt0)
+
+        nc = new_ctrt_with_tok
+        ac = new_atomic_swap_ctrt
+
         await self.test_send(nc, acnt0, acnt1)
         await self.test_transfer(nc, acnt1, acnt0)
-        await self.test_deposit_withdraw(nc, acnt0)
+        await self.test_deposit_withdraw(nc, ac, acnt0)
         await self.test_supersede(nc, acnt0, acnt1)
 
 
@@ -282,6 +316,7 @@ class TestNFTCtrtV2Whitelist(TestNFTCtrt):
 
         Args:
             acnt0 (pv.Account): The account of nonce 0.
+            acnt1 (pv.Account): The account of nonce 1.
 
         Returns:
             pv.NFTCtrtV2Whitelist: The NFTCtrtV2Whitelist instance.
@@ -289,8 +324,41 @@ class TestNFTCtrtV2Whitelist(TestNFTCtrt):
         nc = await pv.NFTCtrtV2Whitelist.register(acnt0)
         await cft.wait_for_block()
 
+        await nc.update_list_user(acnt0, acnt0.addr.b58_str, True)
         await nc.update_list_user(acnt0, acnt1.addr.b58_str, True)
         return nc
+
+    @pytest.fixture
+    async def new_atomic_swap_ctrt(
+        self,
+        new_ctrt_with_tok: pv.NFTCtrtV2Whitelist,
+        acnt0: pv.Account,
+    ) -> pv.AtomicSwapCtrt:
+        """
+        new_atomic_swap_ctrt is the fixture that registers a new atomic swap contract.
+
+        Args:
+            new_ctrt_with_tok (pv.NFTCtrtV2Whitelist): The fixture that registers a new NFT contract and issues an NFT token right after it.
+            acnt0 (pv.Account): The account of nonce 0.
+
+        Returns:
+            pv.AtomicSwapCtrt: The AtomicSwapCtrt instance.
+        """
+        nc = new_ctrt_with_tok
+        api = nc.chain.api
+
+        tok_id = await get_tok_id(api, nc.ctrt_id, 0)
+        ac = await pv.AtomicSwapCtrt.register(acnt0, tok_id)
+
+        await cft.wait_for_block()
+        assert (await ac.maker) == acnt0.addr.b58_str
+        assert (await ac.token_id) == tok_id
+
+        resp = await nc.update_list_ctrt(acnt0, ac.ctrt_id, True)
+        await cft.wait_for_block()
+        await cft.assert_tx_success(api, resp["id"])
+
+        return ac
 
     @pytest.fixture
     def arbitrary_ctrt_id(self) -> str:
@@ -427,12 +495,19 @@ class TestNFTCtrtV2Whitelist(TestNFTCtrt):
 
     @pytest.mark.whole
     async def test_as_whole(
-        self, acnt0: pv.Account, acnt1: pv.Account, arbitrary_ctrt_id: str
+        self,
+        new_ctrt_with_tok: pv.NFTCtrtV2Whitelist,
+        new_atomic_swap_ctrt: pv.AtomicSwapCtrt,
+        acnt0: pv.Account,
+        acnt1: pv.Account,
+        arbitrary_ctrt_id: str,
     ):
         """
         test_as_whole tests method of NFTCtrtV2Whitelist as a whole so as to reduce resource consumption.
 
         Args:
+            new_ctrt_with_tok (pv.NFTCtrtV2Whitelist): The fixture that registers a new NFT contract and issues an NFT token right after it.
+            new_atomic_swap_ctrt (pv.AtomicSwapCtrt): The fixture that registers a new atomic swap contract.
             acnt0 (pv.Account): The account of nonce 0.
             acnt1 (pv.Account): The account of nonce 1.
             arbitrary_ctrt_id (str): An arbitrary contract ID
@@ -440,10 +515,14 @@ class TestNFTCtrtV2Whitelist(TestNFTCtrt):
         nc = await self.test_register(acnt0)
         await self.test_update_list_user(nc, acnt0, acnt1)
         await self.test_update_list_ctrt(nc, acnt0, arbitrary_ctrt_id)
-        await nc.update_list_user(acnt0, acnt1.addr.b58_str, True)
 
         await self.test_issue(nc, acnt0)
+
+        nc = new_ctrt_with_tok
+        ac = new_atomic_swap_ctrt
+
         await self.test_send(nc, acnt0, acnt1)
         await self.test_transfer(nc, acnt1, acnt0)
-        await self.test_deposit_withdraw(nc, acnt0)
+
+        await self.test_deposit_withdraw(nc, ac, acnt0)
         await self.test_supersede(nc, acnt0, acnt1)
