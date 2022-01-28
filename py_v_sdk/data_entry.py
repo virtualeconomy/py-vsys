@@ -186,18 +186,39 @@ class Amount(Long):
     Amount is the data entry for amount.
     """
 
-    def __init__(self, data: md.VSYS) -> None:
+    IDX = 3
+
+    def __init__(self, data: md.Int) -> None:
         self.data = data
 
     @classmethod
     def for_vsys_amount(cls, amount: Union[int, float]) -> Amount:
+        """
+        for_vsys_amount is the handy method to get an Amount for VSYS coins given
+        the desired VSYS coins amount.
+
+        Args:
+            amount (Union[int, float]): The desired VSYS coins amount.
+
+        Returns:
+            Amount: The Amount instance.
+        """
         return cls(md.VSYS.for_amount(amount))
 
     @classmethod
     def for_tok_amount(cls, amount: Union[int, float], unit: int) -> Amount:
-        return cls(md.Token.for_amount(amount, unit))
+        """
+        for_tok_amount is the handy method to get an Amount for tokens given
+        the desired token amount.
 
-    IDX = 3
+        Args:
+            amount (Union[int, float]): The desired tokens amount.
+            unit (int): The unit for hte token.
+
+        Returns:
+            Amount: The Amount instance.
+        """
+        return cls(md.Token.for_amount(amount, unit))
 
 
 class INT32(Int):
