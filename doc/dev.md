@@ -41,7 +41,7 @@ The main repo will have 3 branches:
 
 
 ## Set Up Development Environment
-The development requires `Python 3.10+`. Dependencies for development will be managed by [Pipenv](https://github.com/pypa/pipenv).
+The development requires `Python 3.9`. Dependencies for development will be managed by [Pipenv](https://github.com/pypa/pipenv).
 
 To set up the development environment, go to the project root directory and
 
