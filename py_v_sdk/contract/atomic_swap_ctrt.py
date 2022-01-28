@@ -144,9 +144,9 @@ class AtomicSwapCtrt(Ctrt):
         """
         return await self._query_db_key(self.DBKey.for_token_id())
 
-    async def get_token_balance(self, addr: str) -> int:
+    async def get_tok_bal(self, addr: str) -> int:
         """
-        token_balance queries & returns the balance of the token deposited into the contract.
+        get_tok_bal queries & returns the balance of the token deposited into the contract.
 
         Args:
             addr (str): The account address that deposits the token.

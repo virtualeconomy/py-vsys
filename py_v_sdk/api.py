@@ -352,9 +352,9 @@ class Contract(APIGrp):
         """
         return await self._get(f"/data/{ctrt_id}/{db_key}")
 
-    async def get_tok_balance(self, addr: str, tok_id: str) -> Dict[str, Any]:
+    async def get_tok_bal(self, addr: str, tok_id: str) -> Dict[str, Any]:
         """
-        get_tok_balance gets the balance of the token for the account address.
+        get_tok_bal gets the balance of the token for the account address.
 
         Args:
             addr (str): The account address.
