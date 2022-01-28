@@ -485,7 +485,7 @@ class TestNFTCtrtV2Whitelist(TestNFTCtrt):
         Returns:
             pv.NFTCtrtV2Whitelist: The registered NFTCtrtV2Whitelist
         """
-        nc = await pv.NFTCtrtV2Whitelist.register(acnt0)
+        nc: pv.NFTCtrtV2Whitelist = await pv.NFTCtrtV2Whitelist.register(acnt0)
         await cft.wait_for_block()
         assert (await nc.issuer) == acnt0.addr.b58_str
         assert (await nc.maker) == acnt0.addr.b58_str
@@ -526,3 +526,54 @@ class TestNFTCtrtV2Whitelist(TestNFTCtrt):
 
         await self.test_deposit_withdraw(nc, ac, acnt0)
         await self.test_supersede(nc, acnt0, acnt1)
+
+
+class TestNFTCtrtV2Blacklist(TestNFTCtrtV2Whitelist):
+    """
+    TestNFTCtrtV2Blacklist is the collection of functional tests of NFT contract V2 with blacklist.
+    """
+
+    @pytest.fixture
+    async def new_ctrt(self, acnt0: pv.Account) -> pv.NFTCtrtV2Blacklist:
+        """
+        new_ctrt is the fixture that registers a new NFT contract V2 with blacklist.
+
+        Args:
+            acnt0 (pv.Account): The account of nonce 0.
+            acnt1 (pv.Account): The account of nonce 1.
+
+        Returns:
+            pv.NFTCtrtV2Blacklist: The NFTCtrtV2Blacklist instance.
+        """
+        nc = await pv.NFTCtrtV2Blacklist.register(acnt0)
+        await cft.wait_for_block()
+
+        return nc
+
+    @pytest.fixture
+    async def new_atomic_swap_ctrt(
+        self,
+        new_ctrt_with_tok: pv.NFTCtrtV2Blacklist,
+        acnt0: pv.Account,
+    ) -> pv.AtomicSwapCtrt:
+        """
+        new_atomic_swap_ctrt is the fixture that registers a new atomic swap contract.
+
+        Args:
+            new_ctrt_with_tok (pv.NFTCtrtV2Blacklist): The fixture that registers a new NFT contract and issues an NFT token right after it.
+            acnt0 (pv.Account): The account of nonce 0.
+
+        Returns:
+            pv.AtomicSwapCtrt: The AtomicSwapCtrt instance.
+        """
+        nc = new_ctrt_with_tok
+        api = nc.chain.api
+
+        tok_id = await get_tok_id(api, nc.ctrt_id, 0)
+        ac = await pv.AtomicSwapCtrt.register(acnt0, tok_id)
+
+        await cft.wait_for_block()
+        assert (await ac.maker) == acnt0.addr.b58_str
+        assert (await ac.token_id) == tok_id
+
+        return ac
