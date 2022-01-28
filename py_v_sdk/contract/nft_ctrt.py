@@ -77,7 +77,7 @@ class NFTCtrt(Ctrt):
     async def register(
         cls,
         by: acnt.Account,
-        description: str = "",
+        ctrt_description: str = "",
         fee: int = md.RegCtrtFee.DEFAULT,
     ) -> NFTCtrt:
         """
@@ -85,7 +85,7 @@ class NFTCtrt(Ctrt):
 
         Args:
             by (acnt.Account): The action taker.
-            description (str, optional): The description of the action. Defaults to "".
+            ctrt_description (str, optional): The description of the contract. Defaults to "".
             fee (int, optional): The fee to pay for this action. Defaults to md.RegCtrtFee.DEFAULT.
 
         Returns:
@@ -96,7 +96,7 @@ class NFTCtrt(Ctrt):
                 data_stack=de.DataStack(),
                 ctrt_meta=cls.CTRT_META,
                 timestamp=md.VSYSTimestamp.now(),
-                description=md.Str(description),
+                description=md.Str(ctrt_description),
                 fee=md.RegCtrtFee(fee),
             )
         )
@@ -115,12 +115,7 @@ class NFTCtrt(Ctrt):
         Returns:
             str: The address of the issuer of the contract.
         """
-        data = await self.chain.api.ctrt.get_ctrt_data(
-            ctrt_id=self.ctrt_id,
-            db_key=self.DBKey.for_issuer().b58_str,
-        )
-        logger.debug(data)
-        return data["value"]
+        return await self._query_db_key(self.DBKey.for_issuer())
 
     @property
     async def maker(self) -> str:
@@ -130,12 +125,7 @@ class NFTCtrt(Ctrt):
         Returns:
             str: The address of the maker of the contract.
         """
-        data = await self.chain.api.ctrt.get_ctrt_data(
-            ctrt_id=self.ctrt_id,
-            db_key=self.DBKey.for_maker().b58_str,
-        )
-        logger.debug(data)
-        return data["value"]
+        return await self._query_db_key(self.DBKey.for_maker())
 
     async def issue(
         self,
@@ -472,12 +462,7 @@ class NFTCtrtV2Whitelist(NFTCtrt):
         Returns:
             str: The address of the regulator of the contract.
         """
-        data = await self.chain.api.ctrt.get_ctrt_data(
-            ctrt_id=self.ctrt_id,
-            db_key=self.DBKey.for_regulator().b58_str,
-        )
-        logger.debug(data)
-        return data["value"]
+        return await self._query_db_key(self.DBKey.for_regulator())
 
     async def _is_in_list(self, db_key: NFTCtrtV2Whitelist.DBKey) -> bool:
         """
@@ -490,12 +475,8 @@ class NFTCtrtV2Whitelist(NFTCtrt):
         Returns:
             bool: If the address is in the list.
         """
-        data = await self.chain.api.ctrt.get_ctrt_data(
-            ctrt_id=self.ctrt_id,
-            db_key=db_key.b58_str,
-        )
-        logger.debug(data)
-        return True if data["value"] == "true" else False
+        data = await self._query_db_key(db_key)
+        return data == "true"
 
     async def is_user_in_list(self, addr: str) -> bool:
         """
