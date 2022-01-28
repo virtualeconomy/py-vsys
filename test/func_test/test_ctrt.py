@@ -35,7 +35,7 @@ async def get_tok_bal(api: pv.NodeAPI, addr: str, tok_id: str) -> int:
     Returns:
         int: The balance.
     """
-    resp = await api.ctrt.get_tok_balance(addr, tok_id)
+    resp = await api.ctrt.get_tok_bal(addr, tok_id)
     return resp["balance"]
 
 
@@ -238,7 +238,7 @@ class TestNFTCtrt:
         tok_bal = await get_tok_bal(api, acnt0.addr.b58_str, tok_id)
         assert tok_bal == 0
 
-        deposited_tok_bal = await ac.get_token_balance(acnt0.addr.b58_str)
+        deposited_tok_bal = await ac.get_tok_bal(acnt0.addr.b58_str)
         assert deposited_tok_bal == 1
 
         await nc.withdraw(acnt0, ac.ctrt_id, 0)
@@ -247,7 +247,7 @@ class TestNFTCtrt:
         tok_bal = await get_tok_bal(api, acnt0.addr.b58_str, tok_id)
         assert tok_bal == 1
 
-        deposited_tok_bal = await ac.get_token_balance(acnt0.addr.b58_str)
+        deposited_tok_bal = await ac.get_tok_bal(acnt0.addr.b58_str)
         assert deposited_tok_bal == 0
 
     async def test_supersede(

@@ -155,6 +155,33 @@ class TokenCtrtWithoutSplit(Ctrt):
         logger.debug(data)
         return data["value"]
 
+    @property
+    async def tok_id(self) -> str:
+        """
+        TODO: tok_id can be computed locally.
+
+        tok_id queries & returns the token ID of the contract.
+
+        Returns:
+            str: The token ID.
+        """
+        data = await self.chain.api.ctrt.get_tok_id(self.ctrt_id, 0)
+        return data["tokenId"]
+
+    async def get_tok_bal(self, addr: str) -> int:
+        """
+        get_tok_bal queries & returns the balance of the token of the contract belonging to the user address.
+
+        Args:
+            addr (str): The user address.
+
+        Returns:
+            int: The balance.
+        """
+        tok_id = await self.tok_id
+        data = await self.chain.api.ctrt.get_tok_bal(addr, tok_id)
+        return data["balance"]
+
     async def supersede(
         self,
         by: acnt.Account,
