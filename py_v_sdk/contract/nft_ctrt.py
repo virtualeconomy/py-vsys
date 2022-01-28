@@ -130,6 +130,7 @@ class NFTCtrt(Ctrt):
     async def issue(
         self,
         by: acnt.Account,
+        tok_description: str = "",
         attachment: str = "",
         fee: int = md.ExecCtrtFee.DEFAULT,
     ) -> Dict[str, Any]:
@@ -138,6 +139,7 @@ class NFTCtrt(Ctrt):
 
         Args:
             by (acnt.Account): The action taker.
+            tok_description (str, optional): The description of the token. Defaults to "".
             attachment (str, optional): The attachment of the action. Defaults to "".
             fee (int, optional): The fee to pay for this action. Defaults to md.ExecCtrtFee.DEFAULT.
 
@@ -149,7 +151,7 @@ class NFTCtrt(Ctrt):
                 ctrt_id=self._ctrt_id,
                 func_id=self.FuncIdx.ISSUE,
                 data_stack=de.DataStack(
-                    de.String(md.Str(attachment)),
+                    de.String(md.Str(tok_description)),
                 ),
                 timestamp=md.VSYSTimestamp.now(),
                 attachment=md.Str(attachment),
