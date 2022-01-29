@@ -2,6 +2,7 @@
 v_swap_ctrt contains V Swap contract.
 """
 from __future__ import annotations
+import asyncio
 from typing import TYPE_CHECKING, Any, Dict, Union
 
 from loguru import logger
@@ -376,6 +377,18 @@ class VSwapCtrt(Ctrt):
         data = await self.chain.api.ctrt.get_tok_info(tok_b_id)
         return data["unity"]
 
+    @property
+    async def liq_tok_unit(self) -> int:
+        """
+        liq_tok_unit queries & returns the unit of liquidity token.
+
+        Returns:
+            int: The unit of liquidity token.
+        """
+        liq_tok_id = await self.liq_tok_id
+        data = await self.chain.api.ctrt.get_tok_info(liq_tok_id)
+        return data["unity"]
+
     async def get_tok_a_bal(self, addr: str) -> int:
         """
         get_tok_a_bal queries & returns the balance of token A stored within the contract belonging
@@ -581,6 +594,56 @@ class VSwapCtrt(Ctrt):
                 data_stack=de.DataStack(
                     de.Amount.for_tok_amount(amount_a, tok_a_unit),
                     de.Amount.for_tok_amount(amount_b, tok_b_unit),
+                    de.Amount.for_tok_amount(amount_a_min, tok_a_unit),
+                    de.Amount.for_tok_amount(amount_b_min, tok_b_unit),
+                    de.Timestamp(md.VSYSTimestamp.from_unix_ts(deadline)),
+                ),
+                timestamp=md.VSYSTimestamp.now(),
+                attachment=md.Str(attachment),
+                fee=md.ExecCtrtFee(fee),
+            )
+        )
+        logger.debug(data)
+        return data
+
+    async def remove_liquidity(
+        self,
+        by: acnt.Account,
+        amount_liq: Union[int, float],
+        amount_a_min: Union[int, float],
+        amount_b_min: Union[int, float],
+        deadline: int,
+        attachment: str = "",
+        fee: int = md.ExecCtrtFee.DEFAULT,
+    ) -> Dict[str, Any]:
+        """
+        remove_liquidity removes liquidity from the pool by redeeming token A & B with liquidity tokens.
+
+        Args:
+            by (acnt.Account): The action taker.
+            amount_liq (Union[int, float]): The amount of liquidity token to return.
+            amount_a_min (Union[int, float]): The minimum acceptable amount of token A to redeem.
+            amount_b_min (Union[int, float]): The minimum acceptable amount of token B to redeem.
+            deadline (int): Unix timestamp. The deadline for this operation to complete.
+            attachment (str, optional): The attachment of this action. Defaults to "".
+            fee (int, optional): The fee to pay for this action. Defaults to md.ExecCtrtFee.DEFAULT.
+
+        Returns:
+            Dict[str, Any]: The response returned by the Node API
+        """
+
+        tok_a_unit, tok_b_unit, liq_tok_unit = await asyncio.gather(
+            self.tok_a_unit,
+            self.tok_b_unit,
+            self.liq_tok_unit,
+        )
+
+        data = await by._execute_contract(
+            tx.ExecCtrtFuncTxReq(
+                ctrt_id=self._ctrt_id,
+                func_id=self.FuncIdx.ADD_LIQUIDITY,
+                data_stack=de.DataStack(
+                    de.Amount.for_tok_amount(amount_liq, liq_tok_unit),
                     de.Amount.for_tok_amount(amount_a_min, tok_a_unit),
                     de.Amount.for_tok_amount(amount_b_min, tok_b_unit),
                     de.Timestamp(md.VSYSTimestamp.from_unix_ts(deadline)),
