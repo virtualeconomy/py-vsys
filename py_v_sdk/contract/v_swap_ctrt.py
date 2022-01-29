@@ -788,3 +788,49 @@ class VSwapCtrt(Ctrt):
         )
         logger.debug(data)
         return data
+
+    async def swap_a_for_exact_b(
+        self,
+        by: acnt.Account,
+        amount_b: Union[int, float],
+        amount_a_max: Union[int, float],
+        deadline: int,
+        attachment: str = "",
+        fee: int = md.ExecCtrtFee.DEFAULT,
+    ) -> Dict[str, Any]:
+        """
+        swap_a_for_exact_b swaps token A for token B where the desired amount of token B is fixed.
+
+        Args:
+            by (acnt.Account): The action taker.
+            amount_b (Union[int, float]): The desired amount of token B.
+            amount_a_max (Union[int, float]): The maximum amount of token A the action taker is willing to pay.
+            deadline (int): Unix timestamp. The deadline for this operation to complete.
+            attachment (str, optional): The attachment of this action. Defaults to "".
+            fee (int, optional): The fee to pay for this action. Defaults to md.ExecCtrtFee.DEFAULT.
+
+        Returns:
+            Dict[str, Any]: The response returned by the Node API
+        """
+
+        tok_a_unit, tok_b_unit = await asyncio.gather(
+            self.tok_a_unit,
+            self.tok_b_unit,
+        )
+
+        data = await by._execute_contract(
+            tx.ExecCtrtFuncTxReq(
+                ctrt_id=self._ctrt_id,
+                func_id=self.FuncIdx.SWAP_A_FOR_EXACT_B,
+                data_stack=de.DataStack(
+                    de.Amount.for_tok_amount(amount_b, tok_a_unit),
+                    de.Amount.for_tok_amount(amount_a_max, tok_b_unit),
+                    de.Timestamp(md.VSYSTimestamp.from_unix_ts(deadline)),
+                ),
+                timestamp=md.VSYSTimestamp.now(),
+                attachment=md.Str(attachment),
+                fee=md.ExecCtrtFee(fee),
+            )
+        )
+        logger.debug(data)
+        return data
