@@ -10,6 +10,7 @@ from loguru import logger
 # https://stackoverflow.com/a/39757388
 if TYPE_CHECKING:
     from py_v_sdk import account as acnt
+    from py_v_sdk import chain as ch
 
 from py_v_sdk import data_entry as de
 from py_v_sdk import tx_req as tx
@@ -251,6 +252,31 @@ class VSwapCtrt(Ctrt):
             ).serialize()
             return cls(b)
 
+    def __init__(
+        self,
+        ctrt_id: str,
+        chain: ch.Chain,
+        tok_a_id: str = "",
+        tok_b_id: str = "",
+        liq_tok_id: str = "",
+        min_liq: int = 0,
+    ) -> None:
+        """
+        Args:
+            ctrt_id (str): The id of the contract.
+            chain (ch.Chain): The object of the chain where the contract is on.
+            tok_a_id (str): The ID of token A.
+            tok_b_id (str): The ID of token B.
+            liq_tok_id (str): The ID of liquidity token.
+            min_liq (int): The minimum liquidity of the contract.
+        """
+        self._ctrt_id = md.CtrtID(ctrt_id)
+        self._chain = chain
+        self._tok_a_id = tok_a_id
+        self._tok_b_id = tok_b_id
+        self._liq_tok_id = liq_tok_id
+        self._min_liq = min_liq
+
     @property
     async def maker(self) -> str:
         """
@@ -269,7 +295,9 @@ class VSwapCtrt(Ctrt):
         Returns:
             str: The token A ID of the contract.
         """
-        return await self._query_db_key(self.DBKey.for_tok_a_id())
+        if not self._tok_a_id:
+            self._tok_a_id = await self._query_db_key(self.DBKey.for_tok_a_id())
+        return self._tok_a_id
 
     @property
     async def tok_b_id(self) -> str:
@@ -279,7 +307,9 @@ class VSwapCtrt(Ctrt):
         Returns:
             str: The token B ID of the contract.
         """
-        return await self._query_db_key(self.DBKey.for_tok_b_id())
+        if not self._tok_b_id:
+            self._tok_b_id = await self._query_db_key(self.DBKey.for_tok_b_id())
+        return self._tok_b_id
 
     @property
     async def liq_tok_id(self) -> str:
@@ -289,7 +319,9 @@ class VSwapCtrt(Ctrt):
         Returns:
             str: The liquidity token ID of the contract.
         """
-        return await self._query_db_key(self.DBKey.for_liq_tok_id())
+        if not self._liq_tok_id:
+            self._liq_tok_id = await self._query_db_key(self.DBKey.for_liq_tok_id())
+        return self._liq_tok_id
 
     @property
     async def is_swap_active(self) -> bool:
@@ -310,7 +342,9 @@ class VSwapCtrt(Ctrt):
         Returns:
             int: The minimum liquidity of the contract.
         """
-        return await self._query_db_key(self.DBKey.for_min_liq())
+        if self._min_liq == 0:
+            self._min_liq = await self._query_db_key(self.DBKey.for_min_liq())
+        return self._min_liq
 
     @property
     async def tok_a_reserved(self) -> int:
@@ -473,6 +507,10 @@ class VSwapCtrt(Ctrt):
         return cls(
             data["contractId"],
             chain=by.chain,
+            tok_a_id=tok_a_id,
+            tok_b_id=tok_b_id,
+            liq_tok_id=liq_tok_id,
+            min_liq=min_liq,
         )
 
     async def supersede(
