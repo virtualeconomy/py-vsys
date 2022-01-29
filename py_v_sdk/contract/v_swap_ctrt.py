@@ -682,7 +682,7 @@ class VSwapCtrt(Ctrt):
         data = await by._execute_contract(
             tx.ExecCtrtFuncTxReq(
                 ctrt_id=self._ctrt_id,
-                func_id=self.FuncIdx.ADD_LIQUIDITY,
+                func_id=self.FuncIdx.REMOVE_LIQUIDITY,
                 data_stack=de.DataStack(
                     de.Amount.for_tok_amount(amount_liq, liq_tok_unit),
                     de.Amount.for_tok_amount(amount_a_min, tok_a_unit),
