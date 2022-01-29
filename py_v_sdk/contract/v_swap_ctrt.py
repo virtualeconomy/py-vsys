@@ -2,7 +2,7 @@
 v_swap_ctrt contains V Swap contract.
 """
 from __future__ import annotations
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Dict
 
 from loguru import logger
 
@@ -437,3 +437,41 @@ class VSwapCtrt(Ctrt):
             data["contractId"],
             chain=by.chain,
         )
+
+    async def supersede(
+        self,
+        by: acnt.Account,
+        new_owner: str,
+        attachment: str = "",
+        fee: int = md.ExecCtrtFee.DEFAULT,
+    ) -> Dict[str, Any]:
+        """
+        supersede transfers the contract rights of the contract to a new account.
+
+        Args:
+            by (acnt.Account): The action taker.
+            new_owner (str): The account address of the new owner.
+            attachment (str, optional): The attachment of this action. Defaults to "".
+            fee (int, optional): The fee to pay for this action. Defaults to md.ExecCtrtFee.DEFAULT.
+
+        Returns:
+            Dict[str, Any]: The response returned by the Node API
+        """
+
+        new_owner_md = md.Addr(new_owner)
+        new_owner_md.must_on(by.chain)
+
+        data = await by._execute_contract(
+            tx.ExecCtrtFuncTxReq(
+                ctrt_id=self._ctrt_id,
+                func_id=self.FuncIdx.SUPERSEDE,
+                data_stack=de.DataStack(
+                    de.Addr(new_owner_md),
+                ),
+                timestamp=md.VSYSTimestamp.now(),
+                attachment=md.Str(attachment),
+                fee=md.ExecCtrtFee(fee),
+            )
+        )
+        logger.debug(data)
+        return data
