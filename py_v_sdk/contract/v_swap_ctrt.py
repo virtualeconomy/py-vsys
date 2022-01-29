@@ -535,8 +535,10 @@ class VSwapCtrt(Ctrt):
             Dict[str, Any]: The response returned by the Node API
         """
 
-        tok_a_unit = await self.tok_a_unit
-        tok_b_unit = await self.tok_b_unit
+        tok_a_unit, tok_b_unit = await asyncio.gather(
+            self.tok_a_unit,
+            self.tok_b_unit,
+        )
 
         data = await by._execute_contract(
             tx.ExecCtrtFuncTxReq(
@@ -583,9 +585,10 @@ class VSwapCtrt(Ctrt):
         Returns:
             Dict[str, Any]: The response returned by the Node API
         """
-
-        tok_a_unit = await self.tok_a_unit
-        tok_b_unit = await self.tok_b_unit
+        tok_a_unit, tok_b_unit = await asyncio.gather(
+            self.tok_a_unit,
+            self.tok_b_unit,
+        )
 
         data = await by._execute_contract(
             tx.ExecCtrtFuncTxReq(
