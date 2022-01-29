@@ -4,7 +4,7 @@ api contains NodeAPI-related resources.
 from __future__ import annotations
 import abc
 import json
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Union
 
 import aiohttp
 
@@ -364,6 +364,18 @@ class Contract(APIGrp):
             Dict[str, Any]: The response.
         """
         return await self._get(f"/balance/{addr}/{tok_id}")
+
+    async def get_tok_info(self, tok_id: str) -> Dict[str, Union[int, str]]:
+        """
+        get_tok_info gets the information of the token.
+
+        Args:
+            tok_id (str): The token ID.
+
+        Returns:
+            Dict[str, Any]: The response.
+        """
+        return await self._get(f"/tokenInfo/{tok_id}")
 
 
 class Addresses(APIGrp):

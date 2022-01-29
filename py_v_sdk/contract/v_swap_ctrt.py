@@ -2,7 +2,7 @@
 v_swap_ctrt contains V Swap contract.
 """
 from __future__ import annotations
-from typing import TYPE_CHECKING, Any, Dict
+from typing import TYPE_CHECKING, Any, Dict, Union
 
 from loguru import logger
 
@@ -352,6 +352,30 @@ class VSwapCtrt(Ctrt):
         """
         return await self._query_db_key(self.DBKey.for_liq_tok_left())
 
+    @property
+    async def tok_a_unit(self) -> int:
+        """
+        tok_a_unit queries & return the unit of token A.
+
+        Returns:
+            int: The unit of token A.
+        """
+        tok_a_id = await self.tok_a_id
+        data = await self.chain.api.ctrt.get_tok_info(tok_a_id)
+        return data["unity"]
+
+    @property
+    async def tok_b_unit(self) -> int:
+        """
+        tok_b_unit queries & return the unit of token B.
+
+        Returns:
+            int: The unit of token B.
+        """
+        tok_b_id = await self.tok_b_id
+        data = await self.chain.api.ctrt.get_tok_info(tok_b_id)
+        return data["unity"]
+
     async def get_tok_a_bal(self, addr: str) -> int:
         """
         get_tok_a_bal queries & returns the balance of token A stored within the contract belonging
@@ -467,6 +491,47 @@ class VSwapCtrt(Ctrt):
                 func_id=self.FuncIdx.SUPERSEDE,
                 data_stack=de.DataStack(
                     de.Addr(new_owner_md),
+                ),
+                timestamp=md.VSYSTimestamp.now(),
+                attachment=md.Str(attachment),
+                fee=md.ExecCtrtFee(fee),
+            )
+        )
+        logger.debug(data)
+        return data
+
+    async def set_swap(
+        self,
+        by: acnt.Account,
+        amount_a: Union[int, float],
+        amount_b: Union[int, float],
+        attachment: str = "",
+        fee: int = md.ExecCtrtFee.DEFAULT,
+    ) -> Dict[str, Any]:
+        """
+        set_swap creates a swap and deposit initial amounts into the pool
+
+        Args:
+            by (acnt.Account): The action taker.
+            amount_a (int): The initial amount for token A.
+            amount_b (int): The initial amount for token B.
+            attachment (str, optional): The attachment of this action. Defaults to "".
+            fee (int, optional): The fee to pay for this action. Defaults to md.ExecCtrtFee.DEFAULT.
+
+        Returns:
+            Dict[str, Any]: The response returned by the Node API
+        """
+
+        tok_a_unit = await self.tok_a_unit
+        tok_b_unit = await self.tok_b_unit
+
+        data = await by._execute_contract(
+            tx.ExecCtrtFuncTxReq(
+                ctrt_id=self._ctrt_id,
+                func_id=self.FuncIdx.SET_SWAP,
+                data_stack=de.DataStack(
+                    de.Amount.for_tok_amount(amount_a, tok_a_unit),
+                    de.Amount.for_tok_amount(amount_b, tok_b_unit),
                 ),
                 timestamp=md.VSYSTimestamp.now(),
                 attachment=md.Str(attachment),
