@@ -588,6 +588,7 @@ class TestVSwapCtrt:
     """
 
     TOK_MAX = 1_000_000_000
+    HALF_TOK_MAX = TOK_MAX // 2
     TOK_UNIT = 1_000
     MIN_LIQ = 10
     INIT_AMOUNT = 10_000
@@ -622,12 +623,14 @@ class TestVSwapCtrt:
     async def new_ctrt(
         self,
         acnt0: pv.Account,
+        acnt1: pv.Account,
     ) -> pv.VSwapCtrt:
         """
         new_ctrt is the fixture that registers a new V Swap contract.
 
         Args:
             acnt0 (pv.Account): The account of nonce 0.
+            acnt1 (pv.Account): The account of nonce 1.
 
         Returns:
             pv.VSwapCtrt: The VSwapCtrt instance.
@@ -639,6 +642,13 @@ class TestVSwapCtrt:
             self.new_tok_ctrt(acnt0),
             self.new_tok_ctrt(acnt0),
         )
+
+        await asyncio.gather(
+            tca.send(acnt0, acnt1.addr.b58_str, self.HALF_TOK_MAX),
+            tcb.send(acnt0, acnt1.addr.b58_str, self.HALF_TOK_MAX),
+        )
+
+        await cft.wait_for_block()
 
         tok_a_id, tok_b_id, liq_tok_id = await asyncio.gather(
             tca.tok_id,
@@ -655,18 +665,22 @@ class TestVSwapCtrt:
         )
         await cft.wait_for_block()
 
-        resp_a, resp_b, resp_l = await asyncio.gather(
-            tca.deposit(acnt0, vc.ctrt_id, self.TOK_MAX),
-            tcb.deposit(acnt0, vc.ctrt_id, self.TOK_MAX),
+        resp_a0, resp_b0, resp_l, resp_a1, resp_b1 = await asyncio.gather(
+            tca.deposit(acnt0, vc.ctrt_id, self.HALF_TOK_MAX),
+            tcb.deposit(acnt0, vc.ctrt_id, self.HALF_TOK_MAX),
             tcl.deposit(acnt0, vc.ctrt_id, self.TOK_MAX),
+            tca.deposit(acnt1, vc.ctrt_id, self.HALF_TOK_MAX),
+            tcb.deposit(acnt1, vc.ctrt_id, self.HALF_TOK_MAX),
         )
 
         await cft.wait_for_block()
 
         await asyncio.gather(
-            cft.assert_tx_success(api, resp_a["id"]),
-            cft.assert_tx_success(api, resp_b["id"]),
+            cft.assert_tx_success(api, resp_a0["id"]),
+            cft.assert_tx_success(api, resp_b0["id"]),
             cft.assert_tx_success(api, resp_l["id"]),
+            cft.assert_tx_success(api, resp_a1["id"]),
+            cft.assert_tx_success(api, resp_b1["id"]),
         )
 
         return vc
@@ -850,3 +864,50 @@ class TestVSwapCtrt:
 
         assert tok_a_redeemed >= DELTA * self.TOK_UNIT
         assert tok_b_redeemed >= DELTA * self.TOK_UNIT
+
+    async def test_swap_b_for_exact_a(
+        self,
+        new_ctrt_with_pool: pv.VSwapCtrt,
+        acnt0: pv.Account,
+        acnt1: pv.Account,
+    ):
+        """
+        test_swap_b_for_exact_a tests the method swap_b_for_exact_a.
+
+        Args:
+            new_ctrt_with_pool (pv.VSwapCtrt): The VSwapCtrt instance where the pool is initialized.
+            acnt0 (pv.Account): The account of nonce 0.
+            acnt1 (pv.Account): The account of nonce 1.
+        """
+        vc = new_ctrt_with_pool
+        api = vc.chain.api
+
+        acnt1_bal_a_old, acnt1_bal_b_old = await asyncio.gather(
+            vc.get_tok_a_bal(acnt1.addr.b58_str),
+            vc.get_tok_b_bal(acnt1.addr.b58_str),
+        )
+
+        assert acnt1_bal_a_old == self.HALF_TOK_MAX * self.TOK_UNIT
+        assert acnt1_bal_b_old == self.HALF_TOK_MAX * self.TOK_UNIT
+
+        amount_a = 10
+        amount_b_max = 20
+
+        ten_sec_later = int(time.time()) + 10
+
+        resp = await vc.swap_b_for_exact_a(
+            by=acnt1,
+            amount_a=amount_a,
+            amount_b_max=amount_b_max,
+            deadline=ten_sec_later,
+        )
+        await cft.wait_for_block()
+        await cft.assert_tx_success(api, resp["id"]),
+
+        acnt1_bal_a, acnt1_bal_b = await asyncio.gather(
+            vc.get_tok_a_bal(acnt1.addr.b58_str),
+            vc.get_tok_b_bal(acnt1.addr.b58_str),
+        )
+
+        assert acnt1_bal_a == acnt1_bal_a_old + amount_a * self.TOK_UNIT
+        assert acnt1_bal_b_old - acnt1_bal_b <= amount_b_max * self.TOK_UNIT
