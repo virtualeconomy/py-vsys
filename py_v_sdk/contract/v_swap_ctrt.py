@@ -332,7 +332,8 @@ class VSwapCtrt(Ctrt):
         Returns:
             bool: Whether or not the swap is currently active.
         """
-        return await self._query_db_key(self.DBKey.for_swap_status())
+        data = await self._query_db_key(self.DBKey.for_swap_status())
+        return data == "true"
 
     @property
     async def min_liq(self) -> int:
