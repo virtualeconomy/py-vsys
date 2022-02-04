@@ -585,8 +585,10 @@ class TestVSwapCtrt:
     TestVSwapCtrt is the collection of functional tests of V Swap contract.
     """
 
-    TOK_MAX = 100
+    TOK_MAX = 1_000_000_000
+    TOK_UNIT = 1_000
     MIN_LIQ = 10
+    INIT_AMOUNT = 10_000
 
     async def new_tok_ctrt(self, acnt0: pv.Account) -> pv.TokenCtrtWithoutSplit:
         """
@@ -604,7 +606,7 @@ class TestVSwapCtrt:
         tc = await pv.TokenCtrtWithoutSplit.register(
             by=acnt0,
             max=self.TOK_MAX,
-            unit=1,
+            unit=self.TOK_UNIT,
         )
         await cft.wait_for_block()
 
@@ -688,3 +690,28 @@ class TestVSwapCtrt:
         await cft.assert_tx_success(api, resp["id"])
 
         assert (await vc.maker) == acnt1.addr.b58_str
+
+    async def test_set_swap(self, new_ctrt: pv.VSwapCtrt, acnt0: pv.Account):
+        """
+        test_set_swap tests the method set_swap.
+
+        Args:
+            new_ctrt (pv.VSwapCtrt): The fixture that registers a new V Swap contract.
+            acnt0 (pv.Account): The account of nonce 0.
+        """
+
+        vc = new_ctrt
+        api = vc.chain.api
+
+        assert (await vc.is_swap_active) is False
+
+        resp = await vc.set_swap(
+            by=acnt0,
+            amount_a=self.INIT_AMOUNT,
+            amount_b=self.INIT_AMOUNT,
+        )
+
+        await cft.wait_for_block()
+        await cft.assert_tx_success(api, resp["id"])
+
+        assert (await vc.is_swap_active) is True
