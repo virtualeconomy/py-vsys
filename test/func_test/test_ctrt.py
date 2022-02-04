@@ -578,9 +578,9 @@ class TestNFTCtrtV2Blacklist(TestNFTCtrtV2Whitelist):
 
         return ac
 
-class TestTokCtrt:
+class TestTokCtrtWithoutSplit:
     """
-    TestTokCtrt is the collection of functional tests of Token contract without split.
+    TestTokCtrtWithoutSplit is the collection of functional tests of Token contract without split.
     """
 
     @pytest.fixture
