@@ -2,6 +2,8 @@
 test_ctrt contains functional tests for smart contracts.
 """
 import asyncio
+import time
+
 import pytest
 
 import py_v_sdk as pv
@@ -628,7 +630,7 @@ class TestVSwapCtrt:
             acnt0 (pv.Account): The account of nonce 0.
 
         Returns:
-            pv.VSwapCtrt: the VSwapCtrt instance.
+            pv.VSwapCtrt: The VSwapCtrt instance.
         """
         api = acnt0.api
 
@@ -715,3 +717,78 @@ class TestVSwapCtrt:
         await cft.assert_tx_success(api, resp["id"])
 
         assert (await vc.is_swap_active) is True
+
+    @pytest.fixture
+    async def new_ctrt_with_pool(
+        self, new_ctrt: pv.VSwapCtrt, acnt0: pv.Account
+    ) -> pv.VSwapCtrt:
+        """
+        new_ctrt_with_pool is the fixture that registers a new V Swap contract and
+        initialize the swap pool.
+
+        Args:
+            new_ctrt (pv.VSwapCtrt): The V Swap instance.
+            acnt0 (pv.Account): The account of nonce 0.
+
+        Returns:
+            pv.VSwapCtrt: The VSwapCtrt instance.
+        """
+        vc = new_ctrt
+        api = vc.chain.api
+
+        resp = await vc.set_swap(
+            by=acnt0,
+            amount_a=self.INIT_AMOUNT,
+            amount_b=self.INIT_AMOUNT,
+        )
+        await cft.wait_for_block()
+        await cft.assert_tx_success(api, resp["id"])
+        assert (await vc.is_swap_active) is True
+
+        return vc
+
+    async def test_add_liquidity(
+        self, new_ctrt_with_pool: pv.VSwapCtrt, acnt0: pv.Account
+    ):
+        """
+        test_add_liquidity tests the method add_liquidity.
+
+        Args:
+            new_ctrt_with_pool (pv.VSwapCtrt): The VSwapCtrt instance where the pool is initialized.
+            acnt0 (pv.Account): The account of nonce 0.
+        """
+        DELTA = 10_000
+        DELTA_MIN = 9_000
+
+        vc = new_ctrt_with_pool
+        api = vc.chain.api
+
+        tok_a_reserved_old, tok_b_reserved_old = await asyncio.gather(
+            vc.tok_a_reserved,
+            vc.tok_b_reserved,
+        )
+
+        assert tok_a_reserved_old == self.INIT_AMOUNT * self.TOK_UNIT
+        assert tok_b_reserved_old == self.INIT_AMOUNT * self.TOK_UNIT
+
+        ten_sec_later = int(time.time()) + 10
+
+        resp = await vc.add_liquidity(
+            by=acnt0,
+            amount_a=DELTA,
+            amount_b=DELTA,
+            amount_a_min=DELTA_MIN,
+            amount_b_min=DELTA_MIN,
+            deadline=ten_sec_later,
+        )
+
+        await cft.wait_for_block()
+        await cft.assert_tx_success(api, resp["id"])
+
+        tok_a_reserved, tok_b_reserved = await asyncio.gather(
+            vc.tok_a_reserved,
+            vc.tok_b_reserved,
+        )
+
+        assert tok_a_reserved == tok_a_reserved_old + DELTA * self.TOK_UNIT
+        assert tok_b_reserved == tok_b_reserved_old + DELTA * self.TOK_UNIT
