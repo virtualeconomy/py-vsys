@@ -238,7 +238,7 @@ class TokenCtrtWithoutSplit(Ctrt):
                 ctrt_id=self._ctrt_id,
                 func_id=self.FuncIdx.ISSUE,
                 data_stack=de.DataStack(
-                    de.Amount.for_tok_amount(amount, self.get_unit),
+                    de.Amount.for_tok_amount(amount, self.unit),
                 ),
                 timestamp=md.VSYSTimestamp.now(),
                 attachment=md.Str(attachment),
@@ -279,7 +279,7 @@ class TokenCtrtWithoutSplit(Ctrt):
                 func_id=self.FuncIdx.SEND,
                 data_stack=de.DataStack(
                     de.Addr(rcpt_md),
-                    de.Amount.for_tok_amount(amount, self.get_unit),
+                    de.Amount.for_tok_amount(amount, self.unit),
                 ),
                 timestamp=md.VSYSTimestamp.now(),
                 attachment=md.Str(attachment),
@@ -314,7 +314,7 @@ class TokenCtrtWithoutSplit(Ctrt):
                 ctrt_id=self._ctrt_id,
                 func_id=self.FuncIdx.DESTROY,
                 data_stack=de.DataStack(
-                    de.Amount.for_tok_amount(amount, self.get_unit),
+                    de.Amount.for_tok_amount(amount, self.unit),
                 ),
                 timestamp=md.VSYSTimestamp.now(),
                 attachment=md.Str(attachment),
@@ -361,7 +361,7 @@ class TokenCtrtWithoutSplit(Ctrt):
                 data_stack=de.DataStack(
                     de.Addr(sender_md),
                     de.Addr(rcpt_md),
-                    de.Amount.for_tok_amount(amount, self.get_unit),
+                    de.Amount.for_tok_amount(amount, self.unit),
                 ),
                 timestamp=md.VSYSTimestamp.now(),
                 attachment=md.Str(attachment),
@@ -403,7 +403,7 @@ class TokenCtrtWithoutSplit(Ctrt):
                 data_stack=de.DataStack(
                     de.Addr(sender_md),
                     de.CtrtAcnt(md.CtrtID(contract)),
-                    de.Amount.for_tok_amount(amount, self.get_unit),
+                    de.Amount.for_tok_amount(amount, self.unit),
                 ),
                 timestamp=md.VSYSTimestamp.now(),
                 attachment=md.Str(attachment),
@@ -445,7 +445,7 @@ class TokenCtrtWithoutSplit(Ctrt):
                 data_stack=de.DataStack(
                     de.CtrtAcnt(md.CtrtID(contract)),
                     de.Addr(rcpt_md),
-                    de.Amount.for_tok_amount(amount, self.get_unit),
+                    de.Amount.for_tok_amount(amount, self.unit),
                 ),
                 timestamp=md.VSYSTimestamp.now(),
                 attachment=md.Str(attachment),
