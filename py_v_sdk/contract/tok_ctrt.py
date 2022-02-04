@@ -33,9 +33,9 @@ class TokenCtrtWithoutSplit(Ctrt):
         self._unit = md.Int(unit)
 
     @property
-    def get_unit(self) -> int:
+    def unit(self) -> int:
         """
-        get_unit returns the unit in int format.
+        unit returns the unit in int format.
 
         Returns:
             int: The unit in integer format.
@@ -117,7 +117,6 @@ class TokenCtrtWithoutSplit(Ctrt):
             )
         )
         logger.debug(data)
-        print(data)
 
         return cls(
             data["contractId"],
