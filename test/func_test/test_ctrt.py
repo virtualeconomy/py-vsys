@@ -579,7 +579,7 @@ class TestNFTCtrtV2Blacklist(TestNFTCtrtV2Whitelist):
         return ac
 
 
-class TestTokCtrt:
+class TestTokenCtrtWithoutSplit:
     """
     TestTokCtrt is the collection of functional tests of Token contract.
     """
