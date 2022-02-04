@@ -1,6 +1,7 @@
 """
 test_ctrt contains functional tests for smart contracts.
 """
+import asyncio
 import pytest
 
 import py_v_sdk as pv
@@ -577,3 +578,113 @@ class TestNFTCtrtV2Blacklist(TestNFTCtrtV2Whitelist):
         assert (await ac.token_id) == tok_id
 
         return ac
+
+
+class TestVSwapCtrt:
+    """
+    TestVSwapCtrt is the collection of functional tests of V Swap contract.
+    """
+
+    TOK_MAX = 100
+    MIN_LIQ = 10
+
+    async def new_tok_ctrt(self, acnt0: pv.Account) -> pv.TokenCtrtWithoutSplit:
+        """
+        new_tok_ctrt is the fixture that registers a new token contract without split
+        to be used in a V Swap contract.
+
+        Args:
+            acnt0 (pv.Account): The account of nonce 0.
+
+        Returns:
+            pv.TokenCtrtWithoutSplit: The TokenCtrtWithoutSplit instance.
+        """
+        api = acnt0.api
+
+        tc = await pv.TokenCtrtWithoutSplit.register(
+            by=acnt0,
+            max=self.TOK_MAX,
+            unit=1,
+        )
+        await cft.wait_for_block()
+
+        resp = await tc.issue(acnt0, self.TOK_MAX)
+        await cft.wait_for_block()
+        await cft.assert_tx_success(api, resp["id"])
+
+        return tc
+
+    @pytest.fixture
+    async def new_ctrt(
+        self,
+        acnt0: pv.Account,
+    ) -> pv.VSwapCtrt:
+        """
+        new_ctrt is the fixture that registers a new V Swap contract.
+
+        Args:
+            acnt0 (pv.Account): The account of nonce 0.
+
+        Returns:
+            pv.VSwapCtrt: the VSwapCtrt instance.
+        """
+        api = acnt0.api
+
+        tca, tcb, tcl = await asyncio.gather(
+            self.new_tok_ctrt(acnt0),
+            self.new_tok_ctrt(acnt0),
+            self.new_tok_ctrt(acnt0),
+        )
+
+        tok_a_id, tok_b_id, liq_tok_id = await asyncio.gather(
+            tca.tok_id,
+            tcb.tok_id,
+            tcl.tok_id,
+        )
+
+        vc = await pv.VSwapCtrt.register(
+            by=acnt0,
+            tok_a_id=tok_a_id,
+            tok_b_id=tok_b_id,
+            liq_tok_id=liq_tok_id,
+            min_liq=self.MIN_LIQ,
+        )
+        await cft.wait_for_block()
+
+        resp_a, resp_b, resp_l = await asyncio.gather(
+            tca.deposit(acnt0, vc.ctrt_id, self.TOK_MAX),
+            tcb.deposit(acnt0, vc.ctrt_id, self.TOK_MAX),
+            tcl.deposit(acnt0, vc.ctrt_id, self.TOK_MAX),
+        )
+
+        await cft.wait_for_block()
+
+        await asyncio.gather(
+            cft.assert_tx_success(api, resp_a["id"]),
+            cft.assert_tx_success(api, resp_b["id"]),
+            cft.assert_tx_success(api, resp_l["id"]),
+        )
+
+        return vc
+
+    async def test_supersede(
+        self, new_ctrt: pv.VSwapCtrt, acnt0: pv.Account, acnt1: pv.Account
+    ):
+        """
+        test_supersede tests the method supersede.
+
+        Args:
+            new_ctrt (pv.VSwapCtrt): The fixture that registers a new V Swap contract.
+            acnt0 (pv.Account): The account of nonce 0.
+            acnt1 (pv.Account): The account of nonce 1.
+        """
+        vc = new_ctrt
+        api = vc.chain.api
+
+        assert (await vc.maker) == acnt0.addr.b58_str
+
+        resp = await vc.supersede(acnt0, acnt1.addr.b58_str)
+        await cft.wait_for_block()
+        await cft.assert_tx_success(api, resp["id"])
+
+        assert (await vc.maker) == acnt1.addr.b58_str
