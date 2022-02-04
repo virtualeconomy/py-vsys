@@ -117,7 +117,6 @@ class TokenCtrtWithoutSplit(Ctrt):
             )
         )
         logger.debug(data)
-        print(data)
 
         return cls(
             data["contractId"],
