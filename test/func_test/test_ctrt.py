@@ -763,13 +763,15 @@ class TestVSwapCtrt:
         vc = new_ctrt_with_pool
         api = vc.chain.api
 
-        tok_a_reserved_old, tok_b_reserved_old = await asyncio.gather(
-            vc.tok_a_reserved,
-            vc.tok_b_reserved,
+        tok_a_reserved_old, tok_b_reserved_old, liq_tok_left_old = await asyncio.gather(
+            vc.tok_a_reserved, vc.tok_b_reserved, vc.liq_tok_left
         )
 
         assert tok_a_reserved_old == self.INIT_AMOUNT * self.TOK_UNIT
         assert tok_b_reserved_old == self.INIT_AMOUNT * self.TOK_UNIT
+        assert liq_tok_left_old == int(
+            (self.TOK_MAX - self.INIT_AMOUNT) * self.TOK_UNIT
+        )
 
         ten_sec_later = int(time.time()) + 10
 
@@ -785,13 +787,15 @@ class TestVSwapCtrt:
         await cft.wait_for_block()
         await cft.assert_tx_success(api, resp["id"])
 
-        tok_a_reserved, tok_b_reserved = await asyncio.gather(
+        tok_a_reserved, tok_b_reserved, liq_tok_left = await asyncio.gather(
             vc.tok_a_reserved,
             vc.tok_b_reserved,
+            vc.liq_tok_left,
         )
 
         assert tok_a_reserved == tok_a_reserved_old + DELTA * self.TOK_UNIT
         assert tok_b_reserved == tok_b_reserved_old + DELTA * self.TOK_UNIT
+        assert liq_tok_left == liq_tok_left_old - DELTA * self.TOK_UNIT
 
     async def test_remove_liquidity(
         self, new_ctrt_with_pool: pv.VSwapCtrt, acnt0: pv.Account
