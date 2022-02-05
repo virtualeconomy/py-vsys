@@ -880,13 +880,13 @@ class TestVSwapCtrt:
         vc = new_ctrt_with_pool
         api = vc.chain.api
 
-        acnt1_bal_a_old, acnt1_bal_b_old = await asyncio.gather(
+        bal_a_old, bal_b_old = await asyncio.gather(
             vc.get_tok_a_bal(acnt1.addr.b58_str),
             vc.get_tok_b_bal(acnt1.addr.b58_str),
         )
 
-        assert acnt1_bal_a_old == self.HALF_TOK_MAX * self.TOK_UNIT
-        assert acnt1_bal_b_old == self.HALF_TOK_MAX * self.TOK_UNIT
+        assert bal_a_old == self.HALF_TOK_MAX * self.TOK_UNIT
+        assert bal_b_old == self.HALF_TOK_MAX * self.TOK_UNIT
 
         amount_a = 10
         amount_b_max = 20
@@ -902,13 +902,13 @@ class TestVSwapCtrt:
         await cft.wait_for_block()
         await cft.assert_tx_success(api, resp["id"]),
 
-        acnt1_bal_a, acnt1_bal_b = await asyncio.gather(
+        bal_a, bal_b = await asyncio.gather(
             vc.get_tok_a_bal(acnt1.addr.b58_str),
             vc.get_tok_b_bal(acnt1.addr.b58_str),
         )
 
-        assert acnt1_bal_a == acnt1_bal_a_old + amount_a * self.TOK_UNIT
-        assert acnt1_bal_b_old - acnt1_bal_b <= amount_b_max * self.TOK_UNIT
+        assert bal_a == bal_a_old + amount_a * self.TOK_UNIT
+        assert bal_b_old - bal_b <= amount_b_max * self.TOK_UNIT
 
     async def test_swap_exact_b_for_a(
         self,
@@ -926,12 +926,12 @@ class TestVSwapCtrt:
         vc = new_ctrt_with_pool
         api = vc.chain.api
 
-        acnt1_bal_a_old, acnt1_bal_b_old = await asyncio.gather(
+        bal_a_old, bal_b_old = await asyncio.gather(
             vc.get_tok_a_bal(acnt1.addr.b58_str),
             vc.get_tok_b_bal(acnt1.addr.b58_str),
         )
-        assert acnt1_bal_a_old == self.HALF_TOK_MAX * self.TOK_UNIT
-        assert acnt1_bal_b_old == self.HALF_TOK_MAX * self.TOK_UNIT
+        assert bal_a_old == self.HALF_TOK_MAX * self.TOK_UNIT
+        assert bal_b_old == self.HALF_TOK_MAX * self.TOK_UNIT
 
         amount_a_min = 10
         amount_b = 20
@@ -947,10 +947,10 @@ class TestVSwapCtrt:
         await cft.wait_for_block()
         await cft.assert_tx_success(api, resp["id"]),
 
-        acnt1_bal_a, acnt1_bal_b = await asyncio.gather(
+        bal_a, bal_b = await asyncio.gather(
             vc.get_tok_a_bal(acnt1.addr.b58_str),
             vc.get_tok_b_bal(acnt1.addr.b58_str),
         )
 
-        assert acnt1_bal_a - acnt1_bal_a_old >= amount_a_min
-        assert acnt1_bal_b == acnt1_bal_b_old - amount_b * self.TOK_UNIT
+        assert bal_a - bal_a_old >= amount_a_min
+        assert bal_b == bal_b_old - amount_b * self.TOK_UNIT
