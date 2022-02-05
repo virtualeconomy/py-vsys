@@ -781,12 +781,6 @@ class TestVSwapCtrt:
             vc.tok_a_reserved, vc.tok_b_reserved, vc.liq_tok_left
         )
 
-        assert tok_a_reserved_old == self.INIT_AMOUNT * self.TOK_UNIT
-        assert tok_b_reserved_old == self.INIT_AMOUNT * self.TOK_UNIT
-        assert liq_tok_left_old == int(
-            (self.TOK_MAX - self.INIT_AMOUNT) * self.TOK_UNIT
-        )
-
         ten_sec_later = int(time.time()) + 10
 
         resp = await vc.add_liquidity(
@@ -830,12 +824,6 @@ class TestVSwapCtrt:
             vc.tok_a_reserved,
             vc.tok_b_reserved,
             vc.liq_tok_left,
-        )
-
-        assert tok_a_reserved_old == self.INIT_AMOUNT * self.TOK_UNIT
-        assert tok_b_reserved_old == self.INIT_AMOUNT * self.TOK_UNIT
-        assert liq_tok_left_old == int(
-            (self.TOK_MAX - self.INIT_AMOUNT) * self.TOK_UNIT
         )
 
         ten_sec_later = int(time.time()) + 10
@@ -885,9 +873,6 @@ class TestVSwapCtrt:
             vc.get_tok_b_bal(acnt1.addr.b58_str),
         )
 
-        assert bal_a_old == self.HALF_TOK_MAX * self.TOK_UNIT
-        assert bal_b_old == self.HALF_TOK_MAX * self.TOK_UNIT
-
         amount_a = 10
         amount_b_max = 20
 
@@ -930,8 +915,6 @@ class TestVSwapCtrt:
             vc.get_tok_a_bal(acnt1.addr.b58_str),
             vc.get_tok_b_bal(acnt1.addr.b58_str),
         )
-        assert bal_a_old == self.HALF_TOK_MAX * self.TOK_UNIT
-        assert bal_b_old == self.HALF_TOK_MAX * self.TOK_UNIT
 
         amount_a_min = 10
         amount_b = 20
@@ -975,8 +958,6 @@ class TestVSwapCtrt:
             vc.get_tok_a_bal(acnt1.addr.b58_str),
             vc.get_tok_b_bal(acnt1.addr.b58_str),
         )
-        assert bal_a_old == self.HALF_TOK_MAX * self.TOK_UNIT
-        assert bal_b_old == self.HALF_TOK_MAX * self.TOK_UNIT
 
         amount_a_max = 20
         amount_b = 10
@@ -1020,8 +1001,6 @@ class TestVSwapCtrt:
             vc.get_tok_a_bal(acnt1.addr.b58_str),
             vc.get_tok_b_bal(acnt1.addr.b58_str),
         )
-        assert bal_a_old == self.HALF_TOK_MAX * self.TOK_UNIT
-        assert bal_b_old == self.HALF_TOK_MAX * self.TOK_UNIT
 
         amount_a = 20
         amount_b_min = 10
@@ -1044,3 +1023,29 @@ class TestVSwapCtrt:
 
         assert bal_a == bal_a_old - amount_a * self.TOK_UNIT
         assert bal_b - bal_b_old >= amount_b_min
+
+    @pytest.mark.whole
+    async def test_as_whole(
+        self,
+        new_ctrt: pv.VSwapCtrt,
+        acnt0: pv.Account,
+        acnt1: pv.Account,
+    ):
+        """
+        test_as_whole tests methods of VSwapCtrt as a whole so as to reduce resource consumption.
+
+        Args:
+            new_ctrt (pv.VSwapCtrt): The V Swap instance.
+            acnt0 (pv.Account): The account of nonce 0.
+            acnt1 (pv.Account): The account of nonce 1.
+        """
+        vc = new_ctrt
+
+        await self.test_set_swap(vc, acnt0)
+        await self.test_add_liquidity(vc, acnt0)
+        await self.test_remove_liquidity(vc, acnt0)
+        await self.test_swap_b_for_exact_a(vc, acnt1)
+        await self.test_swap_exact_b_for_a(vc, acnt1)
+        await self.test_swap_a_for_exact_b(vc, acnt1)
+        await self.test_swap_exact_a_for_b(vc, acnt1)
+        await self.test_supersede(vc, acnt0, acnt1)
