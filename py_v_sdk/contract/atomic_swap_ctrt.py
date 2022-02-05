@@ -42,6 +42,13 @@ class AtomicSwapCtrt(Ctrt):
         MAKER = 0
         TOKEN_ID = 1
 
+    class StateMapIdx(Ctrt.StateMapIdx):
+        """
+        StateMapIdx is the enum class for state map indexes.
+        """
+
+        TOKEN_BALANCE = 0
+
     class DBKey(Ctrt.DBKey):
         """
         DBKey is the class for DB key of a contract used to query data.
@@ -81,7 +88,7 @@ class AtomicSwapCtrt(Ctrt):
                 AtomicSwapCtrt.DBKey: [description]
             """
             b = AtomicSwapCtrt.StateMap(
-                idx=0,
+                idx=AtomicSwapCtrt.StateMapIdx.TOKEN_BALANCE,
                 data_entry=de.Addr(md.Addr(addr)),
             ).serialize()
             return cls(b)

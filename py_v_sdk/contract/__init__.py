@@ -329,12 +329,17 @@ class Ctrt(abc.ABC):
             """
             return struct.pack(">B", self.value)
 
+    class StateMapIdx(enum.Enum):
+        """
+        StateMapIdx is the enum class for state map indexes.
+        """
+
     class StateMap(NamedTuple):
         """
         StateMap is the class for state map of a contract.
         """
 
-        idx: int
+        idx: Ctrt.StateMapIdx
         data_entry: de.DataEntry
 
         def serialize(self) -> bytes:
@@ -344,7 +349,7 @@ class Ctrt(abc.ABC):
             Returns:
                 bytes: The serialization result.
             """
-            b = struct.pack(">B", self.idx) + self.data_entry.serialize()
+            b = struct.pack(">B", self.idx.value) + self.data_entry.serialize()
             return b
 
     class DBKey:

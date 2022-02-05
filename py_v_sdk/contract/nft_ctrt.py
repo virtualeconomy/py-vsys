@@ -394,6 +394,13 @@ class NFTCtrtV2Whitelist(NFTCtrt):
         MAKER = 1
         REGULATOR = 2
 
+    class StateMapIdx(Ctrt.StateMapIdx):
+        """
+        StateMapIdx is the enum class for state map indexes.
+        """
+
+        IS_IN_LIST = 0
+
     class DBKey(NFTCtrt.DBKey):
         """
         DBKey is the class for DB key of a contract used to query data.
@@ -426,7 +433,7 @@ class NFTCtrtV2Whitelist(NFTCtrt):
                 NFTCtrtV2Whitelist.DBKey: The DBKey.
             """
             stmp = NFTCtrtV2Whitelist.StateMap(
-                idx=0,
+                idx=NFTCtrtV2Whitelist.StateMapIdx.IS_IN_LIST,
                 data_entry=addr_data_entry,
             )
             b = stmp.serialize()
