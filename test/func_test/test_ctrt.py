@@ -868,7 +868,6 @@ class TestVSwapCtrt:
     async def test_swap_b_for_exact_a(
         self,
         new_ctrt_with_pool: pv.VSwapCtrt,
-        acnt0: pv.Account,
         acnt1: pv.Account,
     ):
         """
@@ -876,7 +875,6 @@ class TestVSwapCtrt:
 
         Args:
             new_ctrt_with_pool (pv.VSwapCtrt): The VSwapCtrt instance where the pool is initialized.
-            acnt0 (pv.Account): The account of nonce 0.
             acnt1 (pv.Account): The account of nonce 1.
         """
         vc = new_ctrt_with_pool
