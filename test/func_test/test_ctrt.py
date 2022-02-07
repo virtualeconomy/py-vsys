@@ -652,6 +652,9 @@ class TestTokCtrtWithoutSplit:
 
         Args:
             acnt0 (pv.Account): The account of nonce 0.
+
+        Returns:
+            pv.TokenCtrtWithoutSplit: The TokenCtrtWithoutSplit instance.
         """
         tc = await pv.TokenCtrtWithoutSplit.register(acnt0, 50, 1)
         await cft.wait_for_block()
@@ -739,8 +742,7 @@ class TestTokCtrtWithoutSplit:
 
         tok_bal_acnt1 = await get_tok_bal(api, acnt1.addr.b58_str, tok_id)
         assert tok_bal_acnt1 == 0
-        # import pytest
-        # pytest.set_trace()
+
         resp = await tc.transfer(acnt0, acnt0.addr.b58_str, acnt1.addr.b58_str, 50)
         await cft.wait_for_block()
         await cft.assert_tx_success(api, resp["id"])
@@ -828,7 +830,7 @@ class TestTokCtrtWithoutSplit:
         test_supersede tests the method supersede.
 
         Args:
-            new_ctrt (pv.NFTCtrt): The fixture that registers a new token contract.
+            new_ctrt (pv.TokenCtrtWithoutSplit): The fixture that registers a new token contract.
             acnt0 (pv.Account): The account of nonce 0.
             acnt1 (pv.Account): The account of nonce 1.
         """
@@ -894,7 +896,13 @@ class TestTokWithSplit(TestTokCtrtWithoutSplit):
         return tc
 
     async def test_split(self, new_ctrt: pv.TokenCtrtWithSplit, acnt0: pv.Account):
+        """
+        test_split tests the method split.
 
+        Args:
+            new_ctrt (pv.TokenCtrtWithSplit): The fixture that registers a new token contract.
+            acnt0 (pv.Account): The account of nonce 0.
+        """
         tc = new_ctrt
         api = tc.chain.api
         tc_ctrt_id = tc.ctrt_id
