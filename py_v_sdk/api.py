@@ -315,6 +315,17 @@ class Contract(APIGrp):
         """
         return await self._get(f"/contractId/{ctrt_id}/tokenIndex/{tok_idx}")
 
+    async def get_tok_info(self, tok_id: str) -> Dict[str, Any]:
+        """
+        get_tok_info gets the info of the given token.
+        Args:
+            tok_id (str): the token ID.
+
+        Returns:
+            Dict[str, Any]: The response.
+        """
+        return await self._get(f"/tokenInfo/{tok_id}")
+
     async def broadcast_register(self, data: Dict[str, Any]) -> Dict[str, Any]:
         """
         broadcast_register broadcasts the register contract request.

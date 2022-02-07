@@ -578,6 +578,7 @@ class TestNFTCtrtV2Blacklist(TestNFTCtrtV2Whitelist):
 
         return ac
 
+
 class TestTokCtrtWithoutSplit:
     """
     TestTokCtrtWithoutSplit is the collection of functional tests of Token contract without split.
@@ -738,7 +739,8 @@ class TestTokCtrtWithoutSplit:
 
         tok_bal_acnt1 = await get_tok_bal(api, acnt1.addr.b58_str, tok_id)
         assert tok_bal_acnt1 == 0
-        
+        # import pytest
+        # pytest.set_trace()
         resp = await tc.transfer(acnt0, acnt0.addr.b58_str, acnt1.addr.b58_str, 50)
         await cft.wait_for_block()
         await cft.assert_tx_success(api, resp["id"])
@@ -750,10 +752,10 @@ class TestTokCtrtWithoutSplit:
         assert tok_bal_acnt1 == 50
 
     async def test_deposit_and_withdraw(
-        self, 
-        new_ctrt_with_tok: pv.TokenCtrtWithoutSplit, 
+        self,
+        new_ctrt_with_tok: pv.TokenCtrtWithoutSplit,
         new_atomic_swap_ctrt: pv.AtomicSwapCtrt,
-        acnt0: pv.Account
+        acnt0: pv.Account,
     ):
         """
         test_deposit_and_withdraw tests the method deposit & withdraw.
@@ -785,8 +787,8 @@ class TestTokCtrtWithoutSplit:
 
         deposited_tok_bal = await ac.get_tok_bal(acnt0.addr.b58_str)
         assert deposited_tok_bal == 10
-        
-        #withdraw
+
+        # withdraw
         await tc.withdraw(acnt0, ac.ctrt_id, 10)
         await cft.wait_for_block()
 
@@ -846,9 +848,9 @@ class TestTokCtrtWithoutSplit:
         self,
         new_ctrt_with_tok: pv.TokenCtrtWithoutSplit,
         new_atomic_swap_ctrt: pv.AtomicSwapCtrt,
-        acnt0: pv.Account, 
-        acnt1: pv.Account
-    ): 
+        acnt0: pv.Account,
+        acnt1: pv.Account,
+    ):
         """
         test_as_whole tests methods of TokenWithSplitCtrt as a whole so as to reduce resource consumption.
 
@@ -859,13 +861,51 @@ class TestTokCtrtWithoutSplit:
             acnt1 (pv.Account): The account of nonce 1.
         """
         tc = await self.test_register(acnt0)
-        await self.test_issue(tc,acnt0)
-        
+        await self.test_issue(tc, acnt0)
+
         tc = new_ctrt_with_tok
         ac = new_atomic_swap_ctrt
 
-        await self.test_send(tc,acnt0,acnt1)
-        await self.test_transfer(tc,acnt1,acnt0)
-        await self.test_deposit_and_withdraw(tc,ac,acnt0)
-        await self.test_destroy(tc,acnt0)
-        await self.test_supersede(tc,acnt0, acnt1)
+        await self.test_send(tc, acnt0, acnt1)
+        await self.test_transfer(tc, acnt1, acnt0)
+        await self.test_deposit_and_withdraw(tc, ac, acnt0)
+        await self.test_destroy(tc, acnt0)
+        await self.test_supersede(tc, acnt0, acnt1)
+
+
+class TestTokWithSplit(TestTokCtrtWithoutSplit):
+    """
+    TestTokCtrtWithSplit is the collection of functional tests of Token contract with split.
+    """
+
+    @pytest.fixture
+    async def new_ctrt(self, acnt0: pv.Account) -> pv.TokenCtrtWithSplit:
+        """
+        new_ctrt is the fixture that registers a new token contract with split.
+
+        Args:
+            acnt0 (pv.Account): the account of nonce 0.
+
+        Returns:
+            pv.TokenCtrtWithoutSplit: the TokenCtrtWithSplit instance.
+        """
+        tc = await pv.TokenCtrtWithSplit.register(acnt0, 50, 1)
+        await cft.wait_for_block()
+        return tc
+
+    async def test_split(self, new_ctrt: pv.TokenCtrtWithSplit, acnt0: pv.Account):
+
+        tc = new_ctrt
+        api = tc.chain.api
+        tc_ctrt_id = tc.ctrt_id
+
+        tok_id_dict = await api.ctrt.get_tok_id(tc_ctrt_id, 0)
+        tok_id = tok_id_dict["tokenId"]
+
+        resp = await tc.split(acnt0, 12)
+        await cft.wait_for_block()
+        await cft.assert_tx_success(api, resp["id"])
+
+        new_unit = await api.ctrt.get_tok_info(tok_id)
+
+        assert 12 == new_unit["unity"]
