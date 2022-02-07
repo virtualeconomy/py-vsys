@@ -674,7 +674,7 @@ class TokenCtrtWithoutSplitV2WhiteList(TokenCtrtWithoutSplit):
         fee: int = md.RegCtrtFee.DEFAULT,
     ) -> TokenCtrtWithoutSplitV2WhiteList:
         """
-        register registers a token contract with white list
+        register registers a token contract v2 with white list
 
         Args:
             by (acnt.Account): The action taker
@@ -685,7 +685,7 @@ class TokenCtrtWithoutSplitV2WhiteList(TokenCtrtWithoutSplit):
             fee (int, optional):  Register fee. Defaults to md.RegCtrtFee.DEFAULT.
 
         Returns:
-            TokenCtrtWithoutSplitV2WhiteList: A token contract with white list
+            TokenCtrtWithoutSplitV2WhiteList: A token contract v2 with white list
         """
 
         data = await by._register_contract(
