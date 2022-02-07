@@ -1049,3 +1049,343 @@ class TestVSwapCtrt:
         await self.test_swap_a_for_exact_b(vc, acnt1)
         await self.test_swap_exact_a_for_b(vc, acnt1)
         await self.test_supersede(vc, acnt0, acnt1)
+
+
+class TestTokCtrtWithoutSplit:
+    """
+    TestTokCtrtWithoutSplit is the collection of functional tests of Token contract without split.
+    """
+
+    @pytest.fixture
+    async def new_ctrt(self, acnt0: pv.Account) -> pv.TokenCtrtWithoutSplit:
+        """
+        new_ctrt is the fixture that registers a new token contract.
+
+        Args:
+            acnt0 (pv.Account): the account of nonce 0.
+
+        Returns:
+            pv.TokenCtrtWithoutSplit: the TokenCtrtWithoutSplit instance.
+        """
+        tc = await pv.TokenCtrtWithoutSplit.register(acnt0, 50, 1)
+        await cft.wait_for_block()
+        return tc
+
+    @pytest.fixture
+    async def new_ctrt_with_tok(
+        self, new_ctrt: pv.TokenCtrtWithoutSplit, acnt0: pv.Account
+    ) -> pv.TokenCtrtWithoutSplit:
+        """
+        new_ctrt_with_tok is the fixture that registers a new TokenWithoutSplit contract and issues tokens right after it.
+
+        Args:
+            new_ctrt (pv.NFTCtrt): The fixture that registers a new TokenWithoutSplit contract.
+            acnt0 (pv.Account): The account of nonce 0.
+
+        Returns:
+            pv.TokenCtrtWithoutSplit: The TokenCtrtWithoutSplit instance.
+        """
+        tc = new_ctrt
+        await tc.issue(acnt0, 50)
+        await cft.wait_for_block()
+        return tc
+
+    @pytest.fixture
+    async def new_atomic_swap_ctrt(
+        self,
+        new_ctrt_with_tok: pv.TokenCtrtWithoutSplit,
+        acnt0: pv.Account,
+    ) -> pv.AtomicSwapCtrt:
+        """
+        new_atomic_swap_ctrt is the fixture that registers a new atomic swap contract.
+
+        Args:
+            new_ctrt_with_tok (pv.TokenCtrtWithoutSplit): The fixture that registers a new NFT contract and issues an NFT token right after it.
+            acnt0 (pv.Account): The account of nonce 0.
+
+        Returns:
+            pv.AtomicSwapCtrt: The AtomicSwapCtrt instance.
+        """
+        tc = new_ctrt_with_tok
+        api = tc.chain.api
+
+        tok_id = await get_tok_id(api, tc.ctrt_id, 0)
+        ac = await pv.AtomicSwapCtrt.register(acnt0, tok_id)
+
+        await cft.wait_for_block()
+        assert (await ac.maker) == acnt0.addr.b58_str
+        assert (await ac.token_id) == tok_id
+
+        return ac
+
+    async def test_register(self, acnt0: pv.Account) -> pv.TokenCtrtWithoutSplit:
+        """
+        test_register tests the method register.
+
+        Args:
+            acnt0 (pv.Account): The account of nonce 0.
+
+        Returns:
+            pv.TokenCtrtWithoutSplit: The TokenCtrtWithoutSplit instance.
+        """
+        tc = await pv.TokenCtrtWithoutSplit.register(acnt0, 50, 1)
+        await cft.wait_for_block()
+        assert (await tc.issuer) == acnt0.addr.b58_str
+        assert (await tc.maker) == acnt0.addr.b58_str
+
+        return tc
+
+    async def test_issue(self, new_ctrt: pv.TokenCtrtWithoutSplit, acnt0: pv.Account):
+        """
+        test_issue tests the method issue.
+
+        Args:
+            new_ctrt (pv.TokenCtrtWithoutSplit): [description]
+            acnt0 (pv.Account): The account of nonce 0.
+        """
+        tc = new_ctrt
+        api = tc.chain.api
+
+        resp = await tc.issue(acnt0, 50)
+        await cft.wait_for_block()
+
+        await cft.assert_tx_success(api, resp["id"])
+
+        tok_id = await get_tok_id(api, tc.ctrt_id, 0)
+        tok_bal = await get_tok_bal(api, acnt0.addr.b58_str, tok_id)
+        assert tok_bal == 50
+
+    async def test_send(
+        self,
+        new_ctrt_with_tok: pv.TokenCtrtWithoutSplit,
+        acnt0: pv.Account,
+        acnt1: pv.Account,
+    ):
+        """
+        test_send tests the method send
+
+        Args:
+            new_ctrt_with_tok (pv.TokenCtrtWithoutSplit): The fixture that registers a new NFT contract and issues an NFT token right after it.
+            acnt0 (pv.Account): The account of nonce 0.
+            acnt1 (pv.Account): The account of nonce 1.
+        """
+        tc = new_ctrt_with_tok
+        api = tc.chain.api
+
+        tok_id = await get_tok_id(api, tc.ctrt_id, 0)
+
+        tok_bal_acnt0 = await get_tok_bal(api, acnt0.addr.b58_str, tok_id)
+        assert tok_bal_acnt0 == 50
+
+        tok_bal_acnt1 = await get_tok_bal(api, acnt1.addr.b58_str, tok_id)
+        assert tok_bal_acnt1 == 0
+
+        resp = await tc.transfer(acnt0, acnt0.addr.b58_str, acnt1.addr.b58_str, 50)
+        await cft.wait_for_block()
+        await cft.assert_tx_success(api, resp["id"])
+
+        tok_bal_acnt0 = await get_tok_bal(api, acnt0.addr.b58_str, tok_id)
+        assert tok_bal_acnt0 == 0
+
+        tok_bal_acnt1 = await get_tok_bal(api, acnt1.addr.b58_str, tok_id)
+        assert tok_bal_acnt1 == 50
+
+    async def test_transfer(
+        self,
+        new_ctrt_with_tok: pv.TokenCtrtWithoutSplit,
+        acnt0: pv.Account,
+        acnt1: pv.Account,
+    ):
+        """
+        test_transfer tests the method transfer.
+
+        Args:
+            new_ctrt_with_tok (pv.TokenCtrtWithoutSplit): The fixture that registers a new NFT contract and issues an NFT token right after it.
+            acnt0 (pv.Account): The account of nonce 0.
+            acnt1 (pv.Account): The account of nonce 1.
+        """
+        tc = new_ctrt_with_tok
+        api = tc.chain.api
+
+        tok_id = await get_tok_id(api, tc.ctrt_id, 0)
+
+        tok_bal_acnt0 = await get_tok_bal(api, acnt0.addr.b58_str, tok_id)
+        assert tok_bal_acnt0 == 50
+
+        tok_bal_acnt1 = await get_tok_bal(api, acnt1.addr.b58_str, tok_id)
+        assert tok_bal_acnt1 == 0
+
+        resp = await tc.transfer(acnt0, acnt0.addr.b58_str, acnt1.addr.b58_str, 50)
+        await cft.wait_for_block()
+        await cft.assert_tx_success(api, resp["id"])
+
+        tok_bal_acnt0 = await get_tok_bal(api, acnt0.addr.b58_str, tok_id)
+        assert tok_bal_acnt0 == 0
+
+        tok_bal_acnt1 = await get_tok_bal(api, acnt1.addr.b58_str, tok_id)
+        assert tok_bal_acnt1 == 50
+
+    async def test_deposit_and_withdraw(
+        self,
+        new_ctrt_with_tok: pv.TokenCtrtWithoutSplit,
+        new_atomic_swap_ctrt: pv.AtomicSwapCtrt,
+        acnt0: pv.Account,
+    ):
+        """
+        test_deposit_and_withdraw tests the method deposit & withdraw.
+
+        Args:
+            new_ctrt_with_tok (pv.TokenCtrtWithoutSplit): The fixture that registers a new NFT contract and issues an NFT token right after it.
+            new_atomic_swap_ctrt (pv.AtomicSwapCtrt): The fixture that registers a new atomic swap contract.
+            acnt0 (pv.Account): The account of nonce 0.
+        """
+        tc = new_ctrt_with_tok
+        api = tc.chain.api
+
+        tok_id = await get_tok_id(api, tc.ctrt_id, 0)
+        ac = new_atomic_swap_ctrt
+        await cft.wait_for_block()
+        assert (await ac.maker) == acnt0.addr.b58_str
+        assert (await ac.token_id) == tok_id
+
+        tok_bal = await get_tok_bal(api, acnt0.addr.b58_str, tok_id)
+        assert tok_bal == 50
+
+        resp = await tc.deposit(acnt0, ac.ctrt_id, 10)
+        await cft.wait_for_block()
+        tx_info = await api.tx.get_info(resp["id"])
+        assert tx_info["status"] == "Success"
+
+        tok_bal = await get_tok_bal(api, acnt0.addr.b58_str, tok_id)
+        assert tok_bal == 40
+
+        deposited_tok_bal = await ac.get_tok_bal(acnt0.addr.b58_str)
+        assert deposited_tok_bal == 10
+
+        # withdraw
+        await tc.withdraw(acnt0, ac.ctrt_id, 10)
+        await cft.wait_for_block()
+
+        tok_bal = await get_tok_bal(api, acnt0.addr.b58_str, tok_id)
+        assert tok_bal == 50
+
+        deposited_tok_bal = await ac.get_tok_bal(acnt0.addr.b58_str)
+        assert deposited_tok_bal == 0
+
+    async def test_destroy(
+        self, new_ctrt_with_tok: pv.TokenCtrtWithoutSplit, acnt0: pv.Account
+    ):
+        """
+        test_destroy tests the method destroy.
+        Args:
+            new_ctrt_with_tok (pv.TokenCtrtWithoutSplit): The fixture that registers a new NFT contract and issues an NFT token right after it.
+        """
+        tc = new_ctrt_with_tok
+        api = tc.chain.api
+
+        tok_id = await get_tok_id(api, tc.ctrt_id, 0)
+
+        tok_bal = await get_tok_bal(api, acnt0.addr.b58_str, tok_id)
+        assert tok_bal == 50
+
+        resp = await tc.destroy(acnt0, 10)
+        await cft.wait_for_block()
+        await cft.assert_tx_success(api, resp["id"])
+
+        tok_bal_acnt0 = await get_tok_bal(api, acnt0.addr.b58_str, tok_id)
+        assert tok_bal_acnt0 == 40
+
+    async def test_supersede(
+        self, new_ctrt: pv.TokenCtrtWithoutSplit, acnt0: pv.Account, acnt1: pv.Account
+    ):
+        """
+        test_supersede tests the method supersede.
+
+        Args:
+            new_ctrt (pv.TokenCtrtWithoutSplit): The fixture that registers a new token contract.
+            acnt0 (pv.Account): The account of nonce 0.
+            acnt1 (pv.Account): The account of nonce 1.
+        """
+        tc = new_ctrt
+        api = tc.chain.api
+
+        assert (await tc.issuer) == acnt0.addr.b58_str
+
+        resp = await tc.supersede(acnt0, acnt1.addr.b58_str)
+        await cft.wait_for_block()
+        await cft.assert_tx_success(api, resp["id"])
+
+        assert (await tc.issuer) == acnt1.addr.b58_str
+
+    @pytest.mark.whole
+    async def test_as_whole(
+        self,
+        new_ctrt_with_tok: pv.TokenCtrtWithoutSplit,
+        new_atomic_swap_ctrt: pv.AtomicSwapCtrt,
+        acnt0: pv.Account,
+        acnt1: pv.Account,
+    ):
+        """
+        test_as_whole tests methods of TokenWithSplitCtrt as a whole so as to reduce resource consumption.
+
+        Args:
+            new_ctrt_with_tok (pv.TokenCtrtWithoutSplit): The fixture that registers a new NFT contract and issues an NFT token right after it.
+            new_atomic_swap_ctrt (pv.AtomicSwapCtrt): The fixture that registers a new atomic swap contract.
+            acnt0 (pv.Account): The account of nonce 0.
+            acnt1 (pv.Account): The account of nonce 1.
+        """
+        tc = await self.test_register(acnt0)
+        await self.test_issue(tc, acnt0)
+
+        tc = new_ctrt_with_tok
+        ac = new_atomic_swap_ctrt
+
+        await self.test_send(tc, acnt0, acnt1)
+        await self.test_transfer(tc, acnt1, acnt0)
+        await self.test_deposit_and_withdraw(tc, ac, acnt0)
+        await self.test_destroy(tc, acnt0)
+        await self.test_supersede(tc, acnt0, acnt1)
+
+
+class TestTokWithSplit(TestTokCtrtWithoutSplit):
+    """
+    TestTokCtrtWithSplit is the collection of functional tests of Token contract with split.
+    """
+
+    @pytest.fixture
+    async def new_ctrt(self, acnt0: pv.Account) -> pv.TokenCtrtWithSplit:
+        """
+        new_ctrt is the fixture that registers a new token contract with split.
+
+        Args:
+            acnt0 (pv.Account): the account of nonce 0.
+
+        Returns:
+            pv.TokenCtrtWithoutSplit: the TokenCtrtWithSplit instance.
+        """
+        tc = await pv.TokenCtrtWithSplit.register(acnt0, 50, 1)
+        await cft.wait_for_block()
+        return tc
+
+    async def test_split(self, new_ctrt: pv.TokenCtrtWithSplit, acnt0: pv.Account):
+        """
+        test_split tests the method split.
+
+        Args:
+            new_ctrt (pv.TokenCtrtWithSplit): The fixture that registers a new token contract.
+            acnt0 (pv.Account): The account of nonce 0.
+        """
+        tc = new_ctrt
+        api = tc.chain.api
+        tc_ctrt_id = tc.ctrt_id
+
+        tok_id_dict = await api.ctrt.get_tok_id(tc_ctrt_id, 0)
+        tok_id = tok_id_dict["tokenId"]
+
+        resp = await tc.split(acnt0, 12)
+        await cft.wait_for_block()
+        await cft.assert_tx_success(api, resp["id"])
+
+        new_unit = await api.ctrt.get_tok_info(tok_id)
+
+        assert 12 == new_unit["unity"]

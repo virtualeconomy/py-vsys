@@ -476,6 +476,52 @@ class TokenCtrtWithSplit(TokenCtrtWithoutSplit):
         BALANCE_OF = 10
         GET_ISSUER = 11
 
+    @classmethod
+    async def register(
+        cls,
+        by: acnt.Account,
+        max: Union[int, float],
+        unit: int,
+        token_description: str = "",
+        ctrt_description: str = "",
+        fee: int = md.RegCtrtFee.DEFAULT,
+    ) -> TokenCtrtWithSplit:
+        """
+        register registers a token contract with split
+
+        Args:
+            by (acnt.Account): The action taker
+            max (int): The max amount that can be issued
+            unit (int): The granularity of splitting a token
+            token_description (str): The description of the token
+            ctrt_description (str, optional): The description of the contract. Defaults to "".
+            fee (int, optional):  Register fee. Defaults to md.RegCtrtFee.DEFAULT.
+
+        Returns:
+            TokenCtrtWithSplit: A token contract with split
+        """
+
+        data = await by._register_contract(
+            tx.RegCtrtTxReq(
+                data_stack=de.DataStack(
+                    de.Amount.for_tok_amount(max, unit),
+                    de.Amount(md.Int(unit)),
+                    de.String(md.Str(token_description)),
+                ),
+                ctrt_meta=cls.CTRT_META,
+                timestamp=md.VSYSTimestamp.now(),
+                description=md.Str(ctrt_description),
+                fee=md.RegCtrtFee(fee),
+            )
+        )
+        logger.debug(data)
+
+        return cls(
+            data["contractId"],
+            chain=by.chain,
+            unit=unit,
+        )
+
     async def split(
         self,
         by: acnt.Account,
@@ -501,7 +547,7 @@ class TokenCtrtWithSplit(TokenCtrtWithoutSplit):
                 ctrt_id=self._ctrt_id,
                 func_id=self.FuncIdx.SPLIT,
                 data_stack=de.DataStack(
-                    de.INT32(md.Int(new_unit)),
+                    de.Amount(md.Int(new_unit)),
                 ),
                 timestamp=md.VSYSTimestamp.now(),
                 attachment=md.Str(attachment),
