@@ -2,6 +2,8 @@
 test_ctrt contains functional tests for smart contracts.
 """
 import pytest
+import asyncio
+import time
 
 import py_v_sdk as pv
 from . import conftest as cft
