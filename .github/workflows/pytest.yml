@@ -30,5 +30,10 @@ jobs:
           pipenv install --deploy --dev
       - name: Run test suite
         run: |
+          export PY_SDK_HOST=${{ secrets.PY_SDK_HOST }}
+          export PY_SDK_SUPERNODE_ADDR=${{ secrets.PY_SDK_SUPERNODE_ADDR }}
+          export PY_SDK_SEED=${{ secrets.PY_SDK_SEED }}
+          export PY_SDK_AVG_BLOCK_DELAY=${{ secrets.PY_SDK_AVG_BLOCK_DELAY }}
+
           pipenv run python -m pytest -v test/func_test --ignore=test/func_test/test_ctrt.py
           pipenv run python -m pytest -v test/func_test/test_ctrt.py -m whole
