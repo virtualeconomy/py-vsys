@@ -4,6 +4,7 @@
   - [Philosophy](#philosophy)
   - [Workflow](#workflow)
   - [Set Up Development Environment](#set-up-development-environment)
+  - [Set up Automated Testing with Github Action](#set-up-automated-testing-with-github-action)
   - [Code Style Guide](#code-style-guide)
   - [Git Commit Style](#git-commit-style)
     - [Commit Format](#commit-format)
@@ -58,6 +59,15 @@ To set up the development environment, go to the project root directory and
     pre-commit install
     ```
 
+## Set up Automated Testing with Github Action
+
+This project comes with a [Github Action workflow script](../.github/workflows/pytest.yml) to automatically run test cases on a new git push.
+
+To enable this feature,
+- enable Github Action for your own fork repository.
+- [add required repository secrets](https://docs.github.com/en/actions/security-guides/encrypted-secrets#creating-encrypted-secrets-for-a-repository) as per the [Github Action workflow script](../.github/workflows/pytest.yml)
+
+Then the Github Action will be triggered on each push to your own fork project.
 
 ## Code Style Guide
 
