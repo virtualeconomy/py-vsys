@@ -1,10 +1,9 @@
 """
 test_ctrt contains functional tests for smart contracts.
 """
+import pytest
 import asyncio
 import time
-
-import pytest
 
 import py_v_sdk as pv
 from . import conftest as cft
@@ -1079,7 +1078,7 @@ class TestTokCtrtWithoutSplit:
         new_ctrt_with_tok is the fixture that registers a new TokenWithoutSplit contract and issues tokens right after it.
 
         Args:
-            new_ctrt (pv.NFTCtrt): The fixture that registers a new TokenWithoutSplit contract.
+            new_ctrt (pv.TokenCtrtWithoutSplit): The fixture that registers a new TokenWithoutSplit contract.
             acnt0 (pv.Account): The account of nonce 0.
 
         Returns:
@@ -1100,7 +1099,7 @@ class TestTokCtrtWithoutSplit:
         new_atomic_swap_ctrt is the fixture that registers a new atomic swap contract.
 
         Args:
-            new_ctrt_with_tok (pv.TokenCtrtWithoutSplit): The fixture that registers a new NFT contract and issues an NFT token right after it.
+            new_ctrt_with_tok (pv.TokenCtrtWithoutSplit): The fixture that registers a new token contract and issues tokens right after it.
             acnt0 (pv.Account): The account of nonce 0.
 
         Returns:
@@ -1140,7 +1139,7 @@ class TestTokCtrtWithoutSplit:
         test_issue tests the method issue.
 
         Args:
-            new_ctrt (pv.TokenCtrtWithoutSplit): [description]
+            new_ctrt (pv.TokenCtrtWithoutSplit): The fixture that registers a new token contract without split.
             acnt0 (pv.Account): The account of nonce 0.
         """
         tc = new_ctrt
@@ -1165,7 +1164,7 @@ class TestTokCtrtWithoutSplit:
         test_send tests the method send
 
         Args:
-            new_ctrt_with_tok (pv.TokenCtrtWithoutSplit): The fixture that registers a new NFT contract and issues an NFT token right after it.
+            new_ctrt_with_tok (pv.TokenCtrtWithoutSplit): The fixture that registers a new token contract and issues tokens right after it.
             acnt0 (pv.Account): The account of nonce 0.
             acnt1 (pv.Account): The account of nonce 1.
         """
@@ -1180,7 +1179,7 @@ class TestTokCtrtWithoutSplit:
         tok_bal_acnt1 = await get_tok_bal(api, acnt1.addr.b58_str, tok_id)
         assert tok_bal_acnt1 == 0
 
-        resp = await tc.transfer(acnt0, acnt0.addr.b58_str, acnt1.addr.b58_str, 50)
+        resp = await tc.send(acnt0, acnt1.addr.b58_str, 50)
         await cft.wait_for_block()
         await cft.assert_tx_success(api, resp["id"])
 
@@ -1200,7 +1199,7 @@ class TestTokCtrtWithoutSplit:
         test_transfer tests the method transfer.
 
         Args:
-            new_ctrt_with_tok (pv.TokenCtrtWithoutSplit): The fixture that registers a new NFT contract and issues an NFT token right after it.
+            new_ctrt_with_tok (pv.TokenCtrtWithoutSplit): The fixture that registers a new token contract and issues tokens right after it.
             acnt0 (pv.Account): The account of nonce 0.
             acnt1 (pv.Account): The account of nonce 1.
         """
@@ -1235,7 +1234,7 @@ class TestTokCtrtWithoutSplit:
         test_deposit_and_withdraw tests the method deposit & withdraw.
 
         Args:
-            new_ctrt_with_tok (pv.TokenCtrtWithoutSplit): The fixture that registers a new NFT contract and issues an NFT token right after it.
+            new_ctrt_with_tok (pv.TokenCtrtWithoutSplit): The fixture that registers a new token contract and issues tokens right after it.
             new_atomic_swap_ctrt (pv.AtomicSwapCtrt): The fixture that registers a new atomic swap contract.
             acnt0 (pv.Account): The account of nonce 0.
         """
@@ -1278,7 +1277,7 @@ class TestTokCtrtWithoutSplit:
         """
         test_destroy tests the method destroy.
         Args:
-            new_ctrt_with_tok (pv.TokenCtrtWithoutSplit): The fixture that registers a new NFT contract and issues an NFT token right after it.
+            new_ctrt_with_tok (pv.TokenCtrtWithoutSplit): The fixture that registers a new token contract and issues tokens right after it.
         """
         tc = new_ctrt_with_tok
         api = tc.chain.api
@@ -1329,7 +1328,7 @@ class TestTokCtrtWithoutSplit:
         test_as_whole tests methods of TokenWithSplitCtrt as a whole so as to reduce resource consumption.
 
         Args:
-            new_ctrt_with_tok (pv.TokenCtrtWithoutSplit): The fixture that registers a new NFT contract and issues an NFT token right after it.
+            new_ctrt_with_tok (pv.TokenCtrtWithoutSplit): The fixture that registers a new token contract and issues tokens right after it.
             new_atomic_swap_ctrt (pv.AtomicSwapCtrt): The fixture that registers a new atomic swap contract.
             acnt0 (pv.Account): The account of nonce 0.
             acnt1 (pv.Account): The account of nonce 1.
@@ -1389,3 +1388,258 @@ class TestTokWithSplit(TestTokCtrtWithoutSplit):
         new_unit = await api.ctrt.get_tok_info(tok_id)
 
         assert 12 == new_unit["unity"]
+
+
+class TestTokWithoutSplitV2WhiteList(TestTokCtrtWithoutSplit):
+    """
+    TestTokWithoutSplitV2WhiteList is the collection of functional tests of Token contract with white list.
+    """
+
+    @pytest.fixture
+    async def new_ctrt(
+        self, acnt0: pv.Account, acnt1: pv.Account
+    ) -> pv.TokenCtrtWithoutSplitV2WhiteList:
+        """
+        new_ctrt is the fixture that registers a new token contract with white list.
+
+        Args:
+            acnt0 (pv.Account): the account of nonce 0.
+
+        Returns:
+            pv.TokenCtrtWithoutSplitV2WhiteList: the TokenCtrtWithoutSplitV2WhiteList instance.
+        """
+        tc = await pv.TokenCtrtWithoutSplitV2WhiteList.register(acnt0, 50, 1)
+        await cft.wait_for_block()
+
+        await tc.update_list_user(acnt0, acnt0.addr.b58_str, True)
+        await tc.update_list_user(acnt0, acnt1.addr.b58_str, True)
+        return tc
+
+    @pytest.fixture
+    def arbitrary_ctrt_id(self) -> str:
+        """
+        arbitrary_ctrt_id is the fixture that returns an arbitrary contract ID
+
+        Returns:
+            str: The contract ID.
+        """
+        return "CEzFs69VesVBHTefZVVCAddcbMzMQAjchCX"
+
+    @pytest.fixture
+    async def new_atomic_swap_ctrt(
+        self,
+        new_ctrt_with_tok: pv.NFTCtrt,
+        acnt0: pv.Account,
+    ) -> pv.AtomicSwapCtrt:
+        """
+        new_atomic_swap_ctrt is the fixture that registers a new atomic swap contract.
+
+        Args:
+            new_ctrt_with_tok (pv.TokenCtrtWithoutSplitV2WhiteList): The fixture that registers a new token contract and issues a token right after it.
+            acnt0 (pv.Account): The account of nonce 0.
+
+        Returns:
+            pv.AtomicSwapCtrt: The AtomicSwapCtrt instance.
+        """
+        nc = new_ctrt_with_tok
+        api = nc.chain.api
+
+        tok_id = await get_tok_id(api, nc.ctrt_id, 0)
+        ac = await pv.AtomicSwapCtrt.register(acnt0, tok_id)
+
+        await cft.wait_for_block()
+        assert (await ac.maker) == acnt0.addr.b58_str
+        assert (await ac.token_id) == tok_id
+
+        resp = await nc.update_list_ctrt(acnt0, ac.ctrt_id, True)
+        await cft.wait_for_block()
+        await cft.assert_tx_success(api, resp["id"])
+
+        return ac
+
+    async def test_supersede(
+        self,
+        new_ctrt: pv.TokenCtrtWithoutSplitV2WhiteList,
+        acnt0: pv.Account,
+        acnt1: pv.Account,
+    ):
+        """
+        test_supersede tests the method supersede.
+
+        Args:
+            new_ctrt (pv.TokenCtrtWithoutSplitV2WhiteList): The fixture that registers a new token contract V2 with whitelist.
+            acnt0 (pv.Account): The account of nonce 0.
+            acnt1 (pv.Account): The account of nonce 1.
+        """
+
+        nc = new_ctrt
+        api = nc.chain.api
+
+        assert (await nc.issuer) == acnt0.addr.b58_str
+        assert (await nc.regulator) == acnt0.addr.b58_str
+
+        resp = await nc.supersede(acnt0, acnt1.addr.b58_str, acnt1.addr.b58_str)
+        await cft.wait_for_block()
+        await cft.assert_tx_success(api, resp["id"])
+
+        assert (await nc.issuer) == acnt1.addr.b58_str
+        assert (await nc.regulator) == acnt1.addr.b58_str
+
+    async def test_update_list_user(
+        self,
+        new_ctrt: pv.TokenCtrtWithoutSplitV2WhiteList,
+        acnt0: pv.Account,
+        acnt1: pv.Account,
+    ):
+        """
+        test_update_list_user tests the method update_list_user.
+
+        Args:
+            new_ctrt (pv.TokenCtrtWithoutSplitV2WhiteList): The fixture that registers a new token contract V2 with whitelist.
+            acnt0 (pv.Account): The account of nonce 0.
+            acnt1 (pv.Account): The account of nonce 1.
+        """
+
+        nc = new_ctrt
+        api = nc.chain.api
+
+        in_list = await nc.is_user_in_list(acnt1.addr.b58_str)
+        assert in_list == False
+
+        resp = await nc.update_list_user(
+            by=acnt0,
+            addr=acnt1.addr.b58_str,
+            val=True,
+        )
+        await cft.wait_for_block()
+        await cft.assert_tx_success(api, resp["id"])
+
+        in_list = await nc.is_user_in_list(acnt1.addr.b58_str)
+        assert in_list == True
+
+        resp = await nc.update_list_user(
+            by=acnt0,
+            addr=acnt1.addr.b58_str,
+            val=False,
+        )
+        await cft.wait_for_block()
+        await cft.assert_tx_success(api, resp["id"])
+
+        in_list = await nc.is_user_in_list(acnt1.addr.b58_str)
+        assert in_list == False
+
+    async def test_update_list_ctrt(
+        self,
+        new_ctrt: pv.TokenCtrtWithoutSplitV2WhiteList,
+        acnt0: pv.Account,
+        arbitrary_ctrt_id: str,
+    ):
+        """
+        test_update_list_ctrt tests the method update_list_ctrt.
+
+        Args:
+            new_ctrt (pv.TokenCtrtWithoutSplitV2WhiteList): The fixture that registers a new token contract V2 with whitelist.
+            acnt0 (pv.Account): The account of nonce 0.
+            arbitrary_ctrt_id (str): An arbitrary contract ID
+        """
+        nc = new_ctrt
+        api = nc.chain.api
+        target_ctrt_id = arbitrary_ctrt_id
+
+        in_list = await nc.is_ctrt_in_list(target_ctrt_id)
+        assert in_list == False
+
+        resp = await nc.update_list_ctrt(
+            by=acnt0,
+            addr=target_ctrt_id,
+            val=True,
+        )
+        await cft.wait_for_block()
+        await cft.assert_tx_success(api, resp["id"])
+
+        in_list = await nc.is_ctrt_in_list(target_ctrt_id)
+        assert in_list == True
+
+        resp = await nc.update_list_ctrt(
+            by=acnt0,
+            addr=target_ctrt_id,
+            val=False,
+        )
+        await cft.wait_for_block()
+        await cft.assert_tx_success(api, resp["id"])
+
+        in_list = await nc.is_ctrt_in_list(target_ctrt_id)
+        assert in_list == False
+
+    async def test_register(
+        self, acnt0: pv.Account
+    ) -> pv.TokenCtrtWithoutSplitV2WhiteList:
+        """
+        test_register tests the method register.
+
+        Args:
+            acnt0 (pv.Account): The account of nonce 0.
+
+        Returns:
+            pv.TokenCtrtWithoutSplitV2WhiteList: The registered TokenCtrtWithoutSplitV2WhiteList
+        """
+        nc: pv.TokenCtrtWithoutSplitV2WhiteList = (
+            await pv.TokenCtrtWithoutSplitV2WhiteList.register(acnt0, 50, 1)
+        )
+        await cft.wait_for_block()
+        assert (await nc.issuer) == acnt0.addr.b58_str
+        assert (await nc.maker) == acnt0.addr.b58_str
+        assert (await nc.regulator) == acnt0.addr.b58_str
+
+        return nc
+
+
+class TestTokWithoutSplitV2BlackList(TestTokWithoutSplitV2WhiteList):
+    """
+    TestTokWithoutSplitV2BlackList is the collection of functional tests of token contract V2 with blacklist.
+    """
+
+    @pytest.fixture
+    async def new_ctrt(self, acnt0: pv.Account) -> pv.TokenCtrtWithoutSplitV2BlackList:
+        """
+        new_ctrt is the fixture that registers a new token contract V2 with blacklist.
+
+        Args:
+            acnt0 (pv.Account): The account of nonce 0.
+            acnt1 (pv.Account): The account of nonce 1.
+
+        Returns:
+            pv.TokenCtrtWithoutSplitV2BlackList: The TokenCtrtWithoutSplitV2BlackList instance.
+        """
+        nc = await pv.TokenCtrtWithoutSplitV2BlackList.register(acnt0, 50, 1)
+        await cft.wait_for_block()
+
+        return nc
+
+    @pytest.fixture
+    async def new_atomic_swap_ctrt(
+        self,
+        new_ctrt_with_tok: pv.TokenCtrtWithoutSplitV2BlackList,
+        acnt0: pv.Account,
+    ) -> pv.AtomicSwapCtrt:
+        """
+        new_atomic_swap_ctrt is the fixture that registers a new atomic swap contract.
+
+        Args:
+            new_ctrt_with_tok (pv.TokenCtrtWithoutSplitV2BlackList): The fixture that registers a new token contract and issues tokens right after it.
+            acnt0 (pv.Account): The account of nonce 0.
+
+        Returns:
+            pv.AtomicSwapCtrt: The AtomicSwapCtrt instance.
+        """
+        nc = new_ctrt_with_tok
+        api = nc.chain.api
+
+        tok_id = await get_tok_id(api, nc.ctrt_id, 0)
+        ac = await pv.AtomicSwapCtrt.register(acnt0, tok_id)
+
+        await cft.wait_for_block()
+        assert (await ac.maker) == acnt0.addr.b58_str
+        assert (await ac.token_id) == tok_id
+
+        return ac

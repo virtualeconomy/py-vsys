@@ -556,3 +556,327 @@ class TokenCtrtWithSplit(TokenCtrtWithoutSplit):
         )
         logger.debug(data)
         return data
+
+
+class TokenCtrtWithoutSplitV2WhiteList(TokenCtrtWithoutSplit):
+
+    CTRT_META = CtrtMeta.from_b58_str(
+        "7BekqFZ2yZqjiQFFnsxL4CDRFWCjHdZvFXQd6sxAgEktxwn5kkR6vkV27SFC7VmhuMysVfunZWTtHAqPjg4gGz72pha6TMUerSUSXSn7BHaVexyQJoUfqDT5bdr3XVpok1mU2gT29mwtJ6BibizpAEgZZncZauDnvqrWWdkCmRP8VXpPBiPEaUZuq9eRusrUcc5YHshhN6BVkArN84tarVQH3pTRmiekdQveuxFw4r4weXUxwEGCkYX3Zqeqc4mmRsajVCQwV5DuGTEwaBVWiAAfHLGPFgJF6w6aP3d22tdBRLqZ2Y4G5WHdhMunNDEZ2E79w7gbwqDXtz3eVfGtyET5NZEJGmM2S8pZSn2MPjvfPAYZMa9Zd4WXnPLZng1pxjYvrpqPDy27VQu1rhvxXMNPVMdP9QyCQSoExZUot1FmskS1NcmzKfguwsSWR1Z1py58iVDKm8t7x7RnaP7avcjtvixJQkPGg7qaxBKfRQ26vFePWeNdkbJwQJvqComvjEg3hEYjQrysk3j3M9QWEgXQzRqTPTFEVCTJSbdpL2GyYXYC4cLcB81UzJuWf2zoERNPdfpHwumoaaaSutfg7dccbWRaqogrBf6u9PfANQm9TsFca37UHhxvsq8WZdu71NQCY1V7w9NKKLbHF7MjjyCs6w2TM4Ej9Tyj8hFR4qo3MosgSbmQt298aEB3qQHVF8FshVwGg2vqAK7PNBHE7KgBgXQJiVRc4X1XZvWQt4uASvMowRECURoMZ17z2s3LnDrQYVqYedfzjJXxwsWXQkoQp51WWkFfp7QStBtfEhdUx15wtD8sjDdNrda8n3P6sNrN8J7NXxH4JPE7DzLLCjPSbn5Yc2jzomULSRiQN2yzC5qE43XiHB89VFqTHTduCFbP3Pom3uc5iBgjW9ky8LyPBMcsqQZSv99adjgbKpeaGPtJN6iUQ9mae1ddw6SBKTxZVZvqK6k7dJBjJ5UsFDyXLWkm8jogkRCFBfXPxmxyB5ihqk2wnsWNEbKEz6sg6RJqy5SR9A8r3QEx8FZt5z4DJpHyUAoi6KKVHEJfRvdjtjSDrayG2WUrBCgTTHsyGZEnuXLRXpy7XmdzFSwKSr4p7NPbAqt44yHdgjycn2MY5X1P9rneBdh4LukH3syRAarjmTSZr67QexRE4cca5fnxUZJ2zYNWRynqWmZy6aCBLBQziP81bHHbN5WP9MMseovCvzTpMso9TB3QLSRkCphJpyvv9qLN4tpFB9r9g3UGhTqqJFvxJDcLwR485AqLymM91kMjTvodniJ4coymUeE3MjGf2P67z4UiBDBxnzWbkCzmaPpkWFY9125hg9SovQrJnn9zzpF5smp7oiHhjrkzyi2G4qWVidtaWi6TipZFXwb8z6TSSjZkaj4SWexgnE2bUKeJS9P1xYwVSX39At735bqhfKCNP29n7UzX7bMwQiTWWK8bCiCpYSXfcfUpxtbYXdHgGMEZzpzawS9H5UeFiw31rS5Caps7QQJmMeetAuDa8tsiMJ9QauABLfJ4G6Hjkn5GM9jH9yXJWj2boH1U4ErVQXbr9KvmSsSsLeLLc3XeKQaczMtLroQax4D5estuP3Cy1gfqhbTsEWL2HkF7dUKDnuLmzsjv3kZXF9PMhcVR1Qj9j8KaYWYqKYV5TxXkrPrzSVa1yYEjU71A6ZYW327vgFJYFUJmx9vqTGym3yRiSoJiaYVfgf8iLwqS1EKSTMiisxE8hCHfKiew4YmiCTxPkq7pc5tHrKkogoRX7GdDnX93BsxGACu9nEbXwDZERLFLexrnRKpWDjqR2Z6CLWhXNPDJYMcUQ5rfGAhgu4ZK16q1"
+    )
+
+    class FuncIdx(Ctrt.FuncIdx):
+        SUPERSEDE = 0
+        ISSUE = 1
+        DESTROY = 2
+        UPDATE_LIST = 3
+        SEND = 4
+        TRANSFER = 5
+        DEPOSIT = 6
+        WITHDRAW = 7
+        TOTAL_SUPPLY = 8
+        MAX_SUPPLY = 9
+        BALANCE_OF = 10
+        GET_ISSUER = 11
+
+    class StateVar(Ctrt.StateVar):
+        """
+        StateVar is the enum class for state variables of a contract.
+        """
+
+        ISSUER = 0
+        MAKER = 1
+        REGULATOR = 2
+
+    class DBKey(TokenCtrtWithoutSplit.DBKey):
+        """
+        DBKey is the class for DB key of a contract used to query data.
+        """
+
+        @classmethod
+        def for_regulator(cls) -> TokenCtrtWithoutSplitV2WhiteList.DBKey:
+            """
+            for_regulator returns the DBKey for querying the regulator.
+
+            Returns:
+                TokenCtrtWithoutSplitV2WhiteList.DBKey: The DBKey.
+            """
+            b = TokenCtrtWithoutSplitV2WhiteList.StateVar.REGULATOR.serialize()
+            return cls(b)
+
+        @classmethod
+        def _for_is_in_list(
+            cls, addr_data_entry: Union[de.Addr, de.CtrtAcnt]
+        ) -> TokenCtrtWithoutSplitV2WhiteList.DBKey:
+            """
+            _for_is_in_list returns the DBKey for querying the status of if the address in the given data entry
+            is in the list.
+            It's a helper method for is_XXX_in_list
+
+            Args:
+                addr_data_entry (Union[de.Addr, de.CtrtAcnt]): The data entry for the address.
+
+            Returns:
+                TokenCtrtWithoutSplitV2WhiteList.DBKey: The DBKey.
+            """
+            stmp = TokenCtrtWithoutSplitV2WhiteList.StateMap(
+                idx=0,
+                data_entry=addr_data_entry,
+            )
+            b = stmp.serialize()
+            return cls(b)
+
+        @classmethod
+        def for_is_user_in_list(
+            cls, addr: str
+        ) -> TokenCtrtWithoutSplitV2WhiteList.DBKey:
+            """
+            for_is_user_in_list returns the DBKey for querying the status of if
+            the given user address is in the list.
+
+            Returns:
+                TokenCtrtWithoutSplitV2WhiteList.DBKey: The DBKey.
+            """
+            addr_de = de.Addr(md.Addr(addr))
+            return cls._for_is_in_list(addr_de)
+
+        @classmethod
+        def for_is_ctrt_in_list(
+            cls, addr: str
+        ) -> TokenCtrtWithoutSplitV2WhiteList.DBKey:
+            """
+            for_is_ctrt_in_list returns the DBKey for querying the status of if
+            the given contract address is in the list.
+
+            Returns:
+                TokenCtrtWithoutSplitV2WhiteList.DBKey: The DBKey.
+            """
+            addr_de = de.CtrtAcnt(md.CtrtID(addr))
+            return cls._for_is_in_list(addr_de)
+
+    @property
+    async def regulator(self) -> str:
+        """
+        regulator queries & returns the regulator of the contract.
+
+        Returns:
+            str: The address of the regulator of the contract.
+        """
+        return await self._query_db_key(self.DBKey.for_regulator())
+
+    @classmethod
+    async def register(
+        cls,
+        by: acnt.Account,
+        max: Union[int, float],
+        unit: int,
+        token_description: str = "",
+        ctrt_description: str = "",
+        fee: int = md.RegCtrtFee.DEFAULT,
+    ) -> TokenCtrtWithoutSplitV2WhiteList:
+        """
+        register registers a token contract v2 with white list
+
+        Args:
+            by (acnt.Account): The action taker
+            max (int): The max amount that can be issued
+            unit (int): The granularity of splitting a token
+            token_description (str): The description of the token
+            ctrt_description (str, optional): The description of the contract. Defaults to "".
+            fee (int, optional):  Register fee. Defaults to md.RegCtrtFee.DEFAULT.
+
+        Returns:
+            TokenCtrtWithoutSplitV2WhiteList: A token contract v2 with white list
+        """
+
+        data = await by._register_contract(
+            tx.RegCtrtTxReq(
+                data_stack=de.DataStack(
+                    de.Amount.for_tok_amount(max, unit),
+                    de.Amount(md.Int(unit)),
+                    de.String(md.Str(token_description)),
+                ),
+                ctrt_meta=cls.CTRT_META,
+                timestamp=md.VSYSTimestamp.now(),
+                description=md.Str(ctrt_description),
+                fee=md.RegCtrtFee(fee),
+            )
+        )
+        logger.debug(data)
+
+        return cls(
+            data["contractId"],
+            chain=by.chain,
+            unit=unit,
+        )
+
+    async def _is_in_list(self, db_key: TokenCtrtWithoutSplitV2WhiteList.DBKey) -> bool:
+        """
+        _is_in_list queries & returns the status of whether the address is
+        in the list for the given db_key.
+
+        Args:
+            db_key (TokenCtrtWithoutSplitV2WhiteList.DBKey): The DBKey for the query.
+
+        Returns:
+            bool: If the address is in the list.
+        """
+        data = await self._query_db_key(db_key)
+        return data == "true"
+
+    async def is_user_in_list(self, addr: str) -> bool:
+        """
+        is_user_in_list queries & returns the status of whether the user address in the white/black list.
+
+        Args:
+            addr (str): The address to check.
+
+        Returns:
+            bool: If the address is in the list.
+        """
+        return await self._is_in_list(self.DBKey.for_is_user_in_list(addr))
+
+    async def is_ctrt_in_list(self, addr: str) -> bool:
+        """
+        is_ctrt_in_list queries & returns the status of whether the contract address in the white/black list.
+
+        Args:
+            addr (str): The address to check.
+
+        Returns:
+            bool: If the address is in the list.
+        """
+        return await self._is_in_list(self.DBKey.for_is_ctrt_in_list(addr))
+
+    async def _update_list(
+        self,
+        by: acnt.Account,
+        addr_data_entry: Union[de.Addr, de.CtrtAcnt],
+        val: bool,
+        attachment: str = "",
+        fee: int = md.ExecCtrtFee.DEFAULT,
+    ) -> Dict[str, Any]:
+        """
+        _update_list updates the presence of the address within the given data entry in the list.
+        It's the helper method for update_list.
+
+        Args:
+            by (acnt.Account): The action taker.
+            addr_data_entry (Union[de.Addr, de.CtrtAcnt]): The data entry for the address to update.
+            val (bool): The value to update to.
+            attachment (str, optional): The attachment of this action. Defaults to "".
+            fee (int, optional): The fee to pay for this action. Defaults to md.ExecCtrtFee.DEFAULT.
+
+        Returns:
+            Dict[str, Any]: The response returned by the Node API
+        """
+        data = await by._execute_contract(
+            tx.ExecCtrtFuncTxReq(
+                ctrt_id=self._ctrt_id,
+                func_id=self.FuncIdx.UPDATE_LIST,
+                data_stack=de.DataStack(addr_data_entry, de.Bool(md.Bool(val))),
+                timestamp=md.VSYSTimestamp.now(),
+                attachment=md.Str(attachment),
+                fee=md.ExecCtrtFee(fee),
+            )
+        )
+        logger.debug(data)
+        return data
+
+    async def update_list_user(
+        self,
+        by: acnt.Account,
+        addr: str,
+        val: bool,
+        attachment: str = "",
+        fee: int = md.ExecCtrtFee.DEFAULT,
+    ) -> Dict[str, Any]:
+        """
+        update_list_user updates the presence of the user address in the list.
+
+        Args:
+            by (acnt.Account): The action taker.
+            addr (str): The account address of the user.
+            val (bool): The value to update to.
+            attachment (str, optional): The attachment of this action. Defaults to "".
+            fee (int, optional): The fee to pay for this action. Defaults to md.ExecCtrtFee.DEFAULT.
+
+        Returns:
+            Dict[str, Any]: The response returned by the Node API
+        """
+        user_md = md.Addr(addr)
+        user_md.must_on(by.chain)
+        return await self._update_list(by, de.Addr(user_md), val, attachment, fee)
+
+    async def update_list_ctrt(
+        self,
+        by: acnt.Account,
+        addr: str,
+        val: bool,
+        attachment: str = "",
+        fee: int = md.ExecCtrtFee.DEFAULT,
+    ) -> Dict[str, Any]:
+        """
+        update_list_user updates the presence of the contract address in the list.
+
+        Args:
+            by (acnt.Account): The action taker.
+            addr (str): The account address of the contract.
+            val (bool): The value to update to.
+            attachment (str, optional): The attachment of this action. Defaults to "".
+            fee (int, optional): The fee to pay for this action. Defaults to md.ExecCtrtFee.DEFAULT.
+
+        Returns:
+            Dict[str, Any]: The response returned by the Node API
+        """
+        ctrt_md = md.CtrtID(addr)
+        return await self._update_list(by, de.CtrtAcnt(ctrt_md), val, attachment, fee)
+
+    async def supersede(
+        self,
+        by: acnt.Account,
+        new_issuer: str,
+        new_regulator: str,
+        attachment: str = "",
+        fee: int = md.ExecCtrtFee.DEFAULT,
+    ) -> Dict[str, Any]:
+        """
+        supersede transfers the issuer role of the contract to a new account.
+
+        Args:
+            by (acnt.Account): The action taker.
+            new_issuer (str): The account address of the new issuer.
+            new_regulator (str): The account address of the new regulator.
+            attachment (str, optional): The attachment of this action. Defaults to "".
+            fee (int, optional): The fee to pay for this action. Defaults to md.ExecCtrtFee.DEFAULT.
+
+        Returns:
+            Dict[str, Any]: The response returned by the Node API
+        """
+
+        new_issuer_md = md.Addr(new_issuer)
+        new_issuer_md.must_on(by.chain)
+
+        new_regulator_md = md.Addr(new_regulator)
+        new_regulator_md.must_on(by.chain)
+
+        data = await by._execute_contract(
+            tx.ExecCtrtFuncTxReq(
+                ctrt_id=self._ctrt_id,
+                func_id=self.FuncIdx.SUPERSEDE,
+                data_stack=de.DataStack(
+                    de.Addr(new_issuer_md),
+                    de.Addr(new_regulator_md),
+                ),
+                timestamp=md.VSYSTimestamp.now(),
+                attachment=md.Str(attachment),
+                fee=md.ExecCtrtFee(fee),
+            )
+        )
+        logger.debug(data)
+        return data
+
+
+class TokenCtrtWithoutSplitV2BlackList(TokenCtrtWithoutSplitV2WhiteList):
+    CTRT_META = CtrtMeta.from_b58_str(
+        "2wsw3fMnDpB5PpXoJxJeuE9RkRNzQqZrV35hBa366PhG9Sb3sPeBNeYQo8CuExtT8GpKuc84PLMsevNoodw7YGVf24PKstuzhM96H2gQoawx4BVNZwy3UFyWn156SyZakSvJPXz521p1nzactXZod1Qnn7BWYXFYCU3JFe1LGy35Sg6aXwKz6swFmBtPg1vBeQsUq1TJ5GXkDksaUYjB8ix9ScNNG8faB1mCCMWwfrcr6PyBA7YeHsTLD86zuviak6HQEQQi9kqVr4XhnDJnZyiTKGcNDo49KZyTyvkPmkFyDEhLf9DYrJM3niePqtDQ9unJj52Bku7f47hrxo83eSh3UPncyq8Hti2Ffhgb8ZFCFdnPyRDEZ1YbKFGAsJL3h3GdPFoVdnYySmnVJWrm6fVUdGgkA5ijMeqEUpXte1m7MFYCJ1wQchjebpLk3NnZzrT8FysUJVUgUzmkoSniF2UPEPXuF9cyWFWGGoZjfDWqarPMi7miqdCPQMMw4QRvSWkB3gVyeZykAvKYzXm8wYGV6HDbipZeVoyZ1UVeR6E5C4VZQmjs4GupAR9EuT5mt1ALFT4HyAMX6RCRxjeHoSgnnUJcEiRHapAYSene174RvVkRGLTtonWTYnsXUrtPD6xks4GdpQWQv89EdNWFEtmMfyVvUEFuTPGXUS5TuqYxCzg8Gor5WjPip2wDmoMYQ3wikJoRpYSfRVw88RHQPBmkHrpeHYWkAx6N7Yk4WwgBF9SVVtEWnWmPVVbuH2bQrvks4iGL8DnmEiLMs6JuFsg3a3cMHqbdvQgfu72XYKFqQzzDbDhaqFKpR3bxgMMiJvGbPuydPk9DCsG5KpqZepkkD6RGhWTQzga9G6y6ryctoGZPBHpFRwirALkksarQSEuGryhatvnjqG9U14zyW2KvJYrErMyUVy3wNK5wRqAKMjE6hFPdoH9Cn6TYQLebVTBoYTfimn5gBmgnKqBtXSfUxiwrjWujQPGxgtbNCL1RXRNRJ8nrtcpphQyRVZ8JVeubYq1zM7G1AUurEyAQi64rcbsimGptcXMAvt9TbwDjpUGRWvF6dyw1XijcukfZBQh1fG5C8peumkGnP8PemmYWKP7qsifNc44PqnNG5qYVivwtK4sz2h3B6pwneX8XNYtGSjVJCb6gJ7oDG45shocvALKNu7LwfJxXT7MPAdx7CjbHU5B3qs71wJphwkc4yWa6hHTamPTGRFGuhJa4kFfeGMctE1WZrFe47L32fKZkSxaX1sguoi5w9UPHw6udJiKPYENSSbASYpfS9q8suCs1bbq8jdMhCwoGMDZaA4MNAW1Q6sLSX6ezZ436AMbVnXZLQW8jdBaX8rvRSMJu8fdYU9PHq4MkoczxNz5jNvRiTX9jTpN1Z1P5rtgnf6XN9vzTLdqsvwZcXqvSdBwdTVgk7qn9uNjuFZEgSmA6rnPhSu6TMxJLmjKP93uqiNmXsj1NKtqBZiHjrRaUzA4pAFEyfZTdo8oaDH7umSBU2s9ff5Cruds7cYFopLm2KavHH33S7BczL7FMXAcqrESiPUzhUhHbkBKHGiCAUMVE8zxo6Eo85W2PGn6D39MaUfahEmzq8zxmrDQdmagx5EQZUev3fNCFzTzU4zpY1sra5ZPknXJkyKKfj4r9xy9Kfd8s5hsiKFyX6V1Kc2T1Ehpdkobwb7Wc8V1n1GaeL7jRgvhVg1inPaWZ3zyqNBjxnzqtLpZor3VdXLo6SikzWNahCMLNMXaoBvmJDEJUazC9qGxin7SC3YWCTAyoskJRhVMp592ehmpruu2azeCHBF2rzP6LabikVfkBSeAzGQKVeiEkU3devRNpjNM4YDXQDm9wbkPKWrqBK4SRdo44PRYG3XwNhu2gpNX8b9AuirrbRPiaJ1tJ7rzodHzLheMyUMXRB9nYx8JgrhkZzPZa4oUxo8JUNuKZnn7Ku7fEt5y"
+    )
