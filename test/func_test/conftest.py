@@ -10,7 +10,7 @@ HOST = os.getenv("PY_SDK_HOST")
 API_KEY = os.getenv("PY_SDK_API_KEY", "")
 SEED = os.getenv("PY_SDK_SEED")
 SUPERNODE_ADDR = os.getenv("PY_SDK_SUPERNODE_ADDR")
-AVG_BLOCK_DELAY = int(os.getenv("PY_SDK_AVG_BLOCK_DELAY"))  # in seconds
+AVG_BLOCK_DELAY = int(os.getenv("PY_SDK_AVG_BLOCK_DELAY", "6"))  # in seconds
 
 
 @pytest.fixture
