@@ -1,15 +1,16 @@
 import asyncio
+import os
 from typing import Optional
 
 import pytest
 
 import py_v_sdk as pv
 
-HOST = ""
-API_KEY = ""
-SEED = ""
-SUPERNODE_ADDR = ""
-AVG_BLOCK_DELAY = 6  # in seconds
+HOST = os.getenv("PY_SDK_HOST")
+API_KEY = os.getenv("PY_SDK_API_KEY", "")
+SEED = os.getenv("PY_SDK_SEED")
+SUPERNODE_ADDR = os.getenv("PY_SDK_SUPERNODE_ADDR")
+AVG_BLOCK_DELAY = int(os.getenv("PY_SDK_AVG_BLOCK_DELAY"))  # in seconds
 
 
 @pytest.fixture
