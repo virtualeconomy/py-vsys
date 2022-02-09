@@ -2,9 +2,10 @@
 atomic_swap_ctrt contains Atomic Swap contract.
 """
 from __future__ import annotations
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Dict, Any, Union
 
 from loguru import logger
+import asyncio
 
 # https://stackoverflow.com/a/39757388
 if TYPE_CHECKING:
@@ -13,7 +14,11 @@ if TYPE_CHECKING:
 from py_v_sdk import data_entry as de
 from py_v_sdk import tx_req as tx
 from py_v_sdk import model as md
+from py_v_sdk import chain as ch
 from . import CtrtMeta, Ctrt
+
+from py_v_sdk.utils.crypto.hashes import sha256_hash
+import base58
 
 
 class AtomicSwapCtrt(Ctrt):
@@ -48,6 +53,12 @@ class AtomicSwapCtrt(Ctrt):
         """
 
         TOKEN_BALANCE = 0
+        SWAP_OWNER = 1
+        SWAP_RECIPIENT = 2
+        SWAP_PUZZLE = 3
+        SWAP_AMOUNT = 4
+        SWAP_EXPIRED_TIME = 5
+        SWAP_STATUS = 6
 
     class DBKey(Ctrt.DBKey):
         """
@@ -79,17 +90,28 @@ class AtomicSwapCtrt(Ctrt):
         @classmethod
         def for_token_balance(cls, addr: str) -> AtomicSwapCtrt.DBKey:
             """
-            for_token_balance [summary]
-
-            Args:
-                addr (str): [description]
+            for_token_balance returns the AtomicSwapCtrt.DBKey object for querying the token balance.
 
             Returns:
-                AtomicSwapCtrt.DBKey: [description]
+                AtomicSwapCtrt.DBKey: The AtomicSwapCtrt.DBKey object.
             """
             b = AtomicSwapCtrt.StateMap(
                 idx=AtomicSwapCtrt.StateMapIdx.TOKEN_BALANCE,
                 data_entry=de.Addr(md.Addr(addr)),
+            ).serialize()
+            return cls(b)
+
+        @classmethod
+        def for_puzzle(cls, tx_id: str) -> AtomicSwapCtrt.DBKey:
+            """
+            for_puzzle gets the AtomicSwapCtrt.DBKey object for querying the hashed puzzle.
+
+            Returns:
+                AtomicSwapCtrt.DBKey: The AtomicSwapCtrt.DBKey object.
+            """
+            b = AtomicSwapCtrt.StateMap(
+                idx=AtomicSwapCtrt.StateMapIdx.SWAP_PUZZLE,
+                data_entry=de.Bytes(md.Bytes(tx_id.encode("latin-1"))),
             ).serialize()
             return cls(b)
 
@@ -162,3 +184,227 @@ class AtomicSwapCtrt(Ctrt):
             int: The balance of the token.
         """
         return await self._query_db_key(self.DBKey.for_token_balance(addr))
+
+    def maker_lock(
+        self,
+        by: acnt.Account,
+        amount: Union[int, float],
+        recipient: str,
+        puzzle: str,
+        expire_time: int,
+        attachment: str = "",
+        fee: int = md.ExecCtrtFee.DEFAULT,
+    ) -> Dict[str, Any]:
+        """
+        maker_lock locks the token by the maker.
+        Args:
+            by (acnt.Account): the action taker.
+            amount (Union[int, float]): the amount of the token to be locked.
+            recipient (str): the taker's address.
+            puzzle (str): the secret.
+            expire_time (int): the expired timestamp to lock.
+            attachment (str, optional): [description]. Defaults to "".
+            fee (int, optional): [description]. Defaults to md.ExecCtrtFee.DEFAULT.
+
+        Returns:
+            Dict[str, Any]: [description]
+        """
+
+        puzzle_bytes = base58.b58encode(sha256_hash(puzzle))
+        puzzle_str = "".join(map(chr, puzzle_bytes))  # bytes to str
+
+        unit = by.chain.api.ctrt.get_tok_info["unity"]
+
+        data = by._execute_contract(
+            tx.ExecCtrtFuncTxReq(
+                ctrt_id=self._ctrt_id,
+                func_id=self.FuncIdx.LOCK,
+                data_stack=de.DataStack(
+                    de.Amount.for_tok_amount(amount, unit),
+                    de.Addr(md.Addr(recipient)),
+                    de.B58Str(md.B58Str(puzzle_str)),
+                    de.expire_time(md.VSYSTimestamp(expire_time)),
+                ),
+                timestamp=md.VSYSTimestamp.now(),
+                attachment=md.Str(attachment),
+                fee=md.ExecCtrtFee(fee),
+            )
+        )
+        logger.debug(data)
+        return data
+
+    async def Taker_lock(
+        self,
+        by: acnt.Account,
+        maker_swap_ctrt_id: str,
+        amount: Union[int, float],
+        recipient: str,
+        maker_lock_tx_id: str,
+        expire_time: int,
+        attachment: str = "",
+        fee: int = md.ExecCtrtFee.DEFAULT,
+    ) -> Dict[str, Any]:
+        """
+        taker_lock locks the token by the maker.
+
+        Args:
+            by (acnt.Account): the action taker.
+            maker_swap_ctrt_id: the contract id of the maker.
+            amount (Union[int, float]): the amount of the token to be locked.
+            recipient (str): the maker's address.
+            maker_lock_tx_id (str): the tx id of the maker.
+            expire_time (int): the expire timestamp to lock.
+            attachment (str, optional): [description]. Defaults to "".
+            fee (int, optional): [description]. Defaults to md.ExecCtrtFee.DEFAULT.
+
+        Returns:
+            Dict[str, Any]: [description]
+        """
+
+        # puzzle_bytes =  base58.b58encode(sha256_hash(puzzle))
+        # puzzle_str = "".join(map(chr,puzzle_bytes)) #bytes to str
+
+        puzzle_db_key = self.DBKey.for_puzzle(maker_lock_tx_id)
+        data = await self.chain.api.ctrt.get_ctrt_data(
+            maker_swap_ctrt_id, puzzle_db_key.b58_str
+        )
+        logger.debug(data)
+        hashed_secret_b58str = data["value"]
+
+        unit = by.chain.api.ctrt.get_tok_info["unity"]
+
+        data = by._execute_contract(
+            tx.ExecCtrtFuncTxReq(
+                ctrt_id=self._ctrt_id,
+                func_id=self.FuncIdx.LOCK,
+                data_stack=de.DataStack(
+                    de.Amount.for_tok_amount(amount, unit),
+                    de.Addr(md.Addr(recipient)),
+                    de.B58Str(md.B58Str(hashed_secret_b58str)),
+                    de.expire_time(md.VSYSTimestamp(expire_time)),
+                ),
+                timestamp=md.VSYSTimestamp.now(),
+                attachment=md.Str(attachment),
+                fee=md.ExecCtrtFee(fee),
+            )
+        )
+        logger.debug(data)
+        return data
+
+    def maker_solve(
+        self,
+        by: acnt.Account,
+        taker_ctrt_id: str,
+        tx_id: str,
+        key: str,
+        attachment: str = "",
+        fee: int = md.ExecCtrtFee.DEFAULT,
+    ) -> Dict[str, Any]:
+        """
+        maker_solve encapsulates the puzzle.
+
+        Args:
+            by (acnt.Account): The action maker.
+            tx_id (str): the lock transaction id of taker's .
+            key (str): The puzzle.
+            attachment (str, optional): The attachment of this action. Defaults to "".
+            fee (int, optional): Execution fee of this tx. Defaults to md.ExecCtrtFee.DEFAULT.
+
+        Returns:
+            Dict[str, Any]: The response returned by the Node API
+        """
+
+        data = by._execute_contract(
+            tx.ExecCtrtFuncTxReq(
+                ctrt_id=md.CtrtID(taker_ctrt_id),
+                func_id=self.FuncIdx.LOCK,
+                data_stack=de.DataStack(
+                    de.Bytes(md.Bytes(tx_id.encode("latin-1"))),
+                    de.Bytes(md.Bytes(key.encode("latin-1"))),
+                ),
+                timestamp=md.VSYSTimestamp.now(),
+                attachment=md.Str(attachment),
+                fee=md.ExecCtrtFee(fee),
+            )
+        )
+        logger.debug(data)
+        return data
+
+    def Taker_solve(
+        self,
+        by: acnt.Account,
+        maker_ctrt_id: str,
+        maker_lock_tx_id: str,
+        maker_solve_tx_id: str,
+        attachment: str = "",
+        fee: int = md.ExecCtrtFee.DEFAULT,
+    ) -> Dict[str, Any]:
+        """
+        Taker_solve gets the puzzle.
+
+        Args:
+            by (acnt.Account): The action maker.
+            maker_ctrt_id (str): the contract id of the maker.
+            maker_lock_tx_id (str): the lock tx id of the maker.
+            maker_solve_tx_id (str): the solve tx id of the maker.
+            attachment (str, optional): The attachment of this action. Defaults to "".
+            fee (int, optional): Execution fee of this tx. Defaults to md.ExecCtrtFee.DEFAULT.
+
+        Returns:
+            Dict[str, Any]: The response returned by the Node API
+        """
+        # get the revealed_secret
+        func_data = by.chain.api.tx.get_info(maker_solve_tx_id)["functionData"]
+        value = base58.b58decode(func_data["value"])
+        revealed_secret = value.decode()
+
+        data = by._execute_contract(
+            tx.ExecCtrtFuncTxReq(
+                ctrt_id=md.CtrtID(maker_ctrt_id),
+                func_id=self.FuncIdx.LOCK,
+                data_stack=de.DataStack(
+                    de.Bytes(md.Bytes(maker_lock_tx_id.encode("latin-1"))),
+                    de.Bytes(md.Bytes(revealed_secret.encode("latin-1"))),
+                ),
+                timestamp=md.VSYSTimestamp.now(),
+                attachment=md.Str(attachment),
+                fee=md.ExecCtrtFee(fee),
+            )
+        )
+        logger.debug(data)
+        return data
+
+    def exp_withdraw(
+        self,
+        by: acnt.Account,
+        tx_id: str,
+        attachment: str = "",
+        fee: int = md.ExecCtrtFee.DEFAULT,
+    ) -> Dict[str, Any]:
+        """
+        exp_withdraw withdraws the tokens when the contract is expired.
+
+        Args:
+            by (acnt.Account): the action taker.
+            tx_id (str): The transaction id.
+            attachment (str, optional): The attachment of this action. Defaults to "".
+            fee (int, optional): Execution fee of this tx. Defaults to md.ExecCtrtFee.DEFAULT.
+
+        Returns:
+            Dict[str, Any]: The response returned by the Node API
+        """
+
+        data = by._execute_contract(
+            tx.ExecCtrtFuncTxReq(
+                ctrt_id=self._ctrt_id,
+                func_id=self.FuncIdx.LOCK,
+                data_stack=de.DataStack(
+                    de.Bytes(md.Bytes(tx_id.encode("latin-1"))),
+                ),
+                timestamp=md.VSYSTimestamp.now(),
+                attachment=md.Str(attachment),
+                fee=md.ExecCtrtFee(fee),
+            )
+        )
+        logger.debug(data)
+        return data
