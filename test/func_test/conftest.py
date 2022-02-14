@@ -82,6 +82,19 @@ async def wait_for_block() -> None:
     await asyncio.sleep(AVG_BLOCK_DELAY)
 
 
+async def assert_tx_status(api: pv.NodeAPI, tx_id: str, status: str) -> None:
+    """
+    assert_tx_status asserts the status of the transaction of the given
+    ID matches the given status.
+
+    Args:
+        api (pv.NodeAPI): The NodeAPI object.
+        tx_id (str): The transaction ID.
+    """
+    resp = await api.tx.get_info(tx_id)
+    assert resp["status"] == status
+
+
 async def assert_tx_success(api: pv.NodeAPI, tx_id: str) -> None:
     """
     assert_tx_success asserts the status of the transaction of the given
@@ -91,8 +104,7 @@ async def assert_tx_success(api: pv.NodeAPI, tx_id: str) -> None:
         api (pv.NodeAPI): The NodeAPI object.
         tx_id (str): The transaction ID.
     """
-    resp = await api.tx.get_info(tx_id)
-    assert resp["status"] == "Success"
+    await assert_tx_status(api, tx_id, "Success")
 
 
 async def get_tok_id(api: pv.NodeAPI, ctrt_id: str, tok_idx: int) -> str:
