@@ -193,6 +193,10 @@ class LockCtrt(Ctrt):
             int: The lock time of the token in Unix timestamp.
         """
         raw_ts = await self._query_db_key(self.DBKey.for_contract_lock_time(addr))
+
+        if raw_ts == 0:
+            return 0
+
         unix_ts = md.VSYSTimestamp(raw_ts).unix_ts
         return int(unix_ts)
 
