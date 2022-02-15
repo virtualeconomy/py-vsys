@@ -23,7 +23,7 @@ The official Python SDK for VSYS APIs. The [old Python SDK](https://github.com/v
 > Will be published to PYPI soon
 
 ```bash
-pip install git+https://github.com/virtualeconomy/py-v-sdk.git@main
+pip install git+https://github.com/virtualeconomy/py-v-sdk.git@develop
 ```
 
 `@main` is necessary as the default branch is `develop`
@@ -31,7 +31,7 @@ pip install git+https://github.com/virtualeconomy/py-v-sdk.git@main
 If you are using `pipenv`, try
 
 ```bash
-pipenv install git+https://github.com/virtualeconomy/py-v-sdk.git@main#egg=py_v_sdk
+pipenv install git+https://github.com/virtualeconomy/py-v-sdk.git@develop#egg=py_v_sdk
 ```
 
 
