@@ -111,7 +111,7 @@ class AtomicSwapCtrt(Ctrt):
             """
             b = AtomicSwapCtrt.StateMap(
                 idx=AtomicSwapCtrt.StateMapIdx.SWAP_PUZZLE,
-                data_entry=de.Bytes(md.Bytes(tx_id.encode("latin-1"))),
+                data_entry=de.Bytes(md.Bytes(base58.b58decode(tx_id))),
             ).serialize()
             return cls(b)
 
@@ -147,7 +147,7 @@ class AtomicSwapCtrt(Ctrt):
             )
         )
         logger.debug(data)
-
+        print(data)
         return cls(
             data["contractId"],
             chain=by.chain,
@@ -185,7 +185,7 @@ class AtomicSwapCtrt(Ctrt):
         """
         return await self._query_db_key(self.DBKey.for_token_balance(addr))
 
-    def maker_lock(
+    async def maker_lock(
         self,
         by: acnt.Account,
         amount: Union[int, float],
@@ -209,21 +209,21 @@ class AtomicSwapCtrt(Ctrt):
         Returns:
             Dict[str, Any]: [description]
         """
+        SCALE = 1_000_000_000
+        puzzle_bytes = base58.b58encode(sha256_hash(puzzle.encode("latin-1")))
+        tok_id = await self.token_id
+        resp = await by.chain.api.ctrt.get_tok_info(tok_id)
+        unit = resp["unity"]
 
-        puzzle_bytes = base58.b58encode(sha256_hash(puzzle))
-        puzzle_str = "".join(map(chr, puzzle_bytes))  # bytes to str
-
-        unit = by.chain.api.ctrt.get_tok_info["unity"]
-
-        data = by._execute_contract(
+        data = await by._execute_contract(
             tx.ExecCtrtFuncTxReq(
                 ctrt_id=self._ctrt_id,
                 func_id=self.FuncIdx.LOCK,
                 data_stack=de.DataStack(
                     de.Amount.for_tok_amount(amount, unit),
                     de.Addr(md.Addr(recipient)),
-                    de.B58Str(md.B58Str(puzzle_str)),
-                    de.expire_time(md.VSYSTimestamp(expire_time)),
+                    de.Bytes(md.Bytes(puzzle_bytes)),
+                    de.Timestamp(md.VSYSTimestamp(int(expire_time * SCALE))),
                 ),
                 timestamp=md.VSYSTimestamp.now(),
                 attachment=md.Str(attachment),
@@ -233,7 +233,7 @@ class AtomicSwapCtrt(Ctrt):
         logger.debug(data)
         return data
 
-    async def Taker_lock(
+    async def taker_lock(
         self,
         by: acnt.Account,
         maker_swap_ctrt_id: str,
@@ -263,25 +263,30 @@ class AtomicSwapCtrt(Ctrt):
 
         # puzzle_bytes =  base58.b58encode(sha256_hash(puzzle))
         # puzzle_str = "".join(map(chr,puzzle_bytes)) #bytes to str
+        SCALE = 1_000_000_000
 
         puzzle_db_key = self.DBKey.for_puzzle(maker_lock_tx_id)
+        print(puzzle_db_key.b58_str)
         data = await self.chain.api.ctrt.get_ctrt_data(
             maker_swap_ctrt_id, puzzle_db_key.b58_str
         )
         logger.debug(data)
+        print(data)
         hashed_secret_b58str = data["value"]
 
-        unit = by.chain.api.ctrt.get_tok_info["unity"]
+        tok_id = await self.token_id
+        resp = await by.chain.api.ctrt.get_tok_info(tok_id)
+        unit = resp["unity"]
 
-        data = by._execute_contract(
+        data = await by._execute_contract(
             tx.ExecCtrtFuncTxReq(
                 ctrt_id=self._ctrt_id,
                 func_id=self.FuncIdx.LOCK,
                 data_stack=de.DataStack(
                     de.Amount.for_tok_amount(amount, unit),
                     de.Addr(md.Addr(recipient)),
-                    de.B58Str(md.B58Str(hashed_secret_b58str)),
-                    de.expire_time(md.VSYSTimestamp(expire_time)),
+                    de.Bytes(md.Bytes(hashed_secret_b58str.encode("latin-1"))),
+                    de.Timestamp(md.VSYSTimestamp(expire_time * SCALE)),
                 ),
                 timestamp=md.VSYSTimestamp.now(),
                 attachment=md.Str(attachment),
@@ -291,7 +296,7 @@ class AtomicSwapCtrt(Ctrt):
         logger.debug(data)
         return data
 
-    def maker_solve(
+    async def maker_solve(
         self,
         by: acnt.Account,
         taker_ctrt_id: str,
@@ -314,10 +319,10 @@ class AtomicSwapCtrt(Ctrt):
             Dict[str, Any]: The response returned by the Node API
         """
 
-        data = by._execute_contract(
+        data = await by._execute_contract(
             tx.ExecCtrtFuncTxReq(
                 ctrt_id=md.CtrtID(taker_ctrt_id),
-                func_id=self.FuncIdx.LOCK,
+                func_id=self.FuncIdx.SOLVE_PUZZLE,
                 data_stack=de.DataStack(
                     de.Bytes(md.Bytes(tx_id.encode("latin-1"))),
                     de.Bytes(md.Bytes(key.encode("latin-1"))),
@@ -330,7 +335,7 @@ class AtomicSwapCtrt(Ctrt):
         logger.debug(data)
         return data
 
-    def Taker_solve(
+    async def taker_solve(
         self,
         by: acnt.Account,
         maker_ctrt_id: str,
@@ -358,10 +363,10 @@ class AtomicSwapCtrt(Ctrt):
         value = base58.b58decode(func_data["value"])
         revealed_secret = value.decode()
 
-        data = by._execute_contract(
+        data = await by._execute_contract(
             tx.ExecCtrtFuncTxReq(
                 ctrt_id=md.CtrtID(maker_ctrt_id),
-                func_id=self.FuncIdx.LOCK,
+                func_id=self.FuncIdx.SOLVE_PUZZLE,
                 data_stack=de.DataStack(
                     de.Bytes(md.Bytes(maker_lock_tx_id.encode("latin-1"))),
                     de.Bytes(md.Bytes(revealed_secret.encode("latin-1"))),
@@ -374,7 +379,7 @@ class AtomicSwapCtrt(Ctrt):
         logger.debug(data)
         return data
 
-    def exp_withdraw(
+    async def exp_withdraw(
         self,
         by: acnt.Account,
         tx_id: str,
@@ -394,10 +399,10 @@ class AtomicSwapCtrt(Ctrt):
             Dict[str, Any]: The response returned by the Node API
         """
 
-        data = by._execute_contract(
+        data = await by._execute_contract(
             tx.ExecCtrtFuncTxReq(
                 ctrt_id=self._ctrt_id,
-                func_id=self.FuncIdx.LOCK,
+                func_id=self.FuncIdx.EXPIRE_WITHDRAW,
                 data_stack=de.DataStack(
                     de.Bytes(md.Bytes(tx_id.encode("latin-1"))),
                 ),
