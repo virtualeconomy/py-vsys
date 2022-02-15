@@ -23,7 +23,7 @@ The official Python SDK for VSYS APIs. The [old Python SDK](https://github.com/v
 > Will be published to PYPI soon
 
 ```bash
-pip install git+https://github.com/virtualeconomy/py-v-sdk.git@main
+pip install git+https://github.com/virtualeconomy/py-v-sdk.git@develop
 ```
 
 `@main` is necessary as the default branch is `develop`
@@ -31,7 +31,7 @@ pip install git+https://github.com/virtualeconomy/py-v-sdk.git@main
 If you are using `pipenv`, try
 
 ```bash
-pipenv install git+https://github.com/virtualeconomy/py-v-sdk.git@main#egg=py_v_sdk
+pipenv install git+https://github.com/virtualeconomy/py-v-sdk.git@develop#egg=py_v_sdk
 ```
 
 
@@ -129,7 +129,7 @@ Functional tests are scripts that simulate the behaviour of a normal user to int
 
 To run it, ensure that you have `pytest` properly installed(it is a development dependency of `py_v_sdk` and can be installed via `pipenv install -d`).
 
-> NOTE that the test environment defined as global variables in [conftest.py](./test/func_test/conftest.py) has to be configured before the test cases can be executed.
+> NOTE that the test environment defined as global variables in [conftest.py](./test/func_test/conftest.py) has to be configured through environment vairables before the test cases can be executed.
 
 Then go to the root of the of the project and run.
 
