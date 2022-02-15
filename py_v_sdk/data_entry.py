@@ -493,8 +493,6 @@ class DataStack:
         Returns:
             DataStack: The DataStack object created by deserialization.
         """
-        l = struct.unpack(">H", b[:2])[0]
-        b = b[2 : 2 + l]
 
         entries_cnt = struct.unpack(">H", b[:2])[0]
         b = b[2:]
