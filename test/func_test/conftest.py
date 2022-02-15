@@ -82,6 +82,19 @@ async def wait_for_block() -> None:
     await asyncio.sleep(AVG_BLOCK_DELAY)
 
 
+async def assert_tx_status(api: pv.NodeAPI, tx_id: str, status: str) -> None:
+    """
+    assert_tx_status asserts the status of the transaction of the given
+    ID matches the given status.
+
+    Args:
+        api (pv.NodeAPI): The NodeAPI object.
+        tx_id (str): The transaction ID.
+    """
+    resp = await api.tx.get_info(tx_id)
+    assert resp["status"] == status
+
+
 async def assert_tx_success(api: pv.NodeAPI, tx_id: str) -> None:
     """
     assert_tx_success asserts the status of the transaction of the given
@@ -91,5 +104,36 @@ async def assert_tx_success(api: pv.NodeAPI, tx_id: str) -> None:
         api (pv.NodeAPI): The NodeAPI object.
         tx_id (str): The transaction ID.
     """
-    resp = await api.tx.get_info(tx_id)
-    assert resp["status"] == "Success"
+    await assert_tx_status(api, tx_id, "Success")
+
+
+async def get_tok_id(api: pv.NodeAPI, ctrt_id: str, tok_idx: int) -> str:
+    """
+    get_tok_id gets the token ID for the given token index of the contract.
+
+    Args:
+        api (pv.NodeAPI): The NodeAPI object.
+        ctrt_id (str): The contract ID.
+        tok_idx (int): The token index.
+
+    Returns:
+        str: The token ID.
+    """
+    resp = await api.ctrt.get_tok_id(ctrt_id, tok_idx)
+    return resp["tokenId"]
+
+
+async def get_tok_bal(api: pv.NodeAPI, addr: str, tok_id: str) -> int:
+    """
+    get_tok_bal gets the token balance of the given token ID.
+
+    Args:
+        api (pv.NodeAPI): The NodeAPI object.
+        addr (str): The account address.
+        tok_id (str): The token ID.
+
+    Returns:
+        int: The balance.
+    """
+    resp = await api.ctrt.get_tok_bal(addr, tok_id)
+    return resp["balance"]

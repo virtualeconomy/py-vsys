@@ -388,6 +388,10 @@ class VSYSTimestamp(NonNegativeInt):
         """
         return cls(int(time.time() * cls.SCALE))
 
+    @property
+    def unix_ts(self) -> float:
+        return self.data / self.SCALE
+
     def validate(self) -> None:
         super().validate()
         cls_name = self.__class__.__name__

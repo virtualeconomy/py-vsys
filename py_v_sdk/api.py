@@ -130,6 +130,33 @@ class NodeAPI:
         """
         return self._vsys
 
+    async def get(self, edpt: str) -> Dict[str, Any]:
+        """
+        get calls the given endpoint with HTTP GET.
+
+        Args:
+            edpt (str): The endpoint name.
+
+        Returns:
+            Dict[str, Any]: The response.
+        """
+        async with self._sess.get(edpt) as resp:
+            return await resp.json()
+
+    async def post(self, edpt: str, data: str) -> Dict[str, Any]:
+        """
+        post calls the given endpoint with HTTP POST with the given data.
+
+        Args:
+            edpt (str): The endpoint name.
+            data (str): The payload. Either a JSON string or a plain text string.
+
+        Returns:
+            Dict[str, Any]: The response.
+        """
+        async with self._sess.post(edpt, data=data) as resp:
+            return await resp.json()
+
 
 class APIGrp(abc.ABC):
     """
