@@ -44,7 +44,7 @@ import py_v_sdk as pv
 # The RESTful API host address to a node in a public test net
 HOST = "http://veldidina.vos.systems:9928"
 # A test net wallet seed
-SEED = "amount palm soldier device cereal fashion fringe copper huge mansion animal banana ready garment setup"
+SEED = ""
 
 
 def print_heading(msg: str) -> None:
