@@ -9,6 +9,8 @@ The official Python SDK for VSYS APIs. The [old Python SDK](https://github.com/v
 
 - [py-v-sdk](#py-v-sdk)
   - [Installation](#installation)
+    - [Pip](#pip)
+    - [Pipenv](#pipenv)
   - [Quick Example](#quick-example)
   - [Run Tests](#run-tests)
     - [Functional Tests](#functional-tests)
@@ -22,18 +24,33 @@ The official Python SDK for VSYS APIs. The [old Python SDK](https://github.com/v
 
 > Will be published to PYPI soon
 
+### Pip
 ```bash
-pip install git+https://github.com/virtualeconomy/py-v-sdk.git@develop
+pip install git+https://github.com/virtualeconomy/py-v-sdk.git@main
 ```
 
 `@main` is necessary as the default branch is `develop`
 
-If you are using `pipenv`, try
+If installing from the `develop` branch is desired, run
 
 ```bash
-pipenv install git+https://github.com/virtualeconomy/py-v-sdk.git@develop#egg=py_v_sdk
+pip install git+https://github.com/virtualeconomy/py-v-sdk.git
 ```
 
+### Pipenv
+
+```bash
+pipenv install git+https://github.com/virtualeconomy/py-v-sdk.git@main#egg=py_v_sdk
+```
+
+`@main` is necessary as the default branch is `develop`
+
+
+If installing from the `develop` branch is desired, run
+
+```bash
+pipenv install git+https://github.com/virtualeconomy/py-v-sdk.git#egg=py_v_sdk
+```
 
 ## Quick Example
 
