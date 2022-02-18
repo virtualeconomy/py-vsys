@@ -3,7 +3,7 @@ chain contains chain-related resources.
 """
 from __future__ import annotations
 import enum
-from typing import Dict, Any, TYPE_CHECKING
+from typing import Dict, Any, TYPE_CHECKING, List
 
 # https://stackoverflow.com/a/39757388
 if TYPE_CHECKING:
@@ -74,3 +74,30 @@ class Chain:
             Dict[str, Any]: The last block data of the chain.
         """
         return await self.api.blocks.get_last()
+
+    async def get_block_at(self, height: int) -> Dict[str, Any]:
+        """
+        get_block_at gets the block at the given height.
+
+        Args:
+            height (int): The height of the block.
+
+        Returns:
+            Dict[str, Any]: The block.
+        """
+        return await self.api.blocks.get_block_at(height)
+
+    async def get_blocks_within(
+        self, start_height: int, end_height: int
+    ) -> List[Dict[str, Any]]:
+        """
+        get_blocks_within gets blocks fall in the given range.
+
+        Args:
+            start_height (int): The start height.
+            end_height (int): The end height.
+
+        Returns:
+            List[Dict[str, Any]]: The blocks.
+        """
+        return await self.api.blocks.get_blocks_within(start_height, end_height)
