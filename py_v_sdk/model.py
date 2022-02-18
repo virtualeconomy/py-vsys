@@ -631,6 +631,31 @@ class Bytes(Model):
         if not isinstance(self.data, bytes):
             raise TypeError(f"Data in {cls_name} must be bytes")
 
+    @classmethod
+    def from_b58_str(cls, s: str) -> Bytes:
+        """
+        from_b58_str creates a Bytes object from the given base58-encoded string.
+
+        Args:
+            s (str): the input base58 string.
+
+        Returns:
+            Bytes: the Bytes instance.
+        """
+        return cls(base58.b58decode(s))
+
+    @classmethod
+    def from_str(cls, s: str) -> Bytes:
+        """
+        from_str creates a Bytes object from the given string.
+        Args:
+            s (str): the input string.
+
+        Returns:
+            Bytes: the Bytes instance.
+        """
+        return cls(s.encode("latin-1"))
+
 
 class Bool(Model):
     """
