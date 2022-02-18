@@ -1,5 +1,5 @@
 # py-v-sdk
-[![Python](https://img.shields.io/badge/Python-3.9%2B-blue)](https://www.python.org/downloads/) [![License](https://img.shields.io/badge/License-BSD_4--Clause-green.svg)](./LICENSE)
+[![Python](https://img.shields.io/badge/Python-3.7%2B-blue)](https://www.python.org/downloads/) [![License](https://img.shields.io/badge/License-BSD_4--Clause-green.svg)](./LICENSE)
 
 > ***Under active development. Contributions are always welcome!***
 
@@ -9,6 +9,8 @@ The official Python SDK for VSYS APIs. The [old Python SDK](https://github.com/v
 
 - [py-v-sdk](#py-v-sdk)
   - [Installation](#installation)
+    - [Pip](#pip)
+    - [Pipenv](#pipenv)
   - [Quick Example](#quick-example)
   - [Run Tests](#run-tests)
     - [Functional Tests](#functional-tests)
@@ -22,18 +24,33 @@ The official Python SDK for VSYS APIs. The [old Python SDK](https://github.com/v
 
 > Will be published to PYPI soon
 
+### Pip
 ```bash
-pip install git+https://github.com/virtualeconomy/py-v-sdk.git@develop
+pip install git+https://github.com/virtualeconomy/py-v-sdk.git@main
 ```
 
 `@main` is necessary as the default branch is `develop`
 
-If you are using `pipenv`, try
+If installing from the `develop` branch is desired, run
 
 ```bash
-pipenv install git+https://github.com/virtualeconomy/py-v-sdk.git@develop#egg=py_v_sdk
+pip install git+https://github.com/virtualeconomy/py-v-sdk.git
 ```
 
+### Pipenv
+
+```bash
+pipenv install git+https://github.com/virtualeconomy/py-v-sdk.git@main#egg=py_v_sdk
+```
+
+`@main` is necessary as the default branch is `develop`
+
+
+If installing from the `develop` branch is desired, run
+
+```bash
+pipenv install git+https://github.com/virtualeconomy/py-v-sdk.git#egg=py_v_sdk
+```
 
 ## Quick Example
 
@@ -44,7 +61,7 @@ import py_v_sdk as pv
 # The RESTful API host address to a node in a public test net
 HOST = "http://veldidina.vos.systems:9928"
 # A test net wallet seed
-SEED = "amount palm soldier device cereal fashion fringe copper huge mansion animal banana ready garment setup"
+SEED = ""
 
 
 def print_heading(msg: str) -> None:

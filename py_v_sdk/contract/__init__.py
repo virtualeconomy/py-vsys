@@ -16,6 +16,7 @@ if TYPE_CHECKING:
 
 from py_v_sdk import data_entry as de
 from py_v_sdk import model as md
+from py_v_sdk.utils.crypto import hashes as hs
 
 
 class Bytes:
@@ -432,3 +433,30 @@ class Ctrt(abc.ABC):
         )
         logger.debug(data)
         return data["value"]
+
+    @staticmethod
+    def get_tok_id(ctrt_id: str, tok_idx: int) -> str:
+        """
+        get_tok_id computes the token ID based on the given contract ID & token index.
+
+        Args:
+            ctrt_id (str): The contract ID.
+            tok_idx (int): The token index.
+
+        Returns:
+            str: The token ID.
+        """
+        b = base58.b58decode(ctrt_id)
+        raw_ctrt_id = b[1 : (len(b) - CtrtMeta.CHECKSUM_LEN)]
+        ctrt_id_no_checksum = (
+            struct.pack("<b", CtrtMeta.TOKEN_ADDR_VER)
+            + raw_ctrt_id
+            + struct.pack(">I", tok_idx)
+        )
+        h = hs.keccak256_hash(hs.blake2b_hash(ctrt_id_no_checksum))
+
+        tok_id_bytes = base58.b58encode(
+            ctrt_id_no_checksum + h[: CtrtMeta.CHECKSUM_LEN]
+        )
+
+        return tok_id_bytes.decode("latin-1")

@@ -49,9 +49,8 @@ class TestLockCtrt:
             pv.LockCtrt: The LockCtrt instance.
         """
         tc = new_tok_ctrt
-        api = acnt0.api
 
-        tok_id = await cft.get_tok_id(api, tc.ctrt_id, 0)
+        tok_id = pv.Ctrt.get_tok_id(tc.ctrt_id, 0)
 
         nc = await pv.LockCtrt.register(acnt0, tok_id)
         await cft.wait_for_block()
@@ -75,9 +74,8 @@ class TestLockCtrt:
             pv.LockCtrt: The LockCtrt instance.
         """
         tc = new_tok_ctrt
-        api = acnt0.api
 
-        tok_id = await cft.get_tok_id(api, tc.ctrt_id, 0)
+        tok_id = pv.Ctrt.get_tok_id(tc.ctrt_id, 0)
 
         lc = new_ctrt
 

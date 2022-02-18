@@ -4,7 +4,7 @@ api contains NodeAPI-related resources.
 from __future__ import annotations
 import abc
 import json
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, Optional, Union, List
 
 import aiohttp
 
@@ -266,6 +266,33 @@ class Blocks(APIGrp):
             Dict[str, int]: The response.
         """
         return await self._get("/height")
+
+    async def get_block_at(self, height: int) -> Dict[str, Any]:
+        """
+        get_block_at gets the block at the given height.
+
+        Args:
+            height (int): The height of the block.
+
+        Returns:
+            Dict[str, Any]: The block.
+        """
+        return await self._get(f"/at/{height}")
+
+    async def get_blocks_within(
+        self, start_height: int, end_height: int
+    ) -> List[Dict[str, Any]]:
+        """
+        get_blocks_within gets blocks fall in the given range.
+
+        Args:
+            start_height (int): The start height.
+            end_height (int): The end height.
+
+        Returns:
+            List[Dict[str, Any]]: The blocks.
+        """
+        return await self._get(f"/seq/{start_height}/{end_height}")
 
 
 class Utils(APIGrp):

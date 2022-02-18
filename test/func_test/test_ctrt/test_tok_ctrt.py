@@ -60,9 +60,8 @@ class TestTokCtrtWithoutSplit:
             pv.AtomicSwapCtrt: The AtomicSwapCtrt instance.
         """
         tc = new_ctrt_with_tok
-        api = tc.chain.api
 
-        tok_id = await cft.get_tok_id(api, tc.ctrt_id, 0)
+        tok_id = pv.Ctrt.get_tok_id(tc.ctrt_id, 0)
         ac = await pv.AtomicSwapCtrt.register(acnt0, tok_id)
 
         await cft.wait_for_block()
@@ -104,7 +103,7 @@ class TestTokCtrtWithoutSplit:
 
         await cft.assert_tx_success(api, resp["id"])
 
-        tok_id = await cft.get_tok_id(api, tc.ctrt_id, 0)
+        tok_id = pv.Ctrt.get_tok_id(tc.ctrt_id, 0)
         tok_bal = await cft.get_tok_bal(api, acnt0.addr.b58_str, tok_id)
         assert tok_bal == 50
 
@@ -125,7 +124,7 @@ class TestTokCtrtWithoutSplit:
         tc = new_ctrt_with_tok
         api = tc.chain.api
 
-        tok_id = await cft.get_tok_id(api, tc.ctrt_id, 0)
+        tok_id = pv.Ctrt.get_tok_id(tc.ctrt_id, 0)
 
         tok_bal_acnt0 = await cft.get_tok_bal(api, acnt0.addr.b58_str, tok_id)
         assert tok_bal_acnt0 == 50
@@ -160,7 +159,7 @@ class TestTokCtrtWithoutSplit:
         tc = new_ctrt_with_tok
         api = tc.chain.api
 
-        tok_id = await cft.get_tok_id(api, tc.ctrt_id, 0)
+        tok_id = pv.Ctrt.get_tok_id(tc.ctrt_id, 0)
 
         tok_bal_acnt0 = await cft.get_tok_bal(api, acnt0.addr.b58_str, tok_id)
         assert tok_bal_acnt0 == 50
@@ -195,7 +194,7 @@ class TestTokCtrtWithoutSplit:
         tc = new_ctrt_with_tok
         api = tc.chain.api
 
-        tok_id = await cft.get_tok_id(api, tc.ctrt_id, 0)
+        tok_id = pv.Ctrt.get_tok_id(tc.ctrt_id, 0)
         ac = new_atomic_swap_ctrt
         await cft.wait_for_block()
         assert (await ac.maker) == acnt0.addr.b58_str
@@ -236,7 +235,7 @@ class TestTokCtrtWithoutSplit:
         tc = new_ctrt_with_tok
         api = tc.chain.api
 
-        tok_id = await cft.get_tok_id(api, tc.ctrt_id, 0)
+        tok_id = pv.Ctrt.get_tok_id(tc.ctrt_id, 0)
 
         tok_bal = await cft.get_tok_bal(api, acnt0.addr.b58_str, tok_id)
         assert tok_bal == 50
@@ -398,7 +397,7 @@ class TestTokWithoutSplitV2WhiteList(TestTokCtrtWithoutSplit):
         nc = new_ctrt_with_tok
         api = nc.chain.api
 
-        tok_id = await cft.get_tok_id(api, nc.ctrt_id, 0)
+        tok_id = pv.Ctrt.get_tok_id(nc.ctrt_id, 0)
         ac = await pv.AtomicSwapCtrt.register(acnt0, tok_id)
 
         await cft.wait_for_block()
@@ -587,9 +586,8 @@ class TestTokWithoutSplitV2BlackList(TestTokWithoutSplitV2WhiteList):
             pv.AtomicSwapCtrt: The AtomicSwapCtrt instance.
         """
         nc = new_ctrt_with_tok
-        api = nc.chain.api
 
-        tok_id = await cft.get_tok_id(api, nc.ctrt_id, 0)
+        tok_id = pv.Ctrt.get_tok_id(nc.ctrt_id, 0)
         ac = await pv.AtomicSwapCtrt.register(acnt0, tok_id)
 
         await cft.wait_for_block()
