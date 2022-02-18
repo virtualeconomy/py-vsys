@@ -107,22 +107,6 @@ async def assert_tx_success(api: pv.NodeAPI, tx_id: str) -> None:
     await assert_tx_status(api, tx_id, "Success")
 
 
-async def get_tok_id(api: pv.NodeAPI, ctrt_id: str, tok_idx: int) -> str:
-    """
-    get_tok_id gets the token ID for the given token index of the contract.
-
-    Args:
-        api (pv.NodeAPI): The NodeAPI object.
-        ctrt_id (str): The contract ID.
-        tok_idx (int): The token index.
-
-    Returns:
-        str: The token ID.
-    """
-    resp = await api.ctrt.get_tok_id(ctrt_id, tok_idx)
-    return resp["tokenId"]
-
-
 async def get_tok_bal(api: pv.NodeAPI, addr: str, tok_id: str) -> int:
     """
     get_tok_bal gets the token balance of the given token ID.

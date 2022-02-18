@@ -11,6 +11,7 @@ from loguru import logger
 if TYPE_CHECKING:
     from py_v_sdk import account as acnt
     from py_v_sdk import chain as ch
+
 from py_v_sdk import data_entry as de
 from py_v_sdk import tx_req as tx
 from py_v_sdk import model as md
@@ -31,6 +32,7 @@ class TokenCtrtWithoutSplit(Ctrt):
         self._ctrt_id = md.CtrtID(ctrt_id)
         self._chain = chain
         self._unit = md.Int(unit)
+        self._tok_id: str = ""
 
     @property
     def unit(self) -> int:
@@ -157,15 +159,14 @@ class TokenCtrtWithoutSplit(Ctrt):
     @property
     async def tok_id(self) -> str:
         """
-        TODO: tok_id can be computed locally.
-
-        tok_id queries & returns the token ID of the contract.
+        tok_id returns the token ID of the contract.
 
         Returns:
             str: The token ID.
         """
-        data = await self.chain.api.ctrt.get_tok_id(self.ctrt_id, 0)
-        return data["tokenId"]
+        if not self._tok_id:
+            self._tok_id = self.get_tok_id(self.ctrt_id, 0)
+        return self._tok_id
 
     async def get_tok_bal(self, addr: str) -> int:
         """
