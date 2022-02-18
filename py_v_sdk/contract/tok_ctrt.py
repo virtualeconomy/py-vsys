@@ -28,21 +28,16 @@ class TokenCtrtWithoutSplit(Ctrt):
         "3GQnJtxDQc3zFuUwXKbrev1TL7VGxk5XNZ7kUveKK6BsneC1zTSTRjgBTdDrksHtVMv6nwy9Wy6MHRgydAJgEegDmL4yx7tdNjdnU38b8FrCzFhA1aRNxhEC3ez7JCi3a5dgVPr93hS96XmSDnHYvyiCuL6dggahs2hKXjdz4SGgyiUUP4246xnELkjhuCF4KqRncUDcZyWQA8UrfNCNSt9MRKTj89sKsV1hbcGaTcX2qqqSU841HyokLcoQSgmaP3uBBMdgSYVtovPLEFmpXFMoHWXAxQZDaEtZcHPkrhJyG6CdTgkNLUQKWtQdYzjxCc9AsUGMJvWrxWMi6RQpcqYk3aszbEyAh4r4fcszHHAJg64ovDgMNUDnWQWJerm5CjvN76J2MVN6FqQkS9YrM3FoHFTj1weiRbtuTc3mCR4iMcu2eoxcGYRmUHxKiRoZcWnWMX2mzDw31SbvHqqRbF3t44kouJznTyJM6z1ruiyQW6LfFZuV6VxsKLX3KQ46SxNsaJoUpvaXmVj2hULoGKHpwPrTVzVpzKvYQJmz19vXeZiqQ2J3tVcSFH17ahSzwRkXYJ5HP655FHqTr6Vvt8pBt8N5vixJdYtfx7igfKX4aViHgWkreAqBK3trH4VGJ36e28RJP8Xrt6NYG2icsHsoERqHik7GdjPAmXpnffDL6P7NBfyKWtp9g9C289TDGUykS8CNiW9L4sbUabdrqsdkdPRjJHzzrb2gKTf2vB56rZmreTUbJ53KsvpZht5bixZ59VbCNZaHfZyprvzzhyTAudAmhp8Nrks7SV1wTySZdmfLyw7vsNmTEi3hmuPmYqExp4PoLPUwT4TYt2doYUX1ds3CesnRSjFqMhXnLmTgYXsAXvvT2E6PWTY5nPCycQv5pozvQuw1onFtGwY9n5s2VFjxS9W6FkCiqyyZAhCXP5o44wkmD5SVqyqoL5HmgNc8SJL7uMMMDDwecy7Sh9vvt3RXirH7F7bpUv3VsaepVGCHLfDp9GMG59ZiWK9Rmzf66e8Tw4unphu7gFNZuqeBk2YjCBj3i4eXbJvBEgCRB51FATRQY9JUzdMv9Mbkaq4DW69AgdqbES8aHeoax1UDDBi3raM8WpP2cKVEqoeeCGYM2vfN6zBAh7Tu3M4NcNFJmkNtd8Mpc2Md1kxRsusVzHiYxnsZjo"
     )
 
-    def __init__(self, ctrt_id: str, chain: ch.Chain, unit: int) -> None:
+    def __init__(self, ctrt_id: str, chain: ch.Chain) -> None:
+        """
+        Args:
+            ctrt_id (str): The contract ID.
+            chain (ch.Chain): The Chain object.
+        """
         self._ctrt_id = md.CtrtID(ctrt_id)
         self._chain = chain
-        self._unit = md.Int(unit)
+        self._unit = 0
         self._tok_id: str = ""
-
-    @property
-    def unit(self) -> int:
-        """
-        unit returns the unit in int format.
-
-        Returns:
-            int: The unit in integer format.
-        """
-        return self._unit.data
 
     class FuncIdx(Ctrt.FuncIdx):
         SUPERSEDE = 0
@@ -120,11 +115,12 @@ class TokenCtrtWithoutSplit(Ctrt):
         )
         logger.debug(data)
 
-        return cls(
+        tc = cls(
             data["contractId"],
             chain=by.chain,
-            unit=unit,
         )
+        tc._unit = unit
+        return tc
 
     @property
     async def issuer(self) -> str:
@@ -167,6 +163,19 @@ class TokenCtrtWithoutSplit(Ctrt):
         if not self._tok_id:
             self._tok_id = self.get_tok_id(self.ctrt_id, 0)
         return self._tok_id
+
+    @property
+    async def unit(self) -> int:
+        """
+        unit returns the unit in integer format.
+
+        Returns:
+            int: The unit in integer format.
+        """
+        if self._unit <= 0:
+            info = await self._chain.api.ctrt.get_tok_info(self.tok_id)
+            self._unit = info["unity"]
+        return self._unit
 
     async def get_tok_bal(self, addr: str) -> int:
         """
@@ -234,12 +243,14 @@ class TokenCtrtWithoutSplit(Ctrt):
         Returns:
             Dict[str,any]: The response returned by the Node API
         """
+        unit = await self.unit
+
         data = await by._execute_contract(
             tx.ExecCtrtFuncTxReq(
                 ctrt_id=self._ctrt_id,
                 func_id=self.FuncIdx.ISSUE,
                 data_stack=de.DataStack(
-                    de.Amount.for_tok_amount(amount, self.unit),
+                    de.Amount.for_tok_amount(amount, unit),
                 ),
                 timestamp=md.VSYSTimestamp.now(),
                 attachment=md.Str(attachment),
@@ -274,13 +285,15 @@ class TokenCtrtWithoutSplit(Ctrt):
         rcpt_md = md.Addr(recipient)
         rcpt_md.must_on(by.chain)
 
+        unit = await self.unit
+
         data = await by._execute_contract(
             tx.ExecCtrtFuncTxReq(
                 ctrt_id=self._ctrt_id,
                 func_id=self.FuncIdx.SEND,
                 data_stack=de.DataStack(
                     de.Addr(rcpt_md),
-                    de.Amount.for_tok_amount(amount, self.unit),
+                    de.Amount.for_tok_amount(amount, unit),
                 ),
                 timestamp=md.VSYSTimestamp.now(),
                 attachment=md.Str(attachment),
@@ -309,13 +322,14 @@ class TokenCtrtWithoutSplit(Ctrt):
         Returns:
             Dict[str, Any]: The response returned by the Node API
         """
+        unit = await self.unit
 
         data = await by._execute_contract(
             tx.ExecCtrtFuncTxReq(
                 ctrt_id=self._ctrt_id,
                 func_id=self.FuncIdx.DESTROY,
                 data_stack=de.DataStack(
-                    de.Amount.for_tok_amount(amount, self.unit),
+                    de.Amount.for_tok_amount(amount, unit),
                 ),
                 timestamp=md.VSYSTimestamp.now(),
                 attachment=md.Str(attachment),
@@ -355,6 +369,8 @@ class TokenCtrtWithoutSplit(Ctrt):
         sender_md.must_on(by.chain)
         rcpt_md.must_on(by.chain)
 
+        unit = await self.unit
+
         data = await by._execute_contract(
             tx.ExecCtrtFuncTxReq(
                 ctrt_id=self._ctrt_id,
@@ -362,7 +378,7 @@ class TokenCtrtWithoutSplit(Ctrt):
                 data_stack=de.DataStack(
                     de.Addr(sender_md),
                     de.Addr(rcpt_md),
-                    de.Amount.for_tok_amount(amount, self.unit),
+                    de.Amount.for_tok_amount(amount, unit),
                 ),
                 timestamp=md.VSYSTimestamp.now(),
                 attachment=md.Str(attachment),
@@ -397,6 +413,8 @@ class TokenCtrtWithoutSplit(Ctrt):
         sender_md = md.Addr(by.addr.b58_str)
         sender_md.must_on(by.chain)
 
+        unit = await self.unit
+
         data = await by._execute_contract(
             tx.ExecCtrtFuncTxReq(
                 ctrt_id=self._ctrt_id,
@@ -404,7 +422,7 @@ class TokenCtrtWithoutSplit(Ctrt):
                 data_stack=de.DataStack(
                     de.Addr(sender_md),
                     de.CtrtAcnt(md.CtrtID(contract)),
-                    de.Amount.for_tok_amount(amount, self.unit),
+                    de.Amount.for_tok_amount(amount, unit),
                 ),
                 timestamp=md.VSYSTimestamp.now(),
                 attachment=md.Str(attachment),
@@ -439,6 +457,8 @@ class TokenCtrtWithoutSplit(Ctrt):
         rcpt_md = md.Addr(by.addr.b58_str)
         rcpt_md.must_on(by.chain)
 
+        unit = await self.unit
+
         data = await by._execute_contract(
             tx.ExecCtrtFuncTxReq(
                 ctrt_id=self._ctrt_id,
@@ -446,7 +466,7 @@ class TokenCtrtWithoutSplit(Ctrt):
                 data_stack=de.DataStack(
                     de.CtrtAcnt(md.CtrtID(contract)),
                     de.Addr(rcpt_md),
-                    de.Amount.for_tok_amount(amount, self.unit),
+                    de.Amount.for_tok_amount(amount, unit),
                 ),
                 timestamp=md.VSYSTimestamp.now(),
                 attachment=md.Str(attachment),
@@ -520,8 +540,19 @@ class TokenCtrtWithSplit(TokenCtrtWithoutSplit):
         return cls(
             data["contractId"],
             chain=by.chain,
-            unit=unit,
         )
+
+    @property
+    async def unit(self) -> int:
+        """
+        unit returns the unit in integer format.
+
+        Returns:
+            int: The unit in integer format.
+        """
+        info = await self._chain.api.ctrt.get_tok_info(self.tok_id)
+        self._unit = info["unity"]
+        return self._unit
 
     async def split(
         self,
@@ -704,11 +735,12 @@ class TokenCtrtWithoutSplitV2WhiteList(TokenCtrtWithoutSplit):
         )
         logger.debug(data)
 
-        return cls(
+        tc = cls(
             data["contractId"],
             chain=by.chain,
-            unit=unit,
         )
+        tc._unit = unit
+        return tc
 
     async def _is_in_list(self, db_key: TokenCtrtWithoutSplitV2WhiteList.DBKey) -> bool:
         """
