@@ -212,7 +212,7 @@ class Amount(Long):
 
         Args:
             amount (Union[int, float]): The desired tokens amount.
-            unit (int): The unit for hte token.
+            unit (int): The unit for the token.
 
         Returns:
             Amount: The Amount instance.
