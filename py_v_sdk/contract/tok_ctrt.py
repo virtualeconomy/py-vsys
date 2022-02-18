@@ -157,7 +157,7 @@ class TokenCtrtWithoutSplit(Ctrt):
         return data["value"]
 
     @property
-    async def tok_id(self) -> str:
+    def tok_id(self) -> str:
         """
         tok_id returns the token ID of the contract.
 
