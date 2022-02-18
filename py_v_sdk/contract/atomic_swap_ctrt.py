@@ -147,7 +147,7 @@ class AtomicSwapCtrt(Ctrt):
             )
         )
         logger.debug(data)
-        print(data)
+        # print(data)
         return cls(
             data["contractId"],
             chain=by.chain,
@@ -190,7 +190,7 @@ class AtomicSwapCtrt(Ctrt):
         by: acnt.Account,
         amount: Union[int, float],
         recipient: str,
-        puzzle: str,
+        secret: str,
         expire_time: int,
         attachment: str = "",
         fee: int = md.ExecCtrtFee.DEFAULT,
@@ -201,7 +201,7 @@ class AtomicSwapCtrt(Ctrt):
             by (acnt.Account): the action taker.
             amount (Union[int, float]): the amount of the token to be locked.
             recipient (str): the taker's address.
-            puzzle (str): the secret.
+            secret (str): the secret.
             expire_time (int): the expired timestamp to lock.
             attachment (str, optional): [description]. Defaults to "".
             fee (int, optional): [description]. Defaults to md.ExecCtrtFee.DEFAULT.
@@ -210,7 +210,8 @@ class AtomicSwapCtrt(Ctrt):
             Dict[str, Any]: [description]
         """
         SCALE = 1_000_000_000
-        puzzle_bytes = base58.b58encode(sha256_hash(puzzle.encode("latin-1")))
+        puzzle_bytes = sha256_hash(secret.encode("latin-1"))
+
         tok_id = await self.token_id
         resp = await by.chain.api.ctrt.get_tok_info(tok_id)
         unit = resp["unity"]
@@ -271,8 +272,8 @@ class AtomicSwapCtrt(Ctrt):
             maker_swap_ctrt_id, puzzle_db_key.b58_str
         )
         logger.debug(data)
-        print(data)
         hashed_secret_b58str = data["value"]
+        puzzle_bytes = base58.b58decode(hashed_secret_b58str.encode("latin-1"))
 
         tok_id = await self.token_id
         resp = await by.chain.api.ctrt.get_tok_info(tok_id)
@@ -285,7 +286,7 @@ class AtomicSwapCtrt(Ctrt):
                 data_stack=de.DataStack(
                     de.Amount.for_tok_amount(amount, unit),
                     de.Addr(md.Addr(recipient)),
-                    de.Bytes(md.Bytes(hashed_secret_b58str.encode("latin-1"))),
+                    de.Bytes(md.Bytes(puzzle_bytes)),
                     de.Timestamp(md.VSYSTimestamp(expire_time * SCALE)),
                 ),
                 timestamp=md.VSYSTimestamp.now(),
@@ -310,6 +311,7 @@ class AtomicSwapCtrt(Ctrt):
 
         Args:
             by (acnt.Account): The action maker.
+            taker_ctrt_id (str): The swap ctrt id of the taker.
             tx_id (str): the lock transaction id of taker's .
             key (str): The puzzle.
             attachment (str, optional): The attachment of this action. Defaults to "".
@@ -324,7 +326,7 @@ class AtomicSwapCtrt(Ctrt):
                 ctrt_id=md.CtrtID(taker_ctrt_id),
                 func_id=self.FuncIdx.SOLVE_PUZZLE,
                 data_stack=de.DataStack(
-                    de.Bytes(md.Bytes(tx_id.encode("latin-1"))),
+                    de.Bytes(md.Bytes(base58.b58decode(tx_id))),
                     de.Bytes(md.Bytes(key.encode("latin-1"))),
                 ),
                 timestamp=md.VSYSTimestamp.now(),
@@ -387,11 +389,11 @@ class AtomicSwapCtrt(Ctrt):
         fee: int = md.ExecCtrtFee.DEFAULT,
     ) -> Dict[str, Any]:
         """
-        exp_withdraw withdraws the tokens when the contract is expired.
+        exp_withdraw withdraws the tokens when the lock is expired.
 
         Args:
             by (acnt.Account): the action taker.
-            tx_id (str): The transaction id.
+            tx_id (str): The transaction lock id.
             attachment (str, optional): The attachment of this action. Defaults to "".
             fee (int, optional): Execution fee of this tx. Defaults to md.ExecCtrtFee.DEFAULT.
 

@@ -648,7 +648,7 @@ class Bytes(Model):
     @classmethod
     def from_str(self, data: str) -> Bytes:
         """
-        turn the string into bytes
+        turn the string into bytes.
 
         Args:
             data (str): the input string.
