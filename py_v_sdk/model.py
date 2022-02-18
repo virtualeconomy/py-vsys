@@ -618,7 +618,7 @@ class Bytes(Model):
     @property
     def b58_str(self) -> str:
         """
-        b58_str returns the base58 string representation of the containing data.
+        b58_str returns the base58 string representation of the containing data
 
         Returns:
             str: The base58 string representation.
