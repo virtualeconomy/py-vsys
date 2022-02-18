@@ -6,7 +6,6 @@ import abc
 import struct
 from typing import Tuple, List, Union
 
-
 from py_v_sdk import model as md
 
 
@@ -426,6 +425,26 @@ class Bytes(Text):
     @property
     def bytes(self) -> bytes:
         return self.data.data
+
+    @classmethod
+    def for_str(cls, str: str) -> Bytes:
+        """
+        for_str is the handy method to get the data entry for a string.
+
+        Returns:
+        The Bytes instance.
+        """
+        return cls(md.Bytes.from_str(str))
+
+    @classmethod
+    def for_base58_str(cls, str: str) -> Bytes:
+        """
+        for_base58_str is the handy method to get the data entry for a b58 string.
+
+        Returns:
+        The Bytes instance.
+        """
+        return cls(md.Bytes.from_b58_str(str))
 
 
 class Balance(Long):
