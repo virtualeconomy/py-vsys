@@ -618,7 +618,7 @@ class Bytes(Model):
     @property
     def b58_str(self) -> str:
         """
-        b58_str returns the base58 string representation of the containing data
+        b58_str returns the base58 string representation of the containing data.
 
         Returns:
             str: The base58 string representation.
@@ -630,6 +630,34 @@ class Bytes(Model):
 
         if not isinstance(self.data, bytes):
             raise TypeError(f"Data in {cls_name} must be bytes")
+
+    @classmethod
+    def from_b58_str(self, data: str) -> Bytes:
+        """
+        turn the base58 string into bytes
+
+        Args:
+            data (str): the input base58 string.
+
+        Returns:
+            Bytes: the md.Bytes instance.
+        """
+        data = base58.b58decode(data)
+        return self(data)
+
+    @classmethod
+    def from_str(self, data: str) -> Bytes:
+        """
+        turn the string into bytes.
+
+        Args:
+            data (str): the input string.
+
+        Returns:
+            Bytes: the md.Bytes instance.
+        """
+        self.data = data.encode("latin-1")
+        return self(data)
 
 
 class Bool(Model):
