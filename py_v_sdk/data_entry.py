@@ -4,7 +4,7 @@ data_entry contains DataEntry-related resources.
 from __future__ import annotations
 import abc
 import struct
-from typing import Tuple, List, Union
+from typing import Tuple, List, Union, Type
 
 from py_v_sdk import model as md
 
@@ -476,7 +476,7 @@ class IndexMap:
     }
 
     @classmethod
-    def get_de_cls(cls, idx: int) -> DataEntry:
+    def get_de_cls(cls, idx: int) -> Type[DataEntry]:
         """
         get_de_cls gets DataEntry Class as per the given index
 

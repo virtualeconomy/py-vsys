@@ -406,6 +406,18 @@ class Contract(APIGrp):
         """
         return await self._get(f"/data/{ctrt_id}/{db_key}")
 
+    async def get_ctrt_info(self, ctrt_id: str) -> Dict[str, Any]:
+        """
+        get_ctrt_info gets the information of the contract.
+
+        Args:
+            ctrt_id (str): The contract ID.
+
+        Returns:
+            Dict[str, Any]: The response.
+        """
+        return await self._get(f"/info/{ctrt_id}")
+
     async def get_tok_bal(self, addr: str, tok_id: str) -> Dict[str, Any]:
         """
         get_tok_bal gets the balance of the token for the account address.
