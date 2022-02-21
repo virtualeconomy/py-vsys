@@ -262,6 +262,25 @@ class PayChanCtrt(Ctrt):
             self._tok_id = await self._query_db_key(self.DBKey.for_token_id())
         return self._tok_id
 
+    @property
+    async def unit(self) -> int:
+        """
+        unit returns the unit of the token specified in this contract.
+
+        Returns:
+            int: The token unit.
+        """
+        if not self._unit:
+            tok_id = await self.tok_id
+
+            if md.TokenID(tok_id).is_vsys_tok():
+                self._unit = md.VSYS.UNIT
+            else:
+                tc = await tcf.from_tok_id(tok_id, self.chain)
+                self._unit = await tc.unit
+
+        return self._unit
+
     async def get_ctrt_bal(self, addr: str) -> int:
         """
         get_ctrt_bal queries & returns the balance of the token within this contract
@@ -439,9 +458,7 @@ class PayChanCtrt(Ctrt):
         rcpt_md = md.Addr(recipient)
         rcpt_md.must_on(self.chain)
 
-        tok_id = await self.tok_id
-        tc = await tcf.from_tok_id(tok_id, self.chain)
-        unit = await tc.unit
+        unit = await self.unit
 
         data = await by._execute_contract(
             tx.ExecCtrtFuncTxReq(
@@ -523,9 +540,7 @@ class PayChanCtrt(Ctrt):
             Dict[str, Any]: The response returned by the Node API
         """
 
-        tok_id = await self.tok_id
-        tc = await tcf.from_tok_id(tok_id, self.chain)
-        unit = await tc.unit
+        unit = await self.unit
 
         data = await by._execute_contract(
             tx.ExecCtrtFuncTxReq(
@@ -642,9 +657,7 @@ class PayChanCtrt(Ctrt):
             Dict[str, Any]: The response returned by the Node API.
         """
 
-        tok_id = await self.tok_id
-        tc = await tcf.from_tok_id(tok_id, self.chain)
-        unit = await tc.unit
+        unit = await self.unit
 
         data = await by._execute_contract(
             tx.ExecCtrtFuncTxReq(
