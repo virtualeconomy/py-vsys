@@ -3,7 +3,7 @@ pay_chan_ctrt contains Payment Channel contract.
 """
 from __future__ import annotations
 from re import I
-from typing import TYPE_CHECKING, Dict, Any
+from typing import TYPE_CHECKING, Dict, Any, Union
 
 from loguru import logger
 
@@ -407,7 +407,7 @@ class PayChanCtrt(Ctrt):
         self,
         by: acnt.Account,
         recipient: str,
-        amount: int,
+        amount: Union[int, float],
         expire_at: int,
         attachment: str = "",
         fee: int = md.ExecCtrtFee.DEFAULT,
@@ -497,7 +497,7 @@ class PayChanCtrt(Ctrt):
         self,
         by: acnt.Account,
         chan_id: str,
-        amount: int,
+        amount: Union[int, float],
         attachment: str = "",
         fee: int = md.ExecCtrtFee.DEFAULT,
     ) -> Dict[str, Any]:
