@@ -10,6 +10,7 @@ from loguru import logger
 # https://stackoverflow.com/a/39757388
 if TYPE_CHECKING:
     from py_v_sdk import account as acnt
+    from py_v_sdk import chain as ch
 
 from py_v_sdk import data_entry as de
 from py_v_sdk import tx_req as tx
@@ -221,6 +222,15 @@ class PayChanCtrt(Ctrt):
             ).serialize()
             return cls(b)
 
+    def __init__(self, ctrt_id: str, chain: ch.Chain) -> None:
+        """
+        Args:
+            ctrt_id (str): The id of the contract.
+            chain (ch.Chain): The object of the chain where the contract is on.
+        """
+        super().__init__(ctrt_id, chain)
+        self._tok_id = ""
+
     @property
     async def maker(self) -> str:
         """
@@ -239,7 +249,9 @@ class PayChanCtrt(Ctrt):
         Returns:
             str: The token_id of the contract.
         """
-        return await self._query_db_key(self.DBKey.for_token_id())
+        if not self._tok_id:
+            self._tok_id = await self._query_db_key(self.DBKey.for_token_id())
+        return self._tok_id
 
     async def get_ctrt_bal(self, addr: str) -> int:
         """
