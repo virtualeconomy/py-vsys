@@ -427,24 +427,24 @@ class Bytes(Text):
         return self.data.data
 
     @classmethod
-    def for_str(cls, str: str) -> Bytes:
+    def for_str(cls, s: str) -> Bytes:
         """
         for_str is the handy method to get the data entry for a string.
 
         Returns:
-        The Bytes instance.
+            The Bytes instance.
         """
-        return cls(md.Bytes.from_str(str))
+        return cls(md.Bytes.from_str(s))
 
     @classmethod
-    def for_base58_str(cls, str: str) -> Bytes:
+    def for_base58_str(cls, s: str) -> Bytes:
         """
         for_base58_str is the handy method to get the data entry for a b58 string.
 
         Returns:
-        The Bytes instance.
+            The Bytes instance.
         """
-        return cls(md.Bytes.from_b58_str(str))
+        return cls(md.Bytes.from_b58_str(s))
 
 
 class Balance(Long):
