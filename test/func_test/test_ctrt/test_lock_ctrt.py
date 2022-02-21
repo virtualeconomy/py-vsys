@@ -80,7 +80,7 @@ class TestLockCtrt:
         lc = new_ctrt
 
         assert (await lc.maker) == acnt0.addr.b58_str
-        assert (await lc.token_id) == tok_id
+        assert (await lc.tok_id) == tok_id
         assert (await lc.get_ctrt_bal(acnt0.addr.b58_str)) == 0
         assert (await lc.get_ctrt_lock_time(acnt0.addr.b58_str)) == 0
 
@@ -122,7 +122,7 @@ class TestLockCtrt:
         assert (await lc.get_ctrt_bal(acnt0.addr.b58_str)) == self.TOK_MAX
 
         # till here, 2 block time has passed, wait for a few seconds more the lock will expire
-        await asyncio.sleep(4)
+        await asyncio.sleep(6)
 
         # withdraw after the expiration will succeed
         resp = await tc.withdraw(acnt0, lc.ctrt_id, self.TOK_MAX)
