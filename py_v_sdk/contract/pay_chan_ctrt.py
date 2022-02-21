@@ -454,3 +454,41 @@ class PayChanCtrt(Ctrt):
         )
         logger.debug(data)
         return data
+
+    async def extend_exp_time(
+        self,
+        by: acnt.Account,
+        chan_id: str,
+        expire_at: int,
+        attachment: str = "",
+        fee: int = md.ExecCtrtFee.DEFAULT,
+    ) -> Dict[str, Any]:
+        """
+        extend_exp_time extends the expiration time of the channel to the new input timestamp
+
+        Args:
+            by (acnt.Account): The action taker.
+            chan_id (str): The channel ID.
+            expire_at (int): Unix timestamp. When the lock will expire.
+            attachment (str, optional): The attachment of this action. Defaults to "".
+            fee (int, optional): The fee to pay for this action. Defaults to md.ExecCtrtFee.DEFAULT.
+
+        Returns:
+            Dict[str, Any]: The response returned by the Node API
+        """
+
+        data = await by._execute_contract(
+            tx.ExecCtrtFuncTxReq(
+                ctrt_id=self._ctrt_id,
+                func_id=self.FuncIdx.EXTEND_EXPIRATION_TIME,
+                data_stack=de.DataStack(
+                    de.Bytes.for_base58_str(chan_id),
+                    de.Timestamp(md.VSYSTimestamp.from_unix_ts(expire_at)),
+                ),
+                timestamp=md.VSYSTimestamp.now(),
+                attachment=md.Str(attachment),
+                fee=md.ExecCtrtFee(fee),
+            )
+        )
+        logger.debug(data)
+        return data
