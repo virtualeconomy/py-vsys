@@ -361,7 +361,7 @@ class PayChanCtrt(Ctrt):
         unix_ts = md.VSYSTimestamp(raw_ts).unix_ts
         return int(unix_ts)
 
-    async def get_chan_status(self, chan_id: str) -> str:
+    async def get_chan_status(self, chan_id: str) -> bool:
         """
         get_chan_status queries & returns the status of the channel.
 
@@ -369,7 +369,7 @@ class PayChanCtrt(Ctrt):
             chan_id (str): The channel ID.
 
         Returns:
-            str: The status of the channel.
+            bool: The status of the channel.
         """
         return await self._query_db_key(self.DBKey.for_channel_status(chan_id))
 
