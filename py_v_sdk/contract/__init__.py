@@ -460,3 +460,11 @@ class Ctrt(abc.ABC):
         )
 
         return tok_id_bytes.decode("latin-1")
+
+
+class BaseTokCtrt(Ctrt):
+    """
+    BaseTokCtrt is the base class for token contracts(NFT included)
+    """
+
+    pass
