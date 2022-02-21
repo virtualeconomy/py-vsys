@@ -106,6 +106,7 @@ class PayChanCtrt(Ctrt):
             ).serialize()
             return cls(b)
 
+        @classmethod
         def for_channel_creator(cls, chan_id: str) -> PayChanCtrt.DBKey:
             """
             for_channel_creator returns the PayChanCtrt.DBKey object for querying the channel creator.
@@ -122,6 +123,7 @@ class PayChanCtrt(Ctrt):
             ).serialize()
             return cls(b)
 
+        @classmethod
         def for_channel_creator_public_key(cls, chan_id: str) -> PayChanCtrt.DBKey:
             """
             for_channel_creator_public_key returns the PayChanCtrt.DBKey object for querying the public key
@@ -139,6 +141,7 @@ class PayChanCtrt(Ctrt):
             ).serialize()
             return cls(b)
 
+        @classmethod
         def for_channel_recipient(cls, chan_id: str) -> PayChanCtrt.DBKey:
             """
             for_channel_recipient returns the PayChanCtrt.DBKey object for querying the channel recipient.
@@ -155,6 +158,7 @@ class PayChanCtrt(Ctrt):
             ).serialize()
             return cls(b)
 
+        @classmethod
         def for_channel_accumulated_load(cls, chan_id: str) -> PayChanCtrt.DBKey:
             """
             for_channel_accumulated_load returns the PayChanCtrt.DBKey object for querying the
@@ -172,6 +176,7 @@ class PayChanCtrt(Ctrt):
             ).serialize()
             return cls(b)
 
+        @classmethod
         def for_channel_accumulated_payment(cls, chan_id: str) -> PayChanCtrt.DBKey:
             """
             for_channel_accumulated returns the PayChanCtrt.DBKey object for querying the
@@ -189,6 +194,7 @@ class PayChanCtrt(Ctrt):
             ).serialize()
             return cls(b)
 
+        @classmethod
         def for_channel_expiration_time(cls, chan_id: str) -> PayChanCtrt.DBKey:
             """
             for_channel_expiration_time returns the PayChanCtrt.DBKey object for querying the
@@ -206,6 +212,7 @@ class PayChanCtrt(Ctrt):
             ).serialize()
             return cls(b)
 
+        @classmethod
         def for_channel_status(cls, chan_id: str) -> PayChanCtrt.DBKey:
             """
             for_channel_status returns the PayChanCtrt.DBKey object for querying the
@@ -231,6 +238,7 @@ class PayChanCtrt(Ctrt):
         """
         super().__init__(ctrt_id, chain)
         self._tok_id = ""
+        self._unit = 0
 
     @property
     async def maker(self) -> str:
