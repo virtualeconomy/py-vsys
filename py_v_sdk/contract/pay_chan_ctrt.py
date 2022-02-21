@@ -15,6 +15,7 @@ if TYPE_CHECKING:
 from py_v_sdk import data_entry as de
 from py_v_sdk import tx_req as tx
 from py_v_sdk import model as md
+from py_v_sdk.contract import tok_ctrt_factory as tcf
 from . import CtrtMeta, Ctrt
 
 
@@ -401,3 +402,55 @@ class PayChanCtrt(Ctrt):
             data["contractId"],
             chain=by.chain,
         )
+
+    async def create_and_load(
+        self,
+        by: acnt.Account,
+        recipient: str,
+        amount: int,
+        expire_at: int,
+        attachment: str = "",
+        fee: int = md.ExecCtrtFee.DEFAULT,
+    ) -> Dict[str, Any]:
+        """
+        create_and_load creates the payment channel and loads an amount into it.
+        (This function's transaction id becomes the channel ID)
+
+        Args:
+            by (acnt.Account): The action taker.
+            recipient (str): The recipient account.
+            amount (Union[int, float]): The amount of tokens.
+            expire_at (int): Unix timestamp. When the lock will expire.
+            attachment (str, optional): The attachment of this action. Defaults to "".
+            fee (int, optional): The fee to pay for this action. Defaults to md.ExecCtrtFee.DEFAULT.
+
+        Returns:
+            Dict[str, Any]: The response returned by the Node API
+        """
+
+        rcpt_md = md.Addr(recipient)
+        rcpt_md.must_on(self.chain)
+
+        tok_id = await self.tok_id
+        tc = await tcf.from_tok_id(tok_id, self.chain)
+        unit = await tc.unit
+
+        data = await by._execute_contract(
+            tx.ExecCtrtFuncTxReq(
+                ctrt_id=self._ctrt_id,
+                func_id=self.FuncIdx.CREATE_AND_LOAD,
+                data_stack=de.DataStack(
+                    de.Addr(md.Addr(recipient)),
+                    de.Amount.for_tok_amount(
+                        amount,
+                        unit,
+                    ),
+                    de.Timestamp(md.VSYSTimestamp.from_unix_ts(expire_at)),
+                ),
+                timestamp=md.VSYSTimestamp.now(),
+                attachment=md.Str(attachment),
+                fee=md.ExecCtrtFee(fee),
+            )
+        )
+        logger.debug(data)
+        return data
