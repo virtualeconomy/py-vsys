@@ -632,32 +632,29 @@ class Bytes(Model):
             raise TypeError(f"Data in {cls_name} must be bytes")
 
     @classmethod
-    def from_b58_str(self, data: str) -> Bytes:
+    def from_b58_str(cls, s: str) -> Bytes:
         """
-        turn the base58 string into bytes
+        from_b58_str creates a Bytes object from the given base58-encoded string.
 
         Args:
-            data (str): the input base58 string.
+            s (str): the input base58 string.
 
         Returns:
-            Bytes: the md.Bytes instance.
+            Bytes: the Bytes instance.
         """
-        data = base58.b58decode(data)
-        return self(data)
+        return cls(base58.b58decode(s))
 
     @classmethod
-    def from_str(self, data: str) -> Bytes:
+    def from_str(cls, s: str) -> Bytes:
         """
-        turn the string into bytes.
-
+        from_str creates a Bytes object from the given string.
         Args:
-            data (str): the input string.
+            s (str): the input string.
 
         Returns:
-            Bytes: the md.Bytes instance.
+            Bytes: the Bytes instance.
         """
-        self.data = data.encode("latin-1")
-        return self(data)
+        return cls(s.encode("latin-1"))
 
 
 class Bool(Model):
