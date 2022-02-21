@@ -64,6 +64,9 @@ class TxReq(abc.ABC):
         """
         sign returns the signature for this request in the format of bytes
 
+        Args:
+            key_pair (md.KeyPair): The key pair to sign.
+
         Returns:
             bytes: The signature for this request
         """
