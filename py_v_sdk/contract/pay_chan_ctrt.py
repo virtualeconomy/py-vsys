@@ -232,9 +232,9 @@ class PayChanCtrt(Ctrt):
         return await self._query_db_key(self.DBKey.for_maker())
 
     @property
-    async def token_id(self) -> str:
+    async def tok_id(self) -> str:
         """
-        token_id queries & returns the token_id of the contract.
+        tok_id queries & returns the token_id of the contract.
 
         Returns:
             str: The token_id of the contract.
