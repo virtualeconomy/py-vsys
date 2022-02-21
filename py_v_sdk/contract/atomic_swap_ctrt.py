@@ -3,6 +3,7 @@ atomic_swap_ctrt contains Atomic Swap contract.
 """
 from __future__ import annotations
 from typing import TYPE_CHECKING, Dict, Any, Union
+from py_v_sdk.data_entry import DataStack
 
 from loguru import logger
 import asyncio
@@ -147,7 +148,6 @@ class AtomicSwapCtrt(Ctrt):
             )
         )
         logger.debug(data)
-        # print(data)
         return cls(
             data["contractId"],
             chain=by.chain,
@@ -198,11 +198,11 @@ class AtomicSwapCtrt(Ctrt):
         """
         maker_lock locks the token by the maker.
         Args:
-            by (acnt.Account): the action taker.
-            amount (Union[int, float]): the amount of the token to be locked.
-            recipient (str): the taker's address.
-            secret (str): the secret.
-            expire_time (int): the expired timestamp to lock.
+            by (acnt.Account): The action taker.
+            amount (Union[int, float]): The amount of the token to be locked.
+            recipient (str): The taker's address.
+            secret (str): The secret.
+            expire_time (int): The expired timestamp to lock.
             attachment (str, optional): [description]. Defaults to "".
             fee (int, optional): [description]. Defaults to md.ExecCtrtFee.DEFAULT.
 
@@ -237,8 +237,8 @@ class AtomicSwapCtrt(Ctrt):
     async def taker_lock(
         self,
         by: acnt.Account,
-        maker_swap_ctrt_id: str,
         amount: Union[int, float],
+        maker_swap_ctrt_id: str,
         recipient: str,
         maker_lock_tx_id: str,
         expire_time: int,
@@ -249,21 +249,18 @@ class AtomicSwapCtrt(Ctrt):
         taker_lock locks the token by the maker.
 
         Args:
-            by (acnt.Account): the action taker.
-            maker_swap_ctrt_id: the contract id of the maker.
-            amount (Union[int, float]): the amount of the token to be locked.
-            recipient (str): the maker's address.
-            maker_lock_tx_id (str): the tx id of the maker.
-            expire_time (int): the expire timestamp to lock.
+            by (acnt.Account): The action maker.
+            amount (Union[int, float]): The amount of the token to be locked.
+            maker_swap_ctrt_id: The contract id of the maker's.
+            recipient (str): The maker's address.
+            maker_lock_tx_id (str): The tx id of the maker's.
+            expire_time (int): The expire timestamp to lock.
             attachment (str, optional): [description]. Defaults to "".
             fee (int, optional): [description]. Defaults to md.ExecCtrtFee.DEFAULT.
 
         Returns:
             Dict[str, Any]: [description]
         """
-
-        # puzzle_bytes =  base58.b58encode(sha256_hash(puzzle))
-        # puzzle_str = "".join(map(chr,puzzle_bytes)) #bytes to str
         SCALE = 1_000_000_000
 
         puzzle_db_key = self.DBKey.for_puzzle(maker_lock_tx_id)
@@ -307,13 +304,13 @@ class AtomicSwapCtrt(Ctrt):
         fee: int = md.ExecCtrtFee.DEFAULT,
     ) -> Dict[str, Any]:
         """
-        maker_solve encapsulates the puzzle.
+        maker_solve encapsulates the secret.
 
         Args:
             by (acnt.Account): The action maker.
-            taker_ctrt_id (str): The swap ctrt id of the taker.
-            tx_id (str): the lock transaction id of taker's .
-            key (str): The puzzle.
+            taker_ctrt_id (str): The swap ctrt id of the taker's.
+            tx_id (str): The lock transaction id of taker's .
+            key (str): The secret.
             attachment (str, optional): The attachment of this action. Defaults to "".
             fee (int, optional): Execution fee of this tx. Defaults to md.ExecCtrtFee.DEFAULT.
 
@@ -351,9 +348,9 @@ class AtomicSwapCtrt(Ctrt):
 
         Args:
             by (acnt.Account): The action maker.
-            maker_ctrt_id (str): the contract id of the maker.
-            maker_lock_tx_id (str): the lock tx id of the maker.
-            maker_solve_tx_id (str): the solve tx id of the maker.
+            maker_ctrt_id (str): The contract id of the maker's.
+            maker_lock_tx_id (str): The lock tx id of the maker's.
+            maker_solve_tx_id (str): The solve tx id of the maker's.
             attachment (str, optional): The attachment of this action. Defaults to "".
             fee (int, optional): Execution fee of this tx. Defaults to md.ExecCtrtFee.DEFAULT.
 
@@ -361,16 +358,17 @@ class AtomicSwapCtrt(Ctrt):
             Dict[str, Any]: The response returned by the Node API
         """
         # get the revealed_secret
-        func_data = by.chain.api.tx.get_info(maker_solve_tx_id)["functionData"]
-        value = base58.b58decode(func_data["value"])
-        revealed_secret = value.decode()
+        dict_data = await by.chain.api.tx.get_info(maker_solve_tx_id)
+        func_data = dict_data["functionData"]
+        ds = DataStack.deserialize(base58.b58decode(func_data))
+        revealed_secret = ds.entries[1].data.data.decode("latin-1")
 
         data = await by._execute_contract(
             tx.ExecCtrtFuncTxReq(
                 ctrt_id=md.CtrtID(maker_ctrt_id),
                 func_id=self.FuncIdx.SOLVE_PUZZLE,
                 data_stack=de.DataStack(
-                    de.Bytes(md.Bytes(maker_lock_tx_id.encode("latin-1"))),
+                    de.Bytes(md.Bytes(base58.b58decode(maker_lock_tx_id))),
                     de.Bytes(md.Bytes(revealed_secret.encode("latin-1"))),
                 ),
                 timestamp=md.VSYSTimestamp.now(),
@@ -405,9 +403,7 @@ class AtomicSwapCtrt(Ctrt):
             tx.ExecCtrtFuncTxReq(
                 ctrt_id=self._ctrt_id,
                 func_id=self.FuncIdx.EXPIRE_WITHDRAW,
-                data_stack=de.DataStack(
-                    de.Bytes(md.Bytes(tx_id.encode("latin-1"))),
-                ),
+                data_stack=de.DataStack(de.Bytes(md.Bytes(base58.b58decode(tx_id)))),
                 timestamp=md.VSYSTimestamp.now(),
                 attachment=md.Str(attachment),
                 fee=md.ExecCtrtFee(fee),
