@@ -609,3 +609,51 @@ class PayChanCtrt(Ctrt):
         )
         logger.debug(data)
         return data
+
+    async def collect_payment(
+        self,
+        by: acnt.Account,
+        chan_id: str,
+        amount: Union[int, float],
+        signature: str,
+        attachment: str = "",
+        fee: int = md.ExecCtrtFee.DEFAULT,
+    ) -> Dict[str, Any]:
+        """
+        collect_payment _summary_
+
+        Args:
+            by (acnt.Account): The action taker.
+            chan_id (str): The channel ID.
+            amount (Union[int, float]): The amount of tokens.
+            signature (str): The signature in base 58 format.
+            attachment (str, optional): The attachment of this action. Defaults to "".
+            fee (int, optional): The fee to pay for this action. Defaults to md.ExecCtrtFee.DEFAULT.
+
+        Returns:
+            Dict[str, Any]: The response returned by the Node API.
+        """
+
+        tok_id = await self.tok_id
+        tc = await tcf.from_tok_id(tok_id, self.chain)
+        unit = await tc.unit
+
+        data = await by._execute_contract(
+            tx.ExecCtrtFuncTxReq(
+                ctrt_id=self._ctrt_id,
+                func_id=self.FuncIdx.COLLECT_PAYMENT,
+                data_stack=de.DataStack(
+                    de.Bytes.for_base58_str(chan_id),
+                    de.Amount.for_tok_amount(
+                        amount,
+                        unit,
+                    ),
+                    de.Bytes.for_base58_str(signature),
+                ),
+                timestamp=md.VSYSTimestamp.now(),
+                attachment=md.Str(attachment),
+                fee=md.ExecCtrtFee(fee),
+            )
+        )
+        logger.debug(data)
+        return data
