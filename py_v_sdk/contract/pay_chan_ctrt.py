@@ -574,3 +574,38 @@ class PayChanCtrt(Ctrt):
         )
         logger.debug(data)
         return data
+
+    async def unload(
+        self,
+        by: acnt.Account,
+        chan_id: str,
+        attachment: str = "",
+        fee: int = md.ExecCtrtFee.DEFAULT,
+    ) -> Dict[str, Any]:
+        """
+        unload unloads all the funcs locked in the channel (only works if the channel has expired)
+
+        Args:
+            by (acnt.Account): The action taker.
+            chan_id (str): The channel ID.
+            attachment (str, optional): The attachment of this action. Defaults to "".
+            fee (int, optional): The fee to pay for this action. Defaults to md.ExecCtrtFee.DEFAULT.
+
+        Returns:
+            Dict[str, Any]: The response returned by the Node API.
+        """
+
+        data = await by._execute_contract(
+            tx.ExecCtrtFuncTxReq(
+                ctrt_id=self._ctrt_id,
+                func_id=self.FuncIdx.UNLOAD,
+                data_stack=de.DataStack(
+                    de.Bytes.for_base58_str(chan_id),
+                ),
+                timestamp=md.VSYSTimestamp.now(),
+                attachment=md.Str(attachment),
+                fee=md.ExecCtrtFee(fee),
+            )
+        )
+        logger.debug(data)
+        return data
