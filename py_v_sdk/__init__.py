@@ -9,4 +9,5 @@ from py_v_sdk.contract.atomic_swap_ctrt import *
 from py_v_sdk.contract.v_swap_ctrt import *
 from py_v_sdk.contract.tok_ctrt import *
 from py_v_sdk.contract.lock_ctrt import *
+from py_v_sdk.contract.pay_chan_ctrt import *
 import py_v_sdk.log
