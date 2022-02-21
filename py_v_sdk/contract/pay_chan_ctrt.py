@@ -2,10 +2,11 @@
 pay_chan_ctrt contains Payment Channel contract.
 """
 from __future__ import annotations
-from re import I
+import struct
 from typing import TYPE_CHECKING, Dict, Any, Union
 
 from loguru import logger
+import base58
 
 # https://stackoverflow.com/a/39757388
 if TYPE_CHECKING:
@@ -16,6 +17,7 @@ from py_v_sdk import data_entry as de
 from py_v_sdk import tx_req as tx
 from py_v_sdk import model as md
 from py_v_sdk.contract import tok_ctrt_factory as tcf
+from py_v_sdk.utils.crypto import curve_25519 as curve
 from . import CtrtMeta, Ctrt
 
 
@@ -643,7 +645,7 @@ class PayChanCtrt(Ctrt):
         fee: int = md.ExecCtrtFee.DEFAULT,
     ) -> Dict[str, Any]:
         """
-        collect_payment _summary_
+        collect_payment collects the payment from the channel.
 
         Args:
             by (acnt.Account): The action taker.
@@ -669,7 +671,7 @@ class PayChanCtrt(Ctrt):
                         amount,
                         unit,
                     ),
-                    de.Bytes.for_base58_str(signature),
+                    de.Bytes.for_str(signature),
                 ),
                 timestamp=md.VSYSTimestamp.now(),
                 attachment=md.Str(attachment),
@@ -678,3 +680,24 @@ class PayChanCtrt(Ctrt):
         )
         logger.debug(data)
         return data
+
+    async def offchain_pay(
+        self,
+        key_pair: md.KeyPair,
+        chan_id: str,
+        amount: Union[int, float],
+    ) -> str:
+        """
+        offchain_pay generates the signature for the offline payment.
+        """
+        unit = await self.unit
+        raw_amount = md.Token.for_amount(amount, unit).data
+
+        chan_id_bytes = base58.b58decode(chan_id)
+        msg = (
+            struct.pack(">H", len(chan_id_bytes))
+            + chan_id_bytes
+            + struct.pack(">Q", raw_amount)
+        )
+        sig_bytes = curve.sign(key_pair.pri.bytes, msg)
+        return sig_bytes.decode("latin-1")
