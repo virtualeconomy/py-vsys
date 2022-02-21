@@ -688,7 +688,15 @@ class PayChanCtrt(Ctrt):
         amount: Union[int, float],
     ) -> str:
         """
-        offchain_pay generates the signature for the offline payment.
+        offchain_pay generates the offchain payment signature.
+
+        Args:
+            key_pair (md.KeyPair): The key pair to sign.
+            chan_id (str): The channel ID.
+            amount (Union[int, float]): The amount of tokens.
+
+        Returns:
+            str: The signature.
         """
         unit = await self.unit
         raw_amount = md.Token.for_amount(amount, unit).data
