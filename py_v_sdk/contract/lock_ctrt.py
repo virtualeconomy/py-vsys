@@ -140,7 +140,6 @@ class LockCtrt(Ctrt):
                 fee=md.RegCtrtFee(fee),
             )
         )
-        print(data)
         logger.debug(data)
 
         return cls(
