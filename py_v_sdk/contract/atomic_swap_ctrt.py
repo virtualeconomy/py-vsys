@@ -207,7 +207,7 @@ class AtomicSwapCtrt(Ctrt):
             fee (int, optional): [description]. Defaults to md.ExecCtrtFee.DEFAULT.
 
         Returns:
-            Dict[str, Any]: [description]
+            Dict[str, Any]: The response returned by the Node API.
         """
         SCALE = 1_000_000_000
         puzzle_bytes = sha256_hash(secret.encode("latin-1"))
@@ -259,7 +259,7 @@ class AtomicSwapCtrt(Ctrt):
             fee (int, optional): [description]. Defaults to md.ExecCtrtFee.DEFAULT.
 
         Returns:
-            Dict[str, Any]: [description]
+            Dict[str, Any]: The response returned by the Node API.
         """
         SCALE = 1_000_000_000
 
@@ -315,7 +315,7 @@ class AtomicSwapCtrt(Ctrt):
             fee (int, optional): Execution fee of this tx. Defaults to md.ExecCtrtFee.DEFAULT.
 
         Returns:
-            Dict[str, Any]: The response returned by the Node API
+            Dict[str, Any]: The response returned by the Node API.
         """
 
         data = await by._execute_contract(
