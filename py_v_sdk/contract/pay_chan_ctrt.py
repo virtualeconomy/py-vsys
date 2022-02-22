@@ -240,7 +240,6 @@ class PayChanCtrt(Ctrt):
         """
         super().__init__(ctrt_id, chain)
         self._tok_id: Optional[md.TokenID] = None
-        self._unit = 0
 
     @property
     async def maker(self) -> md.Addr:
@@ -274,16 +273,13 @@ class PayChanCtrt(Ctrt):
         Returns:
             int: The token unit.
         """
-        if not self._unit:
-            tok_id = await self.tok_id
+        tok_id = await self.tok_id
 
-            if tok_id.is_vsys_tok():
-                self._unit = md.VSYS.UNIT
-            else:
-                tc = await tcf.from_tok_id(tok_id.data, self.chain)
-                self._unit = await tc.unit
-
-        return self._unit
+        if tok_id.is_vsys_tok():
+            return md.VSYS.UNIT
+        else:
+            tc = await tcf.from_tok_id(tok_id.data, self.chain)
+            return await tc.unit
 
     async def get_ctrt_bal(self, addr: str) -> md.Token:
         """
