@@ -14,10 +14,10 @@ from py_v_sdk import data_entry as de
 from py_v_sdk import tx_req as tx
 from py_v_sdk import model as md
 
-from . import CtrtMeta, Ctrt
+from . import CtrtMeta, Ctrt, BaseTokCtrt
 
 
-class NFTCtrt(Ctrt):
+class NFTCtrt(BaseTokCtrt):
     """
     NFTCtrt is the class for VSYS NFT contract V1
     """
