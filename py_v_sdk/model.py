@@ -404,8 +404,10 @@ class VSYSTimestamp(NonNegativeInt):
         super().validate()
         cls_name = self.__class__.__name__
 
-        if self.data <= self.SCALE:
-            raise ValueError(f"Data in {cls_name} must be greater than {self.SCALE}")
+        if not (self.data == 0 or self.data >= self.SCALE):
+            raise ValueError(
+                f"Data in {cls_name} must be either be 0 or equal or greater than {self.SCALE}"
+            )
 
 
 class Token(NonNegativeInt):
