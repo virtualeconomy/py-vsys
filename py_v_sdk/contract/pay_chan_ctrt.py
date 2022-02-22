@@ -239,29 +239,31 @@ class PayChanCtrt(Ctrt):
             chain (ch.Chain): The object of the chain where the contract is on.
         """
         super().__init__(ctrt_id, chain)
-        self._tok_id = ""
+        self._tok_id = md.TokenID("")
         self._unit = 0
 
     @property
-    async def maker(self) -> str:
+    async def maker(self) -> md.Addr:
         """
         maker queries & returns the maker of the contract.
 
         Returns:
-            str: The address of the maker of the contract.
+            md.Addr: The address of the maker of the contract.
         """
-        return await self._query_db_key(self.DBKey.for_maker())
+        raw_val = await self._query_db_key(self.DBKey.for_maker())
+        return md.Addr(raw_val)
 
     @property
-    async def tok_id(self) -> str:
+    async def tok_id(self) -> md.TokenID:
         """
         tok_id queries & returns the token_id of the contract.
 
         Returns:
-            str: The token_id of the contract.
+            md.TokenID: The token_id of the contract.
         """
-        if not self._tok_id:
-            self._tok_id = await self._query_db_key(self.DBKey.for_token_id())
+        if self._tok_id.data == "":
+            raw_val = await self._query_db_key(self.DBKey.for_token_id())
+            self._tok_id = md.TokenID(raw_val)
         return self._tok_id
 
     @property
@@ -298,7 +300,7 @@ class PayChanCtrt(Ctrt):
         unit = await self.unit
         return md.Token(data=raw_val, unit=unit)
 
-    async def get_chan_creator(self, chan_id: str) -> str:
+    async def get_chan_creator(self, chan_id: str) -> md.Addr:
         """
         get_chan_creator queries & returns the channel creator.
 
@@ -306,11 +308,12 @@ class PayChanCtrt(Ctrt):
             chan_id (str): The channel ID.
 
         Returns:
-            str: The channel creator.
+            md.Addr: The channel creator.
         """
-        return await self._query_db_key(self.DBKey.for_channel_creator(chan_id))
+        raw_val = await self._query_db_key(self.DBKey.for_channel_creator(chan_id))
+        return md.Addr(raw_val)
 
-    async def get_chan_creator_pub_key(self, chan_id: str) -> str:
+    async def get_chan_creator_pub_key(self, chan_id: str) -> md.PubKey:
         """
         get_chan_creator_pub_key queries & returns the public key of the channel creator.
 
@@ -318,13 +321,14 @@ class PayChanCtrt(Ctrt):
             chan_id (str): The channel ID.
 
         Returns:
-            str: The public key of the channel creator.
+            md.PubKey: The public key of the channel creator.
         """
-        return await self._query_db_key(
+        raw_val = await self._query_db_key(
             self.DBKey.for_channel_creator_public_key(chan_id)
         )
+        return md.PubKey(raw_val)
 
-    async def get_chan_recipient(self, chan_id: str) -> str:
+    async def get_chan_recipient(self, chan_id: str) -> md.Addr:
         """
         get_chan_recipient queries & returns the recipient of the channel.
 
@@ -332,9 +336,10 @@ class PayChanCtrt(Ctrt):
             chan_id (str): The channel ID.
 
         Returns:
-            str: The channel recipient.
+            md.Addr: The channel recipient.
         """
-        return await self._query_db_key(self.DBKey.for_channel_recipient(chan_id))
+        raw_val = await self._query_db_key(self.DBKey.for_channel_recipient(chan_id))
+        return md.Addr(raw_val)
 
     async def get_chan_accum_load(self, chan_id: str) -> md.Token:
         """
