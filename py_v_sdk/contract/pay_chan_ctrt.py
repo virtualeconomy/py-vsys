@@ -3,7 +3,7 @@ pay_chan_ctrt contains Payment Channel contract.
 """
 from __future__ import annotations
 import struct
-from typing import TYPE_CHECKING, Dict, Any, Union
+from typing import TYPE_CHECKING, Dict, Any, Union, Optional
 
 from loguru import logger
 import base58
@@ -239,7 +239,7 @@ class PayChanCtrt(Ctrt):
             chain (ch.Chain): The object of the chain where the contract is on.
         """
         super().__init__(ctrt_id, chain)
-        self._tok_id = md.TokenID("")
+        self._tok_id: Optional[md.TokenID] = None
         self._unit = 0
 
     @property
@@ -261,7 +261,7 @@ class PayChanCtrt(Ctrt):
         Returns:
             md.TokenID: The token_id of the contract.
         """
-        if self._tok_id.data == "":
+        if not self._tok_id:
             raw_val = await self._query_db_key(self.DBKey.for_token_id())
             self._tok_id = md.TokenID(raw_val)
         return self._tok_id
@@ -277,10 +277,10 @@ class PayChanCtrt(Ctrt):
         if not self._unit:
             tok_id = await self.tok_id
 
-            if md.TokenID(tok_id).is_vsys_tok():
+            if tok_id.is_vsys_tok():
                 self._unit = md.VSYS.UNIT
             else:
-                tc = await tcf.from_tok_id(tok_id, self.chain)
+                tc = await tcf.from_tok_id(tok_id.data, self.chain)
                 self._unit = await tc.unit
 
         return self._unit
