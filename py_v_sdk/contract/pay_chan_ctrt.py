@@ -283,7 +283,7 @@ class PayChanCtrt(Ctrt):
 
         return self._unit
 
-    async def get_ctrt_bal(self, addr: str) -> int:
+    async def get_ctrt_bal(self, addr: str) -> md.Token:
         """
         get_ctrt_bal queries & returns the balance of the token within this contract
         belonging to the user address.
@@ -292,9 +292,11 @@ class PayChanCtrt(Ctrt):
             addr (str): The account address.
 
         Returns:
-            int: The balance of the token.
+            md.Token: The balance of the token.
         """
-        return await self._query_db_key(self.DBKey.for_contract_balance(addr))
+        raw_val = await self._query_db_key(self.DBKey.for_contract_balance(addr))
+        unit = await self.unit
+        return md.Token(data=raw_val, unit=unit)
 
     async def get_chan_creator(self, chan_id: str) -> str:
         """
@@ -334,7 +336,7 @@ class PayChanCtrt(Ctrt):
         """
         return await self._query_db_key(self.DBKey.for_channel_recipient(chan_id))
 
-    async def get_chan_accum_load(self, chan_id: str) -> int:
+    async def get_chan_accum_load(self, chan_id: str) -> md.Token:
         """
         get_chan_accum_load queries & returns the accumulated load of the channel.
 
@@ -342,13 +344,15 @@ class PayChanCtrt(Ctrt):
             chan_id (str): The channel ID.
 
         Returns:
-            tr: The accumulated load of the channel.
+            md.Token: The accumulated load of the channel.
         """
-        return await self._query_db_key(
+        raw_val = await self._query_db_key(
             self.DBKey.for_channel_accumulated_load(chan_id)
         )
+        unit = await self.unit
+        return md.Token(data=raw_val, unit=unit)
 
-    async def get_chan_accum_pay(self, chan_id: str) -> int:
+    async def get_chan_accum_pay(self, chan_id: str) -> md.Token:
         """
         get_chan_accum_pay queries & returns the accumulated payment of the channel.
 
@@ -356,13 +360,15 @@ class PayChanCtrt(Ctrt):
             chan_id (str): The channel ID.
 
         Returns:
-            int: The accumulated payment of the channel.
+            md.Token: The accumulated payment of the channel.
         """
-        return await self._query_db_key(
+        raw_val = await self._query_db_key(
             self.DBKey.for_channel_accumulated_payment(chan_id)
         )
+        unit = await self.unit
+        return md.Token(data=raw_val, unit=unit)
 
-    async def get_chan_exp_time(self, chan_id: str) -> int:
+    async def get_chan_exp_time(self, chan_id: str) -> md.VSYSTimestamp:
         """
         get_chan_exp_time queries & returns the expiration time of the channel.
 
@@ -370,7 +376,7 @@ class PayChanCtrt(Ctrt):
             chan_id (str): The channel ID.
 
         Returns:
-            int: The expiration time of the channel.
+            md.VSYSTimestamp: The expiration time of the channel.
         """
         raw_ts = await self._query_db_key(
             self.DBKey.for_channel_expiration_time(chan_id)
@@ -379,8 +385,7 @@ class PayChanCtrt(Ctrt):
         if raw_ts == 0:
             return 0
 
-        unix_ts = md.VSYSTimestamp(raw_ts).unix_ts
-        return int(unix_ts)
+        return md.VSYSTimestamp(raw_ts)
 
     async def get_chan_status(self, chan_id: str) -> bool:
         """
