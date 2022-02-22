@@ -71,7 +71,7 @@ class TestAtomicSwapCtrt:
 
         Args:
             new_taker_tok_ctrt (pv.TokenCtrtWithoutSplit): The fixture that registers a new TokenWithoutSplit contract.
-            acnt0 (pv.Account): The account of nonce 0.
+            acnt1 (pv.Account): The account of nonce 1.
 
         Returns:
             pv.TokenCtrtWithoutSplit: The TokenCtrtWithoutSplit instance.
