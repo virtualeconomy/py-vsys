@@ -61,4 +61,4 @@ def verify_sig(pub_key: bytes, msg: bytes, sig: bytes) -> bool:
     Returns:
         bool: If the signature is valid
     """
-    return curve.verifySignature(pub_key, msg, sig)
+    return curve.verifySignature(pub_key, msg, sig) == 0
