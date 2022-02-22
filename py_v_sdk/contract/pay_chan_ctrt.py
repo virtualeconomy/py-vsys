@@ -677,7 +677,7 @@ class PayChanCtrt(Ctrt):
                         amount,
                         unit,
                     ),
-                    de.Bytes.for_str(signature),
+                    de.Bytes.for_base58_str(signature),
                 ),
                 timestamp=md.VSYSTimestamp.now(),
                 attachment=md.Str(attachment),
@@ -702,7 +702,48 @@ class PayChanCtrt(Ctrt):
             amount (Union[int, float]): The amount of tokens.
 
         Returns:
-            str: The signature.
+            str: The signature in base59 string format.
+        """
+        msg = await self._get_pay_msg(chan_id, amount)
+        sig_bytes = curve.sign(key_pair.pri.bytes, msg)
+        return base58.b58encode(sig_bytes).decode("latin-1")
+
+    async def verify_sig(
+        self,
+        chan_id: str,
+        amount: Union[int, float],
+        signature: str,
+    ) -> bool:
+        """
+        verify_sig verifies the payment signature.
+
+        Args:
+            chan_id (str): The channel ID.
+            amount (Union[int, float]): The amount of tokens.
+            signature (str): The payment signature in base58 string format.
+
+        Returns:
+            bool: If the signature is valid.
+        """
+        msg = await self._get_pay_msg(chan_id, amount)
+        pub_key = await self.get_chan_creator_pub_key(chan_id)
+        sig_bytes = base58.b58decode(signature)
+        return curve.verify_sig(pub_key.bytes, msg, sig_bytes)
+
+    async def _get_pay_msg(
+        self,
+        chan_id: str,
+        amount: Union[int, float],
+    ) -> bytes:
+        """
+        _get_pay_msg generates the payment message in bytes.
+
+        Args:
+            chan_id (str): The channel ID.
+            amount (Union[int, float]): The amount of tokens.
+
+        Returns:
+            bytes: The payment message.
         """
         unit = await self.unit
         raw_amount = md.Token.for_amount(amount, unit).data
@@ -713,5 +754,4 @@ class PayChanCtrt(Ctrt):
             + chan_id_bytes
             + struct.pack(">Q", raw_amount)
         )
-        sig_bytes = curve.sign(key_pair.pri.bytes, msg)
-        return sig_bytes.decode("latin-1")
+        return msg
