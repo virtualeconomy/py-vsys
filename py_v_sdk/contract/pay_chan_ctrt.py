@@ -398,7 +398,8 @@ class PayChanCtrt(Ctrt):
         Returns:
             bool: The status of the channel.
         """
-        return await self._query_db_key(self.DBKey.for_channel_status(chan_id))
+        raw_val = await self._query_db_key(self.DBKey.for_channel_status(chan_id))
+        return raw_val == "true"
 
     @classmethod
     async def register(
