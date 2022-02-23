@@ -46,6 +46,7 @@ class TestPayChanCtrt:
 
         Args:
             acnt0 (pv.Account): The account of nonce 0.
+            new_tok_ctrt (pv.TokenCtrtWithoutSplit): The fixture that registers a new Token contract.
 
         Returns:
             pv.PayChanCtrt: The PayChanCtrt instance.
@@ -77,6 +78,7 @@ class TestPayChanCtrt:
 
         Args:
             acnt0 (pv.Account): The account of nonce 0.
+            acnt1 (pv.Account): The account of nonce 1.
             new_ctrt (pv.PayChanCtrt): The fixture that registers a new Payment Channel contract.
 
         Returns:
@@ -285,8 +287,7 @@ class TestPayChanCtrt:
         Args:
             acnt0 (pv.Account): The account of nonce 0.
             acnt1 (pv.Account): The account of nonce 1.
-            new_ctrt_with_chan (Tuple[pv.PayChanCtrt, str]): The fixture that registers a new Payment Channel contract
-                and creates a new channel.
+            new_ctrt (pv.PayChanCtrt): The fixture that registers a new Payment Channel contract.
         """
 
         pc = new_ctrt
@@ -376,7 +377,8 @@ class TestPayChanCtrt:
         Args:
             acnt0 (pv.Account): The account of nonce 0.
             acnt1 (pv.Account): The account of nonce 1.
-            # new_ctrt (pv.PayChanCtrt): The fixture that registers a new Payment Channel contract.
+            new_tok_ctrt (pv.TokenCtrtWithoutSplit): The token contract instance.
+            new_ctrt (pv.PayChanCtrt): The fixture that registers a new Payment Channel contract.
         """
         tc = new_tok_ctrt
         pc = new_ctrt
