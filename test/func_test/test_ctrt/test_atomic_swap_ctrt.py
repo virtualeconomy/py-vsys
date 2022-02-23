@@ -176,37 +176,49 @@ class TestAtomicSwapCtrt:
         """
         maker_ctrt = new_maker_atomic_swap_ctrt
         taker_ctrt = new_taker_atomic_swap_ctrt
-        api = maker_ctrt.chain.api
-        a = await maker_ctrt.get_swap_balance(acnt0.addr.b58_str)
-        b = await taker_ctrt.get_swap_balance(acnt1.addr.b58_str)
+        api = acnt0.api
 
-        assert 100 == a.data
-        assert (await maker_ctrt.maker) == acnt0.addr.b58_str
-        assert 100 == b.data
-        assert (await taker_ctrt.maker) == acnt1.addr.b58_str
+        maker_bal_init = await maker_ctrt.get_swap_balance(acnt0.addr.b58_str)
+        taker_bal_init = await taker_ctrt.get_swap_balance(acnt1.addr.b58_str)
 
         # maker lock.
+        maker_lock_amount = 10
         maker_lock_timestamp = int(time.time()) + 1800
+        maker_puzzle_plain = "abc"
+
         maker_lock_tx_info = await maker_ctrt.maker_lock(
-            acnt0, 10, acnt1.addr.b58_str, "abc", maker_lock_timestamp
+            acnt0,
+            maker_lock_amount,
+            acnt1.addr.b58_str,
+            maker_puzzle_plain,
+            maker_lock_timestamp,
         )
         await cft.wait_for_block()
         maker_lock_tx_id = maker_lock_tx_info["id"]
         await cft.assert_tx_success(api, maker_lock_tx_id)
 
-        puzzle_db_Key = maker_ctrt.DBKey.for_puzzle(maker_lock_tx_id).b58_str
-        puzzle_dict = await maker_ctrt.chain.api.ctrt.get_ctrt_data(
-            maker_ctrt.ctrt_id, puzzle_db_Key
-        )
-        puzzle = puzzle_dict["value"]
+        maker_swap_owner = await maker_ctrt.get_swap_owner(maker_lock_tx_id)
+        assert maker_swap_owner.data == acnt0.addr.b58_str
 
-        real_puzzle = base58.b58encode(hs.sha256_hash("abc".encode("latin-1"))).decode(
-            "latin-1"
-        )
+        maker_swap_recipient = await maker_ctrt.get_swap_recipient(maker_lock_tx_id)
+        assert maker_swap_recipient.data == acnt1.addr.b58_str
 
-        c = await maker_ctrt.get_swap_balance(acnt0.addr.b58_str)
-        assert 90 == c.data
-        assert puzzle == real_puzzle
+        maker_swap_amount = await maker_ctrt.get_swap_amount(maker_lock_tx_id)
+        assert maker_swap_amount.amount == maker_lock_amount
+
+        maker_swap_exp = await maker_ctrt.get_swap_expired_time(maker_lock_tx_id)
+        assert maker_swap_exp.unix_ts == maker_lock_timestamp
+
+        maker_swap_status = await maker_ctrt.get_swap_status(maker_lock_tx_id)
+        assert maker_swap_status is True
+
+        maker_puzzle = await maker_ctrt.get_swap_puzzle(maker_lock_tx_id)
+        assert maker_puzzle == base58.b58encode(
+            hs.sha256_hash(maker_puzzle_plain.encode("latin-1"))
+        ).decode("latin-1")
+
+        maker_bal_after_lock = await maker_ctrt.get_swap_balance(acnt0.addr.b58_str)
+        assert maker_bal_after_lock.amount == maker_bal_init.amount - 10
 
         # taker lock.
         taker_lock_timestamp = int(time.time()) + 1500
@@ -221,8 +233,8 @@ class TestAtomicSwapCtrt:
         await cft.wait_for_block()
         await cft.assert_tx_success(api, taker_lock_tx_info["id"])
 
-        d = await taker_ctrt.get_swap_balance(acnt1.addr.b58_str)
-        assert 95 == d.data
+        taker_bal_after_lock = await taker_ctrt.get_swap_balance(acnt1.addr.b58_str)
+        assert taker_bal_after_lock.amount == taker_bal_init.amount - 5
 
     async def test_maker_solve_and_taker_solve(
         self,
