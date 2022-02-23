@@ -537,7 +537,7 @@ class AtomicSwapCtrt(Ctrt):
                 ctrt_id=md.CtrtID(maker_ctrt_id),
                 func_id=self.FuncIdx.SOLVE_PUZZLE,
                 data_stack=de.DataStack(
-                    de.Bytes.for_base58_str(maker_solve_tx_id),
+                    de.Bytes.for_base58_str(maker_lock_tx_id),
                     de.Bytes.for_str(revealed_secret),
                 ),
                 timestamp=md.VSYSTimestamp.now(),
