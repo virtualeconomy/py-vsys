@@ -103,6 +103,34 @@ class AtomicSwapCtrt(Ctrt):
             return cls(b)
 
         @classmethod
+        def for_swap_owner(cls, tx_id: str) -> AtomicSwapCtrt.DBKey:
+            """
+            for_swap_owner returns the AtomicSwapCtrt.DBKey object for querying the swap owner.
+
+            Returns:
+                AtomicSwapCtrt.DBKey: The AtomicSwapCtrt.DBKey object.
+            """
+            b = AtomicSwapCtrt.StateMap(
+                idx=AtomicSwapCtrt.StateMapIdx.SWAP_OWNER,
+                data_entry=de.Bytes.for_base58_str(tx_id),
+            ).serialize()
+            return cls(b)
+
+        @classmethod
+        def for_swap_recipient(cls, tx_id: str) -> AtomicSwapCtrt.DBKey:
+            """
+            for_swap_recipient returns the AtomicSwapCtrt.DBKey object for querying the swap receipient.
+
+            Returns:
+                AtomicSwapCtrt.DBKey: The AtomicSwapCtrt.DBKey object.
+            """
+            b = AtomicSwapCtrt.StateMap(
+                idx=AtomicSwapCtrt.StateMapIdx.SWAP_RECIPIENT,
+                data_entry=de.Bytes.for_base58_str(tx_id),
+            ).serialize()
+            return cls(b)
+
+        @classmethod
         def for_puzzle(cls, tx_id: str) -> AtomicSwapCtrt.DBKey:
             """
             for_puzzle gets the AtomicSwapCtrt.DBKey object for querying the hashed puzzle.
@@ -113,6 +141,48 @@ class AtomicSwapCtrt(Ctrt):
             b = AtomicSwapCtrt.StateMap(
                 idx=AtomicSwapCtrt.StateMapIdx.SWAP_PUZZLE,
                 data_entry=de.Bytes(md.Bytes(base58.b58decode(tx_id))),
+            ).serialize()
+            return cls(b)
+
+        @classmethod
+        def for_swap_amount(cls, tx_id: str) -> AtomicSwapCtrt.DBKey:
+            """
+            for_swap_amount returns the AtomicSwapCtrt.DBKey object for querying the swap amount.
+
+            Returns:
+                AtomicSwapCtrt.DBKey: The AtomicSwapCtrt.DBKey object.
+            """
+            b = AtomicSwapCtrt.StateMap(
+                idx=AtomicSwapCtrt.StateMapIdx.SWAP_AMOUNT,
+                data_entry=de.Bytes.for_base58_str(tx_id),
+            ).serialize()
+            return cls(b)
+
+        @classmethod
+        def for_swap_expired_time(cls, tx_id: str) -> AtomicSwapCtrt.DBKey:
+            """
+            for_swap_expired_time returns the AtomicSwapCtrt.DBKey object for querying the swap expired time.
+
+            Returns:
+                AtomicSwapCtrt.DBKey: The AtomicSwapCtrt.DBKey object.
+            """
+            b = AtomicSwapCtrt.StateMap(
+                idx=AtomicSwapCtrt.StateMapIdx.SWAP_EXPIRED_TIME,
+                data_entry=de.Bytes.for_base58_str(tx_id),
+            ).serialize()
+            return cls(b)
+
+        @classmethod
+        def for_swap_status(cls, tx_id: str) -> AtomicSwapCtrt.DBKey:
+            """
+            for_swap_status returns the AtomicSwapCtrt.DBKey object for querying the swap status.
+
+            Returns:
+                AtomicSwapCtrt.DBKey: The AtomicSwapCtrt.DBKey object.
+            """
+            b = AtomicSwapCtrt.StateMap(
+                idx=AtomicSwapCtrt.StateMapIdx.SWAP_STATUS,
+                data_entry=de.Bytes.for_base58_str(tx_id),
             ).serialize()
             return cls(b)
 
@@ -173,17 +243,107 @@ class AtomicSwapCtrt(Ctrt):
         """
         return await self._query_db_key(self.DBKey.for_token_id())
 
-    async def get_tok_bal(self, addr: str) -> int:
+    async def get_swap_balance(self, addr: str) -> md.Token:
         """
-        get_tok_bal queries & returns the balance of the token deposited into the contract.
+        get_swap_balance queries & returns the balance of the token deposited into the contract.
 
         Args:
             addr (str): The account address that deposits the token.
 
         Returns:
-            int: The balance of the token.
+            md.Token: The balance of the token.
         """
-        return await self._query_db_key(self.DBKey.for_token_balance(addr))
+        bal = await self._query_db_key(self.DBKey.for_token_balance(addr))
+
+        resp = await self.chain.api.ctrt.get_tok_info(await self.token_id)
+        unit = resp["unity"]
+        return md.Token.for_amount(bal, unit)
+
+    async def get_swap_owner(self, tx_id: str) -> md.Addr:
+        """
+        get_swap_owner queries & returns the address of swap owner.
+
+        Args:
+            tx_id (str): The lock transaction id.
+
+        Returns:
+            md.Addr: The address of the swap owner.
+        """
+        owner_addr = await self._query_db_key(self.DBKey.for_swap_owner(tx_id))
+
+        return md.Addr(owner_addr)
+
+    async def get_swap_recipient(self, tx_id: str) -> md.Addr:
+        """
+        get_swap_recipient queries & returns the address of swap recipient.
+
+        Args:
+            tx_id (str): The lock transaction id.
+
+        Returns:
+            md.Addr: The address of the recipient.
+        """
+        recipient_addr = await self._query_db_key(self.DBKey.for_swap_recipient(tx_id))
+
+        return md.Addr(recipient_addr)
+
+    async def get_swap_puzzle(self, tx_id: str) -> str:
+        """
+        get_swap_puzzle queries & returns the hashed secret.
+
+        Args:
+            tx_id (str): The lock transaction id.
+
+        Returns:
+            str: The puzzle.
+        """
+        puzzle = await self._query_db_key(self.DBKey.for_puzzle(tx_id))
+
+        return puzzle
+
+    async def get_swap_amount(self, tx_id: str) -> md.Token:
+        """
+        get_swap_amount queries & returns the balance that the token locked.
+
+        Args:
+            tx_id (str): The lock transaction id.
+
+        Returns:
+            int: The balance of the token locked.
+        """
+        amount = await self._query_db_key(self.DBKey.for_swap_amount(tx_id))
+
+        resp = await self.chain.api.ctrt.get_tok_info(await self.token_id)
+        unit = resp["unity"]
+        return md.Token.for_amount(amount, unit)
+
+    async def get_swap_expired_time(self, tx_id: str) -> md.VSYSTimestamp:
+        """
+        get_swap_expired_time queries & returns the expired timestamp.
+
+        Args:
+            tx_id (str): The lock transaction id.
+
+        Returns:
+            md.VSYSTimestamp: The expired timestamp.
+        """
+        expired_time = await self._query_db_key(self.DBKey.for_swap_expired_time(tx_id))
+
+        return md.VSYSTimestamp(int(expired_time))
+
+    async def get_swap_status(self, tx_id: str) -> str:
+        """
+        get_swap_status queries & returns the status of the swap contract.
+
+        Args:
+            tx_id (str): The lock transaction id.
+
+        Returns:
+            bool: The status of the swap contract.
+        """
+        status = await self._query_db_key(self.DBKey.for_swap_status(tx_id))
+
+        return status
 
     async def maker_lock(
         self,

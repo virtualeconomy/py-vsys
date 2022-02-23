@@ -176,10 +176,12 @@ class TestAtomicSwapCtrt:
         maker_ctrt = new_maker_atomic_swap_ctrt
         taker_ctrt = new_taker_atomic_swap_ctrt
         api = maker_ctrt.chain.api
+        a = await maker_ctrt.get_swap_balance(acnt0.addr.b58_str)
+        b = await taker_ctrt.get_swap_balance(acnt1.addr.b58_str)
 
-        assert 100 == (await maker_ctrt.get_tok_bal(acnt0.addr.b58_str))
+        assert 100 == a.data
         assert (await maker_ctrt.maker) == acnt0.addr.b58_str
-        assert 100 == (await taker_ctrt.get_tok_bal(acnt1.addr.b58_str))
+        assert 100 == b.data
         assert (await taker_ctrt.maker) == acnt1.addr.b58_str
 
         # maker lock.
@@ -201,7 +203,8 @@ class TestAtomicSwapCtrt:
             "latin-1"
         )
 
-        assert 90 == (await maker_ctrt.get_tok_bal(acnt0.addr.b58_str))
+        c = await maker_ctrt.get_swap_balance(acnt0.addr.b58_str)
+        assert 90 == c.data
         assert puzzle == real_puzzle
 
         # taker lock.
@@ -217,7 +220,8 @@ class TestAtomicSwapCtrt:
         await cft.wait_for_block()
         await cft.assert_tx_success(api, taker_lock_tx_info["id"])
 
-        assert 95 == (await taker_ctrt.get_tok_bal(acnt1.addr.b58_str))
+        d = await taker_ctrt.get_swap_balance(acnt1.addr.b58_str)
+        assert 95 == d.data
 
     async def test_maker_solve_and_taker_solve(
         self,
@@ -306,14 +310,16 @@ class TestAtomicSwapCtrt:
         maker_lock_id = maker_lock_tx_info["id"]
         await cft.assert_tx_success(api, maker_lock_id)
 
-        assert 90 == (await maker_ctrt.get_tok_bal(acnt0.addr.b58_str))
+        a = await maker_ctrt.get_swap_balance(acnt0.addr.b58_str)
+        assert 90 == a.data
 
         exp_withdraw_tx_info = await maker_ctrt.exp_withdraw(acnt0, maker_lock_id)
         await cft.wait_for_block()
         exp_withdraw_id = exp_withdraw_tx_info["id"]
         await cft.assert_tx_success(api, exp_withdraw_id)
 
-        assert 100 == (await maker_ctrt.get_tok_bal(acnt0.addr.b58_str))
+        b = await maker_ctrt.get_swap_balance(acnt0.addr.b58_str)
+        assert 100 == b.data
 
     @pytest.mark.whole
     async def test_as_whole(
