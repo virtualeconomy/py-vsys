@@ -48,7 +48,7 @@ class TestAtomicSwapCtrt:
         self, new_maker_tok_ctrt: pv.TokenCtrtWithoutSplit, acnt0: pv.Account
     ) -> pv.TokenCtrtWithoutSplit:
         """
-        new_tok_ctrt_with_tok is the fixture that registers a new TokenWithoutSplit contract and issues tokens right after it.
+        new_maker_tok_ctrt_with_tok is the fixture that registers a new TokenWithoutSplit contract and issues tokens right after it.
 
         Args:
             new_maker_tok_ctrt (pv.TokenCtrtWithoutSplit): The fixture that registers a new TokenWithoutSplit contract.
@@ -67,7 +67,7 @@ class TestAtomicSwapCtrt:
         self, new_taker_tok_ctrt: pv.TokenCtrtWithoutSplit, acnt1: pv.Account
     ) -> pv.TokenCtrtWithoutSplit:
         """
-        new_tok_ctrt_with_tok is the fixture that registers a new TokenWithoutSplit contract and issues tokens right after it.
+        new_taker_tok_ctrt_with_tok is the fixture that registers a new TokenWithoutSplit contract and issues tokens right after it.
 
         Args:
             new_taker_tok_ctrt (pv.TokenCtrtWithoutSplit): The fixture that registers a new TokenWithoutSplit contract.
@@ -91,7 +91,7 @@ class TestAtomicSwapCtrt:
         new_maker_atomic_swap_ctrt is the fixture that registers a new atomic swap contract.
 
         Args:
-            new_maker_ctrt_with_tok (pv.TokenCtrtWithoutSplit): The fixture that registers a new atomic swap contract and issues tokens right after it.
+            new_maker_tok_ctrt_with_tok (pv.TokenCtrtWithoutSplit): The fixture that registers a new atomic swap contract and issues tokens right after it.
             acnt0 (pv.Account): The account of nonce 0.
 
         Returns:
@@ -118,7 +118,7 @@ class TestAtomicSwapCtrt:
         new_taker_atomic_swap_ctrt is the fixture that registers a new atomic swap contract.
 
         Args:
-            new_taker_ctrt_with_tok (pv.TokenCtrtWithoutSplit): The fixture that registers a new token contract and issues tokens right after it.
+            new_taker_tok_ctrt_with_tok (pv.TokenCtrtWithoutSplit): The fixture that registers a new token contract and issues tokens right after it.
             acnt1 (pv.Account): The account of nonce 1.
 
         Returns:
@@ -143,6 +143,7 @@ class TestAtomicSwapCtrt:
 
         Args:
             acnt0 (pv.Account): The account of nonce 0.
+            new_maker_tok_ctrt_with_tok (pv.TokenCtrtWithoutSplit): The fixture that registers a new atomic swap contract and issues tokens right after it.
 
         Returns:
             pv.AtomicSwapCtrt: the AtomicSwapCtrt instance.
