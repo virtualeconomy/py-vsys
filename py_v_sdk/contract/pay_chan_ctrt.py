@@ -390,7 +390,8 @@ class PayChanCtrt(Ctrt):
 
     async def get_chan_status(self, chan_id: str) -> bool:
         """
-        get_chan_status queries & returns the status of the channel.
+        get_chan_status queries & returns the status of the channel (if the channel
+        is still active)
 
         Args:
             chan_id (str): The channel ID.
