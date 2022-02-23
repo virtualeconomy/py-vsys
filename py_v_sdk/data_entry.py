@@ -431,8 +431,11 @@ class Bytes(Text):
         """
         for_str is the handy method to get the data entry for a string.
 
+        Args:
+            s (str): The string.
+
         Returns:
-            The Bytes instance.
+            Bytes: The Bytes instance.
         """
         return cls(md.Bytes.from_str(s))
 
@@ -441,8 +444,11 @@ class Bytes(Text):
         """
         for_base58_str is the handy method to get the data entry for a b58 string.
 
+        Args:
+            s (str): The base58 string.
+
         Returns:
-            The Bytes instance.
+            Bytes: The Bytes instance.
         """
         return cls(md.Bytes.from_b58_str(s))
 
