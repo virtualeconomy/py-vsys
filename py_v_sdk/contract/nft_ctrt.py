@@ -127,6 +127,17 @@ class NFTCtrt(BaseTokCtrt):
         """
         return await self._query_db_key(self.DBKey.for_maker())
 
+    @property
+    async def unit(self) -> int:
+        """
+        unit returns the unit of the NFT contract.
+        This property exists to be compatible with normal token contracts.
+
+        Returns:
+            int: The unit.
+        """
+        return 1
+
     async def issue(
         self,
         by: acnt.Account,

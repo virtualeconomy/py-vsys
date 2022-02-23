@@ -467,4 +467,12 @@ class BaseTokCtrt(Ctrt):
     BaseTokCtrt is the base class for token contracts(NFT included)
     """
 
-    pass
+    @property
+    @abc.abstractmethod
+    async def unit(self) -> int:
+        """
+        unit returns the unit of the token contract.
+
+        Returns:
+            int: The unit.
+        """

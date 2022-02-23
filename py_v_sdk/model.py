@@ -274,6 +274,14 @@ class TokenID(FixedSizeB58Str):
     """
 
     BYTES_LEN = 30
+    MAINNET_VSYS_TOK_ID = "TWatCreEv7ayv6iAfLgke6ppVV33kDjFqSJn8yicf"
+    TESTNET_VSYS_TOK_ID = "TWuKDNU1SAheHR99s1MbGZLPh1KophEmKk1eeU3mW"
+
+    def is_vsys_tok(self) -> bool:
+        return self.data in (
+            self.MAINNET_VSYS_TOK_ID,
+            self.TESTNET_VSYS_TOK_ID,
+        )
 
 
 class TXID(FixedSizeB58Str):
@@ -396,8 +404,10 @@ class VSYSTimestamp(NonNegativeInt):
         super().validate()
         cls_name = self.__class__.__name__
 
-        if self.data <= self.SCALE:
-            raise ValueError(f"Data in {cls_name} must be greater than {self.SCALE}")
+        if not (self.data == 0 or self.data >= self.SCALE):
+            raise ValueError(
+                f"Data in {cls_name} must be either be 0 or equal or greater than {self.SCALE}"
+            )
 
 
 class Token(NonNegativeInt):
