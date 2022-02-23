@@ -382,10 +382,6 @@ class PayChanCtrt(Ctrt):
         raw_ts = await self._query_db_key(
             self.DBKey.for_channel_expiration_time(chan_id)
         )
-
-        if raw_ts == 0:
-            return 0
-
         return md.VSYSTimestamp(raw_ts)
 
     async def get_chan_status(self, chan_id: str) -> bool:
