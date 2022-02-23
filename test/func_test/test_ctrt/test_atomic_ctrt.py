@@ -311,16 +311,15 @@ class TestAtomicSwapCtrt:
         maker_lock_id = maker_lock_tx_info["id"]
         await cft.assert_tx_success(api, maker_lock_id)
 
-        a = await maker_ctrt.get_swap_balance(acnt0.addr.b58_str)
-        assert 90 == a.data
+        bal_old = await maker_ctrt.get_swap_balance(acnt0.addr.b58_str)
 
         exp_withdraw_tx_info = await maker_ctrt.exp_withdraw(acnt0, maker_lock_id)
         await cft.wait_for_block()
         exp_withdraw_id = exp_withdraw_tx_info["id"]
         await cft.assert_tx_success(api, exp_withdraw_id)
 
-        b = await maker_ctrt.get_swap_balance(acnt0.addr.b58_str)
-        assert 100 == b.data
+        bal = await maker_ctrt.get_swap_balance(acnt0.addr.b58_str)
+        assert bal.amount == bal_old.amount + 10
 
     @pytest.mark.whole
     async def test_as_whole(
