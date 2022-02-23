@@ -312,7 +312,7 @@ class TestPayChanCtrt:
         bal_old = await pc.get_ctrt_bal(acnt0.addr.b58_str)
 
         # wait until the channel expires
-        await asyncio.sleep(cft.AVG_BLOCK_DELAY + 2)
+        await asyncio.sleep(cft.AVG_BLOCK_DELAY * 2)
 
         resp = await pc.unload(acnt0, chan_id)
         await cft.wait_for_block()
