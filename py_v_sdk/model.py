@@ -435,7 +435,7 @@ class Token(NonNegativeInt):
         return self.data / self.unit
 
     @classmethod
-    def for_amount(cls, amount: Union[int, float], unit: int) -> VSYS:
+    def for_amount(cls, amount: Union[int, float], unit: int) -> Token:
         """
         for_amount creates a new Token where the amount is equal to the given amount.
 
