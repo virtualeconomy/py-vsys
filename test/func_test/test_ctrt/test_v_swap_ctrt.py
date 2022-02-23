@@ -75,17 +75,11 @@ class TestVSwapCtrt:
 
         await cft.wait_for_block()
 
-        tok_a_id, tok_b_id, liq_tok_id = await asyncio.gather(
-            tca.tok_id,
-            tcb.tok_id,
-            tcl.tok_id,
-        )
-
         vc = await pv.VSwapCtrt.register(
             by=acnt0,
-            tok_a_id=tok_a_id,
-            tok_b_id=tok_b_id,
-            liq_tok_id=liq_tok_id,
+            tok_a_id=tca.tok_id,
+            tok_b_id=tcb.tok_id,
+            liq_tok_id=tcl.tok_id,
             min_liq=self.MIN_LIQ,
         )
         await cft.wait_for_block()
