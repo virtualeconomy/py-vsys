@@ -198,3 +198,45 @@ class SysCtrt(Ctrt):
         )
         logger.debug(data)
         return data
+
+    async def withdraw(
+        self,
+        by: acnt.Account,
+        ctrt_id: str,
+        amount: Union[int, float],
+        attachment: str = "",
+        fee: int = md.ExecCtrtFee.DEFAULT,
+    ) -> Dict[str, Any]:
+        """
+        withdraw withdraws tokens from another contract
+
+        Args:
+            by (acnt.Account): The action maker.
+            ctrt_id (str): The contract id that you want to withdraw token from
+            amount (Union[int, float]): The amount to withdraw
+            attachment (str, optional): The attachment of this action. Defaults to "".
+            fee (int, optional): Execution fee of this tx. Defaults to md.ExecCtrtFee.DEFAULT.
+
+        Returns:
+            Dict[str, Any]: The response returned by the Node API
+        """
+
+        rcpt_md = md.Addr(by.addr.b58_str)
+        rcpt_md.must_on(by.chain)
+
+        data = await by._execute_contract(
+            tx.ExecCtrtFuncTxReq(
+                ctrt_id=self._ctrt_id,
+                func_id=self.FuncIdx.WITHDRAW,
+                data_stack=de.DataStack(
+                    de.CtrtAcnt(md.CtrtID(ctrt_id)),
+                    de.Addr(rcpt_md),
+                    de.Amount.for_vsys_amount(amount),
+                ),
+                timestamp=md.VSYSTimestamp.now(),
+                attachment=md.Str(attachment),
+                fee=md.ExecCtrtFee(fee),
+            )
+        )
+        logger.debug(data)
+        return data
