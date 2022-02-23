@@ -704,7 +704,7 @@ class PayChanCtrt(Ctrt):
             amount (Union[int, float]): The amount of tokens.
 
         Returns:
-            str: The signature in base59 string format.
+            str: The signature in base58 string format.
         """
         msg = await self._get_pay_msg(chan_id, amount)
         sig_bytes = curve.sign(key_pair.pri.bytes, msg)
