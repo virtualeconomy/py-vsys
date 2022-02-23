@@ -1,11 +1,11 @@
-from multiprocessing.context import assert_spawning
 import pytest
+import time
+import base58
 
 import py_v_sdk as pv
+from py_v_sdk.utils.crypto import hashes as hs
+from py_v_sdk import data_entry as de
 from test.func_test import conftest as cft
-from py_v_sdk.utils.crypto.hashes import sha256_hash
-from py_v_sdk.data_entry import DataStack
-import base58, time
 
 
 class TestAtomicSwapCtrt:
@@ -163,7 +163,7 @@ class TestAtomicSwapCtrt:
         acnt1: pv.Account,
         new_maker_atomic_swap_ctrt: pv.AtomicSwapCtrt,
         new_taker_atomic_swap_ctrt: pv.AtomicSwapCtrt,
-    ):
+    ) -> None:
         """
         test_maker_lock_and_taker_lock tests the method maker_lock and taker_lock.
 
@@ -193,13 +193,13 @@ class TestAtomicSwapCtrt:
         maker_lock_tx_id = maker_lock_tx_info["id"]
         await cft.assert_tx_success(api, maker_lock_tx_id)
 
-        puzzle_DBKey = maker_ctrt.DBKey.for_puzzle(maker_lock_tx_id).b58_str
+        puzzle_db_Key = maker_ctrt.DBKey.for_puzzle(maker_lock_tx_id).b58_str
         puzzle_dict = await maker_ctrt.chain.api.ctrt.get_ctrt_data(
-            maker_ctrt.ctrt_id, puzzle_DBKey
+            maker_ctrt.ctrt_id, puzzle_db_Key
         )
         puzzle = puzzle_dict["value"]
 
-        real_puzzle = base58.b58encode(sha256_hash("abc".encode("latin-1"))).decode(
+        real_puzzle = base58.b58encode(hs.sha256_hash("abc".encode("latin-1"))).decode(
             "latin-1"
         )
 
@@ -229,7 +229,7 @@ class TestAtomicSwapCtrt:
         acnt1: pv.Account,
         new_maker_atomic_swap_ctrt: pv.AtomicSwapCtrt,
         new_taker_atomic_swap_ctrt: pv.AtomicSwapCtrt,
-    ):
+    ) -> None:
         """
         test_maker_solve_and_taker_solve tests the method maker_solve and taker_solve.
 
@@ -273,7 +273,7 @@ class TestAtomicSwapCtrt:
 
         dict_data = await acnt0.chain.api.tx.get_info(maker_solve_id)
         func_data = dict_data["functionData"]
-        ds = DataStack.deserialize(base58.b58decode(func_data))
+        ds = de.DataStack.deserialize(base58.b58decode(func_data))
         revealed_secret = ds.entries[1].data.data.decode("latin-1")
 
         assert revealed_secret == "abc"
@@ -290,7 +290,7 @@ class TestAtomicSwapCtrt:
         acnt0: pv.Account,
         acnt1: pv.Account,
         new_maker_atomic_swap_ctrt: pv.AtomicSwapCtrt,
-    ):
+    ) -> None:
         """
         test_exp_withdraw tests the method exp_withdraw.
 
@@ -328,7 +328,7 @@ class TestAtomicSwapCtrt:
         acnt1: pv.Account,
         new_maker_atomic_swap_ctrt: pv.AtomicSwapCtrt,
         new_taker_atomic_swap_ctrt: pv.AtomicSwapCtrt,
-    ):
+    ) -> None:
         """
         test_as_whole tests methods of AtomicSwapCtrt as a whole so as to reduce resource consumption.
 
