@@ -5,8 +5,8 @@ from __future__ import annotations
 import struct
 from typing import TYPE_CHECKING, Dict, Any, Union, Optional
 
-from loguru import logger
 import base58
+from loguru import logger
 
 # https://stackoverflow.com/a/39757388
 if TYPE_CHECKING:
