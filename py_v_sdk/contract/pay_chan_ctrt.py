@@ -667,6 +667,10 @@ class PayChanCtrt(Ctrt):
             Dict[str, Any]: The response returned by the Node API.
         """
 
+        is_valid_sig = await self.verify_sig(chan_id, amount, signature)
+        if not is_valid_sig:
+            raise ValueError("Invalid Payment Channel Contract payment signature")
+
         unit = await self.unit
 
         data = await by._execute_contract(
