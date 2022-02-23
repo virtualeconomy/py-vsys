@@ -16,10 +16,10 @@ from py_v_sdk import data_entry as de
 from py_v_sdk import tx_req as tx
 from py_v_sdk import model as md
 
-from . import Ctrt
+from . import Ctrt, BaseTokCtrt
 
 
-class SysCtrt(Ctrt):
+class SysCtrt(BaseTokCtrt):
     """
     SysCtrt is the class for VSYS System contract.
     """
@@ -68,6 +68,38 @@ class SysCtrt(Ctrt):
             ctrt_id=cls.TESTNET_CTRT_ID,
             chain=chain,
         )
+
+    def __init__(self, ctrt_id: str, chain: ch.Chain) -> None:
+        """
+        Args:
+            ctrt_id (str): The id of the contract.
+            chain (ch.Chain): The object of the chain where the contract is on.
+        """
+        self._ctrt_id = md.CtrtID(ctrt_id)
+        self._chain = chain
+        self._tok_id = ""
+
+    @property
+    def tok_id(self) -> str:
+        """
+        tok_id returns the token ID of the contract.
+
+        Returns:
+            str: The token ID.
+        """
+        if not self._tok_id:
+            self._tok_id = self.get_tok_id(self.ctrt_id, 0)
+        return self._tok_id
+
+    @property
+    async def unit(self) -> int:
+        """
+        unit returns the unit of the token contract.
+
+        Returns:
+            int: The unit.
+        """
+        return md.VSYS.UNIT
 
     async def send(
         self,
