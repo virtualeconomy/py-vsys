@@ -810,3 +810,47 @@ class VEscrowCtrt(Ctrt):
             self.DBKey.for_order_judge_locked_amount(order_id)
         )
         return md.Token(raw_val)
+
+    @classmethod
+    async def register(
+        cls,
+        by: acnt.Account,
+        tok_id: str,
+        duration: int,
+        judge_duration: int,
+        ctrt_description: str = "",
+        fee: int = md.RegCtrtFee.DEFAULT,
+    ) -> VEscrowCtrt:
+        """
+        register registers a V Escrow Contract.
+
+        Args:
+            by (acnt.Account): The action taker.
+            tok_id (str): The token ID.
+            duration (int): The duration where the recipient can take actions.
+            judge_duration (int): the duration where the judge can take actions.
+            ctrt_description (str, optional): The description of the contract. Defaults to "".
+            fee (int, optional): The fee to pay for this action. Defaults to md.RegCtrtFee.DEFAULT.
+
+        Returns:
+            VEscrowCtrt: The VEscrowCtrt object of the registered V Escrow Contract.
+        """
+        data = await by._register_contract(
+            tx.RegCtrtTxReq(
+                data_stack=de.DataStack(
+                    de.TokenID(md.TokenID(tok_id)),
+                    de.Timestamp(md.VSYSTimestamp.from_unix_ts(duration)),
+                    de.Timestamp(md.VSYSTimestamp.from_unix_ts(judge_duration)),
+                ),
+                ctrt_meta=cls.CTRT_META,
+                timestamp=md.VSYSTimestamp.now(),
+                description=md.Str(ctrt_description),
+                fee=md.RegCtrtFee(fee),
+            )
+        )
+        logger.debug(data)
+
+        return cls(
+            data["contractId"],
+            chain=by.chain,
+        )
