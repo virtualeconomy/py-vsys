@@ -2,7 +2,7 @@
 v_escrow_ctrt contains V Escrow contract.
 """
 from __future__ import annotations
-from typing import TYPE_CHECKING, Any, Dict, Union
+from typing import TYPE_CHECKING, Any, Dict, Union, Optional
 
 from loguru import logger
 
@@ -487,3 +487,69 @@ class VEscrowCtrt(Ctrt):
                 data_entry=de.Bytes.for_base58_str(order_id),
             ).serialize()
             return cls(b)
+
+    def __init__(self, ctrt_id: str, chain: ch.Chain) -> None:
+        """
+        Args:
+            ctrt_id (str): The id of the contract.
+            chain (ch.Chain): The object of the chain where the contract is on.
+        """
+        super().__init__(ctrt_id, chain)
+        self._tok_id: Optional[md.TokenID] = None
+
+    @property
+    async def maker(self) -> md.Addr:
+        """
+        maker queries & returns the maker of the contract.
+
+        Returns:
+            md.Addr: The address of the maker of the contract.
+        """
+        raw_val = await self._query_db_key(self.DBKey.for_maker())
+        return md.Addr(raw_val)
+
+    @property
+    async def judge(self) -> md.Addr:
+        """
+        judge queries & returns the judge of the contract.
+
+        Returns:
+            md.Addr: The address of the judge of the contract.
+        """
+        raw_val = await self._query_db_key(self.DBKey.for_judge())
+        return md.Addr(raw_val)
+
+    @property
+    async def tok_id(self) -> md.TokenID:
+        """
+        tok_id queries & returns the token_id of the contract.
+
+        Returns:
+            md.TokenID: The token_id of the contract.
+        """
+        if not self._tok_id:
+            raw_val = await self._query_db_key(self.DBKey.for_token_id())
+            self._tok_id = md.TokenID(raw_val)
+        return self._tok_id
+
+    @property
+    async def duration(self) -> int:
+        """
+        duration queries & returns the duration where the recipient can
+        take actions in the contract.
+
+        Returns:
+            int: The duration.
+        """
+        return await self._query_db_key(self.DBKey.for_duration())
+
+    @property
+    async def judge_duration(self) -> int:
+        """
+        judge_duration queries & returns the duration where the judge can
+        take actions in the contract.
+
+        Returns:
+            int: The duration.
+        """
+        return await self._query_db_key(self.DBKey.for_judge_duration())
