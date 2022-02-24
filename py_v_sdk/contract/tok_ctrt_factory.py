@@ -9,7 +9,9 @@ from typing import TYPE_CHECKING, Type
 if TYPE_CHECKING:
     from py_v_sdk import chain as ch
 
-from py_v_sdk.contract import nft_ctrt, tok_ctrt
+from py_v_sdk import model as md
+
+from py_v_sdk.contract import nft_ctrt, tok_ctrt, sys_ctrt
 from . import BaseTokCtrt
 
 
@@ -49,19 +51,23 @@ class TokCtrtMap:
         return cls.MAP[tok_ctrt_type]
 
 
-async def from_tok_id(tok_id: str, chain: ch.Chain) -> BaseTokCtrt:
+async def from_tok_id(tok_id: md.TokenID, chain: ch.Chain) -> BaseTokCtrt:
     """
     from_tok_id creates a token contract instance based on the given token ID
 
     Args:
-        tok_id (str): The token ID.
+        tok_id (md.TokenID): The token ID.
         chain (ch.Chain): The chain object.
 
     Returns:
         BaseTokCtrt: The token contract instance.
     """
+    if tok_id.is_mainnet_vsys_tok:
+        return sys_ctrt.SysCtrt.for_mainnet(chain)
+    if tok_id.is_testnet_vsys_tok:
+        return sys_ctrt.SysCtrt.for_testnet(chain)
 
-    tok_info = await chain.api.ctrt.get_tok_info(tok_id)
+    tok_info = await chain.api.ctrt.get_tok_info(tok_id.data)
     ctrt_id = tok_info["contractId"]
 
     ctrt_info = await chain.api.ctrt.get_ctrt_info(ctrt_id)

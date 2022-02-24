@@ -277,11 +277,17 @@ class TokenID(FixedSizeB58Str):
     MAINNET_VSYS_TOK_ID = "TWatCreEv7ayv6iAfLgke6ppVV33kDjFqSJn8yicf"
     TESTNET_VSYS_TOK_ID = "TWuKDNU1SAheHR99s1MbGZLPh1KophEmKk1eeU3mW"
 
+    @property
     def is_vsys_tok(self) -> bool:
-        return self.data in (
-            self.MAINNET_VSYS_TOK_ID,
-            self.TESTNET_VSYS_TOK_ID,
-        )
+        return self.is_testnet_vsys_tok or self.is_mainnet_vsys_tok
+
+    @property
+    def is_mainnet_vsys_tok(self) -> bool:
+        return self.data == self.MAINNET_VSYS_TOK_ID
+
+    @property
+    def is_testnet_vsys_tok(self) -> bool:
+        return self.data == self.TESTNET_VSYS_TOK_ID
 
 
 class TXID(FixedSizeB58Str):
