@@ -854,3 +854,61 @@ class VEscrowCtrt(Ctrt):
             data["contractId"],
             chain=by.chain,
         )
+
+    async def create(
+        self,
+        by: acnt.Account,
+        recipient: str,
+        amount: Union[int, float],
+        rcpt_deposit_amount: Union[int, float],
+        judge_deposit_amount: Union[int, float],
+        order_fee: Union[int, float],
+        refund_amount: Union[int, float],
+        expire_at: int,
+        attachment: str = "",
+        fee: int = md.ExecCtrtFee.DEFAULT,
+    ) -> Dict[str, Any]:
+        """
+        create an escrow order.
+
+        Args:
+            by (acnt.Account): The action taker.
+            recipient (str): The recipient account.
+            amount (Union[int, float]): The amount of tokens.
+            rcpt_deposit_amount (Union[int, float]): The amount that the recipient needs to deposit.
+            judge_deposit_amount (Union[int, float]): The amount that the judge needs to deposit.
+            order_fee (Union[int, float]): The fee for this order.
+            refund_amount (Union[int, float]): The amount to refund.
+            expire_at (int): The expiration time of the order.
+            attachment (str, optional): The attachment of this action. Defaults to "".
+            fee (int, optional): The fee to pay for this action. Defaults to md.ExecCtrtFee.DEFAULT.
+
+        Returns:
+            Dict[str, Any]: The response returned by the Node API.
+        """
+
+        rcpt_md = md.Addr(recipient)
+        rcpt_md.must_on(self.chain)
+
+        unit = await self.unit
+
+        data = await by._execute_contract(
+            tx.ExecCtrtFuncTxReq(
+                ctrt_id=self._ctrt_id,
+                func_id=self.FuncIdx.CREATE,
+                data_stack=de.DataStack(
+                    de.Addr(md.Addr(recipient)),
+                    de.Amount.for_tok_amount(amount, unit),
+                    de.Amount.for_tok_amount(rcpt_deposit_amount, unit),
+                    de.Amount.for_tok_amount(judge_deposit_amount, unit),
+                    de.Amount.for_tok_amount(order_fee, unit),
+                    de.Amount.for_tok_amount(refund_amount, unit),
+                    de.Timestamp(md.VSYSTimestamp.from_unix_ts(expire_at)),
+                ),
+                timestamp=md.VSYSTimestamp.now(),
+                attachment=md.Str(attachment),
+                fee=md.ExecCtrtFee(fee),
+            )
+        )
+        logger.debug(data)
+        return data
