@@ -1344,3 +1344,41 @@ class VEscrowCtrt(Ctrt):
         )
         logger.debug(data)
         return data
+
+    async def recipient_refund(
+        self,
+        by: acnt.Account,
+        order_id: str,
+        attachment: str = "",
+        fee: int = md.ExecCtrtFee.DEFAULT,
+    ) -> Dict[str, Any]:
+        """
+        recipient_refund makes the refund action by the recipient when the judge does not judge the work in time
+        after the apply_to_judge function is invoked.
+        The judge loses his deposit amount and the payer receives the refund amount.
+        The recipient receives the rest.
+
+        Args:
+            by (acnt.Account): The action taker.
+            order_id (str): The order ID.
+            attachment (str, optional): The attachment of this action. Defaults to "".
+            fee (int, optional): The fee to pay for this action. Defaults to md.ExecCtrtFee.DEFAULT.
+
+        Returns:
+            Dict[str, Any]: The response returned by the Node API.
+        """
+
+        data = await by._execute_contract(
+            tx.ExecCtrtFuncTxReq(
+                ctrt_id=self._ctrt_id,
+                func_id=self.FuncIdx.RECIPIENT_REFUND,
+                data_stack=de.DataStack(
+                    de.Bytes.for_base58_str(order_id),
+                ),
+                timestamp=md.VSYSTimestamp.now(),
+                attachment=md.Str(attachment),
+                fee=md.ExecCtrtFee(fee),
+            )
+        )
+        logger.debug(data)
+        return data
