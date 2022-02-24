@@ -855,6 +855,39 @@ class VEscrowCtrt(Ctrt):
             chain=by.chain,
         )
 
+    async def supersede(
+        self,
+        by: acnt.Account,
+        new_judge: str,
+        attachment: str = "",
+        fee: int = md.ExecCtrtFee.DEFAULT,
+    ) -> Dict[str, Any]:
+        """
+        supersede transfers the judge right of the contract to another account.
+
+        Args:
+            by (acnt.Account): The action taker
+            new_issuer (int): The new judge of the contract
+            attachment (str, optional): The attachment of this action. Defaults to "".
+            fee (int, optional): Execution fee of this tx. Defaults to md.ExecCtrtFee.DEFAULT.
+
+        Returns:
+            Dict[str,any]: The response returned by the Node API.
+        """
+
+        data = await by._execute_contract(
+            tx.ExecCtrtFuncTxReq(
+                ctrt_id=self._ctrt_id,
+                func_id=self.FuncIdx.SUPERSEDE,
+                data_stack=de.DataStack(de.Addr(md.Addr(new_judge))),
+                timestamp=md.VSYSTimestamp.now(),
+                attachment=md.Str(attachment),
+                fee=md.ExecCtrtFee(fee),
+            )
+        )
+        logger.debug(data)
+        return data
+
     async def create(
         self,
         by: acnt.Account,
