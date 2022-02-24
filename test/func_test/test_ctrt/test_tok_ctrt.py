@@ -211,8 +211,8 @@ class TestTokCtrtWithoutSplit:
         tok_bal = await cft.get_tok_bal(api, acnt0.addr.b58_str, tok_id)
         assert tok_bal == 40
 
-        deposited_tok_bal = await ac.get_tok_bal(acnt0.addr.b58_str)
-        assert deposited_tok_bal == 10
+        deposited_tok_bal = await ac.get_swap_balance(acnt0.addr.b58_str)
+        assert deposited_tok_bal.amount == 10
 
         # withdraw
         await tc.withdraw(acnt0, ac.ctrt_id, 10)
@@ -221,8 +221,8 @@ class TestTokCtrtWithoutSplit:
         tok_bal = await cft.get_tok_bal(api, acnt0.addr.b58_str, tok_id)
         assert tok_bal == 50
 
-        deposited_tok_bal = await ac.get_tok_bal(acnt0.addr.b58_str)
-        assert deposited_tok_bal == 0
+        deposited_tok_bal = await ac.get_swap_balance(acnt0.addr.b58_str)
+        assert deposited_tok_bal.amount == 0
 
     async def test_destroy(
         self, new_ctrt_with_tok: pv.TokenCtrtWithoutSplit, acnt0: pv.Account
