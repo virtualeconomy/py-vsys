@@ -903,6 +903,7 @@ class VEscrowCtrt(Ctrt):
     ) -> Dict[str, Any]:
         """
         create an escrow order.
+        NOTE that the transaction id of this action is the order ID.
 
         Args:
             by (acnt.Account): The action taker.
