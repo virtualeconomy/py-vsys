@@ -516,26 +516,28 @@ class VEscrowCtrt(Ctrt):
         return self._tok_id
 
     @property
-    async def duration(self) -> int:
+    async def duration(self) -> md.VSYSTimestamp:
         """
         duration queries & returns the duration where the recipient can
         take actions in the contract.
 
         Returns:
-            int: The duration.
+            md.VSYSTimestamp: The duration.
         """
-        return await self._query_db_key(self.DBKey.for_duration())
+        raw_val = await self._query_db_key(self.DBKey.for_duration())
+        return md.VSYSTimestamp(raw_val)
 
     @property
-    async def judge_duration(self) -> int:
+    async def judge_duration(self) -> md.VSYSTimestamp:
         """
         judge_duration queries & returns the duration where the judge can
         take actions in the contract.
 
         Returns:
-            int: The duration.
+            md.VSYSTimestamp: The duration.
         """
-        return await self._query_db_key(self.DBKey.for_judge_duration())
+        raw_val = await self._query_db_key(self.DBKey.for_judge_duration())
+        return md.VSYSTimestamp(raw_val)
 
     @property
     async def unit(self) -> int:
