@@ -13,6 +13,7 @@ if TYPE_CHECKING:
 
 from py_v_sdk import data_entry as de
 from py_v_sdk import tx_req as tx
+from py_v_sdk.contract import tok_ctrt_factory as tcf
 from py_v_sdk import model as md
 from . import CtrtMeta, Ctrt
 
@@ -535,3 +536,275 @@ class VEscrowCtrt(Ctrt):
             int: The duration.
         """
         return await self._query_db_key(self.DBKey.for_judge_duration())
+
+    @property
+    async def unit(self) -> int:
+        """
+        unit returns the unit of the token specified in this contract.
+
+        Returns:
+            int: The token unit.
+        """
+        tok_id = await self.tok_id
+
+        if tok_id.is_vsys_tok():
+            return md.VSYS.UNIT
+        else:
+            tc = await tcf.from_tok_id(tok_id.data, self.chain)
+            return await tc.unit
+
+    async def get_ctrt_bal(self, addr: str) -> md.Token:
+        """
+        get_ctrt_bal queries & returns the balance of the token within this contract
+        belonging to the user address.
+
+        Args:
+            addr (str): The account address.
+
+        Returns:
+            md.Token: The balance of the token.
+        """
+        raw_val = await self._query_db_key(self.DBKey.for_contract_balance(addr))
+        unit = await self.unit
+        return md.Token(data=raw_val, unit=unit)
+
+    async def get_order_payer(self, order_id: str) -> md.Addr:
+        """
+        get_order_payer queries & returns the payer of the order.
+
+        Args:
+            order_id (str): The order ID.
+
+        Returns:
+            md.Addr: The order payer.
+        """
+        raw_val = await self._query_db_key(self.DBKey.for_order_payer(order_id))
+        return md.Addr(raw_val)
+
+    async def get_order_recipient(self, order_id: str) -> md.Addr:
+        """
+        get_order_recipient queries & returns the recipient of the order.
+
+        Args:
+            order_id (str): The order ID.
+
+        Returns:
+            md.Addr: The order recipient.
+        """
+        raw_val = await self._query_db_key(self.DBKey.for_order_recipient(order_id))
+        return md.Addr(raw_val)
+
+    async def get_order_amount(self, order_id: str) -> md.Token:
+        """
+        get_order_amount queries & returns the amount of the order.
+
+        Args:
+            order_id (str): The order ID.
+
+        Returns:
+            md.Token: The order amount.
+        """
+        raw_val = await self._query_db_key(self.DBKey.for_order_amount(order_id))
+        unit = await self.unit
+        return md.Token(data=raw_val, unit=unit)
+
+    async def get_order_recipient_deposit(self, order_id: str) -> md.Token:
+        """
+        get_order_recipient_deposit queries & returns the amount the recipient
+        deposits in the order.
+
+        Args:
+            order_id (str): The order ID.
+
+        Returns:
+            md.Token: The recipient deposit amount.
+        """
+        raw_val = await self._query_db_key(
+            self.DBKey.for_order_recipient_deposit(order_id)
+        )
+        unit = await self.unit
+        return md.Token(data=raw_val, unit=unit)
+
+    async def get_order_judge_deposit(self, order_id: str) -> md.Token:
+        """
+        get_order_judge_deposit queries & returns the amount the judge
+        deposits in the order.
+
+        Args:
+            order_id (str): The order ID.
+
+        Returns:
+            md.Token: The judge deposit amount.
+        """
+        raw_val = await self._query_db_key(self.DBKey.for_order_judge_deposit(order_id))
+        unit = await self.unit
+        return md.Token(data=raw_val, unit=unit)
+
+    async def get_order_fee(self, order_id: str) -> md.Token:
+        """
+        get_order_fee queries & returns the fee of the order.
+
+        Args:
+            order_id (str): The order ID.
+
+        Returns:
+            md.Token: The fee of the order.
+        """
+        raw_val = await self._query_db_key(self.DBKey.for_order_fee(order_id))
+        unit = await self.unit
+        return md.Token(data=raw_val, unit=unit)
+
+    async def get_order_recipient_amount(self, order_id: str) -> md.Token:
+        """
+        get_order_recipient_amount queries & returns the recipient amount of the order.
+
+        Args:
+            order_id (str): The order ID.
+
+        Returns:
+            md.Token: The recipient amount of the order.
+        """
+        raw_val = await self._query_db_key(
+            self.DBKey.for_order_recipient_amount(order_id)
+        )
+        unit = await self.unit
+        return md.Token(data=raw_val, unit=unit)
+
+    async def get_order_refund(self, order_id: str) -> md.Token:
+        """
+        get_order_refund queries & returns the refund amount of the order.
+
+        Args:
+            order_id (str): The order ID.
+
+        Returns:
+            md.Token: The refund amount of the order.
+        """
+        raw_val = await self._query_db_key(self.DBKey.for_order_refund(order_id))
+        unit = await self.unit
+        return md.Token(data=raw_val, unit=unit)
+
+    async def get_order_recipient_refund(self, order_id: str) -> md.Token:
+        """
+        get_order_recipient_refund queries & returns the recipient refund amount of the order.
+
+        Args:
+            order_id (str): The order ID.
+
+        Returns:
+            md.Token: The recipient refund amount of the order.
+        """
+        raw_val = await self._query_db_key(
+            self.DBKey.for_order_recipient_refund(order_id)
+        )
+        unit = await self.unit
+        return md.Token(data=raw_val, unit=unit)
+
+    async def get_order_expiration_time(self, order_id: str) -> md.VSYSTimestamp:
+        """
+        get_order_expiration_time queries & returns the expiration time of the order.
+
+        Args:
+            order_id (str): The order ID.
+
+        Returns:
+            md.VSYSTimestamp: The expiration time of the order.
+        """
+        raw_val = await self._query_db_key(
+            self.DBKey.for_order_expiration_time(order_id)
+        )
+        return md.VSYSTimestamp(raw_val)
+
+    async def get_order_status(self, order_id: str) -> bool:
+        """
+        get_order_status queries & returns the status of the order.
+
+        Args:
+            order_id (str): The order ID.
+
+        Returns:
+            bool: The status of the order.
+        """
+        return await self._query_db_key(self.DBKey.for_order_status(order_id))
+
+    async def get_order_recipient_deposit_status(self, order_id: str) -> bool:
+        """
+        get_order_recipient_deposit_status queries & returns the recipient deposit status of the order.
+
+        Args:
+            order_id (str): The order ID.
+
+        Returns:
+            bool: The recipient deposit status of the order.
+        """
+        return await self._query_db_key(
+            self.DBKey.for_order_recipient_deposit_status(order_id)
+        )
+
+    async def get_order_judge_deposit_status(self, order_id: str) -> bool:
+        """
+        get_order_judge_deposit_status queries & returns the judge deposit status of the order.
+
+        Args:
+            order_id (str): The order ID.
+
+        Returns:
+            bool: The judge deposit status of the order.
+        """
+        return await self._query_db_key(
+            self.DBKey.for_order_judge_deposit_status(order_id)
+        )
+
+    async def get_order_submit_status(self, order_id: str) -> bool:
+        """
+        get_order_submit_status queries & returns the submit status of the order.
+
+        Args:
+            order_id (str): The order ID.
+
+        Returns:
+            bool: The submit status of the order.
+        """
+        return await self._query_db_key(self.DBKey.for_order_submit_status(order_id))
+
+    async def get_order_judge_status(self, order_id: str) -> bool:
+        """
+        get_order_judge_status queries & returns the judge status of the order.
+
+        Args:
+            order_id (str): The order ID.
+
+        Returns:
+            bool: The judge status of the order.
+        """
+        return await self._query_db_key(self.DBKey.for_order_judge_status(order_id))
+
+    async def get_order_recipient_locked_amount(self, order_id: str) -> md.Token:
+        """
+        get_order_recipient_locked_amount queries & returns the recipient locked amount of the order.
+
+        Args:
+            order_id (str): The order ID.
+
+        Returns:
+            md.Token: The recipient locked amount of the order.
+        """
+        raw_val = await self._query_db_key(
+            self.DBKey.for_order_recipient_locked_amount(order_id)
+        )
+        return md.Token(raw_val)
+
+    async def get_order_judge_locked_amount(self, order_id: str) -> md.Token:
+        """
+        get_order_judge_locked_amount queries & returns the judge locked amount of the order.
+
+        Args:
+            order_id (str): The order ID.
+
+        Returns:
+            md.Token: The judge locked amount of the order.
+        """
+        raw_val = await self._query_db_key(
+            self.DBKey.for_order_judge_locked_amount(order_id)
+        )
+        return md.Token(raw_val)
