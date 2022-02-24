@@ -399,24 +399,6 @@ class VEscrowCtrt(Ctrt):
             return cls(b)
 
         @classmethod
-        def for_order_judge_deposit_status(cls, order_id: str) -> VEscrowCtrt.DBKey:
-            """
-            for_order_judge_deposit_status returns the VEscrowCtrt.DBKey object for querying
-            the judge deposit status of the order.
-
-            Args:
-                order_id (str): The order ID.
-
-            Returns:
-                VEscrowCtrt.DBKey: The VEscrowCtrt.DBKey object.
-            """
-            b = VEscrowCtrt.StateMap(
-                idx=VEscrowCtrt.StateMapIdx.ORDER_JUDGE_DEPOSIT_STATUS,
-                data_entry=de.Bytes.for_base58_str(order_id),
-            ).serialize()
-            return cls(b)
-
-        @classmethod
         def for_order_submit_status(cls, order_id: str) -> VEscrowCtrt.DBKey:
             """
             for_order_submit_status returns the VEscrowCtrt.DBKey object for querying
