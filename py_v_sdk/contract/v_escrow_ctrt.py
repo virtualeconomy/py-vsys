@@ -1226,3 +1226,121 @@ class VEscrowCtrt(Ctrt):
         )
         logger.debug(data)
         return data
+
+    async def do_judge(
+        self,
+        by: acnt.Account,
+        order_id: str,
+        payer_amount: Union[int, float],
+        rcpt_amount: Union[int, float],
+        attachment: str = "",
+        fee: int = md.ExecCtrtFee.DEFAULT,
+    ) -> Dict[str, Any]:
+        """
+        do_judge judges the work and decides on how much the payer & recipient
+        will receive.
+
+        Args:
+            by (acnt.Account): The action taker.
+            order_id (str): The order ID.
+            payer_amount (Union[int, float]): The amount the payer will get.
+            rcpt_amount (Union[int, float]): The amount the recipient will get.
+            attachment (str, optional): The attachment of this action. Defaults to "".
+            fee (int, optional): The fee to pay for this action. Defaults to md.ExecCtrtFee.DEFAULT.
+
+        Returns:
+            Dict[str, Any]: The response returned by the Node API.
+        """
+        unit = await self.unit
+
+        data = await by._execute_contract(
+            tx.ExecCtrtFuncTxReq(
+                ctrt_id=self._ctrt_id,
+                func_id=self.FuncIdx.JUDGE,
+                data_stack=de.DataStack(
+                    de.Bytes.for_base58_str(order_id),
+                    de.Amount.for_tok_amount(payer_amount, unit),
+                    de.Amount.for_tok_amount(rcpt_amount, unit),
+                ),
+                timestamp=md.VSYSTimestamp.now(),
+                attachment=md.Str(attachment),
+                fee=md.ExecCtrtFee(fee),
+            )
+        )
+        logger.debug(data)
+        return data
+
+    async def submit_penalty(
+        self,
+        by: acnt.Account,
+        order_id: str,
+        attachment: str = "",
+        fee: int = md.ExecCtrtFee.DEFAULT,
+    ) -> Dict[str, Any]:
+        """
+        submit_penalty submits penalty by the payer for the case where the recipient does not submit
+        work before the expiration time. The payer will obtain the recipient deposit amount and the payer amount.
+        The judge will still get the fee.
+
+        Args:
+            by (acnt.Account): The action taker.
+            order_id (str): The order ID.
+            attachment (str, optional): The attachment of this action. Defaults to "".
+            fee (int, optional): The fee to pay for this action. Defaults to md.ExecCtrtFee.DEFAULT.
+
+        Returns:
+            Dict[str, Any]: The response returned by the Node API.
+        """
+
+        data = await by._execute_contract(
+            tx.ExecCtrtFuncTxReq(
+                ctrt_id=self._ctrt_id,
+                func_id=self.FuncIdx.SUBMIT_PENALTY,
+                data_stack=de.DataStack(
+                    de.Bytes.for_base58_str(order_id),
+                ),
+                timestamp=md.VSYSTimestamp.now(),
+                attachment=md.Str(attachment),
+                fee=md.ExecCtrtFee(fee),
+            )
+        )
+        logger.debug(data)
+        return data
+
+    async def payer_refund(
+        self,
+        by: acnt.Account,
+        order_id: str,
+        attachment: str = "",
+        fee: int = md.ExecCtrtFee.DEFAULT,
+    ) -> Dict[str, Any]:
+        """
+        payer_refund makes the refund action by the payer when the judge does not judge the work in time
+        after the apply_to_judge function is invoked.
+        The judge loses his deposit amount and the payer receives the refund amount.
+        The recipient receives the rest.
+
+        Args:
+            by (acnt.Account): The action taker.
+            order_id (str): The order ID.
+            attachment (str, optional): The attachment of this action. Defaults to "".
+            fee (int, optional): The fee to pay for this action. Defaults to md.ExecCtrtFee.DEFAULT.
+
+        Returns:
+            Dict[str, Any]: The response returned by the Node API.
+        """
+
+        data = await by._execute_contract(
+            tx.ExecCtrtFuncTxReq(
+                ctrt_id=self._ctrt_id,
+                func_id=self.FuncIdx.PAYER_REFUND,
+                data_stack=de.DataStack(
+                    de.Bytes.for_base58_str(order_id),
+                ),
+                timestamp=md.VSYSTimestamp.now(),
+                attachment=md.Str(attachment),
+                fee=md.ExecCtrtFee(fee),
+            )
+        )
+        logger.debug(data)
+        return data
