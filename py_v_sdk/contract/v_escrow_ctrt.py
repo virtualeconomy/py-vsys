@@ -146,3 +146,344 @@ class VEscrowCtrt(Ctrt):
             """
             b = VEscrowCtrt.StateVar.JUDGE_DURATION.serialize()
             return cls(b)
+
+        @classmethod
+        def for_contract_balance(cls, addr: str) -> VEscrowCtrt.DBKey:
+            """
+            for_contract_balance returns the VEscrowCtrt.DBKey object for querying the contract balance.
+
+            Args:
+                addr (str): The account address.
+
+            Returns:
+                VEscrowCtrt.DBKey: The VEscrowCtrt.DBKey object.
+            """
+            b = VEscrowCtrt.StateMap(
+                idx=VEscrowCtrt.StateMapIdx.CONTRACT_BALANCE,
+                data_entry=de.Addr(md.Addr(addr)),
+            ).serialize()
+            return cls(b)
+
+        @classmethod
+        def for_order_payer(cls, order_id: str) -> VEscrowCtrt.DBKey:
+            """
+            for_order_payer returns the VEscrowCtrt.DBKey object for querying
+            the payer of the order.
+
+            Args:
+                order_id (str): The order ID.
+
+            Returns:
+                VEscrowCtrt.DBKey: The VEscrowCtrt.DBKey object.
+            """
+            b = VEscrowCtrt.StateMap(
+                idx=VEscrowCtrt.StateMapIdx.ORDER_PAYER,
+                data_entry=de.Bytes.for_base58_str(order_id),
+            ).serialize()
+            return cls(b)
+
+        @classmethod
+        def for_order_recipient(cls, order_id: str) -> VEscrowCtrt.DBKey:
+            """
+            for_order_recipient returns the VEscrowCtrt.DBKey object for querying
+            the recipient of the order.
+
+            Args:
+                order_id (str): The order ID.
+
+            Returns:
+                VEscrowCtrt.DBKey: The VEscrowCtrt.DBKey object.
+            """
+            b = VEscrowCtrt.StateMap(
+                idx=VEscrowCtrt.StateMapIdx.ORDER_RECIPIENT,
+                data_entry=de.Bytes.for_base58_str(order_id),
+            ).serialize()
+            return cls(b)
+
+        @classmethod
+        def for_order_amount(cls, order_id: str) -> VEscrowCtrt.DBKey:
+            """
+            for_order_amount returns the VEscrowCtrt.DBKey object for querying
+            the amount of the order.
+
+            Args:
+                order_id (str): The order ID.
+
+            Returns:
+                VEscrowCtrt.DBKey: The VEscrowCtrt.DBKey object.
+            """
+            b = VEscrowCtrt.StateMap(
+                idx=VEscrowCtrt.StateMapIdx.ORDER_AMOUNT,
+                data_entry=de.Bytes.for_base58_str(order_id),
+            ).serialize()
+            return cls(b)
+
+        @classmethod
+        def for_order_recipient_deposit(cls, order_id: str) -> VEscrowCtrt.DBKey:
+            """
+            for_order_recipient_deposit returns the VEscrowCtrt.DBKey object for querying
+            the amount the recipient deposits in the order.
+
+            Args:
+                order_id (str): The order ID.
+
+            Returns:
+                VEscrowCtrt.DBKey: The VEscrowCtrt.DBKey object.
+            """
+            b = VEscrowCtrt.StateMap(
+                idx=VEscrowCtrt.StateMapIdx.ORDER_RECIPIENT_DEPOSIT,
+                data_entry=de.Bytes.for_base58_str(order_id),
+            ).serialize()
+            return cls(b)
+
+        @classmethod
+        def for_order_judge_deposit(cls, order_id: str) -> VEscrowCtrt.DBKey:
+            """
+            for_order_judge_deposit returns the VEscrowCtrt.DBKey object for querying
+            the amount the judge deposits in the order.
+
+            Args:
+                order_id (str): The order ID.
+
+            Returns:
+                VEscrowCtrt.DBKey: The VEscrowCtrt.DBKey object.
+            """
+            b = VEscrowCtrt.StateMap(
+                idx=VEscrowCtrt.StateMapIdx.ORDER_JUDGE_DEPOSIT,
+                data_entry=de.Bytes.for_base58_str(order_id),
+            ).serialize()
+            return cls(b)
+
+        @classmethod
+        def for_order_fee(cls, order_id: str) -> VEscrowCtrt.DBKey:
+            """
+            for_order_fee returns the VEscrowCtrt.DBKey object for querying
+            the fee of the order.
+
+            Args:
+                order_id (str): The order ID.
+
+            Returns:
+                VEscrowCtrt.DBKey: The VEscrowCtrt.DBKey object.
+            """
+            b = VEscrowCtrt.StateMap(
+                idx=VEscrowCtrt.StateMapIdx.ORDER_FEE,
+                data_entry=de.Bytes.for_base58_str(order_id),
+            ).serialize()
+            return cls(b)
+
+        @classmethod
+        def for_order_recipient_amount(cls, order_id: str) -> VEscrowCtrt.DBKey:
+            """
+            for_order_recipient_amount returns the VEscrowCtrt.DBKey object for querying
+            the recipient amount of the order.
+
+            Args:
+                order_id (str): The order ID.
+
+            Returns:
+                VEscrowCtrt.DBKey: The VEscrowCtrt.DBKey object.
+            """
+            b = VEscrowCtrt.StateMap(
+                idx=VEscrowCtrt.StateMapIdx.ORDER_RECIPIENT_AMOUNT,
+                data_entry=de.Bytes.for_base58_str(order_id),
+            ).serialize()
+            return cls(b)
+
+        @classmethod
+        def for_order_refund(cls, order_id: str) -> VEscrowCtrt.DBKey:
+            """
+            for_order_refund returns the VEscrowCtrt.DBKey object for querying
+            the refund amount of the order.
+
+            Args:
+                order_id (str): The order ID.
+
+            Returns:
+                VEscrowCtrt.DBKey: The VEscrowCtrt.DBKey object.
+            """
+            b = VEscrowCtrt.StateMap(
+                idx=VEscrowCtrt.StateMapIdx.ORDER_REFUND,
+                data_entry=de.Bytes.for_base58_str(order_id),
+            ).serialize()
+            return cls(b)
+
+        @classmethod
+        def for_order_recipient_refund(cls, order_id: str) -> VEscrowCtrt.DBKey:
+            """
+            for_order_recipient_refund returns the VEscrowCtrt.DBKey object for querying
+            the recipient refund amount of the order.
+
+            Args:
+                order_id (str): The order ID.
+
+            Returns:
+                VEscrowCtrt.DBKey: The VEscrowCtrt.DBKey object.
+            """
+            b = VEscrowCtrt.StateMap(
+                idx=VEscrowCtrt.StateMapIdx.ORDER_RECIPIENT_REFUND,
+                data_entry=de.Bytes.for_base58_str(order_id),
+            ).serialize()
+            return cls(b)
+
+        @classmethod
+        def for_order_expiration_time(cls, order_id: str) -> VEscrowCtrt.DBKey:
+            """
+            for_order_expiration_time returns the VEscrowCtrt.DBKey object for querying
+            the expiration time of the order.
+
+            Args:
+                order_id (str): The order ID.
+
+            Returns:
+                VEscrowCtrt.DBKey: The VEscrowCtrt.DBKey object.
+            """
+            b = VEscrowCtrt.StateMap(
+                idx=VEscrowCtrt.StateMapIdx.ORDER_EXPIRATION_TIME,
+                data_entry=de.Bytes.for_base58_str(order_id),
+            ).serialize()
+            return cls(b)
+
+        @classmethod
+        def for_order_status(cls, order_id: str) -> VEscrowCtrt.DBKey:
+            """
+            for_order_status returns the VEscrowCtrt.DBKey object for querying
+            the status of the order.
+
+            Args:
+                order_id (str): The order ID.
+
+            Returns:
+                VEscrowCtrt.DBKey: The VEscrowCtrt.DBKey object.
+            """
+            b = VEscrowCtrt.StateMap(
+                idx=VEscrowCtrt.StateMapIdx.ORDER_STATUS,
+                data_entry=de.Bytes.for_base58_str(order_id),
+            ).serialize()
+            return cls(b)
+
+        @classmethod
+        def for_order_recipient_deposit_status(cls, order_id: str) -> VEscrowCtrt.DBKey:
+            """
+            for_order_recipient_deposit_status returns the VEscrowCtrt.DBKey object for querying
+            the recipient deposit status of the order.
+
+            Args:
+                order_id (str): The order ID.
+
+            Returns:
+                VEscrowCtrt.DBKey: The VEscrowCtrt.DBKey object.
+            """
+            b = VEscrowCtrt.StateMap(
+                idx=VEscrowCtrt.StateMapIdx.ORDER_RECIPIENT_DEPOSIT_STATUS,
+                data_entry=de.Bytes.for_base58_str(order_id),
+            ).serialize()
+            return cls(b)
+
+        @classmethod
+        def for_order_judge_deposit_status(cls, order_id: str) -> VEscrowCtrt.DBKey:
+            """
+            for_order_judge_deposit_status returns the VEscrowCtrt.DBKey object for querying
+            the judge deposit status of the order.
+
+            Args:
+                order_id (str): The order ID.
+
+            Returns:
+                VEscrowCtrt.DBKey: The VEscrowCtrt.DBKey object.
+            """
+            b = VEscrowCtrt.StateMap(
+                idx=VEscrowCtrt.StateMapIdx.ORDER_JUDGE_DEPOSIT_STATUS,
+                data_entry=de.Bytes.for_base58_str(order_id),
+            ).serialize()
+            return cls(b)
+
+        @classmethod
+        def for_order_judge_deposit_status(cls, order_id: str) -> VEscrowCtrt.DBKey:
+            """
+            for_order_judge_deposit_status returns the VEscrowCtrt.DBKey object for querying
+            the judge deposit status of the order.
+
+            Args:
+                order_id (str): The order ID.
+
+            Returns:
+                VEscrowCtrt.DBKey: The VEscrowCtrt.DBKey object.
+            """
+            b = VEscrowCtrt.StateMap(
+                idx=VEscrowCtrt.StateMapIdx.ORDER_JUDGE_DEPOSIT_STATUS,
+                data_entry=de.Bytes.for_base58_str(order_id),
+            ).serialize()
+            return cls(b)
+
+        @classmethod
+        def for_order_submit_status(cls, order_id: str) -> VEscrowCtrt.DBKey:
+            """
+            for_order_submit_status returns the VEscrowCtrt.DBKey object for querying
+            the submit status of the order.
+
+            Args:
+                order_id (str): The order ID.
+
+            Returns:
+                VEscrowCtrt.DBKey: The VEscrowCtrt.DBKey object.
+            """
+            b = VEscrowCtrt.StateMap(
+                idx=VEscrowCtrt.StateMapIdx.ORDER_SUBMIT_STATUS,
+                data_entry=de.Bytes.for_base58_str(order_id),
+            ).serialize()
+            return cls(b)
+
+        @classmethod
+        def for_order_judge_status(cls, order_id: str) -> VEscrowCtrt.DBKey:
+            """
+            for_order_judge_status returns the VEscrowCtrt.DBKey object for querying
+            the judge status of the order.
+
+            Args:
+                order_id (str): The order ID.
+
+            Returns:
+                VEscrowCtrt.DBKey: The VEscrowCtrt.DBKey object.
+            """
+            b = VEscrowCtrt.StateMap(
+                idx=VEscrowCtrt.StateMapIdx.ORDER_JUDGE_STATUS,
+                data_entry=de.Bytes.for_base58_str(order_id),
+            ).serialize()
+            return cls(b)
+
+        @classmethod
+        def for_order_recipient_locked_amount(cls, order_id: str) -> VEscrowCtrt.DBKey:
+            """
+            for_order_recipient_locked_amount returns the VEscrowCtrt.DBKey object for querying
+            the recipient locked amount of the order.
+
+            Args:
+                order_id (str): The order ID.
+
+            Returns:
+                VEscrowCtrt.DBKey: The VEscrowCtrt.DBKey object.
+            """
+            b = VEscrowCtrt.StateMap(
+                idx=VEscrowCtrt.StateMapIdx.ORDER_RECIPIENT_LOCKED_AMOUNT,
+                data_entry=de.Bytes.for_base58_str(order_id),
+            ).serialize()
+            return cls(b)
+
+        @classmethod
+        def for_order_judge_locked_amount(cls, order_id: str) -> VEscrowCtrt.DBKey:
+            """
+            for_order_judge_locked_amount returns the VEscrowCtrt.DBKey object for querying
+            the judge locked amount of the order.
+
+            Args:
+                order_id (str): The order ID.
+
+            Returns:
+                VEscrowCtrt.DBKey: The VEscrowCtrt.DBKey object.
+            """
+            b = VEscrowCtrt.StateMap(
+                idx=VEscrowCtrt.StateMapIdx.ORDER_JUDGE_LOCKED_AMOUNT,
+                data_entry=de.Bytes.for_base58_str(order_id),
+            ).serialize()
+            return cls(b)
