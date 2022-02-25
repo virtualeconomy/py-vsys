@@ -810,7 +810,8 @@ class VEscrowCtrt(Ctrt):
         raw_val = await self._query_db_key(
             self.DBKey.for_order_recipient_locked_amount(order_id)
         )
-        return md.Token(raw_val)
+        unit = await self.unit
+        return md.Token(data=raw_val, unit=unit)
 
     async def get_order_judge_locked_amount(self, order_id: str) -> md.Token:
         """
@@ -826,7 +827,8 @@ class VEscrowCtrt(Ctrt):
         raw_val = await self._query_db_key(
             self.DBKey.for_order_judge_locked_amount(order_id)
         )
-        return md.Token(raw_val)
+        unit = await self.unit
+        return md.Token(data=raw_val, unit=unit)
 
     @classmethod
     async def register(
