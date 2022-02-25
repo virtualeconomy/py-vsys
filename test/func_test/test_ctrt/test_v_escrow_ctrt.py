@@ -1,5 +1,6 @@
 import asyncio
 import time
+from typing import Tuple
 
 import pytest
 
@@ -201,6 +202,46 @@ class TestVEscrowCtrt:
             five_secs,
         )
 
+    @pytest.fixture
+    async def new_ctrt_ten_mins_duration_order(
+        self,
+        new_ctrt_with_ten_mins_duration: pv.VEscrowCtrt,
+        payer: pv.Account,
+        recipient: pv.Account,
+    ) -> Tuple[pv.VEscrowCtrt, str]:
+        """
+        new_ctrt_ten_mins_duration_order is the fixture that registers
+        a new V Escrow Contract where the payer duration & judge duration
+        are all 10 mins with an order created.
+
+        Args:
+            new_ctrt_with_ten_mins_duration (pv.VEscrowCtrt): The V Escrow contract instance.
+            payer (pv.Account): The account of the contract payer.
+            recipient (pv.Account): The account of the contract recipient.
+
+        Returns:
+            pv.VEscrowCtrt: The VEscrowCtrt instance.
+        """
+        vc = new_ctrt_with_ten_mins_duration
+        api = payer.api
+        a_day_later = int(time.time()) + 60 * 60 * 24
+
+        resp = await vc.create(
+            by=payer,
+            recipient=recipient.addr.b58_str,
+            amount=self.ORDER_AMOUNT,
+            rcpt_deposit_amount=self.RCPT_DEPOSIT_AMOUNT,
+            judge_deposit_amount=self.JUDGE_DEPOSIT_AMOUNT,
+            order_fee=self.ORDER_FEE,
+            refund_amount=self.REFUND_AMOUNT,
+            expire_at=a_day_later,
+        )
+        await cft.wait_for_block()
+        await cft.assert_tx_success(api, resp["id"])
+        order_id = resp["id"]
+
+        return vc, order_id
+
     async def test_register(
         self,
         new_sys_ctrt: pv.SysCtrt,
@@ -333,3 +374,31 @@ class TestVEscrowCtrt:
         assert (await vc.get_order_judge_status(order_id)) is False
         assert (await vc.get_order_recipient_locked_amount(order_id)).amount == 0
         assert (await vc.get_order_judge_locked_amount(order_id)).amount == 0
+
+    async def test_recipient_deposit(
+        self,
+        new_ctrt_ten_mins_duration_order: Tuple[pv.VEscrowCtrt, str],
+        recipient: pv.Account,
+    ) -> None:
+        """
+        test_recipient_deposit tests the method recipient_deposit.
+
+        Args:
+            new_ctrt_ten_mins_duration_order (Tuple[pv.VEscrowCtrt, str]): The V Escrow contract instance
+                where the payer duration & judge duration are all 10 mins and an order has been created.
+            recipient (pv.Account): The account of the contract recipient.
+        """
+        vc, order_id = new_ctrt_ten_mins_duration_order
+        api = recipient.api
+
+        assert (await vc.get_order_recipient_deposit_status(order_id)) is False
+        assert (await vc.get_order_recipient_locked_amount(order_id)).amount == 0
+
+        resp = await vc.recipient_deposit(recipient, order_id)
+        await cft.wait_for_block()
+        await cft.assert_tx_success(api, resp["id"])
+
+        assert (await vc.get_order_recipient_deposit_status(order_id)) is True
+        assert (
+            await vc.get_order_recipient_locked_amount(order_id)
+        ).amount == self.RCPT_DEPOSIT_AMOUNT
