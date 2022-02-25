@@ -267,3 +267,69 @@ class TestVEscrowCtrt:
 
         judge = await vc.judge
         assert judge.data == acnt1.addr.b58_str
+
+    async def test_create(
+        self,
+        new_ctrt_with_ten_mins_duration: pv.VEscrowCtrt,
+        judge: pv.Account,
+        payer: pv.Account,
+        recipient: pv.Account,
+    ) -> None:
+        """
+        test_create tests the method create.
+
+        Args:
+            new_ctrt_with_ten_mins_duration (pv.VEscrowCtrt): The V Escrow contract instance.
+            maker (pv.Account): The account of the contract maker.
+            payer (pv.Account): The account of the contract payer.
+            recipient (pv.Account): The account of the contract recipient.
+        """
+
+        vc = new_ctrt_with_ten_mins_duration
+        api = judge.api
+        a_day_later = int(time.time()) + 60 * 60 * 24
+
+        resp = await vc.create(
+            by=payer,
+            recipient=recipient.addr.b58_str,
+            amount=self.ORDER_AMOUNT,
+            rcpt_deposit_amount=self.RCPT_DEPOSIT_AMOUNT,
+            judge_deposit_amount=self.JUDGE_DEPOSIT_AMOUNT,
+            order_fee=self.ORDER_FEE,
+            refund_amount=self.REFUND_AMOUNT,
+            expire_at=a_day_later,
+        )
+        await cft.wait_for_block()
+        await cft.assert_tx_success(api, resp["id"])
+
+        order_id = resp["id"]
+
+        assert (await vc.get_order_payer(order_id)).data == payer.addr.b58_str
+        assert (await vc.get_order_recipient(order_id)).data == recipient.addr.b58_str
+        assert (await vc.get_order_amount(order_id)).amount == self.ORDER_AMOUNT
+        assert (
+            await vc.get_order_recipient_deposit(order_id)
+        ).amount == self.RCPT_DEPOSIT_AMOUNT
+        assert (
+            await vc.get_order_judge_deposit(order_id)
+        ).amount == self.JUDGE_DEPOSIT_AMOUNT
+        assert (await vc.get_order_fee(order_id)).amount == self.ORDER_FEE
+        assert (
+            await vc.get_order_recipient_amount(order_id)
+        ).amount == self.ORDER_AMOUNT - self.ORDER_FEE
+        assert (await vc.get_order_refund(order_id)).amount == self.REFUND_AMOUNT
+
+        total_in_order = (
+            self.ORDER_AMOUNT + self.RCPT_DEPOSIT_AMOUNT + self.JUDGE_DEPOSIT_AMOUNT
+        )
+        assert (
+            await vc.get_order_recipient_refund(order_id)
+        ).amount == total_in_order - self.REFUND_AMOUNT
+        assert (await vc.get_order_expiration_time(order_id)).unix_ts == a_day_later
+        assert (await vc.get_order_status(order_id)) is True
+        assert (await vc.get_order_recipient_deposit_status(order_id)) is False
+        assert (await vc.get_order_judge_deposit_status(order_id)) is False
+        assert (await vc.get_order_submit_status(order_id)) is False
+        assert (await vc.get_order_judge_status(order_id)) is False
+        assert (await vc.get_order_recipient_locked_amount(order_id)).amount == 0
+        assert (await vc.get_order_judge_locked_amount(order_id)).amount == 0
