@@ -105,3 +105,42 @@ class TestVEscrowCtrt:
             five_secs,
         )
 
+    async def test_register(
+        self,
+        new_sys_ctrt: pv.SysCtrt,
+        new_ctrt_with_ten_mins_duration: pv.VEscrowCtrt,
+        acnt0: pv.Account,
+    ) -> pv.VEscrowCtrt:
+        """
+        test_register tests the method register.
+
+        Args:
+            new_sys_ctrt (pv.SysCtrt): The system contract instance.
+            new_ctrt_with_ten_mins_duration (pv.VEscrowCtrt): The V Escrow contract instance.
+            acnt0 (pv.Account): The account of nonce 0.
+
+        Returns:
+            pv.VEscrowCtrt: The VEscrowCtrt instance.
+        """
+
+        sc = new_sys_ctrt
+        vc = new_ctrt_with_ten_mins_duration
+
+        maker = await vc.maker
+        assert maker.data == acnt0.addr.b58_str
+
+        judge = await vc.judge
+        assert judge.data == acnt0.addr.b58_str
+
+        tok_id = await vc.tok_id
+        assert tok_id.data == sc.tok_id
+
+        ten_mins = 10 * 60
+        duration = await vc.duration
+        assert duration.unix_ts == ten_mins
+
+        judge_duration = await vc.judge_duration
+        assert judge_duration.unix_ts == ten_mins
+
+        assert (await vc.unit) == (await sc.unit)
+
