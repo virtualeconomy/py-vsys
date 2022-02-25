@@ -613,7 +613,7 @@ class VEscrowCtrt(Ctrt):
     async def get_order_recipient_deposit(self, order_id: str) -> md.Token:
         """
         get_order_recipient_deposit queries & returns the amount the recipient
-        deposits in the order.
+        should deposit in the order.
 
         Args:
             order_id (str): The order ID.
@@ -630,7 +630,7 @@ class VEscrowCtrt(Ctrt):
     async def get_order_judge_deposit(self, order_id: str) -> md.Token:
         """
         get_order_judge_deposit queries & returns the amount the judge
-        deposits in the order.
+        should deposit in the order.
 
         Args:
             order_id (str): The order ID.
@@ -658,7 +658,9 @@ class VEscrowCtrt(Ctrt):
 
     async def get_order_recipient_amount(self, order_id: str) -> md.Token:
         """
-        get_order_recipient_amount queries & returns the recipient amount of the order.
+        get_order_recipient_amount queries & returns the how much the recipient will receive
+        from the order if the order goes smoothly(i.e. work is submitted & approved).
+        The recipient amount = order amount - order fee.
 
         Args:
             order_id (str): The order ID.
@@ -675,6 +677,8 @@ class VEscrowCtrt(Ctrt):
     async def get_order_refund(self, order_id: str) -> md.Token:
         """
         get_order_refund queries & returns the refund amount of the order.
+        The refund amount means how much the payer will receive if the refund occurs.
+        It is defined when the order is created.
 
         Args:
             order_id (str): The order ID.
@@ -689,6 +693,8 @@ class VEscrowCtrt(Ctrt):
     async def get_order_recipient_refund(self, order_id: str) -> md.Token:
         """
         get_order_recipient_refund queries & returns the recipient refund amount of the order.
+        the recipient refund amount means how much the recipient will receive if the refund occurs.
+        The recipient refund amount = The total deposit(order amount + judge deposit + recipient deposit) - payer refund
 
         Args:
             order_id (str): The order ID.
@@ -720,6 +726,7 @@ class VEscrowCtrt(Ctrt):
     async def get_order_status(self, order_id: str) -> bool:
         """
         get_order_status queries & returns the status of the order.
+        The order status means if the order was created.
 
         Args:
             order_id (str): The order ID.
@@ -733,6 +740,7 @@ class VEscrowCtrt(Ctrt):
     async def get_order_recipient_deposit_status(self, order_id: str) -> bool:
         """
         get_order_recipient_deposit_status queries & returns the recipient deposit status of the order.
+        The order recipient deposit status means if the recipient has deposited into the order.
 
         Args:
             order_id (str): The order ID.
@@ -748,6 +756,7 @@ class VEscrowCtrt(Ctrt):
     async def get_order_judge_deposit_status(self, order_id: str) -> bool:
         """
         get_order_judge_deposit_status queries & returns the judge deposit status of the order.
+        The order judge deposit status means if the judge has deposited into the order.
 
         Args:
             order_id (str): The order ID.
@@ -788,7 +797,8 @@ class VEscrowCtrt(Ctrt):
 
     async def get_order_recipient_locked_amount(self, order_id: str) -> md.Token:
         """
-        get_order_recipient_locked_amount queries & returns the recipient locked amount of the order.
+        get_order_recipient_locked_amount queries & returns the amount from the recipient
+        that is locked(deposited) in the order.
 
         Args:
             order_id (str): The order ID.
@@ -803,7 +813,8 @@ class VEscrowCtrt(Ctrt):
 
     async def get_order_judge_locked_amount(self, order_id: str) -> md.Token:
         """
-        get_order_judge_locked_amount queries & returns the judge locked amount of the order.
+        get_order_judge_locked_amount queries & returns the amount from the judge
+        that is locked(deposited) in the order.
 
         Args:
             order_id (str): The order ID.
