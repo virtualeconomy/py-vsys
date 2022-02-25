@@ -783,7 +783,8 @@ class VEscrowCtrt(Ctrt):
         Returns:
             bool: The judge status of the order.
         """
-        return await self._query_db_key(self.DBKey.for_order_judge_status(order_id))
+        raw_val = await self._query_db_key(self.DBKey.for_order_judge_status(order_id))
+        return raw_val == "true"
 
     async def get_order_recipient_locked_amount(self, order_id: str) -> md.Token:
         """
