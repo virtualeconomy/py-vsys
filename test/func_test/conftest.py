@@ -75,6 +75,21 @@ def acnt1(chain: pv.Chain, wallet: pv.Wallet) -> pv.Account:
     return wallet.get_account(chain, 1)
 
 
+@pytest.fixture
+def acnt2(chain: pv.Chain, wallet: pv.Wallet) -> pv.Account:
+    """
+    acnt2 is the fixture that returns the account of nonce 2.
+
+    Args:
+        chain (pv.Chain): The Chain object.
+        wallet (pv.Wallet): The wallet object.
+
+    Returns:
+        pv.Account: The account.
+    """
+    return wallet.get_account(chain, 2)
+
+
 async def wait_for_block() -> None:
     """
     wait_for_block waits for the transaction to be packed into a block.
