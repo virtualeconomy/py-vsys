@@ -727,7 +727,8 @@ class VEscrowCtrt(Ctrt):
         Returns:
             bool: The status of the order.
         """
-        return await self._query_db_key(self.DBKey.for_order_status(order_id))
+        raw_val = await self._query_db_key(self.DBKey.for_order_status(order_id))
+        return raw_val == "true"
 
     async def get_order_recipient_deposit_status(self, order_id: str) -> bool:
         """
