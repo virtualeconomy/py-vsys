@@ -275,11 +275,8 @@ class PayChanCtrt(Ctrt):
         """
         tok_id = await self.tok_id
 
-        if tok_id.is_vsys_tok():
-            return md.VSYS.UNIT
-        else:
-            tc = await tcf.from_tok_id(tok_id.data, self.chain)
-            return await tc.unit
+        tc = await tcf.from_tok_id(tok_id, self.chain)
+        return await tc.unit
 
     async def get_ctrt_bal(self, addr: str) -> md.Token:
         """
