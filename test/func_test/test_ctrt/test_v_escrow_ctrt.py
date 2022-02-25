@@ -402,3 +402,31 @@ class TestVEscrowCtrt:
         assert (
             await vc.get_order_recipient_locked_amount(order_id)
         ).amount == self.RCPT_DEPOSIT_AMOUNT
+
+    async def test_judge_deposit(
+        self,
+        new_ctrt_ten_mins_duration_order: Tuple[pv.VEscrowCtrt, str],
+        judge: pv.Account,
+    ) -> None:
+        """
+        test_judge_deposit tests the method judge_deposit.
+
+        Args:
+            new_ctrt_ten_mins_duration_order (Tuple[pv.VEscrowCtrt, str]): The V Escrow contract instance
+                where the payer duration & judge duration are all 10 mins and an order has been created.
+            judge (pv.Account): The account of the contract judge.
+        """
+        vc, order_id = new_ctrt_ten_mins_duration_order
+        api = judge.api
+
+        assert (await vc.get_order_judge_deposit_status(order_id)) is False
+        assert (await vc.get_order_judge_locked_amount(order_id)).amount == 0
+
+        resp = await vc.judge_deposit(judge, order_id)
+        await cft.wait_for_block()
+        await cft.assert_tx_success(api, resp["id"])
+
+        assert (await vc.get_order_judge_deposit_status(order_id)) is True
+        assert (
+            await vc.get_order_judge_locked_amount(order_id)
+        ).amount == self.JUDGE_DEPOSIT_AMOUNT
