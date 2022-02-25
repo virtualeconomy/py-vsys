@@ -755,9 +755,10 @@ class VEscrowCtrt(Ctrt):
         Returns:
             bool: The judge deposit status of the order.
         """
-        return await self._query_db_key(
+        raw_val = await self._query_db_key(
             self.DBKey.for_order_judge_deposit_status(order_id)
         )
+        return raw_val == "true"
 
     async def get_order_submit_status(self, order_id: str) -> bool:
         """
