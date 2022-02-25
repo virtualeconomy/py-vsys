@@ -726,7 +726,8 @@ class VEscrowCtrt(Ctrt):
     async def get_order_status(self, order_id: str) -> bool:
         """
         get_order_status queries & returns the status of the order.
-        The order status means if the order was created.
+        The order status means if the order is active.
+        The order is considered active if it is created & it is NOT finished.
 
         Args:
             order_id (str): The order ID.
