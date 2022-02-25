@@ -2,11 +2,9 @@
 v_stable_swap_ctrt contains V Stable Swap contract.
 """
 from __future__ import annotations
-from re import U
-from typing import TYPE_CHECKING, Dict, Any, Union
+from typing import TYPE_CHECKING, Dict, Union
 
 from loguru import logger
-import base58
 
 # https://stackoverflow.com/a/39757388
 if TYPE_CHECKING:
@@ -15,7 +13,7 @@ if TYPE_CHECKING:
 from py_v_sdk import data_entry as de
 from py_v_sdk import tx_req as tx
 from py_v_sdk import model as md
-from py_v_sdk.utils.crypto import hashes as hs
+from py_v_sdk import chain as ch
 from . import CtrtMeta, Ctrt
 
 
