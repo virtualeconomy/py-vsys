@@ -187,7 +187,7 @@ class TokenCtrtWithoutSplit(BaseTokCtrt):
         Returns:
             int: The balance.
         """
-        tok_id = await self.tok_id
+        tok_id = self.tok_id
         data = await self.chain.api.ctrt.get_tok_bal(addr, tok_id)
         return data["balance"]
 
