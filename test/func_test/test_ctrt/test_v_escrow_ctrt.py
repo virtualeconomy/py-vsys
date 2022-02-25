@@ -144,3 +144,33 @@ class TestVEscrowCtrt:
 
         assert (await vc.unit) == (await sc.unit)
 
+    async def test_supersede(
+        self,
+        new_ctrt_with_ten_mins_duration: pv.VEscrowCtrt,
+        acnt0: pv.Account,
+        acnt1: pv.Account,
+    ) -> pv.VEscrowCtrt:
+        """
+        test_supersede tests the method supersede
+
+        Args:
+            new_ctrt_with_ten_mins_duration (pv.VEscrowCtrt): The V Escrow contract instance.
+            acnt0 (pv.Account): The account of nonce 0.
+            acnt1 (pv.Account): The account of nonce 1.
+
+        Returns:
+            pv.VEscrowCtrt: The VEscrowCtrt instance.
+        """
+
+        vc = new_ctrt_with_ten_mins_duration
+        api = acnt0.api
+
+        judge = await vc.judge
+        assert judge.data == acnt0.addr.b58_str
+
+        resp = await vc.supersede(acnt0, acnt1.addr.b58_str)
+        await cft.wait_for_block()
+        await cft.assert_tx_success(api, resp["id"])
+
+        judge = await vc.judge
+        assert judge.data == acnt1.addr.b58_str
