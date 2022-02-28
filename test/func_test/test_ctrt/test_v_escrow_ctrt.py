@@ -547,3 +547,29 @@ class TestVEscrowCtrt:
         await cft.assert_tx_success(api, resp["id"])
 
         assert (await vc.get_order_status(order_id)) is False
+
+    async def test_submit_work(
+        self,
+        new_ctrt_ten_mins_order_deposited: Tuple[pv.VEscrowCtrt, str],
+        recipient: pv.Account,
+    ) -> None:
+        """
+        test_submit_work tests the method submit_work.
+
+        Args:
+            new_ctrt_ten_mins_order_deposited (Tuple[pv.VEscrowCtrt, str]): The V Escrow contract instance
+                where the payer duration & judge duration are all 10 mins and an order has been created.
+                Payer, recipient, and judge have all deposited into it.
+            recipient (pv.Account): The account of the contract recipient.
+        """
+
+        vc, order_id = new_ctrt_ten_mins_order_deposited
+        api = recipient.api
+
+        assert (await vc.get_order_submit_status(order_id)) is False
+
+        resp = await vc.submit_work(recipient, order_id)
+        await cft.wait_for_block()
+        await cft.assert_tx_success(api, resp["id"])
+
+        assert (await vc.get_order_submit_status(order_id)) is True
