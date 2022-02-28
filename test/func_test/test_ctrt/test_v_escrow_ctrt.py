@@ -220,7 +220,7 @@ class TestVEscrowCtrt:
             recipient (pv.Account): The account of the contract recipient.
 
         Returns:
-            pv.VEscrowCtrt: The VEscrowCtrt instance.
+            Tuple[pv.VEscrowCtrt, str]: The VEscrowCtrt instance and the order_id
         """
         vc = new_ctrt_ten_mins
         api = payer.api
@@ -239,6 +239,48 @@ class TestVEscrowCtrt:
         await cft.wait_for_block()
         await cft.assert_tx_success(api, resp["id"])
         order_id = resp["id"]
+
+        return vc, order_id
+
+    @pytest.fixture
+    async def new_ctrt_ten_mins_order_deposited(
+        self,
+        new_ctrt_ten_mins_order: Tuple[pv.VEscrowCtrt, str],
+        recipient: pv.Account,
+        judge: pv.Account,
+    ) -> Tuple[pv.VEscrowCtrt, str]:
+        """
+        new_ctrt_ten_mins_order_deposited is the fixture that
+        - registers a new V Escrow Contract where the payer duration & judge duration
+        are all 10 mins
+        - creates an order
+        - have payer, recipient, & judge all deposits into it.
+
+        Args:
+            new_ctrt_ten_mins_order (Tuple[pv.VEscrowCtrt, str]):
+                The V Escrow contract instance where the order is created.
+            recipient (pv.Account): The account of the contract recipient.
+            judge (pv.Account): The account of the contract judge.
+
+        Returns:
+            Tuple[pv.VEscrowCtrt, str]: The VEscrowCtrt instance and the order_id
+        """
+        vc, order_id = new_ctrt_ten_mins_order
+        api = recipient.api
+
+        # payer has deposited when creating the order
+        # Let recipient & judge deposit
+
+        rcpt_resp, judge_resp = await asyncio.gather(
+            vc.recipient_deposit(recipient, order_id),
+            vc.judge_deposit(judge, order_id),
+        )
+        await cft.wait_for_block()
+
+        await asyncio.gather(
+            cft.assert_tx_success(api, rcpt_resp["id"]),
+            cft.assert_tx_success(api, judge_resp["id"]),
+        )
 
         return vc, order_id
 
