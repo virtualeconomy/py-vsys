@@ -480,3 +480,28 @@ class TestVEscrowCtrt:
         await cft.assert_tx_success(api, resp["id"])
 
         assert (await vc.get_order_status(order_id)) is False
+
+    async def test_judge_cancel(
+        self,
+        new_ctrt_ten_mins_duration_order: Tuple[pv.VEscrowCtrt, str],
+        judge: pv.Account,
+    ) -> None:
+        """
+        test_judge_cancel tests the method judge_cancel.
+
+        Args:
+            new_ctrt_ten_mins_duration_order (Tuple[pv.VEscrowCtrt, str]): The V Escrow contract instance
+                where the payer duration & judge duration are all 10 mins and an order has been created.
+            judge (pv.Account): The account of the contract judge.
+        """
+
+        vc, order_id = new_ctrt_ten_mins_duration_order
+        api = judge.api
+
+        assert (await vc.get_order_status(order_id)) is True
+
+        resp = await vc.judge_cancel(judge, order_id)
+        await cft.wait_for_block()
+        await cft.assert_tx_success(api, resp["id"])
+
+        assert (await vc.get_order_status(order_id)) is False
