@@ -549,7 +549,7 @@ class VEscrowCtrt(Ctrt):
         """
         tok_id = await self.tok_id
 
-        if tok_id.is_vsys_tok():
+        if tok_id.is_vsys_tok:
             return md.VSYS.UNIT
         else:
             tc = await tcf.from_tok_id(tok_id.data, self.chain)
