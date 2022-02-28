@@ -657,3 +657,60 @@ class TestVEscrowCtrt:
             rcpt_bal.amount - rcpt_bal_old.amount == rcpt_amt.amount + rcpt_dep.amount
         )
         assert judge_bal.amount - judge_bal_old.amount == fee.amount + judge_dep.amount
+
+    async def test_apply_to_judge_and_do_judge(
+        self,
+        new_ctrt_ten_mins_work_submitted: Tuple[pv.VEscrowCtrt, str],
+        payer: pv.Account,
+        recipient: pv.Account,
+        judge: pv.Account,
+    ) -> None:
+        """
+        test_approve_work tests the method
+        - apply_to_judge
+        - do_judge
+
+        Args:
+            new_ctrt_ten_mins_work_submitted (Tuple[pv.VEscrowCtrt, str]):
+                The V Escrow contract instance where the work has been submitted by the recipient.
+            payer (pv.Account): The account of the contract payer.
+            recipient (pv.Account): The account of the contract recipient.
+            judge (pv.Account): The account of the contract judge.
+        """
+        vc, order_id = new_ctrt_ten_mins_work_submitted
+        api = payer.api
+
+        payer_bal_old, rcpt_bal_old, judge_bal_old = await asyncio.gather(
+            vc.get_ctrt_bal(payer.addr.b58_str),
+            vc.get_ctrt_bal(recipient.addr.b58_str),
+            vc.get_ctrt_bal(judge.addr.b58_str),
+        )
+        assert (await vc.get_order_status(order_id)) is True
+
+        resp = await vc.apply_to_judge(payer, order_id)
+        await cft.wait_for_block()
+        await cft.assert_tx_success(api, resp["id"])
+
+        # The judge is dividing the amount that
+        # == payer_deposit + recipient_deposit - fee
+        # In this case, the amount is 8
+        to_payer = 3
+        to_rcpt = 5
+
+        resp = await vc.do_judge(judge, order_id, to_payer, to_rcpt)
+        await cft.wait_for_block()
+        await cft.assert_tx_success(api, resp["id"])
+
+        assert (await vc.get_order_status(order_id)) is False
+
+        fee, judge_dep, payer_bal, rcpt_bal, judge_bal = await asyncio.gather(
+            vc.get_order_fee(order_id),
+            vc.get_order_judge_deposit(order_id),
+            vc.get_ctrt_bal(payer.addr.b58_str),
+            vc.get_ctrt_bal(recipient.addr.b58_str),
+            vc.get_ctrt_bal(judge.addr.b58_str),
+        )
+
+        assert payer_bal.amount - payer_bal_old.amount == to_payer
+        assert rcpt_bal.amount - rcpt_bal_old.amount == to_rcpt
+        assert judge_bal.amount - judge_bal_old.amount == fee.amount + judge_dep.amount
