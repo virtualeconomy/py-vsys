@@ -274,8 +274,8 @@ class Account:
         Returns:
             md.VSYS: The account's balance.
         """
-        resp = await self.api.addr.get_balance(self.addr.b58_str)
-        return md.VSYS(resp["balance"])
+        resp = await self.api.addr.get_balance_details(self.addr.b58_str)
+        return md.VSYS(resp["regular"])
 
     @property
     async def avail_bal(self) -> md.VSYS:
@@ -299,8 +299,8 @@ class Account:
         Returns:
             md.VSYS: The account's effective balance.
         """
-        resp = await self.api.addr.get_effective_balance(self.addr.b58_str)
-        return md.VSYS(resp["balance"])
+        resp = await self.api.addr.get_balance_details(self.addr.b58_str)
+        return md.VSYS(resp["effective"])
 
     async def _pay(self, req: tx.PaymentTxReq) -> Dict[str, Any]:
         """
