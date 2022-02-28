@@ -390,6 +390,57 @@ class TestVEscrowCtrt:
         vc, order_id = await self._create_order(vc, payer, recipient, five_secs_later)
         return await self._deposit_to_order(vc, order_id, recipient, judge)
 
+    async def _submit_work(
+        self,
+        ctrt: pv.VEscrowCtrt,
+        order_id: str,
+        recipient: pv.Account,
+    ) -> Tuple[pv.VEscrowCtrt, str]:
+        """
+        _submit_work submits the work of the order.
+
+        Args:
+            ctrt (pv.VEscrowCtrt): A V Escrow contract instance.
+            order_id (str): The order ID.
+            recipient (pv.Account): The account of the contract recipient.
+
+        Returns:
+            Tuple[pv.VEscrowCtrt, str]: The VEscrowCtrt instance and the order_id.
+        """
+        vc = ctrt
+        api = recipient.api
+
+        resp = await vc.submit_work(recipient, order_id)
+        await cft.wait_for_block()
+        await cft.assert_tx_success(api, resp["id"])
+
+        return vc, order_id
+
+    @pytest.fixture
+    async def new_ctrt_five_secs_work_submitted(
+        self,
+        new_ctrt_five_secs_order_deposited: Tuple[pv.VEscrowCtrt, str],
+        recipient: pv.Account,
+    ) -> None:
+        """
+        new_ctrt_ten_mins_work_submitted is the fixture that registers a new V Escrow Contract where
+        - the payer duration & judge duration are all 5 secs.
+        - an order is created.
+        - payer, recipient, & judge have all deposited into it.
+        - recipient has submitted the work.
+
+        Args:
+            new_ctrt_ten_mins_order_deposited (Tuple[pv.VEscrowCtrt, str]): The V Escrow contract instance
+                where the payer duration & judge duration are all 10 mins and an order has been created.
+                Payer, recipient, and judge have all deposited into it.
+            recipient (pv.Account): The account of the contract recipient.
+
+        Returns:
+            Tuple[pv.VEscrowCtrt, str]: The VEscrowCtrt instance and the order_id
+        """
+        vc, order_id = new_ctrt_five_secs_order_deposited
+        return await self._submit_work(vc, order_id, recipient)
+
     @pytest.fixture
     async def new_ctrt_ten_mins_work_submitted(
         self,
@@ -413,13 +464,7 @@ class TestVEscrowCtrt:
             Tuple[pv.VEscrowCtrt, str]: The VEscrowCtrt instance and the order_id
         """
         vc, order_id = new_ctrt_ten_mins_order_deposited
-        api = recipient.api
-
-        resp = await vc.submit_work(recipient, order_id)
-        await cft.wait_for_block()
-        await cft.assert_tx_success(api, resp["id"])
-
-        return vc, order_id
+        return await self._submit_work(vc, order_id, recipient)
 
     async def test_register(
         self,
@@ -864,3 +909,7 @@ class TestVEscrowCtrt:
             payer_bal.amount - payer_bal_old.amount == rcpt_amt.amount + rcpt_dep.amount
         )
         assert judge_bal.amount - judge_bal_old.amount == fee.amount + judge_dep.amount
+
+    # async def test_payer_refund(
+
+    # )
