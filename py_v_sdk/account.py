@@ -266,26 +266,41 @@ class Account:
         return self._addr
 
     @property
-    async def balance(self) -> md.VSYS:
+    async def bal(self) -> md.VSYS:
         """
-        balance returns the account's balance.
+        bal returns the account's ledger(regular) balance.
+        NOTE: The amount leased out will NOT be reflected in this balance.
 
         Returns:
             md.VSYS: The account's balance.
         """
-        resp = await self.api.addr.get_balance(self.addr.b58_str)
-        return md.VSYS(resp["balance"])
+        resp = await self.api.addr.get_balance_details(self.addr.b58_str)
+        return md.VSYS(resp["regular"])
 
     @property
-    async def effective_balance(self) -> md.VSYS:
+    async def avail_bal(self) -> md.VSYS:
         """
-        effective_balance returns the account's effective balance(i.e. The balance that can be spent).
+        avail_bal returns the account's available balance(i.e. the balance that can be spent)
+        NOTE: The amount leased out will be reflected in this balance.
+
+        Returns:
+            md.VSYS: The account's available balance.
+        """
+        resp = await self.api.addr.get_balance_details(self.addr.b58_str)
+        return md.VSYS(resp["available"])
+
+    @property
+    async def eff_bal(self) -> md.VSYS:
+        """
+        eff_bal returns the account's effective balance(i.e. the balance that counts
+            when contending a slot)
+        NOTE: The amount leased in & out will be reflected in this balance.
 
         Returns:
             md.VSYS: The account's effective balance.
         """
-        resp = await self.api.addr.get_effective_balance(self.addr.b58_str)
-        return md.VSYS(resp["balance"])
+        resp = await self.api.addr.get_balance_details(self.addr.b58_str)
+        return md.VSYS(resp["effective"])
 
     async def _pay(self, req: tx.PaymentTxReq) -> Dict[str, Any]:
         """
