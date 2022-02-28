@@ -135,7 +135,7 @@ class TestVEscrowCtrt:
         return vc
 
     @pytest.fixture
-    async def new_ctrt_with_ten_mins_duration(
+    async def new_ctrt_ten_mins_duration(
         self,
         new_sys_ctrt: pv.SysCtrt,
         maker: pv.Account,
@@ -144,7 +144,7 @@ class TestVEscrowCtrt:
         recipient: pv.Account,
     ) -> pv.VEscrowCtrt:
         """
-        new_ctrt_with_ten_mins_duration is the fixture that registers
+        new_ctrt_ten_mins_duration is the fixture that registers
         a new V Escrow Contract where the payer duration & judge duration
         are all 10 mins
 
@@ -169,7 +169,7 @@ class TestVEscrowCtrt:
         )
 
     @pytest.fixture
-    async def new_ctrt_with_five_secs_duration(
+    async def new_ctrt_five_secs_duration(
         self,
         new_sys_ctrt: pv.SysCtrt,
         maker: pv.Account,
@@ -178,7 +178,7 @@ class TestVEscrowCtrt:
         recipient: pv.Account,
     ) -> pv.VEscrowCtrt:
         """
-        new_ctrt_with_ten_mins_duration is the fixture that registers
+        new_ctrt_ten_mins_duration is the fixture that registers
         a new V Escrow Contract where the payer duration & judge duration
         are all 5 secs.
 
@@ -205,7 +205,7 @@ class TestVEscrowCtrt:
     @pytest.fixture
     async def new_ctrt_ten_mins_duration_order(
         self,
-        new_ctrt_with_ten_mins_duration: pv.VEscrowCtrt,
+        new_ctrt_ten_mins_duration: pv.VEscrowCtrt,
         payer: pv.Account,
         recipient: pv.Account,
     ) -> Tuple[pv.VEscrowCtrt, str]:
@@ -215,14 +215,14 @@ class TestVEscrowCtrt:
         are all 10 mins with an order created.
 
         Args:
-            new_ctrt_with_ten_mins_duration (pv.VEscrowCtrt): The V Escrow contract instance.
+            new_ctrt_ten_mins_duration (pv.VEscrowCtrt): The V Escrow contract instance.
             payer (pv.Account): The account of the contract payer.
             recipient (pv.Account): The account of the contract recipient.
 
         Returns:
             pv.VEscrowCtrt: The VEscrowCtrt instance.
         """
-        vc = new_ctrt_with_ten_mins_duration
+        vc = new_ctrt_ten_mins_duration
         api = payer.api
         a_day_later = int(time.time()) + 60 * 60 * 24
 
@@ -245,7 +245,7 @@ class TestVEscrowCtrt:
     async def test_register(
         self,
         new_sys_ctrt: pv.SysCtrt,
-        new_ctrt_with_ten_mins_duration: pv.VEscrowCtrt,
+        new_ctrt_ten_mins_duration: pv.VEscrowCtrt,
         maker: pv.Account,
     ) -> pv.VEscrowCtrt:
         """
@@ -253,7 +253,7 @@ class TestVEscrowCtrt:
 
         Args:
             new_sys_ctrt (pv.SysCtrt): The system contract instance.
-            new_ctrt_with_ten_mins_duration (pv.VEscrowCtrt): The V Escrow contract instance.
+            new_ctrt_ten_mins_duration (pv.VEscrowCtrt): The V Escrow contract instance.
             maker (pv.Account): The account of the contract maker.
 
         Returns:
@@ -261,7 +261,7 @@ class TestVEscrowCtrt:
         """
 
         sc = new_sys_ctrt
-        vc = new_ctrt_with_ten_mins_duration
+        vc = new_ctrt_ten_mins_duration
 
         assert (await vc.maker).data == maker.addr.b58_str
         assert (await vc.judge).data == maker.addr.b58_str
@@ -280,7 +280,7 @@ class TestVEscrowCtrt:
 
     async def test_supersede(
         self,
-        new_ctrt_with_ten_mins_duration: pv.VEscrowCtrt,
+        new_ctrt_ten_mins_duration: pv.VEscrowCtrt,
         acnt0: pv.Account,
         acnt1: pv.Account,
     ) -> pv.VEscrowCtrt:
@@ -288,7 +288,7 @@ class TestVEscrowCtrt:
         test_supersede tests the method supersede
 
         Args:
-            new_ctrt_with_ten_mins_duration (pv.VEscrowCtrt): The V Escrow contract instance.
+            new_ctrt_ten_mins_duration (pv.VEscrowCtrt): The V Escrow contract instance.
             acnt0 (pv.Account): The account of nonce 0.
             acnt1 (pv.Account): The account of nonce 1.
 
@@ -296,7 +296,7 @@ class TestVEscrowCtrt:
             pv.VEscrowCtrt: The VEscrowCtrt instance.
         """
 
-        vc = new_ctrt_with_ten_mins_duration
+        vc = new_ctrt_ten_mins_duration
         api = acnt0.api
 
         judge = await vc.judge
@@ -311,7 +311,7 @@ class TestVEscrowCtrt:
 
     async def test_create(
         self,
-        new_ctrt_with_ten_mins_duration: pv.VEscrowCtrt,
+        new_ctrt_ten_mins_duration: pv.VEscrowCtrt,
         judge: pv.Account,
         payer: pv.Account,
         recipient: pv.Account,
@@ -320,13 +320,13 @@ class TestVEscrowCtrt:
         test_create tests the method create.
 
         Args:
-            new_ctrt_with_ten_mins_duration (pv.VEscrowCtrt): The V Escrow contract instance.
+            new_ctrt_ten_mins_duration (pv.VEscrowCtrt): The V Escrow contract instance.
             maker (pv.Account): The account of the contract maker.
             payer (pv.Account): The account of the contract payer.
             recipient (pv.Account): The account of the contract recipient.
         """
 
-        vc = new_ctrt_with_ten_mins_duration
+        vc = new_ctrt_ten_mins_duration
         api = judge.api
         a_day_later = int(time.time()) + 60 * 60 * 24
 
