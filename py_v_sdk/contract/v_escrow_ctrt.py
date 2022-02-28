@@ -1298,7 +1298,7 @@ class VEscrowCtrt(Ctrt):
     ) -> Dict[str, Any]:
         """
         submit_penalty submits penalty by the payer for the case where the recipient does not submit
-        work before the expiration time. The payer will obtain the recipient deposit amount and the payer amount.
+        work before the expiration time. The payer will obtain the recipient deposit amount and the payer amount(fee deducted).
         The judge will still get the fee.
 
         Args:
