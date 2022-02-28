@@ -282,6 +282,14 @@ class TestVEscrowCtrt:
             cft.assert_tx_success(api, judge_resp["id"]),
         )
 
+        rcpt_status, judge_status = await asyncio.gather(
+            vc.get_order_recipient_deposit_status(order_id),
+            vc.get_order_judge_deposit_status(order_id),
+        )
+
+        assert rcpt_status is True
+        assert judge_status is True
+
         return vc, order_id
 
     async def test_register(
