@@ -250,11 +250,10 @@ class TestVEscrowCtrt:
         judge: pv.Account,
     ) -> Tuple[pv.VEscrowCtrt, str]:
         """
-        new_ctrt_ten_mins_order_deposited is the fixture that
-        - registers a new V Escrow Contract where the payer duration & judge duration
-        are all 10 mins
-        - creates an order
-        - have payer, recipient, & judge all deposits into it.
+        new_ctrt_ten_mins_order_deposited is the fixture that registers a new V Escrow Contract where
+        - the payer duration & judge duration are all 10 mins
+        - an order is created.
+        - payer, recipient, & judge have all deposited into it.
 
         Args:
             new_ctrt_ten_mins_order (Tuple[pv.VEscrowCtrt, str]):
@@ -289,6 +288,37 @@ class TestVEscrowCtrt:
 
         assert rcpt_status is True
         assert judge_status is True
+
+        return vc, order_id
+
+    @pytest.fixture
+    async def new_ctrt_ten_mins_work_submitted(
+        self,
+        new_ctrt_ten_mins_order_deposited: Tuple[pv.VEscrowCtrt, str],
+        recipient: pv.Account,
+    ) -> Tuple[pv.VEscrowCtrt, str]:
+        """
+        new_ctrt_ten_mins_work_submitted is the fixture that registers a new V Escrow Contract where
+        - the payer duration & judge duration are all 10 mins
+        - an order is created.
+        - payer, recipient, & judge have all deposited into it.
+        - recipient has submitted the work.
+
+        Args:
+            new_ctrt_ten_mins_order_deposited (Tuple[pv.VEscrowCtrt, str]): The V Escrow contract instance
+                where the payer duration & judge duration are all 10 mins and an order has been created.
+                Payer, recipient, and judge have all deposited into it.
+            recipient (pv.Account): The account of the contract recipient.
+
+        Returns:
+            Tuple[pv.VEscrowCtrt, str]: The VEscrowCtrt instance and the order_id
+        """
+        vc, order_id = new_ctrt_ten_mins_order_deposited
+        api = recipient.api
+
+        resp = await vc.submit_work(recipient, order_id)
+        await cft.wait_for_block()
+        await cft.assert_tx_success(api, resp["id"])
 
         return vc, order_id
 
