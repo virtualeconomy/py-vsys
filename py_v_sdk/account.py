@@ -268,7 +268,8 @@ class Account:
     @property
     async def balance(self) -> md.VSYS:
         """
-        balance returns the account's balance.
+        balance returns the account's ledger(regular) balance.
+        NOTE: The amount leased out will NOT be reflected in this balance.
 
         Returns:
             md.VSYS: The account's balance.
@@ -279,7 +280,9 @@ class Account:
     @property
     async def effective_balance(self) -> md.VSYS:
         """
-        effective_balance returns the account's effective balance(i.e. The balance that can be spent).
+        effective_balance returns the account's effective balance(i.e. the balance that counts
+            when contending a slot)
+        NOTE: The amount leased in & out will be reflected in this balance.
 
         Returns:
             md.VSYS: The account's effective balance.

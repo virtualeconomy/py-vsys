@@ -465,7 +465,7 @@ class Addresses(APIGrp):
 
     async def get_balance(self, addr: str) -> Dict[str, Any]:
         """
-        get_balance gets the balance of the given address.
+        get_balance gets the ledger(regular) balance of the given address.
 
         Args:
             addr (str): The account address in base58 string format.
