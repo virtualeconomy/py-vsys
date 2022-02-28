@@ -290,9 +290,9 @@ class Account:
         return md.VSYS(resp["available"])
 
     @property
-    async def effective_balance(self) -> md.VSYS:
+    async def eff_bal(self) -> md.VSYS:
         """
-        effective_balance returns the account's effective balance(i.e. the balance that counts
+        eff_bal returns the account's effective balance(i.e. the balance that counts
             when contending a slot)
         NOTE: The amount leased in & out will be reflected in this balance.
 
