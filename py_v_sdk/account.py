@@ -278,6 +278,18 @@ class Account:
         return md.VSYS(resp["balance"])
 
     @property
+    async def avail_bal(self) -> md.VSYS:
+        """
+        avail_bal returns the account's available balance(i.e. the balance that can be spent)
+        NOTE: The amount leased out will be reflected in this balance.
+
+        Returns:
+            md.VSYS: The account's available balance.
+        """
+        resp = await self.api.addr.get_balance_details(self.addr.b58_str)
+        return md.VSYS(resp["available"])
+
+    @property
     async def effective_balance(self) -> md.VSYS:
         """
         effective_balance returns the account's effective balance(i.e. the balance that counts
