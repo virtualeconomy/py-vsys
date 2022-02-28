@@ -266,9 +266,9 @@ class Account:
         return self._addr
 
     @property
-    async def balance(self) -> md.VSYS:
+    async def bal(self) -> md.VSYS:
         """
-        balance returns the account's ledger(regular) balance.
+        bal returns the account's ledger(regular) balance.
         NOTE: The amount leased out will NOT be reflected in this balance.
 
         Returns:

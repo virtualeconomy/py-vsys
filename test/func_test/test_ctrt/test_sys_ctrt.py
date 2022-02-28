@@ -62,15 +62,15 @@ class TestSysCtrt:
         api = acnt0.api
         amount = 1
 
-        acnt0_bal_old = (await acnt0.balance).data
-        acnt1_bal_old = (await acnt1.balance).data
+        acnt0_bal_old = (await acnt0.bal).data
+        acnt1_bal_old = (await acnt1.bal).data
 
         resp = await sc.send(acnt0, acnt1.addr.b58_str, amount)
         await cft.wait_for_block()
         await cft.assert_tx_success(api, resp["id"])
 
-        acnt0_bal = (await acnt0.balance).data
-        acnt1_bal = (await acnt1.balance).data
+        acnt0_bal = (await acnt0.bal).data
+        acnt1_bal = (await acnt1.bal).data
 
         assert (
             acnt0_bal_old - acnt0_bal
@@ -96,15 +96,15 @@ class TestSysCtrt:
         api = acnt0.api
         amount = 1
 
-        acnt0_bal_old = (await acnt0.balance).data
-        acnt1_bal_old = (await acnt1.balance).data
+        acnt0_bal_old = (await acnt0.bal).data
+        acnt1_bal_old = (await acnt1.bal).data
 
         resp = await sc.transfer(acnt0, acnt0.addr.b58_str, acnt1.addr.b58_str, amount)
         await cft.wait_for_block()
         await cft.assert_tx_success(api, resp["id"])
 
-        acnt0_bal = (await acnt0.balance).data
-        acnt1_bal = (await acnt1.balance).data
+        acnt0_bal = (await acnt0.bal).data
+        acnt1_bal = (await acnt1.bal).data
 
         assert (
             acnt0_bal_old - acnt0_bal
@@ -133,13 +133,13 @@ class TestSysCtrt:
         pc = new_pay_chan_ctrt
         deposit_amount = 1
 
-        bal_init = (await acnt0.balance).data
+        bal_init = (await acnt0.bal).data
 
         resp = await sc.deposit(acnt0, pc.ctrt_id, deposit_amount)
         await cft.wait_for_block()
         await cft.assert_tx_success(api, resp["id"])
 
-        bal_after_deposit = (await acnt0.balance).data
+        bal_after_deposit = (await acnt0.bal).data
         assert (
             bal_after_deposit
             == bal_init
@@ -151,7 +151,7 @@ class TestSysCtrt:
         await cft.wait_for_block()
         await cft.assert_tx_success(api, resp["id"])
 
-        bal_after_withdraw = (await acnt0.balance).data
+        bal_after_withdraw = (await acnt0.bal).data
         assert (
             bal_after_withdraw
             == bal_after_deposit
