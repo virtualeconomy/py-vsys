@@ -202,6 +202,47 @@ class TestVEscrowCtrt:
             five_secs,
         )
 
+    async def _create_order(
+        self,
+        ctrt: pv.VEscrowCtrt,
+        payer: pv.Account,
+        recipient: pv.Account,
+        expire_at: int = 0,
+    ) -> Tuple[pv.VEscrowCtrt, str]:
+        """
+        _create_order creates an order for the given V Escrow contract.
+
+        Args:
+            ctrt (pv.VEscrowCtrt): A V Escrow contract instance.
+            payer (pv.Account): The account of the contract payer.
+            recipient (pv.Account): The account of the contract recipient.
+
+        Returns:
+            Tuple[pv.VEscrowCtrt, str]: The VEscrowCtrt instance and the order_id.
+        """
+        vc = ctrt
+        api = payer.api
+
+        if expire_at == 0:
+            a_day_later = int(time.time()) + 60 * 60 * 24
+            expire_at = a_day_later
+
+        resp = await vc.create(
+            by=payer,
+            recipient=recipient.addr.b58_str,
+            amount=self.ORDER_AMOUNT,
+            rcpt_deposit_amount=self.RCPT_DEPOSIT_AMOUNT,
+            judge_deposit_amount=self.JUDGE_DEPOSIT_AMOUNT,
+            order_fee=self.ORDER_FEE,
+            refund_amount=self.REFUND_AMOUNT,
+            expire_at=expire_at,
+        )
+        await cft.wait_for_block()
+        await cft.assert_tx_success(api, resp["id"])
+        order_id = resp["id"]
+
+        return vc, order_id
+
     @pytest.fixture
     async def new_ctrt_ten_mins_order(
         self,
@@ -223,22 +264,51 @@ class TestVEscrowCtrt:
             Tuple[pv.VEscrowCtrt, str]: The VEscrowCtrt instance and the order_id
         """
         vc = new_ctrt_ten_mins
-        api = payer.api
-        a_day_later = int(time.time()) + 60 * 60 * 24
+        return await self._create_order(vc, payer, recipient)
 
-        resp = await vc.create(
-            by=payer,
-            recipient=recipient.addr.b58_str,
-            amount=self.ORDER_AMOUNT,
-            rcpt_deposit_amount=self.RCPT_DEPOSIT_AMOUNT,
-            judge_deposit_amount=self.JUDGE_DEPOSIT_AMOUNT,
-            order_fee=self.ORDER_FEE,
-            refund_amount=self.REFUND_AMOUNT,
-            expire_at=a_day_later,
+    async def _deposit_to_order(
+        self,
+        ctrt: pv.VEscrowCtrt,
+        order_id: str,
+        recipient: pv.Account,
+        judge: pv.Account,
+    ) -> Tuple[pv.VEscrowCtrt, str]:
+        """
+        _deposit_to_order ensures every party has deposited into the order.
+
+        Args:
+            ctrt (pv.VEscrowCtrt): A V Escrow contract instance.
+            order_id (str): The order ID.
+            recipient (pv.Account): The account of the contract recipient.
+            judge (pv.Account): The account of the contract judge.
+
+        Returns:
+            Tuple[pv.VEscrowCtrt, str]: The VEscrowCtrt instance and the order_id.
+        """
+        vc = ctrt
+        api = recipient.api
+
+        # payer has deposited when creating the order
+        # Let recipient & judge deposit
+
+        rcpt_resp, judge_resp = await asyncio.gather(
+            vc.recipient_deposit(recipient, order_id),
+            vc.judge_deposit(judge, order_id),
         )
         await cft.wait_for_block()
-        await cft.assert_tx_success(api, resp["id"])
-        order_id = resp["id"]
+
+        await asyncio.gather(
+            cft.assert_tx_success(api, rcpt_resp["id"]),
+            cft.assert_tx_success(api, judge_resp["id"]),
+        )
+
+        rcpt_status, judge_status = await asyncio.gather(
+            vc.get_order_recipient_deposit_status(order_id),
+            vc.get_order_judge_deposit_status(order_id),
+        )
+
+        assert rcpt_status is True
+        assert judge_status is True
 
         return vc, order_id
 
@@ -265,31 +335,60 @@ class TestVEscrowCtrt:
             Tuple[pv.VEscrowCtrt, str]: The VEscrowCtrt instance and the order_id
         """
         vc, order_id = new_ctrt_ten_mins_order
-        api = recipient.api
+        return await self._deposit_to_order(vc, order_id, recipient, judge)
 
-        # payer has deposited when creating the order
-        # Let recipient & judge deposit
+    @pytest.fixture
+    async def new_ctrt_five_secs_order_deposited(
+        self,
+        new_ctrt_five_secs: pv.VEscrowCtrt,
+        payer: pv.Account,
+        recipient: pv.Account,
+        judge: pv.Account,
+    ) -> Tuple[pv.VEscrowCtrt, str]:
+        """
+        new_ctrt_five_secs_order is the fixture that registers
+        a new V Escrow Contract where the payer duration & judge duration
+        are all 5 seconds with an order created.
 
-        rcpt_resp, judge_resp = await asyncio.gather(
-            vc.recipient_deposit(recipient, order_id),
-            vc.judge_deposit(judge, order_id),
-        )
-        await cft.wait_for_block()
+        Args:
+            new_ctrt_five_secs (pv.VEscrowCtrt): The V Escrow contract instance.
+            payer (pv.Account): The account of the contract payer.
+            recipient (pv.Account): The account of the contract recipient.
+            judge (pv.Account): The account of the contract judge.
 
-        await asyncio.gather(
-            cft.assert_tx_success(api, rcpt_resp["id"]),
-            cft.assert_tx_success(api, judge_resp["id"]),
-        )
+        Returns:
+            Tuple[pv.VEscrowCtrt, str]: The VEscrowCtrt instance and the order_id
+        """
+        vc = new_ctrt_five_secs
+        vc, order_id = await self._create_order(vc, payer, recipient)
+        return await self._deposit_to_order(vc, order_id, recipient, judge)
 
-        rcpt_status, judge_status = await asyncio.gather(
-            vc.get_order_recipient_deposit_status(order_id),
-            vc.get_order_judge_deposit_status(order_id),
-        )
+    @pytest.fixture
+    async def new_ctrt_quick_expire_order_deposited(
+        self,
+        new_ctrt_five_secs: pv.VEscrowCtrt,
+        payer: pv.Account,
+        recipient: pv.Account,
+        judge: pv.Account,
+    ) -> Tuple[pv.VEscrowCtrt, str]:
+        """
+        new_ctrt_five_secs_order is the fixture that registers
+        a new V Escrow Contract where the payer duration & judge duration
+        are all 5 seconds with an order which is expiring SOON created.
 
-        assert rcpt_status is True
-        assert judge_status is True
+        Args:
+            new_ctrt_five_secs (pv.VEscrowCtrt): The V Escrow contract instance.
+            payer (pv.Account): The account of the contract payer.
+            recipient (pv.Account): The account of the contract recipient.
+            judge (pv.Account): The account of the contract judge.
 
-        return vc, order_id
+        Returns:
+            Tuple[pv.VEscrowCtrt, str]: The VEscrowCtrt instance and the order_id
+        """
+        vc = new_ctrt_five_secs
+        five_secs_later = int(time.time()) + 5
+        vc, order_id = await self._create_order(vc, payer, recipient, five_secs_later)
+        return await self._deposit_to_order(vc, order_id, recipient, judge)
 
     @pytest.fixture
     async def new_ctrt_ten_mins_work_submitted(
