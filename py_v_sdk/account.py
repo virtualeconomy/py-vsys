@@ -266,26 +266,26 @@ class Account:
         return self._addr
 
     @property
-    async def balance(self) -> int:
+    async def balance(self) -> md.VSYS:
         """
         balance returns the account's balance.
 
         Returns:
-            int: The account's balance.
+            md.VSYS: The account's balance.
         """
         resp = await self.api.addr.get_balance(self.addr.b58_str)
-        return resp["balance"]
+        return md.VSYS(resp["balance"])
 
     @property
-    async def effective_balance(self) -> int:
+    async def effective_balance(self) -> md.VSYS:
         """
         effective_balance returns the account's effective balance(i.e. The balance that can be spent).
 
         Returns:
-            int: The account's effective balance.
+            md.VSYS: The account's effective balance.
         """
         resp = await self.api.addr.get_effective_balance(self.addr.b58_str)
-        return resp["balance"]
+        return md.VSYS(resp["balance"])
 
     async def _pay(self, req: tx.PaymentTxReq) -> Dict[str, Any]:
         """
