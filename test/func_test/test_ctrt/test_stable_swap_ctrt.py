@@ -1,5 +1,6 @@
 import pytest
 import time
+from typing import Tuple
 
 import py_v_sdk as pv
 from test.func_test import conftest as cft
@@ -112,24 +113,41 @@ class TestStableSwapCtrt:
         return ssc
 
     @pytest.fixture
-    def order_exist() -> bool:
+    async def new_stable_ctrt_with_order(
+        self,
+        acnt0: pv.Account,
+        new_base_ctrt_with_tok: pv.TokenCtrtWithoutSplit,
+        new_target_ctrt_with_tok: pv.TokenCtrtWithoutSplit,
+    ) -> Tuple[pv.VStableSwapCtrt, str]:
         """
-        order_exist shows whether the order exists or not, in case in test_as_whole creates another order.
+        new_stable_ctrt_with_order is the fixture that registers a new V Stable Swap contract that already created an order.
+
+        Args:
+            acnt0 (pv.Account): The account of nonce 0.
+            new_base_ctrt_with_tok (pv.TokenCtrtWithoutSplit): The fixture that registers a new token contract without split and issues base tokens right after it.
+            new_target_ctrt_with_tok (pv.TokenCtrtWithoutSplit): The fixture that registers a new token contract without split and issues target tokens right after it.
 
         Returns:
-            bool: True is exist and false is not.
+            pv.VStableSwapCtrt: The VStableSwapCtrt instance.
         """
-        return False
+        base_tc = new_base_ctrt_with_tok
+        target_tc = new_target_ctrt_with_tok
+        base_tok_id = pv.Ctrt.get_tok_id(base_tc.ctrt_id, 0)
+        target_tok_id = pv.Ctrt.get_tok_id(target_tc.ctrt_id, 0)
 
-    @pytest.fixture
-    def exist_order_id() -> str:
-        """
-        exist_order_id is the existing order id.
+        ssc = await pv.VStableSwapCtrt.register(
+            acnt0, base_tok_id, target_tok_id, 5, 1, 1
+        )
+        await cft.wait_for_block()
+        await base_tc.deposit(acnt0, ssc.ctrt_id, 1000)
+        await target_tc.deposit(acnt0, ssc.ctrt_id, 1000)
+        await cft.wait_for_block()
 
-        Returns:
-            bool: True is exist and false is not.
-        """
-        return str("ss")
+        resp = await ssc.set_order(acnt0, 1, 1, 0, 100, 0, 100, 1, 1, 500, 500)
+        await cft.wait_for_block()
+        order_id = resp["id"]
+
+        return ssc, order_id
 
     async def test_register(
         self,
@@ -210,33 +228,17 @@ class TestStableSwapCtrt:
     async def test_order_deposit_and_withdraw(
         self,
         acnt0: pv.Account,
-        new_stable_ctrt: pv.VStableSwapCtrt,
-        order_exist: bool,
-        exist_order_id: str,
+        new_stable_ctrt_with_order: Tuple[pv.VStableSwapCtrt, str],
     ) -> None:
         """
         test_order_deposit_and_withdraw tests the method order_deposit and order_withdraw.
 
         Args:
             acnt0 (pv.Account): The account of nonce 0.
-            new_stable_ctrt (pv.VStableSwapCtrt): The fixture that registers a new V Stable Swap contract.
-            order_exist (bool): The boolean that indicates whether the order exists.
-            exist_order_id (str): The id of the exist order.
+            new_stable_ctrt_with_order (pv.VStableSwapCtrt): The fixture that registers a new V Stable Swap contract that already created an order.
         """
         api = acnt0.api
-        ssc = new_stable_ctrt
-
-        if order_exist:
-            order_id = exist_order_id
-        else:
-            set_order_tx = await ssc.set_order(
-                acnt0, 1, 1, 0, 100, 0, 100, 1, 1, 500, 500
-            )
-            await cft.wait_for_block()
-            order_id = set_order_tx["id"]
-        # set_order_tx = await ssc.set_order(acnt0,1,1,0,100,0,100,1,1,500,500)
-        # await cft.wait_for_block()
-        # order_id = set_order_tx["id"]
+        ssc, order_id = new_stable_ctrt_with_order
 
         resp = await ssc.order_deposit(acnt0, order_id, 200, 100)
         await cft.wait_for_block()
@@ -261,29 +263,17 @@ class TestStableSwapCtrt:
     async def test_swap(
         self,
         acnt0: pv.Account,
-        new_stable_ctrt: pv.VStableSwapCtrt,
-        order_exist: bool,
-        exist_order_id: str,
+        new_stable_ctrt_with_order: Tuple[pv.VStableSwapCtrt, str],
     ) -> None:
         """
         test_swap tests the method swap_base_to_target and swap_target_to_base.
 
         Args:
             acnt0 (pv.Account): The account of nonce 0.
-            new_stable_ctrt (pv.VStableSwapCtrt): The fixture that registers a new V Stable Swap contract.
-            order_exist (bool): The boolean that indicates whether the order exists.
-            exist_order_id (str): The id of the exist order.
+            new_stable_ctrt_with_order (pv.VStableSwapCtrt): The fixture that registers a new V Stable Swap contract that already created an order.
         """
         api = acnt0.api
-        ssc = new_stable_ctrt
-        order_id = exist_order_id
-
-        # if(order_exist):
-        #     order_id = exist_order_id
-        # else:
-        set_order_tx = await ssc.set_order(acnt0, 1, 1, 0, 100, 0, 100, 1, 1, 500, 500)
-        await cft.wait_for_block()
-        order_id = set_order_tx["id"]
+        ssc, order_id = new_stable_ctrt_with_order
 
         # test swap_base_to_target
         deadline = int(time.time()) + 1500
@@ -311,21 +301,17 @@ class TestStableSwapCtrt:
     async def test_close_order(
         self,
         acnt0: pv.Account,
-        new_stable_ctrt: pv.VStableSwapCtrt,
+        new_stable_ctrt_with_order: Tuple[pv.VStableSwapCtrt, str],
     ) -> None:
         """
-        test_swap tests the method swap_base_to_target and swap_target_to_base.
+        test_close_order tests the method close_order.
 
         Args:
             acnt0 (pv.Account): The account of nonce 0.
-            new_stable_ctrt (pv.VStableSwapCtrt): The fixture that registers a new V Stable Swap contract.
+            new_stable_ctrt_with_order (pv.VStableSwapCtrt): The fixture that registers a new V Stable Swap contract that already created an order.
         """
         api = acnt0.api
-        ssc = new_stable_ctrt
-
-        set_order_tx = await ssc.set_order(acnt0, 1, 1, 0, 100, 0, 100, 1, 1, 500, 500)
-        await cft.wait_for_block()
-        order_id = set_order_tx["id"]
+        ssc, order_id = new_stable_ctrt_with_order
 
         assert await ssc.get_order_status(order_id)
 
@@ -350,7 +336,6 @@ class TestStableSwapCtrt:
             acnt0 (pv.Account): The account of nonce 0.
             new_base_ctrt_with_tok (pv.TokenCtrtWithoutSplit): The fixture that registers a new token contract without split and issues base tokens right after it.
             new_target_ctrt_with_tok (pv.TokenCtrtWithoutSplit): The fixture that registers a new token contract without split and issues target tokens right after it.
-
         """
         swap_ctrt = await self.test_register(
             acnt0, new_base_ctrt_with_tok, new_target_ctrt_with_tok
@@ -358,8 +343,10 @@ class TestStableSwapCtrt:
 
         order_id = await self.test_set_and_update_order(acnt0, swap_ctrt)
 
-        await self.test_order_deposit_and_withdraw(acnt0, swap_ctrt, True, order_id)
+        swap_tuple = (swap_ctrt, order_id)
 
-        await self.test_set_and_update_order(acnt0, swap_ctrt, True, order_id)
+        await self.test_order_deposit_and_withdraw(acnt0, swap_tuple)
 
-        await self.test_close_order(acnt0, swap_ctrt, swap_ctrt)
+        await self.test_swap(acnt0, swap_tuple)
+
+        await self.test_close_order(acnt0, swap_tuple)
