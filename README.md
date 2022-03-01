@@ -90,7 +90,7 @@ async def main():
     wallet: pv.Wallet = pv.Wallet.from_seed_str(SEED)
     acnt: pv.Account = wallet.get_account(chain, nonce=0)
     # Get the account's balance
-    print("Balance:", await acnt.balance)
+    print("Balance:", await acnt.bal)
     # Get the account's nonce'
     print("Nonce:", acnt.nonce.data)
     # Get the account's public key
