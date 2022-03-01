@@ -18,8 +18,8 @@ class TestVEscrowCtrt:
     JUDGE_DEPOSIT_AMOUNT = 3
     ORDER_FEE = 4
     REFUND_AMOUNT = 5
-    CTRT_DEPOSIT_AMOUNT = 30
-    ORDER_PERIOD = 25  # in seconds
+    CTRT_DEPOSIT_AMOUNT = 50
+    ORDER_PERIOD = 45  # in seconds
     DURATION = cft.AVG_BLOCK_DELAY * 2
 
     async def _new_ctrt(
@@ -442,18 +442,21 @@ class TestVEscrowCtrt:
     async def test_create(
         self,
         new_ctrt: pv.VEscrowCtrt,
-        judge: pv.Account,
         payer: pv.Account,
         recipient: pv.Account,
-    ) -> None:
+        judge: pv.Account,
+    ) -> Tuple[pv.VEscrowCtrt, str]:
         """
         test_create tests the method create.
 
         Args:
             new_ctrt (pv.VEscrowCtrt): The V Escrow contract instance.
-            maker (pv.Account): The account of the contract maker.
             payer (pv.Account): The account of the contract payer.
             recipient (pv.Account): The account of the contract recipient.
+            judge (pv.Account): The account of the contract judge.
+
+        Returns:
+            Tuple[pv.VEscrowCtrt, str]: The VEscrowCtrt instance and the order_id
         """
 
         vc = new_ctrt
@@ -504,6 +507,8 @@ class TestVEscrowCtrt:
         assert (await vc.get_order_judge_status(order_id)) is False
         assert (await vc.get_order_recipient_locked_amount(order_id)).amount == 0
         assert (await vc.get_order_judge_locked_amount(order_id)).amount == 0
+
+        return vc, order_id
 
     async def test_recipient_deposit(
         self,
