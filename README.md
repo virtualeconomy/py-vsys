@@ -184,7 +184,7 @@ logger.enable("py_v_sdk")
 > The complete documentation is on the way
 
 ### Smart Contracts
-- [NFT Contract](./doc/smart_contract/NFT_contract.md)
+- [NFT Contract](./doc/smart_contract/nft_ctrt.md)
 
 
 ## Contributing
