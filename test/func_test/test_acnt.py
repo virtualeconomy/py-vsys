@@ -16,9 +16,22 @@ class TestAccount:
 
     @pytest.fixture
     def supernode_addr(self) -> str:
+        """
+        supernode_addr returns the address of a supernode.
+
+        Returns:
+            str: The address.
+        """
         return cft.SUPERNODE_ADDR
 
-    async def test_pay(self, acnt0: pv.Account, acnt1: pv.Account):
+    async def test_pay(self, acnt0: pv.Account, acnt1: pv.Account) -> None:
+        """
+        test_pay tests the method pay.
+
+        Args:
+            acnt0 (pv.Account): The account of nonce 0.
+            acnt1 (pv.Account): The account of nonce 1.
+        """
         api = acnt0.api
 
         acnt0_bal_old = (await acnt0.bal).data
@@ -35,7 +48,18 @@ class TestAccount:
         assert acnt0_bal == acnt0_bal_old - amount.data - pv.PaymentFee.DEFAULT
         assert acnt1_bal == acnt1_bal_old + amount.data
 
-    async def test_lease_and_cancel_lease(self, acnt0: pv.Account, supernode_addr: str):
+    async def test_lease_and_cancel_lease(
+        self, acnt0: pv.Account, supernode_addr: str
+    ) -> None:
+        """
+        test_lease_and_cancel_lease tests methods
+            - lease
+            - cancel_lease
+
+        Args:
+            acnt0 (pv.Account): The account of nonce 0.
+            supernode_addr (str): The supernode address.
+        """
         api = acnt0.api
 
         eff_bal_init = (await acnt0.eff_bal).data
@@ -59,7 +83,13 @@ class TestAccount:
             eff_bal_cancel == eff_bal_lease + amount.data - pv.LeasingCancelFee.DEFAULT
         )
 
-    async def test_db_put(self, acnt0: pv.Account):
+    async def test_db_put(self, acnt0: pv.Account) -> None:
+        """
+        test_db_put tests the method db_put.
+
+        Args:
+            acnt0 (pv.Account): The account of nonce 0.
+        """
         api = acnt0.api
 
         db_key = "func_test"
