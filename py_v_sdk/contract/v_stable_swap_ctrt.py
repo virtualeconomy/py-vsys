@@ -189,7 +189,7 @@ class VStableSwapCtrt(Ctrt):
         @classmethod
         def for_user_order(cls, addr: str) -> VStableSwapCtrt.DBKey:
             """
-            for_user_order returns the VStableSwapCtrt.DBKey object for querying the orders.
+            for_user_order returns the VStableSwapCtrt.DBKey object for querying the number of orders of the user's.
 
             Args:
                 addr (str): The address of the account that create the orders.
@@ -440,7 +440,7 @@ class VStableSwapCtrt(Ctrt):
     @property
     async def base_tok_unit(self) -> int:
         """
-        base_tok_unit queries & return the unit of token A.
+        base_tok_unit queries & return the unit of base token.
 
         Returns:
             int: The unit of base token.
@@ -452,7 +452,7 @@ class VStableSwapCtrt(Ctrt):
     @property
     async def target_tok_unit(self) -> int:
         """
-        target_tok_unit queries & return the unit of token B.
+        target_tok_unit queries & return the unit of target token.
 
         Returns:
             int: The unit of target token.
@@ -464,7 +464,7 @@ class VStableSwapCtrt(Ctrt):
     @property
     async def max_order_per_user(self) -> int:
         """
-        max_order_per_user queries & returns the max order that per user is allowed.
+        max_order_per_user queries & returns the max order numbers that per user is allowed.
 
         Returns:
             int: The max order number.
@@ -520,15 +520,15 @@ class VStableSwapCtrt(Ctrt):
         bal = await self._query_db_key(self.DBKey.for_target_token_balance(addr))
         return md.Token.for_amount(bal, await self.target_tok_unit)
 
-    async def get_user_orders(self, addr: str) -> int:  # not done
+    async def get_user_orders(self, addr: str) -> int:
         """
-        get_user_orders queries & returns the balance of the target token deposited into the contract.
+        get_user_orders queries & returns the number of user orders.
 
         Args:
             addr (str): The account address that deposits the token.
 
         Returns:
-            md.Token: The balance of the token.
+            int: The number of user orders.
         """
         num = await self._query_db_key(self.DBKey.for_user_order(addr))
 
@@ -547,7 +547,7 @@ class VStableSwapCtrt(Ctrt):
         owner_addr = await self._query_db_key(self.DBKey.for_order_owner(order_id))
         return md.Addr(owner_addr)
 
-    async def get_fee_base(self, order_id: str) -> md.Addr:  # not done
+    async def get_fee_base(self, order_id: str) -> md.Token:
         """
         get_fee_base queries & returns the address of the order owner.
 
@@ -557,10 +557,10 @@ class VStableSwapCtrt(Ctrt):
         Returns:
             md.Addr: The address of the order owner.
         """
-        owner_addr = await self._query_db_key(self.DBKey.for_order_owner(order_id))
-        return md.Addr(owner_addr)
+        fee_base = await self._query_db_key(self.DBKey.for_fee_base(order_id))
+        return md.Token(fee_base, await self.base_tok_unit)
 
-    async def get_fee_target(self, order_id: str) -> md.Addr:  # not done
+    async def get_fee_target(self, order_id: str) -> md.Token:
         """
         get_fee_target queries & returns the address of the order owner.
 
@@ -570,60 +570,60 @@ class VStableSwapCtrt(Ctrt):
         Returns:
             md.Addr: The address of the order owner.
         """
-        owner_addr = await self._query_db_key(self.DBKey.for_order_owner(order_id))
-        return md.Addr(owner_addr)
+        target_base = await self._query_db_key(self.DBKey.for_fee_target(order_id))
+        return md.Token(target_base, await self.target_tok_unit)
 
-    async def get_min_base(self, order_id: str) -> md.Addr:  # not done
+    async def get_min_base(self, order_id: str) -> md.Token:
         """
-        get_min_base queries & returns the address of the order owner.
+        get_min_base queries & returns the minimum amount of base.
 
         Args:
             order_id (str): The order id.
 
         Returns:
-            md.Addr: The address of the order owner.
+            md.Token: The amount of min base.
         """
-        owner_addr = await self._query_db_key(self.DBKey.for_min_base(order_id))
-        return md.Addr(owner_addr)
+        min_base = await self._query_db_key(self.DBKey.for_min_base(order_id))
+        return md.Token(min_base, await self.base_tok_unit)
 
-    async def get_max_base(self, order_id: str) -> md.Addr:  # not done
+    async def get_max_base(self, order_id: str) -> md.Token:
         """
-        get_max_base queries & returns the address of the order owner.
+        get_max_base queries & returns the maximum amount of base.
 
         Args:
             order_id (str): The order id.
 
         Returns:
-            md.Addr: The address of the order owner.
+            md.Token: The amount of max base.
         """
-        owner_addr = await self._query_db_key(self.DBKey.for_max_base(order_id))
-        return md.Addr(owner_addr)
+        max_base = await self._query_db_key(self.DBKey.for_max_base(order_id))
+        return md.Token(max_base, await self.base_tok_unit)
 
-    async def get_min_target(self, order_id: str) -> md.Addr:  # not done
+    async def get_min_target(self, order_id: str) -> md.Token:
         """
-        get_min_target queries & returns the address of the order owner.
+        get_min_target queries & returns the minimum amount of target.
 
         Args:
             order_id (str): The order id.
 
         Returns:
-            md.Addr: The address of the order owner.
+            md.Token: The amount of min target.
         """
-        owner_addr = await self._query_db_key(self.DBKey.for_min_target(order_id))
-        return md.Addr(owner_addr)
+        min_target = await self._query_db_key(self.DBKey.for_min_target(order_id))
+        return md.Token(min_target, await self.target_tok_unit)
 
-    async def get_max_target(self, order_id: str) -> md.Addr:  # not done
+    async def get_max_target(self, order_id: str) -> md.Token:
         """
-        get_max_target queries & returns the address of the order owner.
+        get_max_target queries & returns the maximum amount of target.
 
         Args:
             order_id (str): The order id.
 
         Returns:
-            md.Addr: The address of the order owner.
+            md.Token: The amount of max target.
         """
-        owner_addr = await self._query_db_key(self.DBKey.for_max_target(order_id))
-        return md.Addr(owner_addr)
+        max_target = await self._query_db_key(self.DBKey.for_max_target(order_id))
+        return md.Token(max_target, await self.target_tok_unit)
 
     async def get_price_base(self, order_id: str) -> md.Token:
         """
@@ -708,12 +708,12 @@ class VStableSwapCtrt(Ctrt):
         Args:
             base_tok_id (str): The base token id.
             target_token_id (str): The target token id.
-            max_order_per_user (Union[int, float]): _description_
-            unit_price_base (Union[int, float]): _description_
-            unit_price_target (Union[int, float]): _description_
+            max_order_per_user (Union[int, float]): The max order number that per user can create.
+            unit_price_base (Union[int, float]): The unit price of the base token.
+            unit_price_target (Union[int, float]): The unit price of the target token.
 
         Returns:
-            VStableSwapCtrt: _description_
+            VStableSwapCtrt: The VStableSwapCtrt object of the registered Stable Swap contract.
         """
         a = await by.chain.api.ctrt.get_tok_info(base_tok_id)
         base_unit = a["unity"]
@@ -805,8 +805,8 @@ class VStableSwapCtrt(Ctrt):
             price_target (Union[int, float]): The price of target token.
             base_deposit (Union[int, float]): The balance that base token deposits.
             target_deposit (Union[int, float]): The balance that target token deposits.
-            attachment (str, optional): _description_. Defaults to "".
-            fee (int, optional): _description_. Defaults to md.ExecCtrtFee.DEFAULT.
+            attachment (str, optional): Defaults to "".
+            fee (int, optional): Defaults to md.ExecCtrtFee.DEFAULT.
 
         Returns:
             Dict[str, any]: The response returned by the Node API.
@@ -867,8 +867,8 @@ class VStableSwapCtrt(Ctrt):
             max_target (Union[int, float]): The maximum target token.
             price_base (Union[int, float]): The price of base token.
             price_target (Union[int, float]): The price of target token.
-            attachment (str, optional): _description_. Defaults to "".
-            fee (int, optional): _description_. Defaults to md.ExecCtrtFee.DEFAULT.
+            attachment (str, optional): Defaults to "".
+            fee (int, optional): Defaults to md.ExecCtrtFee.DEFAULT.
 
         Returns:
             Dict[str, any]: The response returned by the Node API.
@@ -916,8 +916,8 @@ class VStableSwapCtrt(Ctrt):
             order_id (str): The order id.
             base_deposit (Union[int, float]): The balance that base token deposits.
             target_deposit (Union[int, float]): The balance that target token deposits.
-            attachment (str, optional): _description_. Defaults to "".
-            fee (int, optional): _description_. Defaults to md.ExecCtrtFee.DEFAULT.
+            attachment (str, optional): Defaults to "".
+            fee (int, optional): Defaults to md.ExecCtrtFee.DEFAULT.
 
         Returns:
             Dict[str, any]: The response returned by the Node API.
@@ -959,8 +959,8 @@ class VStableSwapCtrt(Ctrt):
             order_id (str): The order id.
             base_withdraw (Union[int, float]): The balance that base token withdraws.
             target_withdraw (Union[int, float]): The balance that target token withdraws.
-            attachment (str, optional): _description_. Defaults to "".
-            fee (int, optional): _description_. Defaults to md.ExecCtrtFee.DEFAULT.
+            attachment (str, optional): Defaults to "".
+            fee (int, optional): Defaults to md.ExecCtrtFee.DEFAULT.
 
         Returns:
             Dict[str, any]: The response returned by the Node API.
@@ -971,7 +971,7 @@ class VStableSwapCtrt(Ctrt):
         data = await by._execute_contract(
             tx.ExecCtrtFuncTxReq(
                 ctrt_id=self._ctrt_id,
-                func_id=self.FuncIdx.SUPERSEDE,
+                func_id=self.FuncIdx.ORDER_WITHDRAW,
                 data_stack=de.DataStack(
                     de.Bytes.for_base58_str(order_id),
                     de.Amount.for_tok_amount(base_withdraw, base_unit),
@@ -998,8 +998,8 @@ class VStableSwapCtrt(Ctrt):
         Args:
             by (acnt.Account): The action maker.
             order_id (str): The order id.
-            attachment (str, optional): _description_. Defaults to "".
-            fee (int, optional): _description_. Defaults to md.ExecCtrtFee.DEFAULT.
+            attachment (str, optional): Defaults to "".
+            fee (int, optional): Defaults to md.ExecCtrtFee.DEFAULT.
 
         Returns:
             Dict[str, any]: The response returned by the Node API.
@@ -1041,8 +1041,8 @@ class VStableSwapCtrt(Ctrt):
             swap_fee (Union[int, float]): The swap fee.
             price (Union[int, float]): The price.
             deadline (int): The deadline timestamp of the swap.
-            attachment (str, optional): _description_. Defaults to "".
-            fee (int, optional): _description_. Defaults to md.ExecCtrtFee.DEFAULT.
+            attachment (str, optional): Defaults to "".
+            fee (int, optional): Defaults to md.ExecCtrtFee.DEFAULT.
 
         Returns:
             Dict[str, any]: The response returned by the Node API.
@@ -1089,8 +1089,8 @@ class VStableSwapCtrt(Ctrt):
             swap_fee (Union[int, float]): The swap fee.
             price (Union[int, float]): The price.
             deadline (int): The deadline timestamp of the swap.
-            attachment (str, optional): _description_. Defaults to "".
-            fee (int, optional): _description_. Defaults to md.ExecCtrtFee.DEFAULT.
+            attachment (str, optional): Defaults to "".
+            fee (int, optional): Defaults to md.ExecCtrtFee.DEFAULT.
 
         Returns:
             Dict[str, any]: The response returned by the Node API.
