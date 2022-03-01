@@ -19,20 +19,24 @@ class TestAPIGrp:
 
         PREFIX = "TEST"
 
-    @pytest.mark.asyncio
-    async def test_make_url(self, host: str):
+    async def test_make_url(self, host: str) -> None:
         """
         test_make_url tests pv.APIGrp._make_url
+
+        Args:
+            host (str): The node api host.
         """
         sess = aiohttp.ClientSession(base_url=host)
         obj = self.MockAPIGrp(sess)
         edpt = "EDPT"
         assert obj._make_url(edpt) == self.MockAPIGrp.PREFIX + edpt
 
-    @pytest.mark.asyncio
-    async def test_get(self, host: str):
+    async def test_get(self, host: str) -> None:
         """
         test_get tests pv.APIGrp._get
+
+        Args:
+            host (str): The node api host.
         """
         self.MockAPIGrp.PREFIX = "/blocks"
 
@@ -42,10 +46,12 @@ class TestAPIGrp:
         resp = await self.MockAPIGrp(sess)._get(edpt)
         assert resp["height"] > 0
 
-    @pytest.mark.asyncio
-    async def test_post(self, host: str):
+    async def test_post(self, host: str) -> None:
         """
         test_post tests pv.APIGrp._post
+
+        Args:
+            host (str): The node api host.
         """
         self.MockAPIGrp.PREFIX = "/utils"
 
