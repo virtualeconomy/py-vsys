@@ -19,7 +19,7 @@ class TestVEscrowCtrt:
     ORDER_FEE = 4
     REFUND_AMOUNT = 5
     CTRT_DEPOSIT_AMOUNT = 30
-    ORDER_PERIOD = 60  # in seconds
+    ORDER_PERIOD = 25  # in seconds
     DURATION = cft.AVG_BLOCK_DELAY * 2
 
     async def _new_ctrt(
@@ -840,6 +840,8 @@ class TestVEscrowCtrt:
         await cft.wait_for_block()
         await cft.assert_tx_success(api, resp["id"])
 
+        assert (await vc.get_order_status(order_id)) is False
+
         payer_refund, rcpt_refund, payer_bal, rcpt_bal = await asyncio.gather(
             vc.get_order_refund(order_id),
             vc.get_order_recipient_refund(order_id),
@@ -886,6 +888,8 @@ class TestVEscrowCtrt:
         await cft.wait_for_block()
         await cft.assert_tx_success(api, resp["id"])
 
+        assert (await vc.get_order_status(order_id)) is False
+
         payer_refund, rcpt_refund, payer_bal, rcpt_bal = await asyncio.gather(
             vc.get_order_refund(order_id),
             vc.get_order_recipient_refund(order_id),
@@ -895,3 +899,50 @@ class TestVEscrowCtrt:
 
         assert payer_bal.amount - payer_bal_old.amount == payer_refund.amount
         assert rcpt_bal.amount - rcpt_bal_old.amount == rcpt_refund.amount
+
+    async def test_collect(
+        self,
+        new_ctrt_work_submitted: Tuple[pv.VEscrowCtrt, str],
+        recipient: pv.Account,
+        judge: pv.Account,
+    ) -> None:
+        """
+        test_collect tests the method collect.
+
+        Args:
+            new_ctrt_work_submitted (Tuple[pv.VEscrowCtrt, str]): The V Escrow contract instance where the payer duration & judge duration are
+            recipient (pv.Account): The account of the contract recipient.
+            judge (pv.Account): The account of the contract judge.
+        """
+        vc, order_id = new_ctrt_work_submitted
+        api = recipient.api
+
+        rcpt_bal_old, judge_bal_old, expire_at = await asyncio.gather(
+            vc.get_ctrt_bal(recipient.addr.b58_str),
+            vc.get_ctrt_bal(judge.addr.b58_str),
+            vc.get_order_expiration_time(order_id),
+        )
+        assert (await vc.get_order_status(order_id)) is True
+
+        now = int(time.time())
+        await asyncio.sleep(expire_at.unix_ts - now + cft.AVG_BLOCK_DELAY)
+
+        resp = await vc.collect(recipient, order_id)
+        await cft.wait_for_block()
+        await cft.assert_tx_success(api, resp["id"])
+
+        assert (await vc.get_order_status(order_id)) is False
+
+        rcpt_bal, rcpt_amt, rcpt_dep, judge_bal, fee, judge_dep = await asyncio.gather(
+            vc.get_ctrt_bal(recipient.addr.b58_str),
+            vc.get_order_recipient_amount(order_id),
+            vc.get_order_recipient_deposit(order_id),
+            vc.get_ctrt_bal(judge.addr.b58_str),
+            vc.get_order_fee(order_id),
+            vc.get_order_judge_deposit(order_id),
+        )
+
+        assert (
+            rcpt_bal.amount - rcpt_bal_old.amount == rcpt_amt.amount + rcpt_dep.amount
+        )
+        assert judge_bal.amount - judge_bal_old.amount == fee.amount + judge_dep.amount
