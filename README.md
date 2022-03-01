@@ -15,7 +15,7 @@ The official Python SDK for VSYS APIs. The [old Python SDK](https://github.com/v
   - [Run Tests](#run-tests)
     - [Functional Tests](#functional-tests)
   - [Logging](#logging)
-  - [Usage](#usage)
+  - [Docs](#docs)
     - [Smart Contracts](#smart-contracts)
   - [Contributing](#contributing)
 
@@ -179,7 +179,7 @@ from loguru import logger
 logger.enable("py_v_sdk")
 ```
 
-## Usage
+## Docs
 
 > The complete documentation is on the way
 
