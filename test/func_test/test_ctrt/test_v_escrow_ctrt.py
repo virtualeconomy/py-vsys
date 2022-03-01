@@ -946,3 +946,79 @@ class TestVEscrowCtrt:
             rcpt_bal.amount - rcpt_bal_old.amount == rcpt_amt.amount + rcpt_dep.amount
         )
         assert judge_bal.amount - judge_bal_old.amount == fee.amount + judge_dep.amount
+
+    @pytest.mark.whole
+    async def test_as_whole(
+        self,
+        new_sys_ctrt: pv.SysCtrt,
+        new_ctrt: pv.VEscrowCtrt,
+        new_ctrt_quick_expire_order_deposited: Tuple[pv.VEscrowCtrt, str],
+        maker: pv.Account,
+        judge: pv.Account,
+        payer: pv.Account,
+        recipient: pv.Account,
+    ) -> None:
+        """
+        test_as_whole tests methods of PayChanCtrt as a whole so as to reduce resource consumption.
+
+        Args:
+            new_sys_ctrt (pv.SysCtrt): The system contract instance.
+            maker (pv.Account): The account of the contract maker.
+            judge (pv.Account): The account of the contract judge.
+            payer (pv.Account): The account of the contract payer.
+            recipient (pv.Account): The account of the contract recipient.
+        """
+        vc = new_ctrt
+        sc = new_sys_ctrt
+
+        await self.test_register(sc, vc, maker)
+        vc_with_order = await self.test_create(vc, payer, recipient, judge)
+        await self.test_recipient_deposit(vc_with_order, recipient)
+        await self.test_judge_deposit(vc_with_order, judge)
+        await self.test_submit_work(vc_with_order, recipient)
+        await self.test_approve_work(vc_with_order, payer, recipient, judge)
+
+        # cancel to be tested
+
+        expire_at = int(time.time()) + self.ORDER_PERIOD
+        vc_with_order = await self._create_order(vc, payer, recipient, expire_at)
+        await self.test_payer_cancel(vc_with_order, payer)
+
+        expire_at = int(time.time()) + self.ORDER_PERIOD
+        vc_with_order = await self._create_order(vc, payer, recipient, expire_at)
+        await self.test_recipient_cancel(vc_with_order, recipient)
+
+        expire_at = int(time.time()) + self.ORDER_PERIOD
+        vc_with_order = await self._create_order(vc, payer, recipient, expire_at)
+        await self.test_judge_cancel(vc_with_order, judge)
+
+        expire_at = int(time.time()) + self.ORDER_PERIOD
+        vc, order_id = await self._create_order(vc, payer, recipient, expire_at)
+        vc, order_id = await self._deposit_to_order(vc, order_id, recipient, judge)
+        vc_with_order = await self._submit_work(vc, order_id, recipient)
+        await self.test_apply_to_judge_and_do_judge(
+            vc_with_order, payer, recipient, judge
+        )
+
+        vc_with_order = new_ctrt_quick_expire_order_deposited
+        await self.test_submit_penalty(vc_with_order, payer, judge)
+
+        expire_at = int(time.time()) + self.ORDER_PERIOD
+        vc, order_id = await self._create_order(vc, payer, recipient, expire_at)
+        vc, order_id = await self._deposit_to_order(vc, order_id, recipient, judge)
+        vc_with_order = await self._submit_work(vc, order_id, recipient)
+        await self.test_payer_refund(vc_with_order, payer, recipient)
+
+        expire_at = int(time.time()) + self.ORDER_PERIOD
+        vc, order_id = await self._create_order(vc, payer, recipient, expire_at)
+        vc, order_id = await self._deposit_to_order(vc, order_id, recipient, judge)
+        vc_with_order = await self._submit_work(vc, order_id, recipient)
+        await self.test_recipient_refund(vc_with_order, payer, recipient)
+
+        expire_at = int(time.time()) + self.ORDER_PERIOD
+        vc, order_id = await self._create_order(vc, payer, recipient, expire_at)
+        vc, order_id = await self._deposit_to_order(vc, order_id, recipient, judge)
+        vc_with_order = await self._submit_work(vc, order_id, recipient)
+        await self.test_collect(vc_with_order, recipient, judge)
+
+        await self.test_supersede(vc, maker, payer)
