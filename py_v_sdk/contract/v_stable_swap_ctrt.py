@@ -121,7 +121,7 @@ class VStableSwapCtrt(Ctrt):
         @classmethod
         def for_max_order_per_user(cls) -> VStableSwapCtrt.DBKey:
             """
-            for_max_order_per_user returns the VStableSwapCtrt.DBKey object for querying the max unit per user.
+            for_max_order_per_user returns the VStableSwapCtrt.DBKey object for querying the max order number per user.
 
             Returns:
                 VStableSwapCtrt.DBKey: The VStableSwapCtrt.DBKey object.
@@ -155,7 +155,7 @@ class VStableSwapCtrt(Ctrt):
         @classmethod
         def for_base_token_balance(cls, addr: str) -> VStableSwapCtrt.DBKey:
             """
-            for_base_token_balance returns the VStableSwapCtrt.DBKey object for querying the token balance.
+            for_base_token_balance returns the VStableSwapCtrt.DBKey object for querying the base token balance.
 
             Args:
                 addr (str): The address of the account that owns the base token.
@@ -172,7 +172,7 @@ class VStableSwapCtrt(Ctrt):
         @classmethod
         def for_target_token_balance(cls, addr: str) -> VStableSwapCtrt.DBKey:
             """
-            for_target_token_balance returns the VStableSwapCtrt.DBKey object for querying the token balance.
+            for_target_token_balance returns the VStableSwapCtrt.DBKey object for querying the target token balance.
 
             Args:
                 addr (str): The address of the account that owns the target token.
@@ -291,7 +291,7 @@ class VStableSwapCtrt(Ctrt):
         @classmethod
         def for_min_target(cls, order_id: str) -> VStableSwapCtrt.DBKey:
             """
-            for_min_target returns the VStableSwapCtrt.DBKey object for querying the minimum value of target.
+            for_min_target returns the VStableSwapCtrt.DBKey object for querying the minimum trade value of target.
 
             Args:
                 order_id (str): The order id.
@@ -308,7 +308,7 @@ class VStableSwapCtrt(Ctrt):
         @classmethod
         def for_max_target(cls, order_id: str) -> VStableSwapCtrt.DBKey:
             """
-            for_max_target returns the VStableSwapCtrt.DBKey object for querying the maximum value of target.
+            for_max_target returns the VStableSwapCtrt.DBKey object for querying the maximum trade value of target.
 
             Args:
                 order_id (str): The order id.
@@ -325,7 +325,7 @@ class VStableSwapCtrt(Ctrt):
         @classmethod
         def for_price_base(cls, order_id: str) -> VStableSwapCtrt.DBKey:
             """
-            for_price_base returns the VStableSwapCtrt.DBKey object for querying the price of base.
+            for_price_base returns the VStableSwapCtrt.DBKey object for querying the price of base token.
 
             Args:
                 order_id (str): The order id.
@@ -342,7 +342,7 @@ class VStableSwapCtrt(Ctrt):
         @classmethod
         def for_price_target(cls, order_id: str) -> VStableSwapCtrt.DBKey:
             """
-            for_price_target returns the VStableSwapCtrt.DBKey object for querying the price of target.
+            for_price_target returns the VStableSwapCtrt.DBKey object for querying the price of target token.
 
             Args:
                 order_id (str): The order id.
@@ -418,7 +418,7 @@ class VStableSwapCtrt(Ctrt):
         return await self._query_db_key(self.DBKey.for_maker())
 
     @property
-    async def base_token_id(self) -> str:
+    async def base_token_id(self) -> md.TokenID:
         """
         base_token_id queries & returns the base token id.
 
@@ -474,7 +474,7 @@ class VStableSwapCtrt(Ctrt):
     @property
     async def unit_price_base(self) -> md.Token:
         """
-        unit_price_base queries & returns the unit price of base.
+        unit_price_base queries & returns the unit price of base token.
 
         Returns:
             md.Token: the unit price of base.
@@ -485,7 +485,7 @@ class VStableSwapCtrt(Ctrt):
     @property
     async def unit_price_target(self) -> md.Token:
         """
-        unit_price_target queries & returns the unit price of target.
+        unit_price_target queries & returns the unit price of target token.
 
         Returns:
             md.Token: the unit price of target.
@@ -495,7 +495,7 @@ class VStableSwapCtrt(Ctrt):
 
     async def get_base_tok_bal(self, addr: str) -> md.Token:
         """
-        get_base_tok_bal queries & returns the balance of the base token deposited into the contract.
+        get_base_tok_bal queries & returns the balance of the available base tokens.
 
         Args:
             addr (str): The account address that deposits the token.
@@ -509,7 +509,7 @@ class VStableSwapCtrt(Ctrt):
 
     async def get_target_tok_bal(self, addr: str) -> md.Token:
         """
-        get_target_tok_bal queries & returns the balance of the target token deposited into the contract.
+        get_target_tok_bal queries & returns the balance of the available target tokens.
 
         Args:
             addr (str): The account address that deposits the token.
@@ -549,78 +549,78 @@ class VStableSwapCtrt(Ctrt):
 
     async def get_fee_base(self, order_id: str) -> md.Token:
         """
-        get_fee_base queries & returns the address of the order owner.
+        get_fee_base queries & returns the base fee.
 
         Args:
             order_id (str): The order id.
 
         Returns:
-            md.Addr: The address of the order owner.
+            md.Token: The base fee.
         """
         fee_base = await self._query_db_key(self.DBKey.for_fee_base(order_id))
         return md.Token(fee_base, await self.base_tok_unit)
 
     async def get_fee_target(self, order_id: str) -> md.Token:
         """
-        get_fee_target queries & returns the address of the order owner.
+        get_fee_target queries & returns the target fee.
 
         Args:
             order_id (str): The order id.
 
         Returns:
-            md.Addr: The address of the order owner.
+            md.Token: The target fee.
         """
         target_base = await self._query_db_key(self.DBKey.for_fee_target(order_id))
         return md.Token(target_base, await self.target_tok_unit)
 
     async def get_min_base(self, order_id: str) -> md.Token:
         """
-        get_min_base queries & returns the minimum amount of base.
+        get_min_base queries & returns the minimum amount of base token.
 
         Args:
             order_id (str): The order id.
 
         Returns:
-            md.Token: The amount of min base.
+            md.Token: The amount of min base token.
         """
         min_base = await self._query_db_key(self.DBKey.for_min_base(order_id))
         return md.Token(min_base, await self.base_tok_unit)
 
     async def get_max_base(self, order_id: str) -> md.Token:
         """
-        get_max_base queries & returns the maximum amount of base.
+        get_max_base queries & returns the maximum amount of base token.
 
         Args:
             order_id (str): The order id.
 
         Returns:
-            md.Token: The amount of max base.
+            md.Token: The amount of max base token.
         """
         max_base = await self._query_db_key(self.DBKey.for_max_base(order_id))
         return md.Token(max_base, await self.base_tok_unit)
 
     async def get_min_target(self, order_id: str) -> md.Token:
         """
-        get_min_target queries & returns the minimum amount of target.
+        get_min_target queries & returns the minimum amount of target token.
 
         Args:
             order_id (str): The order id.
 
         Returns:
-            md.Token: The amount of min target.
+            md.Token: The amount of min target token.
         """
         min_target = await self._query_db_key(self.DBKey.for_min_target(order_id))
         return md.Token(min_target, await self.target_tok_unit)
 
     async def get_max_target(self, order_id: str) -> md.Token:
         """
-        get_max_target queries & returns the maximum amount of target.
+        get_max_target queries & returns the maximum amount of target token.
 
         Args:
             order_id (str): The order id.
 
         Returns:
-            md.Token: The amount of max target.
+            md.Token: The amount of max target token.
         """
         max_target = await self._query_db_key(self.DBKey.for_max_target(order_id))
         return md.Token(max_target, await self.target_tok_unit)
@@ -706,6 +706,7 @@ class VStableSwapCtrt(Ctrt):
         register registers a v stable swap contract.
 
         Args:
+            by (acnt.Account): The action maker.
             base_tok_id (str): The base token id.
             target_token_id (str): The target token id.
             max_order_per_user (Union[int, float]): The max order number that per user can create.
@@ -791,7 +792,7 @@ class VStableSwapCtrt(Ctrt):
         fee: int = md.ExecCtrtFee.DEFAULT,
     ) -> Dict[str, any]:
         """
-        set_order builds up the order with certain parameters.
+        set_order creates the order.
 
         Args:
             by (acnt.Account): The action maker.
@@ -854,7 +855,7 @@ class VStableSwapCtrt(Ctrt):
         fee: int = md.ExecCtrtFee.DEFAULT,
     ) -> Dict[str, any]:
         """
-        update_order builds up the order with certain parameters.
+        update_order updates the order settings.
 
         Args:
             by (acnt.Account): The action maker.
@@ -909,7 +910,7 @@ class VStableSwapCtrt(Ctrt):
         fee: int = md.ExecCtrtFee.DEFAULT,
     ) -> Dict[str, any]:
         """
-        order_deposit deposits the token into the order.
+        order_deposit locks the tokens.
 
         Args:
             by (acnt.Account): The action maker.
@@ -952,7 +953,7 @@ class VStableSwapCtrt(Ctrt):
         fee: int = md.ExecCtrtFee.DEFAULT,
     ) -> Dict[str, any]:
         """
-        order_withdraw withdraws the token from the order.
+        order_withdraw unlocks the tokens.
 
         Args:
             by (acnt.Account): The action maker.
