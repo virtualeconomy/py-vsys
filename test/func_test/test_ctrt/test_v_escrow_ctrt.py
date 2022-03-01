@@ -850,5 +850,48 @@ class TestVEscrowCtrt:
         assert payer_bal.amount - payer_bal_old.amount == payer_refund.amount
         assert rcpt_bal.amount - rcpt_bal_old.amount == rcpt_refund.amount
 
+    async def test_recipient_refund(
+        self,
+        new_ctrt_work_submitted: Tuple[pv.VEscrowCtrt, str],
+        payer: pv.Account,
+        recipient: pv.Account,
+    ) -> None:
+        """
+        test_recipient_refund tests the method recipient_refund.
 
-    # )
+        Args:
+            new_ctrt_work_submitted (Tuple[pv.VEscrowCtrt, str]): The V Escrow contract instance.
+            payer (pv.Account): The account of the contract payer.
+            recipient (pv.Account): The account of the contract recipient.
+        """
+        vc, order_id = new_ctrt_work_submitted
+        api = payer.api
+
+        payer_bal_old, rcpt_bal_old, expire_at = await asyncio.gather(
+            vc.get_ctrt_bal(payer.addr.b58_str),
+            vc.get_ctrt_bal(recipient.addr.b58_str),
+            vc.get_order_expiration_time(order_id),
+        )
+        assert (await vc.get_order_status(order_id)) is True
+
+        resp = await vc.apply_to_judge(payer, order_id)
+        await cft.wait_for_block()
+        await cft.assert_tx_success(api, resp["id"])
+
+        # Wait until the judge duration has exceeded.
+        now = int(time.time())
+        await asyncio.sleep(expire_at.unix_ts - now + cft.AVG_BLOCK_DELAY)
+
+        resp = await vc.recipient_refund(recipient, order_id)
+        await cft.wait_for_block()
+        await cft.assert_tx_success(api, resp["id"])
+
+        payer_refund, rcpt_refund, payer_bal, rcpt_bal = await asyncio.gather(
+            vc.get_order_refund(order_id),
+            vc.get_order_recipient_refund(order_id),
+            vc.get_ctrt_bal(payer.addr.b58_str),
+            vc.get_ctrt_bal(recipient.addr.b58_str),
+        )
+
+        assert payer_bal.amount - payer_bal_old.amount == payer_refund.amount
+        assert rcpt_bal.amount - rcpt_bal_old.amount == rcpt_refund.amount
