@@ -81,8 +81,8 @@ class TestTokCtrtWithoutSplit:
         """
         tc = await pv.TokenCtrtWithoutSplit.register(acnt0, 50, 1)
         await cft.wait_for_block()
-        assert (await tc.issuer).data == acnt0.addr.data
-        assert (await tc.maker).data == acnt0.addr.data
+        assert (await tc.issuer) == acnt0.addr
+        assert (await tc.maker) == acnt0.addr
 
         return tc
 
@@ -252,13 +252,13 @@ class TestTokCtrtWithoutSplit:
         tc = new_ctrt
         api = tc.chain.api
 
-        assert (await tc.issuer).data == acnt0.addr.data
+        assert (await tc.issuer) == acnt0.addr
 
         resp = await tc.supersede(acnt0, acnt1.addr.data)
         await cft.wait_for_block()
         await cft.assert_tx_success(api, resp["id"])
 
-        assert (await tc.issuer).data == acnt1.addr.data
+        assert (await tc.issuer) == acnt1.addr
 
     @pytest.mark.whole
     async def test_as_whole(
@@ -413,15 +413,15 @@ class TestTokWithoutSplitV2WhiteList(TestTokCtrtWithoutSplit):
         tc = new_ctrt
         api = tc.chain.api
 
-        assert (await tc.issuer).data == acnt0.addr.data
-        assert (await tc.regulator).data == acnt0.addr.data
+        assert (await tc.issuer) == acnt0.addr
+        assert (await tc.regulator) == acnt0.addr
 
         resp = await tc.supersede(acnt0, acnt1.addr.data, acnt1.addr.data)
         await cft.wait_for_block()
         await cft.assert_tx_success(api, resp["id"])
 
-        assert (await tc.issuer).data == acnt1.addr.data
-        assert (await tc.regulator).data == acnt1.addr.data
+        assert (await tc.issuer) == acnt1.addr
+        assert (await tc.regulator) == acnt1.addr
 
     async def test_update_list_user(
         self,
@@ -523,9 +523,9 @@ class TestTokWithoutSplitV2WhiteList(TestTokCtrtWithoutSplit):
         """
         tc = await pv.TokenCtrtWithoutSplitV2WhiteList.register(acnt0, 50, 1)
         await cft.wait_for_block()
-        assert (await tc.issuer).data == acnt0.addr.data
-        assert (await tc.maker).data == acnt0.addr.data
-        assert (await tc.regulator).data == acnt0.addr.data
+        assert (await tc.issuer) == acnt0.addr
+        assert (await tc.maker) == acnt0.addr
+        assert (await tc.regulator) == acnt0.addr
 
         return tc
 

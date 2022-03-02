@@ -99,8 +99,7 @@ class TestAtomicSwapCtrt:
         """
         tc = new_maker_tok_ctrt_with_tok
 
-        tok_id = pv.Ctrt.get_tok_id(tc.ctrt_id, 0)
-        ac = await pv.AtomicSwapCtrt.register(acnt0, tok_id)
+        ac = await pv.AtomicSwapCtrt.register(acnt0, tc.tok_id.data)
         await cft.wait_for_block()
 
         await tc.deposit(acnt0, ac.ctrt_id, 100)
@@ -126,8 +125,7 @@ class TestAtomicSwapCtrt:
         """
         tc = new_taker_tok_ctrt_with_tok
 
-        tok_id = pv.Ctrt.get_tok_id(tc.ctrt_id, 0)
-        ac = await pv.AtomicSwapCtrt.register(acnt1, tok_id)
+        ac = await pv.AtomicSwapCtrt.register(acnt1, tc.tok_id.data)
         await cft.wait_for_block()
 
         await tc.deposit(acnt1, ac.ctrt_id, 100)
@@ -152,7 +150,7 @@ class TestAtomicSwapCtrt:
         ac = await pv.AtomicSwapCtrt.register(acnt0, tc.tok_id.data)
         await cft.wait_for_block()
 
-        assert (await ac.maker).data == acnt0.addr.data
+        assert (await ac.maker) == acnt0.addr
         assert (await ac.tok_id) == tc.tok_id
 
         return ac
