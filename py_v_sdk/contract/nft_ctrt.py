@@ -108,24 +108,26 @@ class NFTCtrt(BaseTokCtrt):
         )
 
     @property
-    async def issuer(self) -> str:
+    async def issuer(self) -> md.Addr:
         """
         issuer queries & returns the issuer of the contract.
 
         Returns:
-            str: The address of the issuer of the contract.
+            md.Addr: The address of the issuer of the contract.
         """
-        return await self._query_db_key(self.DBKey.for_issuer())
+        raw_val = await self._query_db_key(self.DBKey.for_issuer())
+        return md.Addr(raw_val)
 
     @property
-    async def maker(self) -> str:
+    async def maker(self) -> md.Addr:
         """
         maker queries & returns the maker of the contract.
 
         Returns:
-            str: The address of the maker of the contract.
+            md.Addr: The address of the maker of the contract.
         """
-        return await self._query_db_key(self.DBKey.for_maker())
+        raw_val = await self._query_db_key(self.DBKey.for_maker())
+        return md.Addr(raw_val)
 
     @property
     async def unit(self) -> int:
