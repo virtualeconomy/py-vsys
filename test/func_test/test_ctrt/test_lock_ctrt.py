@@ -50,9 +50,9 @@ class TestLockCtrt:
         """
         tc = new_tok_ctrt
 
-        nc = await pv.LockCtrt.register(acnt0, tc.tok_id.data)
+        lc = await pv.LockCtrt.register(acnt0, tc.tok_id.data)
         await cft.wait_for_block()
-        return nc
+        return lc
 
     async def test_register(
         self,
