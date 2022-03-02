@@ -18,7 +18,7 @@ from py_v_sdk import tx_req as tx
 from py_v_sdk import model as md
 from py_v_sdk.contract import tok_ctrt_factory as tcf
 from py_v_sdk.utils.crypto import curve_25519 as curve
-from . import CtrtMeta, Ctrt
+from . import CtrtMeta, Ctrt, BaseTokCtrt
 
 
 class PayChanCtrt(Ctrt):
@@ -240,6 +240,7 @@ class PayChanCtrt(Ctrt):
         """
         super().__init__(ctrt_id, chain)
         self._tok_id: Optional[md.TokenID] = None
+        self._tok_ctrt: Optional[BaseTokCtrt] = None
 
     @property
     async def maker(self) -> md.Addr:
@@ -266,6 +267,19 @@ class PayChanCtrt(Ctrt):
         return self._tok_id
 
     @property
+    async def tok_ctrt(self) -> BaseTokCtrt:
+        """
+        tok_ctrt returns the token contract instance for the token used in the contract.
+
+        Returns:
+            BaseTokCtrt: The token contract instance.
+        """
+        if not self._tok_ctrt:
+            tok_id = await self.tok_id
+            self._tok_ctrt = await tcf.from_tok_id(tok_id, self.chain)
+        return self._tok_ctrt
+
+    @property
     async def unit(self) -> int:
         """
         unit returns the unit of the token specified in this contract.
@@ -273,9 +287,7 @@ class PayChanCtrt(Ctrt):
         Returns:
             int: The token unit.
         """
-        tok_id = await self.tok_id
-
-        tc = await tcf.from_tok_id(tok_id, self.chain)
+        tc = await self.tok_ctrt
         return await tc.unit
 
     async def get_ctrt_bal(self, addr: str) -> md.Token:
