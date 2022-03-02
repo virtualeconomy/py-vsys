@@ -91,7 +91,7 @@ class TestPayChanCtrt:
 
         resp = await pc.create_and_load(
             by=acnt0,
-            recipient=acnt1.addr.b58_str,
+            recipient=acnt1.addr.data,
             amount=load_amount,
             expire_at=later,
         )
@@ -123,12 +123,12 @@ class TestPayChanCtrt:
         pc = new_ctrt
 
         maker = await pc.maker
-        assert maker.data == acnt0.addr.b58_str
+        assert maker.data == acnt0.addr.data
 
         tok_id_md = await pc.tok_id
         assert tok_id_md.data == tok_id
 
-        ctrt_bal = await pc.get_ctrt_bal(acnt0.addr.b58_str)
+        ctrt_bal = await pc.get_ctrt_bal(acnt0.addr.data)
         assert ctrt_bal.amount == self.TOK_MAX
 
         return pc
@@ -159,7 +159,7 @@ class TestPayChanCtrt:
 
         resp = await pc.create_and_load(
             by=acnt0,
-            recipient=acnt1.addr.b58_str,
+            recipient=acnt1.addr.data,
             amount=load_amount,
             expire_at=later,
         )
@@ -169,7 +169,7 @@ class TestPayChanCtrt:
         chan_id = resp["id"]
 
         chan_creator = await pc.get_chan_creator(chan_id)
-        assert chan_creator.data == acnt0.addr.b58_str
+        assert chan_creator.data == acnt0.addr.data
 
         chan_creator_pub_key = await pc.get_chan_creator_pub_key(chan_id)
         assert chan_creator_pub_key.data == acnt0.key_pair.pub.data
@@ -300,7 +300,7 @@ class TestPayChanCtrt:
         # create a channel
         resp = await pc.create_and_load(
             by=acnt0,
-            recipient=acnt1.addr.b58_str,
+            recipient=acnt1.addr.data,
             amount=load_amount,
             expire_at=later,
         )
@@ -309,7 +309,7 @@ class TestPayChanCtrt:
 
         chan_id = resp["id"]
 
-        bal_old = await pc.get_ctrt_bal(acnt0.addr.b58_str)
+        bal_old = await pc.get_ctrt_bal(acnt0.addr.data)
 
         # wait until the channel expires
         await asyncio.sleep(cft.AVG_BLOCK_DELAY * 2)
@@ -318,7 +318,7 @@ class TestPayChanCtrt:
         await cft.wait_for_block()
         await cft.assert_tx_success(api, resp["id"])
 
-        bal = await pc.get_ctrt_bal(acnt0.addr.b58_str)
+        bal = await pc.get_ctrt_bal(acnt0.addr.data)
         assert bal.amount == bal_old.amount + load_amount
 
     async def test_offchain_pay_and_collect_payment(
@@ -360,7 +360,7 @@ class TestPayChanCtrt:
         accum_pay = await pc.get_chan_accum_pay(chan_id)
         assert accum_pay.amount == self.INIT_LOAD
 
-        acnt1_bal = await pc.get_ctrt_bal(acnt1.addr.b58_str)
+        acnt1_bal = await pc.get_ctrt_bal(acnt1.addr.data)
         assert acnt1_bal.amount == self.INIT_LOAD
 
     @pytest.mark.whole

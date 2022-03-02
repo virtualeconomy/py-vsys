@@ -180,7 +180,7 @@ class TestStableSwapCtrt:
         await target_tc.deposit(acnt0, ssc.ctrt_id, 1000)
         await cft.wait_for_block()
 
-        assert (await ssc.maker) == acnt0.addr.b58_str
+        assert (await ssc.maker) == acnt0.addr.data
         return ssc
 
     async def test_set_and_update_order(
@@ -206,8 +206,8 @@ class TestStableSwapCtrt:
         order_id = resp["id"]
         await cft.assert_tx_success(api, order_id)
 
-        base_tok_bal = await ssc.get_base_tok_bal(acnt0.addr.b58_str)
-        target_tok_bal = await ssc.get_target_tok_bal(acnt0.addr.b58_str)
+        base_tok_bal = await ssc.get_base_tok_bal(acnt0.addr.data)
+        target_tok_bal = await ssc.get_target_tok_bal(acnt0.addr.data)
         price_base1 = await ssc.get_price_base(order_id)
         assert base_tok_bal.data == 500
         assert target_tok_bal.data == 500
@@ -245,8 +245,8 @@ class TestStableSwapCtrt:
         deposit_tx_id = resp["id"]
         await cft.assert_tx_success(api, deposit_tx_id)
 
-        base_tok_bal1 = await ssc.get_base_tok_bal(acnt0.addr.b58_str)
-        target_tok_bal1 = await ssc.get_target_tok_bal(acnt0.addr.b58_str)
+        base_tok_bal1 = await ssc.get_base_tok_bal(acnt0.addr.data)
+        target_tok_bal1 = await ssc.get_target_tok_bal(acnt0.addr.data)
         assert base_tok_bal1.data == 300
         assert target_tok_bal1.data == 400
 
@@ -255,8 +255,8 @@ class TestStableSwapCtrt:
         withdraw_tx_id = resp["id"]
         await cft.assert_tx_success(api, withdraw_tx_id)
 
-        base_tok_bal1 = await ssc.get_base_tok_bal(acnt0.addr.b58_str)
-        target_tok_bal1 = await ssc.get_target_tok_bal(acnt0.addr.b58_str)
+        base_tok_bal1 = await ssc.get_base_tok_bal(acnt0.addr.data)
+        target_tok_bal1 = await ssc.get_target_tok_bal(acnt0.addr.data)
         assert base_tok_bal1.data == 500
         assert target_tok_bal1.data == 500
 
@@ -282,8 +282,8 @@ class TestStableSwapCtrt:
         swap1_tx_id = swap1["id"]
         await cft.assert_tx_success(api, swap1_tx_id)
 
-        base_tok_bal1 = await ssc.get_base_tok_bal(acnt0.addr.b58_str)
-        target_tok_bal1 = await ssc.get_target_tok_bal(acnt0.addr.b58_str)
+        base_tok_bal1 = await ssc.get_base_tok_bal(acnt0.addr.data)
+        target_tok_bal1 = await ssc.get_target_tok_bal(acnt0.addr.data)
         assert base_tok_bal1.data == 490
         assert target_tok_bal1.data == 509
 
@@ -293,8 +293,8 @@ class TestStableSwapCtrt:
         swap2_tx_id = swap2["id"]
         await cft.assert_tx_success(api, swap2_tx_id)
 
-        base_tok_bal2 = await ssc.get_base_tok_bal(acnt0.addr.b58_str)
-        target_tok_bal2 = await ssc.get_target_tok_bal(acnt0.addr.b58_str)
+        base_tok_bal2 = await ssc.get_base_tok_bal(acnt0.addr.data)
+        target_tok_bal2 = await ssc.get_target_tok_bal(acnt0.addr.data)
         assert base_tok_bal2.data == 499
         assert target_tok_bal2.data == 499
 

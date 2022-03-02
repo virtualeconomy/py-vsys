@@ -287,7 +287,7 @@ class NFTCtrt(BaseTokCtrt):
                 ctrt_id=self._ctrt_id,
                 func_id=self.FuncIdx.DEPOSIT,
                 data_stack=de.DataStack(
-                    de.Addr(md.Addr(by.addr.b58_str)),
+                    de.Addr(md.Addr(by.addr.data)),
                     de.CtrtAcnt(md.CtrtID(ctrt_id)),
                     de.INT32(md.TokenIdx(tok_idx)),
                 ),
@@ -326,7 +326,7 @@ class NFTCtrt(BaseTokCtrt):
                 func_id=self.FuncIdx.WITHDRAW,
                 data_stack=de.DataStack(
                     de.CtrtAcnt(md.CtrtID(ctrt_id)),
-                    de.Addr(md.Addr(by.addr.b58_str)),
+                    de.Addr(md.Addr(by.addr.data)),
                     de.INT32(md.TokenIdx(tok_idx)),
                 ),
                 timestamp=md.VSYSTimestamp.now(),

@@ -403,7 +403,7 @@ class TokenCtrtWithoutSplit(BaseTokCtrt):
             Dict[str, Any]: The response returned by the Node API
         """
 
-        sender_md = md.Addr(by.addr.b58_str)
+        sender_md = md.Addr(by.addr.data)
         sender_md.must_on(by.chain)
 
         unit = await self.unit
@@ -447,7 +447,7 @@ class TokenCtrtWithoutSplit(BaseTokCtrt):
             Dict[str, Any]: The response returned by the Node API
         """
 
-        rcpt_md = md.Addr(by.addr.b58_str)
+        rcpt_md = md.Addr(by.addr.data)
         rcpt_md.must_on(by.chain)
 
         unit = await self.unit

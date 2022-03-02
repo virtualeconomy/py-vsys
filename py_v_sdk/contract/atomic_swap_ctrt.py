@@ -241,24 +241,26 @@ class AtomicSwapCtrt(Ctrt):
         )
 
     @property
-    async def maker(self) -> str:
+    async def maker(self) -> md.Addr:
         """
         maker queries & returns the maker of the contract.
 
         Returns:
-            str: The address of the maker of the contract.
+            md.Addr: The address of the maker of the contract.
         """
-        return await self._query_db_key(self.DBKey.for_maker())
+        raw_val = await self._query_db_key(self.DBKey.for_maker())
+        return md.Addr(raw_val)
 
     @property
-    async def token_id(self) -> str:
+    async def token_id(self) -> md.TokenID:
         """
         token_id queries & returns the token_id of the contract.
 
         Returns:
-            str: The token_id of the contract.
+            md.TokenID: The token_id of the contract.
         """
-        return await self._query_db_key(self.DBKey.for_token_id())
+        raw_val = await self._query_db_key(self.DBKey.for_token_id())
+        return md.TokenID(raw_val)
 
     async def get_swap_balance(self, addr: str) -> md.Token:
         """

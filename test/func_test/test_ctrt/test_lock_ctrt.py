@@ -74,10 +74,10 @@ class TestLockCtrt:
         tc = new_tok_ctrt
         lc = new_ctrt
 
-        assert (await lc.maker).data == acnt0.addr.b58_str
+        assert (await lc.maker).data == acnt0.addr.data
         assert (await lc.tok_id) == tc.tok_id
-        assert (await lc.get_ctrt_bal(acnt0.addr.b58_str)).amount == 0
-        assert (await lc.get_ctrt_lock_time(acnt0.addr.b58_str)).unix_ts == 0
+        assert (await lc.get_ctrt_bal(acnt0.addr.data)).amount == 0
+        assert (await lc.get_ctrt_lock_time(acnt0.addr.data)).unix_ts == 0
 
         return lc
 
@@ -102,19 +102,19 @@ class TestLockCtrt:
         resp = await tc.deposit(acnt0, lc.ctrt_id, self.TOK_MAX)
         await cft.wait_for_block()
         await cft.assert_tx_success(api, resp["id"])
-        assert (await lc.get_ctrt_bal(acnt0.addr.b58_str)).amount == self.TOK_MAX
+        assert (await lc.get_ctrt_bal(acnt0.addr.data)).amount == self.TOK_MAX
 
         later = int(time.time()) + cft.AVG_BLOCK_DELAY * 2 + 2
         resp = await lc.lock(acnt0, later)
         await cft.wait_for_block()
         await cft.assert_tx_success(api, resp["id"])
-        assert (await lc.get_ctrt_lock_time(acnt0.addr.b58_str)).unix_ts == later
+        assert (await lc.get_ctrt_lock_time(acnt0.addr.data)).unix_ts == later
 
         # withdraw before the expiration will fail
         resp = await tc.withdraw(acnt0, lc.ctrt_id, self.TOK_MAX)
         await cft.wait_for_block()
         await cft.assert_tx_status(api, resp["id"], "Failed")
-        assert (await lc.get_ctrt_bal(acnt0.addr.b58_str)).amount == self.TOK_MAX
+        assert (await lc.get_ctrt_bal(acnt0.addr.data)).amount == self.TOK_MAX
 
         # till here, 2 block time has passed, wait for a few seconds more the lock will expire
         await asyncio.sleep(6)
@@ -123,7 +123,7 @@ class TestLockCtrt:
         resp = await tc.withdraw(acnt0, lc.ctrt_id, self.TOK_MAX)
         await cft.wait_for_block()
         await cft.assert_tx_success(api, resp["id"])
-        assert (await lc.get_ctrt_bal(acnt0.addr.b58_str)).amount == 0
+        assert (await lc.get_ctrt_bal(acnt0.addr.data)).amount == 0
 
     @pytest.mark.whole
     async def test_as_whole(

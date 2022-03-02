@@ -128,7 +128,7 @@ class Wallet:
         )
 
     @staticmethod
-    def get_addr(pub_key: bytes, addr_ver: int, chain_id: ch.ChainID) -> md.Bytes:
+    def get_addr(pub_key: bytes, addr_ver: int, chain_id: ch.ChainID) -> md.Addr:
         """
         get_addr generates the address based on the given data.
 
@@ -138,7 +138,7 @@ class Wallet:
             chain_id (ch.ChainID): The chain ID.
 
         Returns:
-            md.Bytes: The generated address.
+            md.Addr: The generated address.
         """
 
         def ke_bla_hash(b: bytes) -> bytes:
@@ -151,7 +151,7 @@ class Wallet:
         checksum: str = ke_bla_hash(raw_addr.encode("latin-1")).decode("latin-1")[:4]
 
         b = bytes((raw_addr + checksum).encode("latin-1"))
-        return md.Bytes(b)
+        return md.Addr.from_bytes(b)
 
     @staticmethod
     def get_acnt_seed_hash(seed: str, nonce: int) -> md.Bytes:
@@ -256,12 +256,12 @@ class Account:
         return self._key_pair
 
     @property
-    def addr(self) -> md.Bytes:
+    def addr(self) -> md.Addr:
         """
         addr returns the account's address.
 
         Returns:
-            md.Bytes: The account's address.
+            md.Addr: The account's address.
         """
         return self._addr
 
@@ -274,7 +274,7 @@ class Account:
         Returns:
             md.VSYS: The account's balance.
         """
-        resp = await self.api.addr.get_balance_details(self.addr.b58_str)
+        resp = await self.api.addr.get_balance_details(self.addr.data)
         return md.VSYS(resp["regular"])
 
     @property
@@ -286,7 +286,7 @@ class Account:
         Returns:
             md.VSYS: The account's available balance.
         """
-        resp = await self.api.addr.get_balance_details(self.addr.b58_str)
+        resp = await self.api.addr.get_balance_details(self.addr.data)
         return md.VSYS(resp["available"])
 
     @property
@@ -299,7 +299,7 @@ class Account:
         Returns:
             md.VSYS: The account's effective balance.
         """
-        resp = await self.api.addr.get_balance_details(self.addr.b58_str)
+        resp = await self.api.addr.get_balance_details(self.addr.data)
         return md.VSYS(resp["effective"])
 
     async def _pay(self, req: tx.PaymentTxReq) -> Dict[str, Any]:

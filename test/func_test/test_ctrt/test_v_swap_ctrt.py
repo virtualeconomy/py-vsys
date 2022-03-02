@@ -69,8 +69,8 @@ class TestVSwapCtrt:
         )
 
         await asyncio.gather(
-            tca.send(acnt0, acnt1.addr.b58_str, self.HALF_TOK_MAX),
-            tcb.send(acnt0, acnt1.addr.b58_str, self.HALF_TOK_MAX),
+            tca.send(acnt0, acnt1.addr.data, self.HALF_TOK_MAX),
+            tcb.send(acnt0, acnt1.addr.data, self.HALF_TOK_MAX),
         )
 
         await cft.wait_for_block()
@@ -118,13 +118,13 @@ class TestVSwapCtrt:
         vc = new_ctrt
         api = vc.chain.api
 
-        assert (await vc.maker) == acnt0.addr.b58_str
+        assert (await vc.maker) == acnt0.addr.data
 
-        resp = await vc.supersede(acnt0, acnt1.addr.b58_str)
+        resp = await vc.supersede(acnt0, acnt1.addr.data)
         await cft.wait_for_block()
         await cft.assert_tx_success(api, resp["id"])
 
-        assert (await vc.maker) == acnt1.addr.b58_str
+        assert (await vc.maker) == acnt1.addr.data
 
     async def test_set_swap(self, new_ctrt: pv.VSwapCtrt, acnt0: pv.Account):
         """
@@ -288,8 +288,8 @@ class TestVSwapCtrt:
         api = vc.chain.api
 
         bal_a_old, bal_b_old = await asyncio.gather(
-            vc.get_tok_a_bal(acnt1.addr.b58_str),
-            vc.get_tok_b_bal(acnt1.addr.b58_str),
+            vc.get_tok_a_bal(acnt1.addr.data),
+            vc.get_tok_b_bal(acnt1.addr.data),
         )
 
         amount_a = 10
@@ -307,8 +307,8 @@ class TestVSwapCtrt:
         await cft.assert_tx_success(api, resp["id"]),
 
         bal_a, bal_b = await asyncio.gather(
-            vc.get_tok_a_bal(acnt1.addr.b58_str),
-            vc.get_tok_b_bal(acnt1.addr.b58_str),
+            vc.get_tok_a_bal(acnt1.addr.data),
+            vc.get_tok_b_bal(acnt1.addr.data),
         )
 
         assert bal_a == bal_a_old + amount_a * self.TOK_UNIT
@@ -331,8 +331,8 @@ class TestVSwapCtrt:
         api = vc.chain.api
 
         bal_a_old, bal_b_old = await asyncio.gather(
-            vc.get_tok_a_bal(acnt1.addr.b58_str),
-            vc.get_tok_b_bal(acnt1.addr.b58_str),
+            vc.get_tok_a_bal(acnt1.addr.data),
+            vc.get_tok_b_bal(acnt1.addr.data),
         )
 
         amount_a_min = 10
@@ -350,8 +350,8 @@ class TestVSwapCtrt:
         await cft.assert_tx_success(api, resp["id"]),
 
         bal_a, bal_b = await asyncio.gather(
-            vc.get_tok_a_bal(acnt1.addr.b58_str),
-            vc.get_tok_b_bal(acnt1.addr.b58_str),
+            vc.get_tok_a_bal(acnt1.addr.data),
+            vc.get_tok_b_bal(acnt1.addr.data),
         )
 
         assert bal_a - bal_a_old >= amount_a_min
@@ -374,8 +374,8 @@ class TestVSwapCtrt:
         api = vc.chain.api
 
         bal_a_old, bal_b_old = await asyncio.gather(
-            vc.get_tok_a_bal(acnt1.addr.b58_str),
-            vc.get_tok_b_bal(acnt1.addr.b58_str),
+            vc.get_tok_a_bal(acnt1.addr.data),
+            vc.get_tok_b_bal(acnt1.addr.data),
         )
 
         amount_a_max = 20
@@ -393,8 +393,8 @@ class TestVSwapCtrt:
         await cft.assert_tx_success(api, resp["id"]),
 
         bal_a, bal_b = await asyncio.gather(
-            vc.get_tok_a_bal(acnt1.addr.b58_str),
-            vc.get_tok_b_bal(acnt1.addr.b58_str),
+            vc.get_tok_a_bal(acnt1.addr.data),
+            vc.get_tok_b_bal(acnt1.addr.data),
         )
 
         assert bal_a_old - bal_a <= amount_a_max * self.TOK_UNIT
@@ -417,8 +417,8 @@ class TestVSwapCtrt:
         api = vc.chain.api
 
         bal_a_old, bal_b_old = await asyncio.gather(
-            vc.get_tok_a_bal(acnt1.addr.b58_str),
-            vc.get_tok_b_bal(acnt1.addr.b58_str),
+            vc.get_tok_a_bal(acnt1.addr.data),
+            vc.get_tok_b_bal(acnt1.addr.data),
         )
 
         amount_a = 20
@@ -436,8 +436,8 @@ class TestVSwapCtrt:
         await cft.assert_tx_success(api, resp["id"]),
 
         bal_a, bal_b = await asyncio.gather(
-            vc.get_tok_a_bal(acnt1.addr.b58_str),
-            vc.get_tok_b_bal(acnt1.addr.b58_str),
+            vc.get_tok_a_bal(acnt1.addr.data),
+            vc.get_tok_b_bal(acnt1.addr.data),
         )
 
         assert bal_a == bal_a_old - amount_a * self.TOK_UNIT

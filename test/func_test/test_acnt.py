@@ -38,7 +38,7 @@ class TestAccount:
         acnt1_bal_old = (await acnt1.bal).data
 
         amount = pv.VSYS.for_amount(5)
-        resp = await acnt0.pay(acnt1.addr.b58_str, amount.amount)
+        resp = await acnt0.pay(acnt1.addr.data, amount.amount)
         await cft.wait_for_block()
         await cft.assert_tx_success(api, resp["id"])
 
@@ -99,5 +99,5 @@ class TestAccount:
         await cft.wait_for_block()
         await cft.assert_tx_success(api, resp["id"])
 
-        resp = await api.db.get(acnt0.addr.b58_str, db_key)
+        resp = await api.db.get(acnt0.addr.data, db_key)
         assert resp["data"] == data
