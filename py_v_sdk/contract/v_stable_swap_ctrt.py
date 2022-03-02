@@ -9,14 +9,11 @@ from loguru import logger
 # https://stackoverflow.com/a/39757388
 if TYPE_CHECKING:
     from py_v_sdk import account as acnt
-    from py_v_sdk import chain as ch
 
 from py_v_sdk import data_entry as de
 from py_v_sdk import tx_req as tx
 from py_v_sdk import model as md
 from . import CtrtMeta, Ctrt
-
-import py_v_sdk as pv
 
 
 class VStableSwapCtrt(Ctrt):
