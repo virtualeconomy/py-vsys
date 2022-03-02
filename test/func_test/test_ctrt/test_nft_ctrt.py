@@ -60,7 +60,6 @@ class TestNFTCtrt:
             pv.AtomicSwapCtrt: The AtomicSwapCtrt instance.
         """
         nc = new_ctrt_with_tok
-        api = nc.chain.api
 
         tok_id = pv.Ctrt.get_tok_id(nc.ctrt_id, 0)
         ac = await pv.AtomicSwapCtrt.register(acnt0, tok_id)
@@ -532,7 +531,6 @@ class TestNFTCtrtV2Blacklist(TestNFTCtrtV2Whitelist):
             pv.AtomicSwapCtrt: The AtomicSwapCtrt instance.
         """
         nc = new_ctrt_with_tok
-        api = nc.chain.api
 
         tok_id = pv.Ctrt.get_tok_id(nc.ctrt_id, 0)
         ac = await pv.AtomicSwapCtrt.register(acnt0, tok_id)
