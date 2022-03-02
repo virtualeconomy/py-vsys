@@ -3,7 +3,7 @@ v_swap_ctrt contains V Swap contract.
 """
 from __future__ import annotations
 import asyncio
-from typing import TYPE_CHECKING, Any, Dict, Union
+from typing import TYPE_CHECKING, Any, Dict, Union, Optional
 
 from loguru import logger
 
@@ -15,7 +15,8 @@ if TYPE_CHECKING:
 from py_v_sdk import data_entry as de
 from py_v_sdk import tx_req as tx
 from py_v_sdk import model as md
-from . import CtrtMeta, Ctrt
+from py_v_sdk.contract import tok_ctrt_factory as tcf
+from . import CtrtMeta, Ctrt, BaseTokCtrt
 
 
 class VSwapCtrt(Ctrt):
@@ -256,72 +257,145 @@ class VSwapCtrt(Ctrt):
         self,
         ctrt_id: str,
         chain: ch.Chain,
-        tok_a_id: str = "",
-        tok_b_id: str = "",
-        liq_tok_id: str = "",
-        min_liq: int = 0,
     ) -> None:
         """
         Args:
             ctrt_id (str): The id of the contract.
             chain (ch.Chain): The object of the chain where the contract is on.
-            tok_a_id (str): The ID of token A.
-            tok_b_id (str): The ID of token B.
-            liq_tok_id (str): The ID of liquidity token.
-            min_liq (int): The minimum liquidity of the contract.
         """
         self._ctrt_id = md.CtrtID(ctrt_id)
         self._chain = chain
-        self._tok_a_id = tok_a_id
-        self._tok_b_id = tok_b_id
-        self._liq_tok_id = liq_tok_id
-        self._min_liq = min_liq
+
+        self._tok_a_id: Optional[md.TokenID] = None
+        self._tok_b_id: Optional[md.TokenID] = None
+        self._liq_tok_id: Optional[md.TokenID] = None
+        self._tok_a_ctrt: Optional[BaseTokCtrt] = None
+        self._tok_b_ctrt: Optional[BaseTokCtrt] = None
+        self._liq_tok_ctrt: Optional[BaseTokCtrt] = None
+
+        self._min_liq: Optional[md.Token] = None
 
     @property
-    async def maker(self) -> str:
+    async def maker(self) -> md.Addr:
         """
         maker queries & returns the maker of the contract.
 
         Returns:
-            str: The address of the maker of the contract.
+            md.Addr: The address of the maker of the contract.
         """
-        return await self._query_db_key(self.DBKey.for_maker())
+        raw_val = await self._query_db_key(self.DBKey.for_maker())
+        return md.Addr(raw_val)
 
     @property
-    async def tok_a_id(self) -> str:
+    async def tok_a_id(self) -> md.TokenID:
         """
         tok_a_id queries & returns the token A ID of the contract.
 
         Returns:
-            str: The token A ID of the contract.
+            md.TokenID: The token A ID of the contract.
         """
         if not self._tok_a_id:
-            self._tok_a_id = await self._query_db_key(self.DBKey.for_tok_a_id())
+            raw_val = await self._query_db_key(self.DBKey.for_tok_a_id())
+            self._tok_a_id = md.TokenID(raw_val)
         return self._tok_a_id
 
     @property
-    async def tok_b_id(self) -> str:
+    async def tok_b_id(self) -> md.TokenID:
         """
         tok_b_id queries & returns the token B ID of the contract.
 
         Returns:
-            str: The token B ID of the contract.
+            md.TokenID: The token B ID of the contract.
         """
         if not self._tok_b_id:
-            self._tok_b_id = await self._query_db_key(self.DBKey.for_tok_b_id())
+            raw_val = await self._query_db_key(self.DBKey.for_tok_b_id())
+            self._tok_b_id = md.TokenID(raw_val)
         return self._tok_b_id
 
     @property
-    async def liq_tok_id(self) -> str:
+    async def liq_tok_id(self) -> md.TokenID:
         """
         liq_tok_id queries & returns the liquidity token ID of the contract.
 
         Returns:
-            str: The liquidity token ID of the contract.
+            md.TokenID: The liquidity token ID of the contract.
         """
         if not self._liq_tok_id:
-            self._liq_tok_id = await self._query_db_key(self.DBKey.for_liq_tok_id())
+            raw_val = await self._query_db_key(self.DBKey.for_liq_tok_id())
+            self._liq_tok_id = md.TokenID(raw_val)
         return self._liq_tok_id
+
+    @property
+    async def tok_a_ctrt(self) -> BaseTokCtrt:
+        """
+        tok_a_ctrt returns the token contract intance for token A.
+
+        Returns:
+            BaseTokCtrt: The token contract intance.
+        """
+        if not self._tok_a_ctrt:
+            tok_a_id = await self.tok_a_id
+            self._tok_a_ctrt = await tcf.from_tok_id(tok_a_id, self.chain)
+        return self._tok_a_ctrt
+
+    @property
+    async def tok_b_ctrt(self) -> BaseTokCtrt:
+        """
+        tok_b_ctrt returns the token contract intance for token B.
+
+        Returns:
+            BaseTokCtrt: The token contract intance.
+        """
+        if not self._tok_b_ctrt:
+            tok_b_id = await self.tok_b_id
+            self._tok_b_ctrt = await tcf.from_tok_id(tok_b_id, self.chain)
+        return self._tok_b_ctrt
+
+    @property
+    async def liq_tok_ctrt(self) -> BaseTokCtrt:
+        """
+        liq_tok_ctrt returns the token contract intance for liquidity token.
+
+        Returns:
+            BaseTokCtrt: The token contract intance.
+        """
+        if not self._liq_tok_ctrt:
+            liq_tok_id = await self.liq_tok_id
+            self._liq_tok_ctrt = await tcf.from_tok_id(liq_tok_id, self.chain)
+        return self._liq_tok_ctrt
+
+    @property
+    async def tok_a_unit(self) -> int:
+        """
+        tok_a_unit returns the unit of token A.
+
+        Returns:
+            int: The unit of token A.
+        """
+        tc = await self.tok_a_ctrt
+        return await tc.unit
+
+    @property
+    async def tok_b_unit(self) -> int:
+        """
+        tok_b_unit returns the unit of token B.
+
+        Returns:
+            int: The unit of token B.
+        """
+        tc = await self.tok_b_ctrt
+        return await tc.unit
+
+    @property
+    async def liq_tok_unit(self) -> int:
+        """
+        liq_tok_unit returns the unit of liquidity token.
+
+        Returns:
+            int: The unit of liquidity token.
+        """
+        tc = await self.liq_tok_ctrt
+        return await tc.unit
 
     @property
     async def is_swap_active(self) -> bool:
@@ -336,95 +410,69 @@ class VSwapCtrt(Ctrt):
         return data == "true"
 
     @property
-    async def min_liq(self) -> int:
+    async def min_liq(self) -> md.Token:
         """
         min_liq queries & returns the minimum liquidity of the contract.
 
         Returns:
-            int: The minimum liquidity of the contract.
+            md.Token: The minimum liquidity of the contract.
         """
         if self._min_liq == 0:
-            self._min_liq = await self._query_db_key(self.DBKey.for_min_liq())
+            raw_val = await self._query_db_key(self.DBKey.for_min_liq())
+            unit = await self.liq_tok_unit
+            self._min_liq = md.Token(raw_val, unit)
         return self._min_liq
 
     @property
-    async def tok_a_reserved(self) -> int:
+    async def tok_a_reserved(self) -> md.Token:
         """
         tok_a_reserved queries & returns the amount of token A inside the pool.
 
         Returns:
-            int: The amount of token A inside the pool.
+            md.Token: The amount of token A inside the pool.
         """
-        return await self._query_db_key(self.DBKey.for_tok_a_reserved())
+        raw_val = await self._query_db_key(self.DBKey.for_tok_a_reserved())
+        unit = await self.tok_a_unit
+        return md.Token(raw_val, unit)
 
     @property
-    async def tok_b_reserved(self) -> int:
+    async def tok_b_reserved(self) -> md.Token:
         """
         tok_b_reserved queries & returns the amount of token B inside the pool.
 
         Returns:
-            int: The amount of token B inside the pool.
+            md.Token: The amount of token B inside the pool.
         """
-        return await self._query_db_key(self.DBKey.for_tok_b_reserved())
+        raw_val = await self._query_db_key(self.DBKey.for_tok_b_reserved())
+        unit = await self.tok_b_unit
+        return md.Token(raw_val, unit)
 
     @property
-    async def total_liq_tok_supply(self) -> int:
+    async def total_liq_tok_supply(self) -> md.Token:
         """
         total_liq_tok_supply queries & returns the total amount of liquidity tokens
         that can be minted.
 
         Returns:
-            int: The total amount of liquidity tokens that can be minted.
+            md.Token: The total amount of liquidity tokens that can be minted.
         """
-        return await self._query_db_key(self.DBKey.for_total_liq_tok_supply())
+        raw_val = await self._query_db_key(self.DBKey.for_total_liq_tok_supply())
+        unit = await self.liq_tok_unit
+        return md.Token(raw_val, unit)
 
     @property
-    async def liq_tok_left(self) -> int:
+    async def liq_tok_left(self) -> md.Token:
         """
         liq_tok_left queries & returns the amount of liquidity tokens left to be minted.
 
         Returns:
             int: The amount of liquidity tokens left to be minted.
         """
-        return await self._query_db_key(self.DBKey.for_liq_tok_left())
+        raw_val = await self._query_db_key(self.DBKey.for_liq_tok_left())
+        unit = await self.liq_tok_unit
+        return md.Token(raw_val, unit)
 
-    @property
-    async def tok_a_unit(self) -> int:
-        """
-        tok_a_unit queries & return the unit of token A.
-
-        Returns:
-            int: The unit of token A.
-        """
-        tok_a_id = await self.tok_a_id
-        data = await self.chain.api.ctrt.get_tok_info(tok_a_id)
-        return data["unity"]
-
-    @property
-    async def tok_b_unit(self) -> int:
-        """
-        tok_b_unit queries & return the unit of token B.
-
-        Returns:
-            int: The unit of token B.
-        """
-        tok_b_id = await self.tok_b_id
-        data = await self.chain.api.ctrt.get_tok_info(tok_b_id)
-        return data["unity"]
-
-    @property
-    async def liq_tok_unit(self) -> int:
-        """
-        liq_tok_unit queries & returns the unit of liquidity token.
-
-        Returns:
-            int: The unit of liquidity token.
-        """
-        liq_tok_id = await self.liq_tok_id
-        data = await self.chain.api.ctrt.get_tok_info(liq_tok_id)
-        return data["unity"]
-
-    async def get_tok_a_bal(self, addr: str) -> int:
+    async def get_tok_a_bal(self, addr: str) -> md.Token:
         """
         get_tok_a_bal queries & returns the balance of token A stored within the contract belonging
         to the given user address.
@@ -433,11 +481,13 @@ class VSwapCtrt(Ctrt):
             addr (str): The address of the user.
 
         Returns:
-            int: The balance.
+            md.Token: The balance.
         """
-        return await self._query_db_key(self.DBKey.for_tok_a_bal(addr))
+        raw_val = await self._query_db_key(self.DBKey.for_tok_a_bal(addr))
+        unit = await self.tok_a_unit
+        return md.Token(raw_val, unit)
 
-    async def get_tok_b_bal(self, addr: str) -> int:
+    async def get_tok_b_bal(self, addr: str) -> md.Token:
         """
         get_tok_b_bal queries & returns the balance of token B stored within the contract belonging
         to the given user address.
@@ -446,11 +496,13 @@ class VSwapCtrt(Ctrt):
             addr (str): The address of the user.
 
         Returns:
-            int: The balance.
+            md.Token: The balance.
         """
-        return await self._query_db_key(self.DBKey.for_tok_b_bal(addr))
+        raw_val = await self._query_db_key(self.DBKey.for_tok_b_bal(addr))
+        unit = await self.tok_b_unit
+        return md.Token(raw_val, unit)
 
-    async def get_liq_tok_bal(self, addr: str) -> int:
+    async def get_liq_tok_bal(self, addr: str) -> md.Token:
         """
         get_liq_tok_bal queries & returns the balance of the liquidity token stored within the contract belonging
         to the given user address.
@@ -459,9 +511,11 @@ class VSwapCtrt(Ctrt):
             addr (str): The address of the user.
 
         Returns:
-            int: The balance.
+            md.Token: The balance.
         """
-        return await self._query_db_key(self.DBKey.for_liq_tok_bal(addr))
+        raw_val = await self._query_db_key(self.DBKey.for_liq_tok_bal(addr))
+        unit = await self.liq_tok_unit
+        return md.Token(raw_val, unit)
 
     @classmethod
     async def register(
@@ -508,10 +562,6 @@ class VSwapCtrt(Ctrt):
         return cls(
             data["contractId"],
             chain=by.chain,
-            tok_a_id=tok_a_id,
-            tok_b_id=tok_b_id,
-            liq_tok_id=liq_tok_id,
-            min_liq=min_liq,
         )
 
     async def supersede(
