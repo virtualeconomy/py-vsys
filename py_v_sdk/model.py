@@ -43,6 +43,9 @@ class Model(abc.ABC):
         cls_name = self.__class__.__name__
         return f"{cls_name}({self.data})"
 
+    def __eq__(self, other: Model) -> bool:
+        return self.__class__ == other.__class__ and self.data == other.data
+
 
 class Str(Model):
     """
