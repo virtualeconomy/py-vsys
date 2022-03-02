@@ -77,9 +77,9 @@ class TestVSwapCtrt:
 
         vc = await pv.VSwapCtrt.register(
             by=acnt0,
-            tok_a_id=tca.tok_id,
-            tok_b_id=tcb.tok_id,
-            liq_tok_id=tcl.tok_id,
+            tok_a_id=tca.tok_id.data,
+            tok_b_id=tcb.tok_id.data,
+            liq_tok_id=tcl.tok_id.data,
             min_liq=self.MIN_LIQ,
         )
         await cft.wait_for_block()

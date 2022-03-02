@@ -61,12 +61,11 @@ class TestTokCtrtWithoutSplit:
         """
         tc = new_ctrt_with_tok
 
-        tok_id = pv.Ctrt.get_tok_id(tc.ctrt_id, 0)
-        ac = await pv.AtomicSwapCtrt.register(acnt0, tok_id)
+        ac = await pv.AtomicSwapCtrt.register(acnt0, tc.tok_id.data)
 
         await cft.wait_for_block()
         assert (await ac.maker) == acnt0.addr.b58_str
-        assert (await ac.token_id) == tok_id
+        assert (await ac.token_id) == tc.tok_id.data
 
         return ac
 
@@ -82,8 +81,8 @@ class TestTokCtrtWithoutSplit:
         """
         tc = await pv.TokenCtrtWithoutSplit.register(acnt0, 50, 1)
         await cft.wait_for_block()
-        assert (await tc.issuer) == acnt0.addr.b58_str
-        assert (await tc.maker) == acnt0.addr.b58_str
+        assert (await tc.issuer).data == acnt0.addr.b58_str
+        assert (await tc.maker).data == acnt0.addr.b58_str
 
         return tc
 
@@ -103,8 +102,7 @@ class TestTokCtrtWithoutSplit:
 
         await cft.assert_tx_success(api, resp["id"])
 
-        tok_id = pv.Ctrt.get_tok_id(tc.ctrt_id, 0)
-        tok_bal = await cft.get_tok_bal(api, acnt0.addr.b58_str, tok_id)
+        tok_bal = await cft.get_tok_bal(api, acnt0.addr.b58_str, tc.tok_id.data)
         assert tok_bal == 50
 
     async def test_send(
@@ -124,22 +122,20 @@ class TestTokCtrtWithoutSplit:
         tc = new_ctrt_with_tok
         api = tc.chain.api
 
-        tok_id = pv.Ctrt.get_tok_id(tc.ctrt_id, 0)
-
-        tok_bal_acnt0 = await cft.get_tok_bal(api, acnt0.addr.b58_str, tok_id)
+        tok_bal_acnt0 = await cft.get_tok_bal(api, acnt0.addr.b58_str, tc.tok_id.data)
         assert tok_bal_acnt0 == 50
 
-        tok_bal_acnt1 = await cft.get_tok_bal(api, acnt1.addr.b58_str, tok_id)
+        tok_bal_acnt1 = await cft.get_tok_bal(api, acnt1.addr.b58_str, tc.tok_id.data)
         assert tok_bal_acnt1 == 0
 
         resp = await tc.send(acnt0, acnt1.addr.b58_str, 50)
         await cft.wait_for_block()
         await cft.assert_tx_success(api, resp["id"])
 
-        tok_bal_acnt0 = await cft.get_tok_bal(api, acnt0.addr.b58_str, tok_id)
+        tok_bal_acnt0 = await cft.get_tok_bal(api, acnt0.addr.b58_str, tc.tok_id.data)
         assert tok_bal_acnt0 == 0
 
-        tok_bal_acnt1 = await cft.get_tok_bal(api, acnt1.addr.b58_str, tok_id)
+        tok_bal_acnt1 = await cft.get_tok_bal(api, acnt1.addr.b58_str, tc.tok_id.data)
         assert tok_bal_acnt1 == 50
 
     async def test_transfer(
@@ -159,22 +155,20 @@ class TestTokCtrtWithoutSplit:
         tc = new_ctrt_with_tok
         api = tc.chain.api
 
-        tok_id = pv.Ctrt.get_tok_id(tc.ctrt_id, 0)
-
-        tok_bal_acnt0 = await cft.get_tok_bal(api, acnt0.addr.b58_str, tok_id)
+        tok_bal_acnt0 = await cft.get_tok_bal(api, acnt0.addr.b58_str, tc.tok_id.data)
         assert tok_bal_acnt0 == 50
 
-        tok_bal_acnt1 = await cft.get_tok_bal(api, acnt1.addr.b58_str, tok_id)
+        tok_bal_acnt1 = await cft.get_tok_bal(api, acnt1.addr.b58_str, tc.tok_id.data)
         assert tok_bal_acnt1 == 0
 
         resp = await tc.transfer(acnt0, acnt0.addr.b58_str, acnt1.addr.b58_str, 50)
         await cft.wait_for_block()
         await cft.assert_tx_success(api, resp["id"])
 
-        tok_bal_acnt0 = await cft.get_tok_bal(api, acnt0.addr.b58_str, tok_id)
+        tok_bal_acnt0 = await cft.get_tok_bal(api, acnt0.addr.b58_str, tc.tok_id.data)
         assert tok_bal_acnt0 == 0
 
-        tok_bal_acnt1 = await cft.get_tok_bal(api, acnt1.addr.b58_str, tok_id)
+        tok_bal_acnt1 = await cft.get_tok_bal(api, acnt1.addr.b58_str, tc.tok_id.data)
         assert tok_bal_acnt1 == 50
 
     async def test_deposit_and_withdraw(
@@ -194,13 +188,12 @@ class TestTokCtrtWithoutSplit:
         tc = new_ctrt_with_tok
         api = tc.chain.api
 
-        tok_id = pv.Ctrt.get_tok_id(tc.ctrt_id, 0)
         ac = new_atomic_swap_ctrt
         await cft.wait_for_block()
         assert (await ac.maker) == acnt0.addr.b58_str
-        assert (await ac.token_id) == tok_id
+        assert (await ac.token_id) == tc.tok_id.data
 
-        tok_bal = await cft.get_tok_bal(api, acnt0.addr.b58_str, tok_id)
+        tok_bal = await cft.get_tok_bal(api, acnt0.addr.b58_str, tc.tok_id.data)
         assert tok_bal == 50
 
         resp = await tc.deposit(acnt0, ac.ctrt_id, 10)
@@ -208,7 +201,7 @@ class TestTokCtrtWithoutSplit:
         tx_info = await api.tx.get_info(resp["id"])
         assert tx_info["status"] == "Success"
 
-        tok_bal = await cft.get_tok_bal(api, acnt0.addr.b58_str, tok_id)
+        tok_bal = await cft.get_tok_bal(api, acnt0.addr.b58_str, tc.tok_id.data)
         assert tok_bal == 40
 
         deposited_tok_bal = await ac.get_swap_balance(acnt0.addr.b58_str)
@@ -218,7 +211,7 @@ class TestTokCtrtWithoutSplit:
         await tc.withdraw(acnt0, ac.ctrt_id, 10)
         await cft.wait_for_block()
 
-        tok_bal = await cft.get_tok_bal(api, acnt0.addr.b58_str, tok_id)
+        tok_bal = await cft.get_tok_bal(api, acnt0.addr.b58_str, tc.tok_id.data)
         assert tok_bal == 50
 
         deposited_tok_bal = await ac.get_swap_balance(acnt0.addr.b58_str)
@@ -235,16 +228,14 @@ class TestTokCtrtWithoutSplit:
         tc = new_ctrt_with_tok
         api = tc.chain.api
 
-        tok_id = pv.Ctrt.get_tok_id(tc.ctrt_id, 0)
-
-        tok_bal = await cft.get_tok_bal(api, acnt0.addr.b58_str, tok_id)
+        tok_bal = await cft.get_tok_bal(api, acnt0.addr.b58_str, tc.tok_id.data)
         assert tok_bal == 50
 
         resp = await tc.destroy(acnt0, 10)
         await cft.wait_for_block()
         await cft.assert_tx_success(api, resp["id"])
 
-        tok_bal_acnt0 = await cft.get_tok_bal(api, acnt0.addr.b58_str, tok_id)
+        tok_bal_acnt0 = await cft.get_tok_bal(api, acnt0.addr.b58_str, tc.tok_id.data)
         assert tok_bal_acnt0 == 40
 
     async def test_supersede(
@@ -261,13 +252,13 @@ class TestTokCtrtWithoutSplit:
         tc = new_ctrt
         api = tc.chain.api
 
-        assert (await tc.issuer) == acnt0.addr.b58_str
+        assert (await tc.issuer).data == acnt0.addr.b58_str
 
         resp = await tc.supersede(acnt0, acnt1.addr.b58_str)
         await cft.wait_for_block()
         await cft.assert_tx_success(api, resp["id"])
 
-        assert (await tc.issuer) == acnt1.addr.b58_str
+        assert (await tc.issuer).data == acnt1.addr.b58_str
 
     @pytest.mark.whole
     async def test_as_whole(
@@ -329,17 +320,12 @@ class TestTokWithSplit(TestTokCtrtWithoutSplit):
         """
         tc = new_ctrt
         api = tc.chain.api
-        tc_ctrt_id = tc.ctrt_id
-
-        tok_id_dict = await api.ctrt.get_tok_id(tc_ctrt_id, 0)
-        tok_id = tok_id_dict["tokenId"]
 
         resp = await tc.split(acnt0, 12)
         await cft.wait_for_block()
         await cft.assert_tx_success(api, resp["id"])
 
-        new_unit = await api.ctrt.get_tok_info(tok_id)
-
+        new_unit = await api.ctrt.get_tok_info(tc.tok_id.data)
         assert 12 == new_unit["unity"]
 
 
@@ -381,7 +367,7 @@ class TestTokWithoutSplitV2WhiteList(TestTokCtrtWithoutSplit):
     @pytest.fixture
     async def new_atomic_swap_ctrt(
         self,
-        new_ctrt_with_tok: pv.NFTCtrt,
+        new_ctrt_with_tok: pv.TokenCtrtWithoutSplitV2WhiteList,
         acnt0: pv.Account,
     ) -> pv.AtomicSwapCtrt:
         """
@@ -394,17 +380,16 @@ class TestTokWithoutSplitV2WhiteList(TestTokCtrtWithoutSplit):
         Returns:
             pv.AtomicSwapCtrt: The AtomicSwapCtrt instance.
         """
-        nc = new_ctrt_with_tok
-        api = nc.chain.api
+        tc = new_ctrt_with_tok
+        api = tc.chain.api
 
-        tok_id = pv.Ctrt.get_tok_id(nc.ctrt_id, 0)
-        ac = await pv.AtomicSwapCtrt.register(acnt0, tok_id)
+        ac = await pv.AtomicSwapCtrt.register(acnt0, tc.tok_id.data)
 
         await cft.wait_for_block()
         assert (await ac.maker) == acnt0.addr.b58_str
-        assert (await ac.token_id) == tok_id
+        assert (await ac.token_id) == tc.tok_id.data
 
-        resp = await nc.update_list_ctrt(acnt0, ac.ctrt_id, True)
+        resp = await tc.update_list_ctrt(acnt0, ac.ctrt_id, True)
         await cft.wait_for_block()
         await cft.assert_tx_success(api, resp["id"])
 
@@ -425,18 +410,18 @@ class TestTokWithoutSplitV2WhiteList(TestTokCtrtWithoutSplit):
             acnt1 (pv.Account): The account of nonce 1.
         """
 
-        nc = new_ctrt
-        api = nc.chain.api
+        tc = new_ctrt
+        api = tc.chain.api
 
-        assert (await nc.issuer) == acnt0.addr.b58_str
-        assert (await nc.regulator) == acnt0.addr.b58_str
+        assert (await tc.issuer).data == acnt0.addr.b58_str
+        assert (await tc.regulator).data == acnt0.addr.b58_str
 
-        resp = await nc.supersede(acnt0, acnt1.addr.b58_str, acnt1.addr.b58_str)
+        resp = await tc.supersede(acnt0, acnt1.addr.b58_str, acnt1.addr.b58_str)
         await cft.wait_for_block()
         await cft.assert_tx_success(api, resp["id"])
 
-        assert (await nc.issuer) == acnt1.addr.b58_str
-        assert (await nc.regulator) == acnt1.addr.b58_str
+        assert (await tc.issuer).data == acnt1.addr.b58_str
+        assert (await tc.regulator).data == acnt1.addr.b58_str
 
     async def test_update_list_user(
         self,
@@ -453,13 +438,13 @@ class TestTokWithoutSplitV2WhiteList(TestTokCtrtWithoutSplit):
             acnt1 (pv.Account): The account of nonce 1.
         """
 
-        nc = new_ctrt
-        api = nc.chain.api
+        tc = new_ctrt
+        api = tc.chain.api
 
-        in_list = await nc.is_user_in_list(acnt1.addr.b58_str)
+        in_list = await tc.is_user_in_list(acnt1.addr.b58_str)
         assert in_list == False
 
-        resp = await nc.update_list_user(
+        resp = await tc.update_list_user(
             by=acnt0,
             addr=acnt1.addr.b58_str,
             val=True,
@@ -467,10 +452,10 @@ class TestTokWithoutSplitV2WhiteList(TestTokCtrtWithoutSplit):
         await cft.wait_for_block()
         await cft.assert_tx_success(api, resp["id"])
 
-        in_list = await nc.is_user_in_list(acnt1.addr.b58_str)
+        in_list = await tc.is_user_in_list(acnt1.addr.b58_str)
         assert in_list == True
 
-        resp = await nc.update_list_user(
+        resp = await tc.update_list_user(
             by=acnt0,
             addr=acnt1.addr.b58_str,
             val=False,
@@ -478,7 +463,7 @@ class TestTokWithoutSplitV2WhiteList(TestTokCtrtWithoutSplit):
         await cft.wait_for_block()
         await cft.assert_tx_success(api, resp["id"])
 
-        in_list = await nc.is_user_in_list(acnt1.addr.b58_str)
+        in_list = await tc.is_user_in_list(acnt1.addr.b58_str)
         assert in_list == False
 
     async def test_update_list_ctrt(
@@ -495,14 +480,14 @@ class TestTokWithoutSplitV2WhiteList(TestTokCtrtWithoutSplit):
             acnt0 (pv.Account): The account of nonce 0.
             arbitrary_ctrt_id (str): An arbitrary contract ID
         """
-        nc = new_ctrt
-        api = nc.chain.api
+        tc = new_ctrt
+        api = tc.chain.api
         target_ctrt_id = arbitrary_ctrt_id
 
-        in_list = await nc.is_ctrt_in_list(target_ctrt_id)
+        in_list = await tc.is_ctrt_in_list(target_ctrt_id)
         assert in_list == False
 
-        resp = await nc.update_list_ctrt(
+        resp = await tc.update_list_ctrt(
             by=acnt0,
             addr=target_ctrt_id,
             val=True,
@@ -510,10 +495,10 @@ class TestTokWithoutSplitV2WhiteList(TestTokCtrtWithoutSplit):
         await cft.wait_for_block()
         await cft.assert_tx_success(api, resp["id"])
 
-        in_list = await nc.is_ctrt_in_list(target_ctrt_id)
+        in_list = await tc.is_ctrt_in_list(target_ctrt_id)
         assert in_list == True
 
-        resp = await nc.update_list_ctrt(
+        resp = await tc.update_list_ctrt(
             by=acnt0,
             addr=target_ctrt_id,
             val=False,
@@ -521,7 +506,7 @@ class TestTokWithoutSplitV2WhiteList(TestTokCtrtWithoutSplit):
         await cft.wait_for_block()
         await cft.assert_tx_success(api, resp["id"])
 
-        in_list = await nc.is_ctrt_in_list(target_ctrt_id)
+        in_list = await tc.is_ctrt_in_list(target_ctrt_id)
         assert in_list == False
 
     async def test_register(
@@ -536,15 +521,13 @@ class TestTokWithoutSplitV2WhiteList(TestTokCtrtWithoutSplit):
         Returns:
             pv.TokenCtrtWithoutSplitV2WhiteList: The registered TokenCtrtWithoutSplitV2WhiteList
         """
-        nc: pv.TokenCtrtWithoutSplitV2WhiteList = (
-            await pv.TokenCtrtWithoutSplitV2WhiteList.register(acnt0, 50, 1)
-        )
+        tc = await pv.TokenCtrtWithoutSplitV2WhiteList.register(acnt0, 50, 1)
         await cft.wait_for_block()
-        assert (await nc.issuer) == acnt0.addr.b58_str
-        assert (await nc.maker) == acnt0.addr.b58_str
-        assert (await nc.regulator) == acnt0.addr.b58_str
+        assert (await tc.issuer).data == acnt0.addr.b58_str
+        assert (await tc.maker).data == acnt0.addr.b58_str
+        assert (await tc.regulator).data == acnt0.addr.b58_str
 
-        return nc
+        return tc
 
 
 class TestTokWithoutSplitV2BlackList(TestTokWithoutSplitV2WhiteList):
@@ -564,10 +547,10 @@ class TestTokWithoutSplitV2BlackList(TestTokWithoutSplitV2WhiteList):
         Returns:
             pv.TokenCtrtWithoutSplitV2BlackList: The TokenCtrtWithoutSplitV2BlackList instance.
         """
-        nc = await pv.TokenCtrtWithoutSplitV2BlackList.register(acnt0, 50, 1)
+        tc = await pv.TokenCtrtWithoutSplitV2BlackList.register(acnt0, 50, 1)
         await cft.wait_for_block()
 
-        return nc
+        return tc
 
     @pytest.fixture
     async def new_atomic_swap_ctrt(
@@ -585,13 +568,12 @@ class TestTokWithoutSplitV2BlackList(TestTokWithoutSplitV2WhiteList):
         Returns:
             pv.AtomicSwapCtrt: The AtomicSwapCtrt instance.
         """
-        nc = new_ctrt_with_tok
+        tc = new_ctrt_with_tok
 
-        tok_id = pv.Ctrt.get_tok_id(nc.ctrt_id, 0)
-        ac = await pv.AtomicSwapCtrt.register(acnt0, tok_id)
+        ac = await pv.AtomicSwapCtrt.register(acnt0, tc.tok_id.data)
 
         await cft.wait_for_block()
         assert (await ac.maker) == acnt0.addr.b58_str
-        assert (await ac.token_id) == tok_id
+        assert (await ac.token_id) == tc.tok_id.data
 
         return ac

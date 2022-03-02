@@ -3,7 +3,7 @@ tok_ctrt contains Token contract.
 """
 from __future__ import annotations
 
-from typing import Dict, Any, TYPE_CHECKING, Union
+from typing import Dict, Any, TYPE_CHECKING, Union, Optional
 
 from loguru import logger
 
@@ -37,7 +37,7 @@ class TokenCtrtWithoutSplit(BaseTokCtrt):
         self._ctrt_id = md.CtrtID(ctrt_id)
         self._chain = chain
         self._unit = 0
-        self._tok_id: str = ""
+        self._tok_id: Optional[md.TokenID] = None
 
     class FuncIdx(Ctrt.FuncIdx):
         SUPERSEDE = 0
@@ -123,42 +123,36 @@ class TokenCtrtWithoutSplit(BaseTokCtrt):
         return tc
 
     @property
-    async def issuer(self) -> str:
+    async def issuer(self) -> md.Addr:
         """
         issuer queries & returns the issuer of the contract.
+
         Returns:
-            str: The address of the issuer of the contract.
+            md.Addr: The address of the issuer of the contract.
         """
 
-        data = await self.chain.api.ctrt.get_ctrt_data(
-            ctrt_id=self.ctrt_id,
-            db_key=self.DBKey.for_issuer().b58_str,
-        )
-        logger.debug(data)
-        return data["value"]
+        raw_val = await self._query_db_key(self.DBKey.for_issuer())
+        return md.Addr(raw_val)
 
     @property
-    async def maker(self) -> str:
+    async def maker(self) -> md.Addr:
         """
         maker queries & returns the maker of the contract.
+
         Returns:
             str: The address of the maker of the contract.
         """
 
-        data = await self.chain.api.ctrt.get_ctrt_data(
-            ctrt_id=self.ctrt_id,
-            db_key=self.DBKey.for_maker().b58_str,
-        )
-        logger.debug(data)
-        return data["value"]
+        raw_val = await self._query_db_key(self.DBKey.for_maker())
+        return md.Addr(raw_val)
 
     @property
-    def tok_id(self) -> str:
+    def tok_id(self) -> md.TokenID:
         """
         tok_id returns the token ID of the contract.
 
         Returns:
-            str: The token ID.
+            md.TokenID: The token ID.
         """
         if not self._tok_id:
             self._tok_id = self.get_tok_id(self.ctrt_id, 0)
@@ -173,7 +167,7 @@ class TokenCtrtWithoutSplit(BaseTokCtrt):
             int: The unit in integer format.
         """
         if self._unit <= 0:
-            info = await self._chain.api.ctrt.get_tok_info(self.tok_id)
+            info = await self._chain.api.ctrt.get_tok_info(self.tok_id.data)
             self._unit = info["unity"]
         return self._unit
 
@@ -187,8 +181,7 @@ class TokenCtrtWithoutSplit(BaseTokCtrt):
         Returns:
             int: The balance.
         """
-        tok_id = self.tok_id
-        data = await self.chain.api.ctrt.get_tok_bal(addr, tok_id)
+        data = await self.chain.api.ctrt.get_tok_bal(addr, self.tok_id.data)
         return data["balance"]
 
     async def supersede(
@@ -550,7 +543,7 @@ class TokenCtrtWithSplit(TokenCtrtWithoutSplit):
         Returns:
             int: The unit in integer format.
         """
-        info = await self._chain.api.ctrt.get_tok_info(self.tok_id)
+        info = await self._chain.api.ctrt.get_tok_info(self.tok_id.data)
         self._unit = info["unity"]
         return self._unit
 
@@ -686,14 +679,15 @@ class TokenCtrtWithoutSplitV2WhiteList(TokenCtrtWithoutSplit):
             return cls._for_is_in_list(addr_de)
 
     @property
-    async def regulator(self) -> str:
+    async def regulator(self) -> md.Addr:
         """
         regulator queries & returns the regulator of the contract.
 
         Returns:
-            str: The address of the regulator of the contract.
+            md.Addr: The address of the regulator of the contract.
         """
-        return await self._query_db_key(self.DBKey.for_regulator())
+        raw_val = await self._query_db_key(self.DBKey.for_regulator())
+        return md.Addr(raw_val)
 
     @classmethod
     async def register(
