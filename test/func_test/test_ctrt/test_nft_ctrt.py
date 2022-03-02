@@ -66,7 +66,7 @@ class TestNFTCtrt:
 
         await cft.wait_for_block()
         assert (await ac.maker) == acnt0.addr.data
-        assert (await ac.token_id) == tok_id
+        assert (await ac.tok_id) == tok_id
 
         return ac
 
@@ -316,7 +316,7 @@ class TestNFTCtrtV2Whitelist(TestNFTCtrt):
 
         await cft.wait_for_block()
         assert (await ac.maker) == acnt0.addr.data
-        assert (await ac.token_id) == tok_id
+        assert (await ac.tok_id) == tok_id
 
         resp = await nc.update_list_ctrt(acnt0, ac.ctrt_id, True)
         await cft.wait_for_block()
@@ -537,6 +537,6 @@ class TestNFTCtrtV2Blacklist(TestNFTCtrtV2Whitelist):
 
         await cft.wait_for_block()
         assert (await ac.maker) == acnt0.addr.data
-        assert (await ac.token_id) == tok_id
+        assert (await ac.tok_id) == tok_id
 
         return ac

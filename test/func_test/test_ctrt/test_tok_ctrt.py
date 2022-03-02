@@ -65,7 +65,7 @@ class TestTokCtrtWithoutSplit:
 
         await cft.wait_for_block()
         assert (await ac.maker) == acnt0.addr.data
-        assert (await ac.token_id) == tc.tok_id.data
+        assert (await ac.tok_id) == tc.tok_id.data
 
         return ac
 
@@ -191,7 +191,7 @@ class TestTokCtrtWithoutSplit:
         ac = new_atomic_swap_ctrt
         await cft.wait_for_block()
         assert (await ac.maker) == acnt0.addr.data
-        assert (await ac.token_id) == tc.tok_id.data
+        assert (await ac.tok_id) == tc.tok_id.data
 
         tok_bal = await cft.get_tok_bal(api, acnt0.addr.data, tc.tok_id.data)
         assert tok_bal == 50
@@ -387,7 +387,7 @@ class TestTokWithoutSplitV2WhiteList(TestTokCtrtWithoutSplit):
 
         await cft.wait_for_block()
         assert (await ac.maker) == acnt0.addr.data
-        assert (await ac.token_id) == tc.tok_id.data
+        assert (await ac.tok_id) == tc.tok_id.data
 
         resp = await tc.update_list_ctrt(acnt0, ac.ctrt_id, True)
         await cft.wait_for_block()
@@ -574,6 +574,6 @@ class TestTokWithoutSplitV2BlackList(TestTokWithoutSplitV2WhiteList):
 
         await cft.wait_for_block()
         assert (await ac.maker) == acnt0.addr.data
-        assert (await ac.token_id) == tc.tok_id.data
+        assert (await ac.tok_id) == tc.tok_id.data
 
         return ac

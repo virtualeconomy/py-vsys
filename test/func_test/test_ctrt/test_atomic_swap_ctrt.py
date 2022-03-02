@@ -153,7 +153,7 @@ class TestAtomicSwapCtrt:
         await cft.wait_for_block()
 
         assert (await ac.maker).data == acnt0.addr.data
-        assert (await ac.token_id) == tc.tok_id
+        assert (await ac.tok_id) == tc.tok_id
 
         return ac
 

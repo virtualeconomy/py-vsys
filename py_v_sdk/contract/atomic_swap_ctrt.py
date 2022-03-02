@@ -252,9 +252,9 @@ class AtomicSwapCtrt(Ctrt):
         return md.Addr(raw_val)
 
     @property
-    async def token_id(self) -> md.TokenID:
+    async def tok_id(self) -> md.TokenID:
         """
-        token_id queries & returns the token_id of the contract.
+        tok_id queries & returns the token_id of the contract.
 
         Returns:
             md.TokenID: The token_id of the contract.
@@ -274,7 +274,7 @@ class AtomicSwapCtrt(Ctrt):
         """
         bal = await self._query_db_key(self.DBKey.for_token_balance(addr))
 
-        resp = await self.chain.api.ctrt.get_tok_info(await self.token_id)
+        resp = await self.chain.api.ctrt.get_tok_info(await self.tok_id)
         unit = resp["unity"]
         return md.Token.for_amount(bal, unit)
 
@@ -329,7 +329,7 @@ class AtomicSwapCtrt(Ctrt):
         """
         amount = await self._query_db_key(self.DBKey.for_swap_amount(tx_id))
 
-        resp = await self.chain.api.ctrt.get_tok_info(await self.token_id)
+        resp = await self.chain.api.ctrt.get_tok_info(await self.tok_id)
         unit = resp["unity"]
         return md.Token.for_amount(amount, unit)
 
@@ -386,7 +386,7 @@ class AtomicSwapCtrt(Ctrt):
         """
         puzzle_bytes = hs.sha256_hash(secret.encode("latin-1"))
 
-        tok_id = await self.token_id
+        tok_id = await self.tok_id
         resp = await by.chain.api.ctrt.get_tok_info(tok_id)
         unit = resp["unity"]
 
@@ -443,7 +443,7 @@ class AtomicSwapCtrt(Ctrt):
         hashed_secret_b58str = data["value"]
         puzzle_bytes = base58.b58decode(hashed_secret_b58str)
 
-        tok_id = await self.token_id
+        tok_id = await self.tok_id
         resp = await by.chain.api.ctrt.get_tok_info(tok_id)
         unit = resp["unity"]
 
