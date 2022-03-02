@@ -14,6 +14,7 @@ if TYPE_CHECKING:
 from py_v_sdk import data_entry as de
 from py_v_sdk import tx_req as tx
 from py_v_sdk import model as md
+from py_v_sdk.contract import tok_ctrt_factory as tcf
 from py_v_sdk.utils.crypto import hashes as hs
 from . import CtrtMeta, Ctrt
 
@@ -262,6 +263,19 @@ class AtomicSwapCtrt(Ctrt):
         raw_val = await self._query_db_key(self.DBKey.for_token_id())
         return md.TokenID(raw_val)
 
+    @property
+    async def unit(self) -> int:
+        """
+        unit returns the unit of the token specified in this contract.
+
+        Returns:
+            int: The token unit.
+        """
+        tok_id = await self.tok_id
+
+        tc = await tcf.from_tok_id(tok_id, self.chain)
+        return await tc.unit
+
     async def get_swap_balance(self, addr: str) -> md.Token:
         """
         get_swap_balance queries & returns the balance of the token deposited into the contract.
@@ -272,11 +286,9 @@ class AtomicSwapCtrt(Ctrt):
         Returns:
             md.Token: The balance of the token.
         """
-        bal = await self._query_db_key(self.DBKey.for_token_balance(addr))
-
-        resp = await self.chain.api.ctrt.get_tok_info(await self.tok_id)
-        unit = resp["unity"]
-        return md.Token.for_amount(bal, unit)
+        raw_val = await self._query_db_key(self.DBKey.for_token_balance(addr))
+        unit = await self.unit
+        return md.Token(data=raw_val, unit=unit)
 
     async def get_swap_owner(self, tx_id: str) -> md.Addr:
         """
@@ -325,13 +337,11 @@ class AtomicSwapCtrt(Ctrt):
             tx_id (str): The lock transaction id.
 
         Returns:
-            int: The balance of the token locked.
+            md.Token: The balance of the token locked.
         """
-        amount = await self._query_db_key(self.DBKey.for_swap_amount(tx_id))
-
-        resp = await self.chain.api.ctrt.get_tok_info(await self.tok_id)
-        unit = resp["unity"]
-        return md.Token.for_amount(amount, unit)
+        raw_val = await self._query_db_key(self.DBKey.for_swap_amount(tx_id))
+        unit = await self.unit
+        return md.Token(data=raw_val, unit=unit)
 
     async def get_swap_expired_time(self, tx_id: str) -> md.VSYSTimestamp:
         """
@@ -343,8 +353,8 @@ class AtomicSwapCtrt(Ctrt):
         Returns:
             md.VSYSTimestamp: The expired timestamp.
         """
-        expired_time = await self._query_db_key(self.DBKey.for_swap_expired_time(tx_id))
-        return md.VSYSTimestamp(int(expired_time))
+        raw_val = await self._query_db_key(self.DBKey.for_swap_expired_time(tx_id))
+        return md.VSYSTimestamp(raw_val)
 
     async def get_swap_status(self, tx_id: str) -> bool:
         """
