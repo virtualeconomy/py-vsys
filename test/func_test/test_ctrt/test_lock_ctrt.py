@@ -75,7 +75,7 @@ class TestLockCtrt:
         lc = new_ctrt
 
         assert (await lc.maker).data == acnt0.addr.b58_str
-        assert (await lc.tok_id).data == tc.tok_id.data
+        assert (await lc.tok_id) == tc.tok_id
         assert (await lc.get_ctrt_bal(acnt0.addr.b58_str)).amount == 0
         assert (await lc.get_ctrt_lock_time(acnt0.addr.b58_str)).unix_ts == 0
 
