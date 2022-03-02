@@ -156,19 +156,21 @@ class Wallet:
         return md.Addr.from_bytes(b)
 
     @staticmethod
-    def get_acnt_seed_hash(seed: str, nonce: int) -> md.Bytes:
+    def get_acnt_seed_hash(seed: md.Seed, nonce: md.Nonce) -> md.Bytes:
         """
         get_acnt_seed_hash generates account seed hash based on the given seed & nonce.
 
         Args:
-            seed (str): The account seed.
-            nonce (int): The account nonce.
+            seed (md.Seed): The account seed.
+            nonce (md.Nonce): The account nonce.
 
         Returns:
             md.Bytes: The generated account seed hash.
         """
         b = hs.sha256_hash(
-            hs.keccak256_hash(hs.blake2b_hash(f"{nonce}{seed}".encode("latin-1")))
+            hs.keccak256_hash(
+                hs.blake2b_hash(f"{nonce.data}{seed.data}".encode("latin-1"))
+            )
         )
         return md.Bytes(b)
 
@@ -191,7 +193,7 @@ class Account:
         self._wallet = wallet
         self._nonce = md.Nonce(nonce)
 
-        self._acnt_seed_hash = wallet.get_acnt_seed_hash(wallet.seed.data, nonce)
+        self._acnt_seed_hash = wallet.get_acnt_seed_hash(wallet.seed, self._nonce)
         self._key_pair = wallet.get_key_pair(self._acnt_seed_hash)
         self._addr = wallet.get_addr(
             self.key_pair.pub, self.ADDR_VER, self.chain.chain_id
