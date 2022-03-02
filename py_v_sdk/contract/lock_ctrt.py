@@ -2,7 +2,7 @@
 lock_ctrt contains Lock contract.
 """
 from __future__ import annotations
-from typing import TYPE_CHECKING, Dict, Any
+from typing import TYPE_CHECKING, Dict, Any, Optional
 
 from loguru import logger
 
@@ -14,6 +14,7 @@ if TYPE_CHECKING:
 from py_v_sdk import data_entry as de
 from py_v_sdk import tx_req as tx
 from py_v_sdk import model as md
+from py_v_sdk.contract import tok_ctrt_factory as tcf
 from . import CtrtMeta, Ctrt
 
 
@@ -117,7 +118,7 @@ class LockCtrt(Ctrt):
             chain (ch.Chain): The object of the chain where the contract is on.
         """
         super().__init__(ctrt_id, chain)
-        self._tok_id = ""
+        self._tok_id: Optional[md.TokenID] = None
 
     @classmethod
     async def register(
@@ -158,28 +159,43 @@ class LockCtrt(Ctrt):
         )
 
     @property
-    async def maker(self) -> str:
+    async def maker(self) -> md.Addr:
         """
         maker queries & returns the maker of the contract.
 
         Returns:
-            str: The address of the maker of the contract.
+            md.Addr: The address of the maker of the contract.
         """
-        return await self._query_db_key(self.DBKey.for_maker())
+        raw_val = await self._query_db_key(self.DBKey.for_maker())
+        return md.Addr(raw_val)
 
     @property
-    async def tok_id(self) -> str:
+    async def tok_id(self) -> md.TokenID:
         """
         tok_id queries & returns the token_id of the contract.
 
         Returns:
-            str: The token_id of the contract.
+            md.TokenID: The token_id of the contract.
         """
         if not self._tok_id:
-            self._tok_id = await self._query_db_key(self.DBKey.for_token_id())
+            raw_val = await self._query_db_key(self.DBKey.for_token_id())
+            self._tok_id = md.TokenID(raw_val)
         return self._tok_id
 
-    async def get_ctrt_bal(self, addr: str) -> int:
+    @property
+    async def unit(self) -> int:
+        """
+        unit returns the unit of the token specified in this contract.
+
+        Returns:
+            int: The token unit.
+        """
+        tok_id = await self.tok_id
+
+        tc = await tcf.from_tok_id(tok_id, self.chain)
+        return await tc.unit
+
+    async def get_ctrt_bal(self, addr: str) -> md.Token:
         """
         get_ctrt_bal queries & returns the balance of the token within this contract
         belonging to the user address.
@@ -188,11 +204,13 @@ class LockCtrt(Ctrt):
             addr (str): The account address.
 
         Returns:
-            int: The balance of the token.
+            md.Token: The balance of the token.
         """
-        return await self._query_db_key(self.DBKey.for_contract_balance(addr))
+        raw_val = await self._query_db_key(self.DBKey.for_contract_balance(addr))
+        unit = await self.unit
+        return md.Token(data=raw_val, unit=unit)
 
-    async def get_ctrt_lock_time(self, addr: str) -> int:
+    async def get_ctrt_lock_time(self, addr: str) -> md.VSYSTimestamp:
         """
         get_ctrt_lock_time queries & returns the lock time of the token locked in this contract
         belonging to the user address.
@@ -201,15 +219,10 @@ class LockCtrt(Ctrt):
             addr (str): The account address.
 
         Returns:
-            int: The lock time of the token in Unix timestamp.
+            md.VSYSTimestamp: The lock time of the token in Unix timestamp.
         """
-        raw_ts = await self._query_db_key(self.DBKey.for_contract_lock_time(addr))
-
-        if raw_ts == 0:
-            return 0
-
-        unix_ts = md.VSYSTimestamp(raw_ts).unix_ts
-        return int(unix_ts)
+        raw_val = await self._query_db_key(self.DBKey.for_contract_lock_time(addr))
+        return md.VSYSTimestamp(raw_val)
 
     async def lock(
         self,

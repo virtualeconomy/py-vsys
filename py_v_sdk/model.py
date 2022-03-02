@@ -387,8 +387,8 @@ class VSYSTimestamp(NonNegativeInt):
         if not (isinstance(ux_ts, int) or isinstance(ux_ts, float)):
             raise TypeError("ux_ts must be an int or float")
 
-        if ux_ts <= 0:
-            raise ValueError("ux_ts must be greater than 0")
+        if ux_ts < 0:
+            raise ValueError("ux_ts must be greater than or equal to 0")
 
         return cls(int(ux_ts * cls.SCALE))
 
