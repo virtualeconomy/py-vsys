@@ -47,6 +47,61 @@ class Model(abc.ABC):
         return self.__class__ == other.__class__ and self.data == other.data
 
 
+class Bytes(Model):
+    """
+    Bytes is the data model for bytes.
+    """
+
+    def __init__(self, data: bytes = b"") -> None:
+        """
+        Args:
+            data (bytes, optional): The data to contain. Defaults to b"".
+        """
+        self.data = data
+        self.validate()
+
+    @property
+    def b58_str(self) -> str:
+        """
+        b58_str returns the base58 string representation of the containing data.
+
+        Returns:
+            str: The base58 string representation.
+        """
+        return base58.b58encode(self.data).decode("latin-1")
+
+    def validate(self) -> None:
+        cls_name = self.__class__.__name__
+
+        if not isinstance(self.data, bytes):
+            raise TypeError(f"Data in {cls_name} must be bytes")
+
+    @classmethod
+    def from_b58_str(cls, s: str) -> Bytes:
+        """
+        from_b58_str creates a Bytes object from the given base58-encoded string.
+
+        Args:
+            s (str): the input base58 string.
+
+        Returns:
+            Bytes: the Bytes instance.
+        """
+        return cls(base58.b58decode(s))
+
+    @classmethod
+    def from_str(cls, s: str) -> Bytes:
+        """
+        from_str creates a Bytes object from the given string.
+        Args:
+            s (str): the input string.
+
+        Returns:
+            Bytes: the Bytes instance.
+        """
+        return cls(s.encode("latin-1"))
+
+
 class Str(Model):
     """
     Str is the data model for string.
@@ -261,6 +316,32 @@ class Addr(FixedSizeB58Str):
         cl = self.CHECKSUM_BYTES_LEN
         if self.bytes[-cl:] != ke_bla_hash(self.bytes[:-cl])[:cl]:
             raise ValueError(f"Data in {cls_name} has invalid checksum")
+
+    @classmethod
+    def from_bytes(cls, b: bytes) -> Addr:
+        """
+        from_bytes contructs an Addr object from the given bytes.
+
+        Args:
+            b (bytes): The given bytes.
+
+        Returns:
+            Addr: The Addr object.
+        """
+        return cls(Bytes(b).b58_str)
+
+    @classmethod
+    def from_bytes_md(cls, b: Bytes) -> Addr:
+        """
+        from_bytes_md contructs an Addr object from the given Bytes object.
+
+        Args:
+            b (Bytes): The given Bytes object.
+
+        Returns:
+            Addr: The Addr object.
+        """
+        return cls(b.b58_str)
 
 
 class CtrtID(FixedSizeB58Str):
@@ -619,61 +700,6 @@ class DBPutFee(Fee):
     """
 
     DEFAULT = VSYS.UNIT
-
-
-class Bytes(Model):
-    """
-    Bytes is the data model for bytes.
-    """
-
-    def __init__(self, data: bytes = b"") -> None:
-        """
-        Args:
-            data (bytes, optional): The data to contain. Defaults to b"".
-        """
-        self.data = data
-        self.validate()
-
-    @property
-    def b58_str(self) -> str:
-        """
-        b58_str returns the base58 string representation of the containing data.
-
-        Returns:
-            str: The base58 string representation.
-        """
-        return base58.b58encode(self.data).decode("latin-1")
-
-    def validate(self) -> None:
-        cls_name = self.__class__.__name__
-
-        if not isinstance(self.data, bytes):
-            raise TypeError(f"Data in {cls_name} must be bytes")
-
-    @classmethod
-    def from_b58_str(cls, s: str) -> Bytes:
-        """
-        from_b58_str creates a Bytes object from the given base58-encoded string.
-
-        Args:
-            s (str): the input base58 string.
-
-        Returns:
-            Bytes: the Bytes instance.
-        """
-        return cls(base58.b58decode(s))
-
-    @classmethod
-    def from_str(cls, s: str) -> Bytes:
-        """
-        from_str creates a Bytes object from the given string.
-        Args:
-            s (str): the input string.
-
-        Returns:
-            Bytes: the Bytes instance.
-        """
-        return cls(s.encode("latin-1"))
 
 
 class Bool(Model):
