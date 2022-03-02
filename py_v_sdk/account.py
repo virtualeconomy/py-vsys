@@ -109,17 +109,17 @@ class Wallet:
         return md.Seed(s)
 
     @staticmethod
-    def get_key_pair(acnt_seed_hash: bytes) -> md.KeyPair:
+    def get_key_pair(acnt_seed_hash: md.Bytes) -> md.KeyPair:
         """
         get_key_pair generates a key pair based on the given account seed hash.
 
         Args:
-            acnt_seed_hash (bytes): The account seed hash.
+            acnt_seed_hash (md.Bytes): The account seed hash.
 
         Returns:
             md.KeyPair: The generated key pair.
         """
-        pri_key = curve.gen_pri_key(acnt_seed_hash)
+        pri_key = curve.gen_pri_key(acnt_seed_hash.data)
         pub_key = curve.gen_pub_key(pri_key)
 
         return md.KeyPair(
@@ -192,7 +192,7 @@ class Account:
         self._nonce = md.Nonce(nonce)
 
         self._acnt_seed_hash = wallet.get_acnt_seed_hash(wallet.seed.data, nonce)
-        self._key_pair = wallet.get_key_pair(self._acnt_seed_hash.data)
+        self._key_pair = wallet.get_key_pair(self._acnt_seed_hash)
         self._addr = wallet.get_addr(
             self.key_pair.pub, self.ADDR_VER, self.chain.chain_id
         )
