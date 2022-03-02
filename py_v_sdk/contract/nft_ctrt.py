@@ -477,14 +477,15 @@ class NFTCtrtV2Whitelist(NFTCtrt):
             return cls._for_is_in_list(addr_de)
 
     @property
-    async def regulator(self) -> str:
+    async def regulator(self) -> md.Addr:
         """
         regulator queries & returns the regulator of the contract.
 
         Returns:
-            str: The address of the regulator of the contract.
+            md.Addr: The address of the regulator of the contract.
         """
-        return await self._query_db_key(self.DBKey.for_regulator())
+        raw_val = await self._query_db_key(self.DBKey.for_regulator())
+        return md.Addr(raw_val)
 
     async def _is_in_list(self, db_key: NFTCtrtV2Whitelist.DBKey) -> bool:
         """

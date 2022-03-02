@@ -350,15 +350,15 @@ class TestNFTCtrtV2Whitelist(TestNFTCtrt):
         nc = new_ctrt
         api = nc.chain.api
 
-        assert (await nc.issuer) == acnt0.addr.b58_str
-        assert (await nc.regulator) == acnt0.addr.b58_str
+        assert (await nc.issuer).data == acnt0.addr.b58_str
+        assert (await nc.regulator).data == acnt0.addr.b58_str
 
         resp = await nc.supersede(acnt0, acnt1.addr.b58_str, acnt1.addr.b58_str)
         await cft.wait_for_block()
         await cft.assert_tx_success(api, resp["id"])
 
-        assert (await nc.issuer) == acnt1.addr.b58_str
-        assert (await nc.regulator) == acnt1.addr.b58_str
+        assert (await nc.issuer).data == acnt1.addr.b58_str
+        assert (await nc.regulator).data == acnt1.addr.b58_str
 
     async def test_update_list_user(
         self, new_ctrt: pv.NFTCtrtV2Whitelist, acnt0: pv.Account, acnt1: pv.Account
@@ -452,9 +452,9 @@ class TestNFTCtrtV2Whitelist(TestNFTCtrt):
         """
         nc: pv.NFTCtrtV2Whitelist = await pv.NFTCtrtV2Whitelist.register(acnt0)
         await cft.wait_for_block()
-        assert (await nc.issuer) == acnt0.addr.b58_str
-        assert (await nc.maker) == acnt0.addr.b58_str
-        assert (await nc.regulator) == acnt0.addr.b58_str
+        assert (await nc.issuer).data == acnt0.addr.b58_str
+        assert (await nc.maker).data == acnt0.addr.b58_str
+        assert (await nc.regulator).data == acnt0.addr.b58_str
 
         return nc
 
