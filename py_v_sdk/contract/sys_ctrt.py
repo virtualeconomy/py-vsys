@@ -80,12 +80,12 @@ class SysCtrt(BaseTokCtrt):
         self._tok_id = ""
 
     @property
-    def tok_id(self) -> str:
+    def tok_id(self) -> md.TokenID:
         """
         tok_id returns the token ID of the contract.
 
         Returns:
-            str: The token ID.
+            md.TokenID: The token ID.
         """
         if not self._tok_id:
             self._tok_id = self.get_tok_id(self.ctrt_id, 0)

@@ -40,7 +40,7 @@ class TestSysCtrt:
             pv.PayChanCtrt: The Payment Channel contract instance.
         """
         sc = new_ctrt
-        pc = await pv.PayChanCtrt.register(acnt0, sc.tok_id)
+        pc = await pv.PayChanCtrt.register(acnt0, sc.tok_id.data)
         await cft.wait_for_block()
         return pc
 
