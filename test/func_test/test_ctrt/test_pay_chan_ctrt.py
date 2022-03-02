@@ -54,9 +54,7 @@ class TestPayChanCtrt:
         tc = new_tok_ctrt
         api = acnt0.api
 
-        tok_id = pv.Ctrt.get_tok_id(tc.ctrt_id, 0)
-
-        pc = await pv.PayChanCtrt.register(acnt0, tok_id)
+        pc = await pv.PayChanCtrt.register(acnt0, tc.tok_id.data)
         await cft.wait_for_block()
 
         resp = await tc.deposit(acnt0, pc.ctrt_id, self.TOK_MAX)
@@ -118,15 +116,10 @@ class TestPayChanCtrt:
         """
         tc = new_tok_ctrt
 
-        tok_id = pv.Ctrt.get_tok_id(tc.ctrt_id, 0)
-
         pc = new_ctrt
 
-        maker = await pc.maker
-        assert maker.data == acnt0.addr.data
-
-        tok_id_md = await pc.tok_id
-        assert tok_id_md.data == tok_id
+        assert (await pc.maker) == acnt0.addr
+        assert (await pc.tok_id) == tc.tok_id
 
         ctrt_bal = await pc.get_ctrt_bal(acnt0.addr.data)
         assert ctrt_bal.amount == self.TOK_MAX
@@ -169,10 +162,10 @@ class TestPayChanCtrt:
         chan_id = resp["id"]
 
         chan_creator = await pc.get_chan_creator(chan_id)
-        assert chan_creator.data == acnt0.addr.data
+        assert chan_creator == acnt0.addr
 
         chan_creator_pub_key = await pc.get_chan_creator_pub_key(chan_id)
-        assert chan_creator_pub_key.data == acnt0.key_pair.pub.data
+        assert chan_creator_pub_key == acnt0.key_pair.pub
 
         chan_accum_load = await pc.get_chan_accum_load(chan_id)
         assert chan_accum_load.amount == load_amount
