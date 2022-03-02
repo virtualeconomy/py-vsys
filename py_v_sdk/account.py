@@ -128,12 +128,12 @@ class Wallet:
         )
 
     @staticmethod
-    def get_addr(pub_key: bytes, addr_ver: int, chain_id: ch.ChainID) -> md.Addr:
+    def get_addr(pub_key: md.PubKey, addr_ver: int, chain_id: ch.ChainID) -> md.Addr:
         """
         get_addr generates the address based on the given data.
 
         Args:
-            pub_key (bytes): The public key.
+            pub_key (md.PubKey): The public key.
             addr_ver (int): The address version.
             chain_id (ch.ChainID): The chain ID.
 
@@ -145,7 +145,9 @@ class Wallet:
             return hs.keccak256_hash(hs.blake2b_hash(b))
 
         raw_addr: str = (
-            chr(addr_ver) + chain_id.value + ke_bla_hash(pub_key).decode("latin-1")[:20]
+            chr(addr_ver)
+            + chain_id.value
+            + ke_bla_hash(pub_key.bytes).decode("latin-1")[:20]
         )
 
         checksum: str = ke_bla_hash(raw_addr.encode("latin-1")).decode("latin-1")[:4]
@@ -192,7 +194,7 @@ class Account:
         self._acnt_seed_hash = wallet.get_acnt_seed_hash(wallet.seed.data, nonce)
         self._key_pair = wallet.get_key_pair(self._acnt_seed_hash.data)
         self._addr = wallet.get_addr(
-            self.key_pair.pub.bytes, self.ADDR_VER, self.chain.chain_id
+            self.key_pair.pub, self.ADDR_VER, self.chain.chain_id
         )
 
     @property
