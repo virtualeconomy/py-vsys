@@ -177,8 +177,8 @@ class TestAtomicSwapCtrt:
         taker_ctrt = new_taker_atomic_swap_ctrt
         api = acnt0.api
 
-        maker_bal_init = await maker_ctrt.get_swap_balance(acnt0.addr.data)
-        taker_bal_init = await taker_ctrt.get_swap_balance(acnt1.addr.data)
+        maker_bal_init = await maker_ctrt.get_ctrt_bal(acnt0.addr.data)
+        taker_bal_init = await taker_ctrt.get_ctrt_bal(acnt1.addr.data)
 
         # maker lock.
         maker_lock_amount = 10
@@ -216,7 +216,7 @@ class TestAtomicSwapCtrt:
             hs.sha256_hash(maker_puzzle_plain.encode("latin-1"))
         ).decode("latin-1")
 
-        maker_bal_after_lock = await maker_ctrt.get_swap_balance(acnt0.addr.data)
+        maker_bal_after_lock = await maker_ctrt.get_ctrt_bal(acnt0.addr.data)
         assert maker_bal_after_lock.amount == maker_bal_init.amount - 10
 
         # taker lock.
@@ -232,7 +232,7 @@ class TestAtomicSwapCtrt:
         await cft.wait_for_block()
         await cft.assert_tx_success(api, taker_lock_tx_info["id"])
 
-        taker_bal_after_lock = await taker_ctrt.get_swap_balance(acnt1.addr.data)
+        taker_bal_after_lock = await taker_ctrt.get_ctrt_bal(acnt1.addr.data)
         assert taker_bal_after_lock.amount == taker_bal_init.amount - 5
 
     async def test_maker_solve_and_taker_solve(
@@ -321,7 +321,7 @@ class TestAtomicSwapCtrt:
         maker_lock_id = maker_lock_tx_info["id"]
         await cft.assert_tx_success(api, maker_lock_id)
 
-        bal_old = await maker_ctrt.get_swap_balance(acnt0.addr.data)
+        bal_old = await maker_ctrt.get_ctrt_bal(acnt0.addr.data)
 
         await asyncio.sleep(5)  # wait unitl the lock is expired
 
@@ -330,7 +330,7 @@ class TestAtomicSwapCtrt:
         exp_withdraw_id = exp_withdraw_tx_info["id"]
         await cft.assert_tx_success(api, exp_withdraw_id)
 
-        bal = await maker_ctrt.get_swap_balance(acnt0.addr.data)
+        bal = await maker_ctrt.get_ctrt_bal(acnt0.addr.data)
         assert bal.amount == bal_old.amount + 10
 
     @pytest.mark.whole

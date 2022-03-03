@@ -51,7 +51,7 @@ class AtomicSwapCtrt(Ctrt):
         StateMapIdx is the enum class for state map indexes.
         """
 
-        TOKEN_BALANCE = 0
+        CONTRACT_BALANCE = 0
         SWAP_OWNER = 1
         SWAP_RECIPIENT = 2
         SWAP_PUZZLE = 3
@@ -87,9 +87,9 @@ class AtomicSwapCtrt(Ctrt):
             return cls(b)
 
         @classmethod
-        def for_token_balance(cls, addr: str) -> AtomicSwapCtrt.DBKey:
+        def for_contract_balance(cls, addr: str) -> AtomicSwapCtrt.DBKey:
             """
-            for_token_balance returns the AtomicSwapCtrt.DBKey object for querying the token balance.
+            for_contract_balance returns the AtomicSwapCtrt.DBKey object for querying the contract balance.
 
             Args:
                 addr (str): The address of the account that deposits into this contract.
@@ -98,7 +98,7 @@ class AtomicSwapCtrt(Ctrt):
                 AtomicSwapCtrt.DBKey: The AtomicSwapCtrt.DBKey object.
             """
             b = AtomicSwapCtrt.StateMap(
-                idx=AtomicSwapCtrt.StateMapIdx.TOKEN_BALANCE,
+                idx=AtomicSwapCtrt.StateMapIdx.CONTRACT_BALANCE,
                 data_entry=de.Addr(md.Addr(addr)),
             ).serialize()
             return cls(b)
@@ -138,9 +138,9 @@ class AtomicSwapCtrt(Ctrt):
             return cls(b)
 
         @classmethod
-        def for_puzzle(cls, tx_id: str) -> AtomicSwapCtrt.DBKey:
+        def for_swap_puzzle(cls, tx_id: str) -> AtomicSwapCtrt.DBKey:
             """
-            for_puzzle gets the AtomicSwapCtrt.DBKey object for querying the hashed puzzle.
+            for_swap_puzzle gets the AtomicSwapCtrt.DBKey object for querying the hashed puzzle.
 
             Args:
                 tx_id (str): The lock transaction id.
@@ -300,9 +300,9 @@ class AtomicSwapCtrt(Ctrt):
         tc = await self.tok_ctrt
         return await tc.unit
 
-    async def get_swap_balance(self, addr: str) -> md.Token:
+    async def get_ctrt_bal(self, addr: str) -> md.Token:
         """
-        get_swap_balance queries & returns the balance of the token deposited into the contract.
+        get_ctrt_bal queries & returns the balance of the token deposited into the contract.
 
         Args:
             addr (str): The account address that deposits the token.
@@ -310,7 +310,7 @@ class AtomicSwapCtrt(Ctrt):
         Returns:
             md.Token: The balance of the token.
         """
-        raw_val = await self._query_db_key(self.DBKey.for_token_balance(addr))
+        raw_val = await self._query_db_key(self.DBKey.for_contract_balance(addr))
         unit = await self.unit
         return md.Token(data=raw_val, unit=unit)
 
@@ -350,7 +350,7 @@ class AtomicSwapCtrt(Ctrt):
         Returns:
             str: The puzzle.
         """
-        puzzle = await self._query_db_key(self.DBKey.for_puzzle(tx_id))
+        puzzle = await self._query_db_key(self.DBKey.for_swap_puzzle(tx_id))
         return puzzle
 
     async def get_swap_amount(self, tx_id: str) -> md.Token:

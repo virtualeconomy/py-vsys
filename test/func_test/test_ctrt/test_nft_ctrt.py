@@ -204,7 +204,7 @@ class TestNFTCtrt:
         tok_bal = await cft.get_tok_bal(api, acnt0.addr.data, tok_id.data)
         assert tok_bal == 0
 
-        deposited_tok_bal = await ac.get_swap_balance(acnt0.addr.data)
+        deposited_tok_bal = await ac.get_ctrt_bal(acnt0.addr.data)
         assert deposited_tok_bal.amount == 1
 
         await nc.withdraw(acnt0, ac.ctrt_id, 0)
@@ -213,7 +213,7 @@ class TestNFTCtrt:
         tok_bal = await cft.get_tok_bal(api, acnt0.addr.data, tok_id.data)
         assert tok_bal == 1
 
-        deposited_tok_bal = await ac.get_swap_balance(acnt0.addr.data)
+        deposited_tok_bal = await ac.get_ctrt_bal(acnt0.addr.data)
         assert deposited_tok_bal.amount == 0
 
     async def test_supersede(
