@@ -2,7 +2,7 @@
 atomic_swap_ctrt contains Atomic Swap contract.
 """
 from __future__ import annotations
-from typing import TYPE_CHECKING, Dict, Any, Union
+from typing import TYPE_CHECKING, Dict, Any, Union, Optional
 
 from loguru import logger
 import base58
@@ -10,13 +10,14 @@ import base58
 # https://stackoverflow.com/a/39757388
 if TYPE_CHECKING:
     from py_v_sdk import account as acnt
+    from py_v_sdk import chain as ch
 
 from py_v_sdk import data_entry as de
 from py_v_sdk import tx_req as tx
 from py_v_sdk import model as md
 from py_v_sdk.contract import tok_ctrt_factory as tcf
 from py_v_sdk.utils.crypto import hashes as hs
-from . import CtrtMeta, Ctrt
+from . import CtrtMeta, Ctrt, BaseTokCtrt
 
 
 class AtomicSwapCtrt(Ctrt):
@@ -204,6 +205,16 @@ class AtomicSwapCtrt(Ctrt):
             ).serialize()
             return cls(b)
 
+    def __init__(self, ctrt_id: str, chain: ch.Chain) -> None:
+        """
+        Args:
+            ctrt_id (str): The id of the contract.
+            chain (ch.Chain): The object of the chain where the contract is on.
+        """
+        super().__init__(ctrt_id, chain)
+        self._tok_id: Optional[md.TokenID] = None
+        self._tok_ctrt: Optional[BaseTokCtrt] = None
+
     @classmethod
     async def register(
         cls,
@@ -260,8 +271,23 @@ class AtomicSwapCtrt(Ctrt):
         Returns:
             md.TokenID: The token_id of the contract.
         """
-        raw_val = await self._query_db_key(self.DBKey.for_token_id())
-        return md.TokenID(raw_val)
+        if not self._tok_id:
+            raw_val = await self._query_db_key(self.DBKey.for_token_id())
+            self._tok_id = md.TokenID(raw_val)
+        return self._tok_id
+
+    @property
+    async def tok_ctrt(self) -> BaseTokCtrt:
+        """
+        tok_ctrt returns the token contract instance for the token used in the contract.
+
+        Returns:
+            BaseTokCtrt: The token contract instance.
+        """
+        if not self._tok_ctrt:
+            tok_id = await self.tok_id
+            self._tok_ctrt = await tcf.from_tok_id(tok_id, self.chain)
+        return self._tok_ctrt
 
     @property
     async def unit(self) -> int:
@@ -271,9 +297,7 @@ class AtomicSwapCtrt(Ctrt):
         Returns:
             int: The token unit.
         """
-        tok_id = await self.tok_id
-
-        tc = await tcf.from_tok_id(tok_id, self.chain)
+        tc = await self.tok_ctrt
         return await tc.unit
 
     async def get_swap_balance(self, addr: str) -> md.Token:
@@ -396,9 +420,7 @@ class AtomicSwapCtrt(Ctrt):
         """
         puzzle_bytes = hs.sha256_hash(secret.encode("latin-1"))
 
-        tok_id = await self.tok_id
-        resp = await by.chain.api.ctrt.get_tok_info(tok_id)
-        unit = resp["unity"]
+        unit = await self.unit
 
         data = await by._execute_contract(
             tx.ExecCtrtFuncTxReq(
@@ -453,9 +475,7 @@ class AtomicSwapCtrt(Ctrt):
         hashed_secret_b58str = data["value"]
         puzzle_bytes = base58.b58decode(hashed_secret_b58str)
 
-        tok_id = await self.tok_id
-        resp = await by.chain.api.ctrt.get_tok_info(tok_id)
-        unit = resp["unity"]
+        unit = await self.unit
 
         data = await by._execute_contract(
             tx.ExecCtrtFuncTxReq(
