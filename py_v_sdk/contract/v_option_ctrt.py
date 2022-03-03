@@ -446,15 +446,15 @@ class VOptionCtrt(Ctrt):
         return md.Token(a)
 
     @property
-    async def token_locked(self) -> md.Addr:
+    async def token_locked(self) -> md.Token:
         """
-        token_locked queries & returns the address of the contract creator.
+        token_locked queries & returns the locked token amount.
 
         Returns:
-            md.Addr: The address of the contract creator.
+            md.Addr: The lock token amount.
         """
-        addr = await self._query_db_key(self.DBKey.for_token_locked())
-        return md.Addr(addr)
+        a = await self._query_db_key(self.DBKey.for_token_locked())
+        return md.Token(a, await self.target_tok_unit)
 
     @property
     async def token_collected(self) -> md.Token:
@@ -523,7 +523,7 @@ class VOptionCtrt(Ctrt):
             addr (str): The account address that deposits the token.
 
         Returns:
-            md.Token: The balance of the token.
+            md.Token: The balance of the base token.
         """
         bal = await self._query_db_key(self.DBKey.for_base_token_balance(addr))
 
@@ -537,7 +537,7 @@ class VOptionCtrt(Ctrt):
             addr (str): The account address that deposits the token.
 
         Returns:
-            md.Token: The balance of the token.
+            md.Token: The balance of the target token.
         """
         bal = await self._query_db_key(self.DBKey.for_target_token_balance(addr))
         return md.Token.for_amount(bal, await self.target_tok_unit)
@@ -550,7 +550,7 @@ class VOptionCtrt(Ctrt):
             addr (str): The account address that deposits the token.
 
         Returns:
-            md.Token: The balance of the token.
+            md.Token: The balance of the option token.
         """
         bal = await self._query_db_key(self.DBKey.for_option_token_balance(addr))
 
@@ -564,7 +564,7 @@ class VOptionCtrt(Ctrt):
             addr (str): The account address that deposits the token.
 
         Returns:
-            md.Token: The balance of the token.
+            md.Token: The balance of the proof token.
         """
         bal = await self._query_db_key(self.DBKey.for_proof_token_balance(addr))
         return md.Token.for_amount(bal, await self.proof_tok_unit)
