@@ -80,12 +80,12 @@ class SysCtrt(BaseTokCtrt):
         self._tok_id = ""
 
     @property
-    def tok_id(self) -> str:
+    def tok_id(self) -> md.TokenID:
         """
         tok_id returns the token ID of the contract.
 
         Returns:
-            str: The token ID.
+            md.TokenID: The token ID.
         """
         if not self._tok_id:
             self._tok_id = self.get_tok_id(self.ctrt_id, 0)
@@ -211,7 +211,7 @@ class SysCtrt(BaseTokCtrt):
             Dict[str, Any]: The response returned by the Node API
         """
 
-        sender_md = md.Addr(by.addr.b58_str)
+        sender_md = md.Addr(by.addr.data)
         sender_md.must_on(by.chain)
 
         data = await by._execute_contract(
@@ -253,7 +253,7 @@ class SysCtrt(BaseTokCtrt):
             Dict[str, Any]: The response returned by the Node API
         """
 
-        rcpt_md = md.Addr(by.addr.b58_str)
+        rcpt_md = md.Addr(by.addr.data)
         rcpt_md.must_on(by.chain)
 
         data = await by._execute_contract(

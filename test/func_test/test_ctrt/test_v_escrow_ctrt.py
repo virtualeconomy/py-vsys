@@ -51,7 +51,7 @@ class TestVEscrowCtrt:
 
         vc = await pv.VEscrowCtrt.register(
             by=maker,
-            tok_id=sc.tok_id,
+            tok_id=sc.tok_id.data,
             duration=duration,
             judge_duration=duration,
         )
@@ -94,7 +94,7 @@ class TestVEscrowCtrt:
 
         resp = await vc.create(
             by=payer,
-            recipient=recipient.addr.b58_str,
+            recipient=recipient.addr.data,
             amount=self.ORDER_AMOUNT,
             rcpt_deposit_amount=self.RCPT_DEPOSIT_AMOUNT,
             judge_deposit_amount=self.JUDGE_DEPOSIT_AMOUNT,
@@ -394,11 +394,10 @@ class TestVEscrowCtrt:
         sc = new_sys_ctrt
         vc = new_ctrt
 
-        assert (await vc.maker).data == maker.addr.b58_str
-        assert (await vc.judge).data == maker.addr.b58_str
+        assert (await vc.maker) == maker.addr
+        assert (await vc.judge) == maker.addr
 
-        tok_id = await vc.tok_id
-        assert tok_id.data == sc.tok_id
+        assert (await vc.tok_id) == sc.tok_id
 
         duration = await vc.duration
         assert duration.unix_ts == self.DURATION
@@ -430,14 +429,14 @@ class TestVEscrowCtrt:
         api = acnt0.api
 
         judge = await vc.judge
-        assert judge.data == acnt0.addr.b58_str
+        assert judge == acnt0.addr
 
-        resp = await vc.supersede(acnt0, acnt1.addr.b58_str)
+        resp = await vc.supersede(acnt0, acnt1.addr.data)
         await cft.wait_for_block()
         await cft.assert_tx_success(api, resp["id"])
 
         judge = await vc.judge
-        assert judge.data == acnt1.addr.b58_str
+        assert judge == acnt1.addr
 
     async def test_create(
         self,
@@ -465,7 +464,7 @@ class TestVEscrowCtrt:
 
         resp = await vc.create(
             by=payer,
-            recipient=recipient.addr.b58_str,
+            recipient=recipient.addr.data,
             amount=self.ORDER_AMOUNT,
             rcpt_deposit_amount=self.RCPT_DEPOSIT_AMOUNT,
             judge_deposit_amount=self.JUDGE_DEPOSIT_AMOUNT,
@@ -478,8 +477,8 @@ class TestVEscrowCtrt:
 
         order_id = resp["id"]
 
-        assert (await vc.get_order_payer(order_id)).data == payer.addr.b58_str
-        assert (await vc.get_order_recipient(order_id)).data == recipient.addr.b58_str
+        assert (await vc.get_order_payer(order_id)) == payer.addr
+        assert (await vc.get_order_recipient(order_id)) == recipient.addr
         assert (await vc.get_order_amount(order_id)).amount == self.ORDER_AMOUNT
         assert (
             await vc.get_order_recipient_deposit(order_id)
@@ -680,7 +679,7 @@ class TestVEscrowCtrt:
         api = payer.api
 
         rcpt_bal_old, judge_bal_old = await asyncio.gather(
-            vc.get_ctrt_bal(recipient.addr.b58_str), vc.get_ctrt_bal(judge.addr.b58_str)
+            vc.get_ctrt_bal(recipient.addr.data), vc.get_ctrt_bal(judge.addr.data)
         )
 
         assert (await vc.get_order_status(order_id)) is True
@@ -696,8 +695,8 @@ class TestVEscrowCtrt:
             vc.get_order_fee(order_id),
             vc.get_order_recipient_deposit(order_id),
             vc.get_order_judge_deposit(order_id),
-            vc.get_ctrt_bal(recipient.addr.b58_str),
-            vc.get_ctrt_bal(judge.addr.b58_str),
+            vc.get_ctrt_bal(recipient.addr.data),
+            vc.get_ctrt_bal(judge.addr.data),
         )
 
         assert (
@@ -727,9 +726,9 @@ class TestVEscrowCtrt:
         api = payer.api
 
         payer_bal_old, rcpt_bal_old, judge_bal_old = await asyncio.gather(
-            vc.get_ctrt_bal(payer.addr.b58_str),
-            vc.get_ctrt_bal(recipient.addr.b58_str),
-            vc.get_ctrt_bal(judge.addr.b58_str),
+            vc.get_ctrt_bal(payer.addr.data),
+            vc.get_ctrt_bal(recipient.addr.data),
+            vc.get_ctrt_bal(judge.addr.data),
         )
         assert (await vc.get_order_status(order_id)) is True
 
@@ -752,9 +751,9 @@ class TestVEscrowCtrt:
         fee, judge_dep, payer_bal, rcpt_bal, judge_bal = await asyncio.gather(
             vc.get_order_fee(order_id),
             vc.get_order_judge_deposit(order_id),
-            vc.get_ctrt_bal(payer.addr.b58_str),
-            vc.get_ctrt_bal(recipient.addr.b58_str),
-            vc.get_ctrt_bal(judge.addr.b58_str),
+            vc.get_ctrt_bal(payer.addr.data),
+            vc.get_ctrt_bal(recipient.addr.data),
+            vc.get_ctrt_bal(judge.addr.data),
         )
 
         assert payer_bal.amount - payer_bal_old.amount == to_payer
@@ -779,8 +778,8 @@ class TestVEscrowCtrt:
         api = payer.api
 
         payer_bal_old, judge_bal_old, expire_at = await asyncio.gather(
-            vc.get_ctrt_bal(payer.addr.b58_str),
-            vc.get_ctrt_bal(judge.addr.b58_str),
+            vc.get_ctrt_bal(payer.addr.data),
+            vc.get_ctrt_bal(judge.addr.data),
             vc.get_order_expiration_time(order_id),
         )
         assert (await vc.get_order_status(order_id)) is True
@@ -800,8 +799,8 @@ class TestVEscrowCtrt:
             vc.get_order_recipient_deposit(order_id),
             vc.get_order_fee(order_id),
             vc.get_order_judge_deposit(order_id),
-            vc.get_ctrt_bal(payer.addr.b58_str),
-            vc.get_ctrt_bal(judge.addr.b58_str),
+            vc.get_ctrt_bal(payer.addr.data),
+            vc.get_ctrt_bal(judge.addr.data),
         )
 
         assert (
@@ -827,8 +826,8 @@ class TestVEscrowCtrt:
         api = payer.api
 
         payer_bal_old, rcpt_bal_old, expire_at = await asyncio.gather(
-            vc.get_ctrt_bal(payer.addr.b58_str),
-            vc.get_ctrt_bal(recipient.addr.b58_str),
+            vc.get_ctrt_bal(payer.addr.data),
+            vc.get_ctrt_bal(recipient.addr.data),
             vc.get_order_expiration_time(order_id),
         )
         assert (await vc.get_order_status(order_id)) is True
@@ -850,8 +849,8 @@ class TestVEscrowCtrt:
         payer_refund, rcpt_refund, payer_bal, rcpt_bal = await asyncio.gather(
             vc.get_order_refund(order_id),
             vc.get_order_recipient_refund(order_id),
-            vc.get_ctrt_bal(payer.addr.b58_str),
-            vc.get_ctrt_bal(recipient.addr.b58_str),
+            vc.get_ctrt_bal(payer.addr.data),
+            vc.get_ctrt_bal(recipient.addr.data),
         )
 
         assert payer_bal.amount - payer_bal_old.amount == payer_refund.amount
@@ -875,8 +874,8 @@ class TestVEscrowCtrt:
         api = payer.api
 
         payer_bal_old, rcpt_bal_old, expire_at = await asyncio.gather(
-            vc.get_ctrt_bal(payer.addr.b58_str),
-            vc.get_ctrt_bal(recipient.addr.b58_str),
+            vc.get_ctrt_bal(payer.addr.data),
+            vc.get_ctrt_bal(recipient.addr.data),
             vc.get_order_expiration_time(order_id),
         )
         assert (await vc.get_order_status(order_id)) is True
@@ -898,8 +897,8 @@ class TestVEscrowCtrt:
         payer_refund, rcpt_refund, payer_bal, rcpt_bal = await asyncio.gather(
             vc.get_order_refund(order_id),
             vc.get_order_recipient_refund(order_id),
-            vc.get_ctrt_bal(payer.addr.b58_str),
-            vc.get_ctrt_bal(recipient.addr.b58_str),
+            vc.get_ctrt_bal(payer.addr.data),
+            vc.get_ctrt_bal(recipient.addr.data),
         )
 
         assert payer_bal.amount - payer_bal_old.amount == payer_refund.amount
@@ -923,8 +922,8 @@ class TestVEscrowCtrt:
         api = recipient.api
 
         rcpt_bal_old, judge_bal_old, expire_at = await asyncio.gather(
-            vc.get_ctrt_bal(recipient.addr.b58_str),
-            vc.get_ctrt_bal(judge.addr.b58_str),
+            vc.get_ctrt_bal(recipient.addr.data),
+            vc.get_ctrt_bal(judge.addr.data),
             vc.get_order_expiration_time(order_id),
         )
         assert (await vc.get_order_status(order_id)) is True
@@ -939,10 +938,10 @@ class TestVEscrowCtrt:
         assert (await vc.get_order_status(order_id)) is False
 
         rcpt_bal, rcpt_amt, rcpt_dep, judge_bal, fee, judge_dep = await asyncio.gather(
-            vc.get_ctrt_bal(recipient.addr.b58_str),
+            vc.get_ctrt_bal(recipient.addr.data),
             vc.get_order_recipient_amount(order_id),
             vc.get_order_recipient_deposit(order_id),
-            vc.get_ctrt_bal(judge.addr.b58_str),
+            vc.get_ctrt_bal(judge.addr.data),
             vc.get_order_fee(order_id),
             vc.get_order_judge_deposit(order_id),
         )

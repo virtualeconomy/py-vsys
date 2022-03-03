@@ -109,17 +109,17 @@ class Wallet:
         return md.Seed(s)
 
     @staticmethod
-    def get_key_pair(acnt_seed_hash: bytes) -> md.KeyPair:
+    def get_key_pair(acnt_seed_hash: md.Bytes) -> md.KeyPair:
         """
         get_key_pair generates a key pair based on the given account seed hash.
 
         Args:
-            acnt_seed_hash (bytes): The account seed hash.
+            acnt_seed_hash (md.Bytes): The account seed hash.
 
         Returns:
             md.KeyPair: The generated key pair.
         """
-        pri_key = curve.gen_pri_key(acnt_seed_hash)
+        pri_key = curve.gen_pri_key(acnt_seed_hash.data)
         pub_key = curve.gen_pub_key(pri_key)
 
         return md.KeyPair(
@@ -128,45 +128,49 @@ class Wallet:
         )
 
     @staticmethod
-    def get_addr(pub_key: bytes, addr_ver: int, chain_id: ch.ChainID) -> md.Bytes:
+    def get_addr(pub_key: md.PubKey, addr_ver: int, chain_id: ch.ChainID) -> md.Addr:
         """
         get_addr generates the address based on the given data.
 
         Args:
-            pub_key (bytes): The public key.
+            pub_key (md.PubKey): The public key.
             addr_ver (int): The address version.
             chain_id (ch.ChainID): The chain ID.
 
         Returns:
-            md.Bytes: The generated address.
+            md.Addr: The generated address.
         """
 
         def ke_bla_hash(b: bytes) -> bytes:
             return hs.keccak256_hash(hs.blake2b_hash(b))
 
         raw_addr: str = (
-            chr(addr_ver) + chain_id.value + ke_bla_hash(pub_key).decode("latin-1")[:20]
+            chr(addr_ver)
+            + chain_id.value
+            + ke_bla_hash(pub_key.bytes).decode("latin-1")[:20]
         )
 
         checksum: str = ke_bla_hash(raw_addr.encode("latin-1")).decode("latin-1")[:4]
 
         b = bytes((raw_addr + checksum).encode("latin-1"))
-        return md.Bytes(b)
+        return md.Addr.from_bytes(b)
 
     @staticmethod
-    def get_acnt_seed_hash(seed: str, nonce: int) -> md.Bytes:
+    def get_acnt_seed_hash(seed: md.Seed, nonce: md.Nonce) -> md.Bytes:
         """
         get_acnt_seed_hash generates account seed hash based on the given seed & nonce.
 
         Args:
-            seed (str): The account seed.
-            nonce (int): The account nonce.
+            seed (md.Seed): The account seed.
+            nonce (md.Nonce): The account nonce.
 
         Returns:
             md.Bytes: The generated account seed hash.
         """
         b = hs.sha256_hash(
-            hs.keccak256_hash(hs.blake2b_hash(f"{nonce}{seed}".encode("latin-1")))
+            hs.keccak256_hash(
+                hs.blake2b_hash(f"{nonce.data}{seed.data}".encode("latin-1"))
+            )
         )
         return md.Bytes(b)
 
@@ -189,10 +193,10 @@ class Account:
         self._wallet = wallet
         self._nonce = md.Nonce(nonce)
 
-        self._acnt_seed_hash = wallet.get_acnt_seed_hash(wallet.seed.data, nonce)
-        self._key_pair = wallet.get_key_pair(self._acnt_seed_hash.data)
+        self._acnt_seed_hash = wallet.get_acnt_seed_hash(wallet.seed, self._nonce)
+        self._key_pair = wallet.get_key_pair(self._acnt_seed_hash)
         self._addr = wallet.get_addr(
-            self.key_pair.pub.bytes, self.ADDR_VER, self.chain.chain_id
+            self.key_pair.pub, self.ADDR_VER, self.chain.chain_id
         )
 
     @property
@@ -256,12 +260,12 @@ class Account:
         return self._key_pair
 
     @property
-    def addr(self) -> md.Bytes:
+    def addr(self) -> md.Addr:
         """
         addr returns the account's address.
 
         Returns:
-            md.Bytes: The account's address.
+            md.Addr: The account's address.
         """
         return self._addr
 
@@ -274,7 +278,7 @@ class Account:
         Returns:
             md.VSYS: The account's balance.
         """
-        resp = await self.api.addr.get_balance_details(self.addr.b58_str)
+        resp = await self.api.addr.get_balance_details(self.addr.data)
         return md.VSYS(resp["regular"])
 
     @property
@@ -286,7 +290,7 @@ class Account:
         Returns:
             md.VSYS: The account's available balance.
         """
-        resp = await self.api.addr.get_balance_details(self.addr.b58_str)
+        resp = await self.api.addr.get_balance_details(self.addr.data)
         return md.VSYS(resp["available"])
 
     @property
@@ -299,7 +303,7 @@ class Account:
         Returns:
             md.VSYS: The account's effective balance.
         """
-        resp = await self.api.addr.get_balance_details(self.addr.b58_str)
+        resp = await self.api.addr.get_balance_details(self.addr.data)
         return md.VSYS(resp["effective"])
 
     async def _pay(self, req: tx.PaymentTxReq) -> Dict[str, Any]:

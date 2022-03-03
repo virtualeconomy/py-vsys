@@ -18,7 +18,7 @@ class TestVSwapCtrt:
     MIN_LIQ = 10
     INIT_AMOUNT = 10_000
 
-    async def new_tok_ctrt(self, acnt0: pv.Account) -> pv.TokenCtrtWithoutSplit:
+    async def new_tok_ctrt(self, acnt0: pv.Account) -> pv.TokCtrtWithoutSplit:
         """
         new_tok_ctrt is the fixture that registers a new token contract without split
         to be used in a V Swap contract.
@@ -27,11 +27,11 @@ class TestVSwapCtrt:
             acnt0 (pv.Account): The account of nonce 0.
 
         Returns:
-            pv.TokenCtrtWithoutSplit: The TokenCtrtWithoutSplit instance.
+            pv.TokCtrtWithoutSplit: The TokCtrtWithoutSplit instance.
         """
         api = acnt0.api
 
-        tc = await pv.TokenCtrtWithoutSplit.register(
+        tc = await pv.TokCtrtWithoutSplit.register(
             by=acnt0,
             max=self.TOK_MAX,
             unit=self.TOK_UNIT,
@@ -69,17 +69,17 @@ class TestVSwapCtrt:
         )
 
         await asyncio.gather(
-            tca.send(acnt0, acnt1.addr.b58_str, self.HALF_TOK_MAX),
-            tcb.send(acnt0, acnt1.addr.b58_str, self.HALF_TOK_MAX),
+            tca.send(acnt0, acnt1.addr.data, self.HALF_TOK_MAX),
+            tcb.send(acnt0, acnt1.addr.data, self.HALF_TOK_MAX),
         )
 
         await cft.wait_for_block()
 
         vc = await pv.VSwapCtrt.register(
             by=acnt0,
-            tok_a_id=tca.tok_id,
-            tok_b_id=tcb.tok_id,
-            liq_tok_id=tcl.tok_id,
+            tok_a_id=tca.tok_id.data,
+            tok_b_id=tcb.tok_id.data,
+            liq_tok_id=tcl.tok_id.data,
             min_liq=self.MIN_LIQ,
         )
         await cft.wait_for_block()
@@ -118,13 +118,13 @@ class TestVSwapCtrt:
         vc = new_ctrt
         api = vc.chain.api
 
-        assert (await vc.maker) == acnt0.addr.b58_str
+        assert (await vc.maker) == acnt0.addr
 
-        resp = await vc.supersede(acnt0, acnt1.addr.b58_str)
+        resp = await vc.supersede(acnt0, acnt1.addr.data)
         await cft.wait_for_block()
         await cft.assert_tx_success(api, resp["id"])
 
-        assert (await vc.maker) == acnt1.addr.b58_str
+        assert (await vc.maker) == acnt1.addr
 
     async def test_set_swap(self, new_ctrt: pv.VSwapCtrt, acnt0: pv.Account):
         """
@@ -220,9 +220,9 @@ class TestVSwapCtrt:
             vc.liq_tok_left,
         )
 
-        assert tok_a_reserved == tok_a_reserved_old + DELTA * self.TOK_UNIT
-        assert tok_b_reserved == tok_b_reserved_old + DELTA * self.TOK_UNIT
-        assert liq_tok_left == liq_tok_left_old - DELTA * self.TOK_UNIT
+        assert tok_a_reserved.amount == tok_a_reserved_old.amount + DELTA
+        assert tok_b_reserved.amount == tok_b_reserved_old.amount + DELTA
+        assert liq_tok_left.amount == liq_tok_left_old.amount - DELTA
 
     async def test_remove_liquidity(
         self, new_ctrt_with_pool: pv.VSwapCtrt, acnt0: pv.Account
@@ -264,13 +264,13 @@ class TestVSwapCtrt:
             vc.liq_tok_left,
         )
 
-        assert liq_tok_left == liq_tok_left_old + DELTA * self.TOK_UNIT
+        assert liq_tok_left.amount == liq_tok_left_old.amount + DELTA
 
-        tok_a_redeemed = tok_a_reserved_old - tok_a_reserved
-        tok_b_redeemed = tok_b_reserved_old - tok_b_reserved
+        tok_a_redeemed = tok_a_reserved_old.amount - tok_a_reserved.amount
+        tok_b_redeemed = tok_b_reserved_old.amount - tok_b_reserved.amount
 
-        assert tok_a_redeemed >= DELTA * self.TOK_UNIT
-        assert tok_b_redeemed >= DELTA * self.TOK_UNIT
+        assert tok_a_redeemed >= DELTA
+        assert tok_b_redeemed >= DELTA
 
     async def test_swap_b_for_exact_a(
         self,
@@ -288,8 +288,8 @@ class TestVSwapCtrt:
         api = vc.chain.api
 
         bal_a_old, bal_b_old = await asyncio.gather(
-            vc.get_tok_a_bal(acnt1.addr.b58_str),
-            vc.get_tok_b_bal(acnt1.addr.b58_str),
+            vc.get_tok_a_bal(acnt1.addr.data),
+            vc.get_tok_b_bal(acnt1.addr.data),
         )
 
         amount_a = 10
@@ -307,12 +307,12 @@ class TestVSwapCtrt:
         await cft.assert_tx_success(api, resp["id"]),
 
         bal_a, bal_b = await asyncio.gather(
-            vc.get_tok_a_bal(acnt1.addr.b58_str),
-            vc.get_tok_b_bal(acnt1.addr.b58_str),
+            vc.get_tok_a_bal(acnt1.addr.data),
+            vc.get_tok_b_bal(acnt1.addr.data),
         )
 
-        assert bal_a == bal_a_old + amount_a * self.TOK_UNIT
-        assert bal_b_old - bal_b <= amount_b_max * self.TOK_UNIT
+        assert bal_a.amount == bal_a_old.amount + amount_a
+        assert bal_b_old.amount - bal_b.amount <= amount_b_max
 
     async def test_swap_exact_b_for_a(
         self,
@@ -331,8 +331,8 @@ class TestVSwapCtrt:
         api = vc.chain.api
 
         bal_a_old, bal_b_old = await asyncio.gather(
-            vc.get_tok_a_bal(acnt1.addr.b58_str),
-            vc.get_tok_b_bal(acnt1.addr.b58_str),
+            vc.get_tok_a_bal(acnt1.addr.data),
+            vc.get_tok_b_bal(acnt1.addr.data),
         )
 
         amount_a_min = 10
@@ -350,12 +350,12 @@ class TestVSwapCtrt:
         await cft.assert_tx_success(api, resp["id"]),
 
         bal_a, bal_b = await asyncio.gather(
-            vc.get_tok_a_bal(acnt1.addr.b58_str),
-            vc.get_tok_b_bal(acnt1.addr.b58_str),
+            vc.get_tok_a_bal(acnt1.addr.data),
+            vc.get_tok_b_bal(acnt1.addr.data),
         )
 
-        assert bal_a - bal_a_old >= amount_a_min
-        assert bal_b == bal_b_old - amount_b * self.TOK_UNIT
+        assert bal_a.amount - bal_a_old.amount >= amount_a_min
+        assert bal_b.amount == bal_b_old.amount - amount_b
 
     async def test_swap_a_for_exact_b(
         self,
@@ -374,8 +374,8 @@ class TestVSwapCtrt:
         api = vc.chain.api
 
         bal_a_old, bal_b_old = await asyncio.gather(
-            vc.get_tok_a_bal(acnt1.addr.b58_str),
-            vc.get_tok_b_bal(acnt1.addr.b58_str),
+            vc.get_tok_a_bal(acnt1.addr.data),
+            vc.get_tok_b_bal(acnt1.addr.data),
         )
 
         amount_a_max = 20
@@ -393,12 +393,12 @@ class TestVSwapCtrt:
         await cft.assert_tx_success(api, resp["id"]),
 
         bal_a, bal_b = await asyncio.gather(
-            vc.get_tok_a_bal(acnt1.addr.b58_str),
-            vc.get_tok_b_bal(acnt1.addr.b58_str),
+            vc.get_tok_a_bal(acnt1.addr.data),
+            vc.get_tok_b_bal(acnt1.addr.data),
         )
 
-        assert bal_a_old - bal_a <= amount_a_max * self.TOK_UNIT
-        assert bal_b == bal_b_old + amount_b * self.TOK_UNIT
+        assert bal_a_old.amount - bal_a.amount <= amount_a_max
+        assert bal_b.amount == bal_b_old.amount + amount_b
 
     async def test_swap_exact_a_for_b(
         self,
@@ -417,8 +417,8 @@ class TestVSwapCtrt:
         api = vc.chain.api
 
         bal_a_old, bal_b_old = await asyncio.gather(
-            vc.get_tok_a_bal(acnt1.addr.b58_str),
-            vc.get_tok_b_bal(acnt1.addr.b58_str),
+            vc.get_tok_a_bal(acnt1.addr.data),
+            vc.get_tok_b_bal(acnt1.addr.data),
         )
 
         amount_a = 20
@@ -436,12 +436,12 @@ class TestVSwapCtrt:
         await cft.assert_tx_success(api, resp["id"]),
 
         bal_a, bal_b = await asyncio.gather(
-            vc.get_tok_a_bal(acnt1.addr.b58_str),
-            vc.get_tok_b_bal(acnt1.addr.b58_str),
+            vc.get_tok_a_bal(acnt1.addr.data),
+            vc.get_tok_b_bal(acnt1.addr.data),
         )
 
-        assert bal_a == bal_a_old - amount_a * self.TOK_UNIT
-        assert bal_b - bal_b_old >= amount_b_min
+        assert bal_a.amount == bal_a_old.amount - amount_a
+        assert bal_b.amount - bal_b_old.amount >= amount_b_min
 
     @pytest.mark.whole
     async def test_as_whole(

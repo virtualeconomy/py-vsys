@@ -28,7 +28,7 @@ class TokCtrtType(enum.Enum):
     TOK_NO_SPLIT = "TokenContract"
     TOK_WITH_SPLIT = "TokenContractWithSplit"
     TOK_V2_WHITELIST = "TokenContractWithWhitelist"
-    TOK_V2_BLACKLIST = "TokenCtrtWithoutSplitV2BlackList"
+    TOK_V2_BLACKLIST = "TokenContractWithBlacklist"
 
 
 class TokCtrtMap:
@@ -40,10 +40,10 @@ class TokCtrtMap:
         TokCtrtType.NFT: nft_ctrt.NFTCtrt,
         TokCtrtType.NFT_V2_BLACKLIST: nft_ctrt.NFTCtrtV2Blacklist,
         TokCtrtType.NFT_V2_WHITELIST: nft_ctrt.NFTCtrtV2Whitelist,
-        TokCtrtType.TOK_NO_SPLIT: tok_ctrt.TokenCtrtWithoutSplit,
-        TokCtrtType.TOK_WITH_SPLIT: tok_ctrt.TokenCtrtWithSplit,
-        TokCtrtType.TOK_V2_WHITELIST: tok_ctrt.TokenCtrtWithoutSplitV2WhiteList,
-        TokCtrtType.TOK_V2_BLACKLIST: tok_ctrt.TokenCtrtWithoutSplitV2BlackList,
+        TokCtrtType.TOK_NO_SPLIT: tok_ctrt.TokCtrtWithoutSplit,
+        TokCtrtType.TOK_WITH_SPLIT: tok_ctrt.TokCtrtWithSplit,
+        TokCtrtType.TOK_V2_WHITELIST: tok_ctrt.TokCtrtWithoutSplitV2Whitelist,
+        TokCtrtType.TOK_V2_BLACKLIST: tok_ctrt.TokCtrtWithoutSplitV2Blacklist,
     }
 
     @classmethod
@@ -71,6 +71,7 @@ async def from_tok_id(tok_id: md.TokenID, chain: ch.Chain) -> BaseTokCtrt:
     ctrt_id = tok_info["contractId"]
 
     ctrt_info = await chain.api.ctrt.get_ctrt_info(ctrt_id)
+
     type = TokCtrtType(ctrt_info["type"])
 
     cls = TokCtrtMap.get_tok_ctrt_cls(type)

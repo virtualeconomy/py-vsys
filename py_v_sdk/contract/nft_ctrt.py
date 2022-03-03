@@ -108,24 +108,26 @@ class NFTCtrt(BaseTokCtrt):
         )
 
     @property
-    async def issuer(self) -> str:
+    async def issuer(self) -> md.Addr:
         """
         issuer queries & returns the issuer of the contract.
 
         Returns:
-            str: The address of the issuer of the contract.
+            md.Addr: The address of the issuer of the contract.
         """
-        return await self._query_db_key(self.DBKey.for_issuer())
+        raw_val = await self._query_db_key(self.DBKey.for_issuer())
+        return md.Addr(raw_val)
 
     @property
-    async def maker(self) -> str:
+    async def maker(self) -> md.Addr:
         """
         maker queries & returns the maker of the contract.
 
         Returns:
-            str: The address of the maker of the contract.
+            md.Addr: The address of the maker of the contract.
         """
-        return await self._query_db_key(self.DBKey.for_maker())
+        raw_val = await self._query_db_key(self.DBKey.for_maker())
+        return md.Addr(raw_val)
 
     @property
     async def unit(self) -> int:
@@ -285,7 +287,7 @@ class NFTCtrt(BaseTokCtrt):
                 ctrt_id=self._ctrt_id,
                 func_id=self.FuncIdx.DEPOSIT,
                 data_stack=de.DataStack(
-                    de.Addr(md.Addr(by.addr.b58_str)),
+                    de.Addr(md.Addr(by.addr.data)),
                     de.CtrtAcnt(md.CtrtID(ctrt_id)),
                     de.INT32(md.TokenIdx(tok_idx)),
                 ),
@@ -324,7 +326,7 @@ class NFTCtrt(BaseTokCtrt):
                 func_id=self.FuncIdx.WITHDRAW,
                 data_stack=de.DataStack(
                     de.CtrtAcnt(md.CtrtID(ctrt_id)),
-                    de.Addr(md.Addr(by.addr.b58_str)),
+                    de.Addr(md.Addr(by.addr.data)),
                     de.INT32(md.TokenIdx(tok_idx)),
                 ),
                 timestamp=md.VSYSTimestamp.now(),
@@ -475,14 +477,15 @@ class NFTCtrtV2Whitelist(NFTCtrt):
             return cls._for_is_in_list(addr_de)
 
     @property
-    async def regulator(self) -> str:
+    async def regulator(self) -> md.Addr:
         """
         regulator queries & returns the regulator of the contract.
 
         Returns:
-            str: The address of the regulator of the contract.
+            md.Addr: The address of the regulator of the contract.
         """
-        return await self._query_db_key(self.DBKey.for_regulator())
+        raw_val = await self._query_db_key(self.DBKey.for_regulator())
+        return md.Addr(raw_val)
 
     async def _is_in_list(self, db_key: NFTCtrtV2Whitelist.DBKey) -> bool:
         """

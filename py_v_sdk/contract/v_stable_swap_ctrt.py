@@ -2,7 +2,8 @@
 v_stable_swap_ctrt contains V Stable Swap contract.
 """
 from __future__ import annotations
-from typing import TYPE_CHECKING, Dict, Union
+import asyncio
+from typing import TYPE_CHECKING, Dict, Union, Optional
 
 from loguru import logger
 
@@ -14,9 +15,8 @@ if TYPE_CHECKING:
 from py_v_sdk import data_entry as de
 from py_v_sdk import tx_req as tx
 from py_v_sdk import model as md
-from . import CtrtMeta, Ctrt
-
-import py_v_sdk as pv
+from py_v_sdk.contract import tok_ctrt_factory as tcf
+from . import CtrtMeta, Ctrt, BaseTokCtrt
 
 
 class VStableSwapCtrt(Ctrt):
@@ -403,35 +403,79 @@ class VStableSwapCtrt(Ctrt):
             ).serialize()
             return cls(b)
 
+    def __init__(self, ctrt_id: str, chain: ch.Chain) -> None:
+        """
+        Args:
+            ctrt_id (str): The id of the contract.
+            chain (ch.Chain): The object of the chain where the contract is on.
+        """
+        self._ctrt_id = md.CtrtID(ctrt_id)
+        self._chain = chain
+
+        self._base_tok_id: Optional[md.TokenID] = None
+        self._target_tok_id: Optional[md.TokenID] = None
+
+        self._base_tok_ctrt: Optional[BaseTokCtrt] = None
+        self._target_tok_ctrt: Optional[BaseTokCtrt] = None
+
     @property
-    async def maker(self) -> str:
+    async def maker(self) -> md.Addr:
         """
         maker queries & returns the maker of the contract.
 
         Returns:
-            str: The address of the maker of the contract.
+            md.Addr: The address of the maker of the contract.
         """
-        return await self._query_db_key(self.DBKey.for_maker())
+        raw_val = await self._query_db_key(self.DBKey.for_maker())
+        return md.Addr(raw_val)
 
     @property
-    async def base_token_id(self) -> md.TokenID:
+    async def base_tok_id(self) -> md.TokenID:
         """
-        base_token_id queries & returns the base token id.
+        base_tok_id queries & returns the base token id.
 
         Returns:
-            str: The base token id.
+            md.TokenID: The base token id.
         """
-        return await self._query_db_key(self.DBKey.for_base_token_id())
+        raw_val = await self._query_db_key(self.DBKey.for_base_token_id())
+        return md.TokenID(raw_val)
 
     @property
-    async def target_token_id(self) -> str:
+    async def target_tok_id(self) -> md.TokenID:
         """
-        target_token_id queries & returns the target token id.
+        target_tok_id queries & returns the target token id.
 
         Returns:
-            str: The target token id.
+            md.TokenID: The target token id.
         """
-        return await self._query_db_key(self.DBKey.for_target_token_id())
+        raw_val = await self._query_db_key(self.DBKey.for_target_token_id())
+        return md.TokenID(raw_val)
+
+    @property
+    async def base_tok_ctrt(self) -> BaseTokCtrt:
+        """
+        base_tok_ctrt returns the token contract instance for base token.
+
+        Returns:
+            BaseTokCtrt: The token contract intance.
+        """
+        if not self._base_tok_ctrt:
+            base_tok_id = await self.base_tok_id
+            self._base_tok_ctrt = await tcf.from_tok_id(base_tok_id, self.chain)
+        return self._base_tok_ctrt
+
+    @property
+    async def target_tok_ctrt(self) -> BaseTokCtrt:
+        """
+        target_tok_ctrt returns the token contract instance for target token.
+
+        Returns:
+            BaseTokCtrt: The token contract intance.
+        """
+        if not self._target_tok_ctrt:
+            target_tok_id = await self.target_tok_id
+            self._target_tok_ctrt = await tcf.from_tok_id(target_tok_id, self.chain)
+        return self._target_tok_ctrt
 
     @property
     async def base_tok_unit(self) -> int:
@@ -441,9 +485,8 @@ class VStableSwapCtrt(Ctrt):
         Returns:
             int: The unit of base token.
         """
-        tok_a_id = await self.base_token_id
-        data = await self.chain.api.ctrt.get_tok_info(tok_a_id)
-        return data["unity"]
+        tc = await self.base_tok_ctrt
+        return await tc.unit
 
     @property
     async def target_tok_unit(self) -> int:
@@ -453,9 +496,8 @@ class VStableSwapCtrt(Ctrt):
         Returns:
             int: The unit of target token.
         """
-        tok_b_id = await self.target_token_id
-        data = await self.chain.api.ctrt.get_tok_info(tok_b_id)
-        return data["unity"]
+        tc = await self.target_tok_ctrt
+        return await tc.unit
 
     @property
     async def max_order_per_user(self) -> int:
@@ -704,7 +746,7 @@ class VStableSwapCtrt(Ctrt):
         Args:
             by (acnt.Account): The action maker.
             base_tok_id (str): The base token id.
-            target_token_id (str): The target token id.
+            target_tok_id (str): The target token id.
             max_order_per_user (Union[int, float]): The max order number that per user can create.
             unit_price_base (Union[int, float]): The unit price of the base token.
             unit_price_target (Union[int, float]): The unit price of the target token.
@@ -712,10 +754,13 @@ class VStableSwapCtrt(Ctrt):
         Returns:
             VStableSwapCtrt: The VStableSwapCtrt object of the registered Stable Swap contract.
         """
-        a = await by.chain.api.ctrt.get_tok_info(base_tok_id)
-        base_unit = a["unity"]
-        b = await by.chain.api.ctrt.get_tok_info(target_tok_id)
-        target_unit = b["unity"]
+        base_resp, target_resp = await asyncio.gather(
+            by.chain.api.ctrt.get_tok_info(base_tok_id),
+            by.chain.api.ctrt.get_tok_info(target_tok_id),
+        )
+        print(base_resp)
+        base_unit = base_resp["unity"]
+        target_unit = target_resp["unity"]
 
         data = await by._register_contract(
             tx.RegCtrtTxReq(
