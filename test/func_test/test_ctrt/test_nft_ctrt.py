@@ -1,3 +1,5 @@
+import abc
+
 import pytest
 
 import py_v_sdk as pv
@@ -266,63 +268,42 @@ class TestNFTCtrt:
         await self.test_supersede(nc, acnt0, acnt1)
 
 
-class TestNFTCtrtV2Whitelist(TestNFTCtrt):
+class _TestNFTCtrtV2Base(TestNFTCtrt):
     """
-    TestNFTCtrtV2Whitelist is the collection of functional tests of NFT contract V2 with whitelist.
+    _TestNFTCtrtV2Base is the collection of general functional tests of NFT contract V2.
     """
 
     @pytest.fixture
-    async def new_ctrt(
-        self, acnt0: pv.Account, acnt1: pv.Account
-    ) -> pv.NFTCtrtV2Whitelist:
+    @abc.abstractmethod
+    async def new_ctrt(self, acnt0: pv.Account, acnt1: pv.Account) -> pv.NFTCtrtV2Base:
         """
-        new_ctrt is the fixture that registers a new NFT contract V2 with whitelist.
+        new_ctrt is the fixture that registers a new NFT contract V2 instance.
 
         Args:
             acnt0 (pv.Account): The account of nonce 0.
             acnt1 (pv.Account): The account of nonce 1.
 
         Returns:
-            pv.NFTCtrtV2Whitelist: The NFTCtrtV2Whitelist instance.
+            pv.NFTCtrtV2Base: The pv.NFTCtrtV2Base instance.
         """
-        nc = await pv.NFTCtrtV2Whitelist.register(acnt0)
-        await cft.wait_for_block()
-
-        await nc.update_list_user(acnt0, acnt0.addr.data, True)
-        await nc.update_list_user(acnt0, acnt1.addr.data, True)
-        return nc
 
     @pytest.fixture
+    @abc.abstractmethod
     async def new_atomic_swap_ctrt(
         self,
-        new_ctrt_with_tok: pv.NFTCtrtV2Whitelist,
+        new_ctrt_with_tok: pv.NFTCtrtV2Blacklist,
         acnt0: pv.Account,
     ) -> pv.AtomicSwapCtrt:
         """
         new_atomic_swap_ctrt is the fixture that registers a new atomic swap contract.
 
         Args:
-            new_ctrt_with_tok (pv.NFTCtrtV2Whitelist): The fixture that registers a new NFT contract and issues an NFT token right after it.
+            new_ctrt_with_tok (pv.NFTCtrtV2Base): The fixture that registers a new NFT contract and issues an NFT token right after it.
             acnt0 (pv.Account): The account of nonce 0.
 
         Returns:
             pv.AtomicSwapCtrt: The AtomicSwapCtrt instance.
         """
-        nc = new_ctrt_with_tok
-        api = nc.chain.api
-
-        tok_id = pv.Ctrt.get_tok_id(nc.ctrt_id, 0)
-        ac = await pv.AtomicSwapCtrt.register(acnt0, tok_id.data)
-
-        await cft.wait_for_block()
-        assert (await ac.maker) == acnt0.addr
-        assert (await ac.tok_id) == tok_id
-
-        resp = await nc.update_list_ctrt(acnt0, ac.ctrt_id, True)
-        await cft.wait_for_block()
-        await cft.assert_tx_success(api, resp["id"])
-
-        return ac
 
     @pytest.fixture
     def arbitrary_ctrt_id(self) -> str:
@@ -492,7 +473,66 @@ class TestNFTCtrtV2Whitelist(TestNFTCtrt):
         await self.test_supersede(nc, acnt0, acnt1)
 
 
-class TestNFTCtrtV2Blacklist(TestNFTCtrtV2Whitelist):
+class TestNFTCtrtV2Whitelist(_TestNFTCtrtV2Base):
+    """
+    TestNFTCtrtV2Whitelist is the collection of functional tests of NFT contract V2 with whitelist.
+    """
+
+    @pytest.fixture
+    async def new_ctrt(
+        self, acnt0: pv.Account, acnt1: pv.Account
+    ) -> pv.NFTCtrtV2Whitelist:
+        """
+        new_ctrt is the fixture that registers a new NFT contract V2 with whitelist.
+
+        Args:
+            acnt0 (pv.Account): The account of nonce 0.
+            acnt1 (pv.Account): The account of nonce 1.
+
+        Returns:
+            pv.NFTCtrtV2Whitelist: The NFTCtrtV2Whitelist instance.
+        """
+        nc = await pv.NFTCtrtV2Whitelist.register(acnt0)
+        await cft.wait_for_block()
+
+        await nc.update_list_user(acnt0, acnt0.addr.data, True)
+        await nc.update_list_user(acnt0, acnt1.addr.data, True)
+        return nc
+
+    @pytest.fixture
+    async def new_atomic_swap_ctrt(
+        self,
+        new_ctrt_with_tok: pv.NFTCtrtV2Whitelist,
+        acnt0: pv.Account,
+    ) -> pv.AtomicSwapCtrt:
+        """
+        new_atomic_swap_ctrt is the fixture that registers a new atomic swap contract.
+
+        Args:
+            new_ctrt_with_tok (pv.NFTCtrtV2Whitelist): The fixture that registers a new NFT contract and issues an NFT token right after it.
+            acnt0 (pv.Account): The account of nonce 0.
+
+        Returns:
+            pv.AtomicSwapCtrt: The AtomicSwapCtrt instance.
+        """
+        nc = new_ctrt_with_tok
+        api = nc.chain.api
+
+        tok_id = pv.Ctrt.get_tok_id(nc.ctrt_id, 0)
+        ac = await pv.AtomicSwapCtrt.register(acnt0, tok_id.data)
+
+        await cft.wait_for_block()
+        assert (await ac.maker) == acnt0.addr
+        assert (await ac.tok_id) == tok_id
+
+        resp = await nc.update_list_ctrt(acnt0, ac.ctrt_id, True)
+        await cft.wait_for_block()
+        await cft.assert_tx_success(api, resp["id"])
+
+        return ac
+
+
+class TestNFTCtrtV2Blacklist(_TestNFTCtrtV2Base):
     """
     TestNFTCtrtV2Blacklist is the collection of functional tests of NFT contract V2 with blacklist.
     """
