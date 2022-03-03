@@ -14,7 +14,7 @@ class TestAtomicSwapCtrt:
     """
 
     @pytest.fixture
-    async def new_maker_tok_ctrt(self, acnt0: pv.Account) -> pv.TokenCtrtWithoutSplit:
+    async def new_maker_tok_ctrt(self, acnt0: pv.Account) -> pv.TokCtrtWithoutSplit:
         """
         new_maker_tok_ctrt is the fixture that registers a new token contract of maker's.
 
@@ -22,14 +22,14 @@ class TestAtomicSwapCtrt:
             acnt0 (pv.Account): the account of nonce 0.
 
         Returns:
-            pv.TokenCtrtWithoutSplit: the TokenCtrtWithoutSplit instance.
+            pv.TokCtrtWithoutSplit: the TokCtrtWithoutSplit instance.
         """
-        tc = await pv.TokenCtrtWithoutSplit.register(acnt0, 100, 1)
+        tc = await pv.TokCtrtWithoutSplit.register(acnt0, 100, 1)
         await cft.wait_for_block()
         return tc
 
     @pytest.fixture
-    async def new_taker_tok_ctrt(self, acnt1: pv.Account) -> pv.TokenCtrtWithoutSplit:
+    async def new_taker_tok_ctrt(self, acnt1: pv.Account) -> pv.TokCtrtWithoutSplit:
         """
         new_taker_tok_ctrt is the fixture that registers a new token contract of taker's.
 
@@ -37,25 +37,25 @@ class TestAtomicSwapCtrt:
             acnt1 (pv.Account): the account of nonce 0.
 
         Returns:
-            pv.TokenCtrtWithoutSplit: the TokenCtrtWithoutSplit instance.
+            pv.TokCtrtWithoutSplit: the TokCtrtWithoutSplit instance.
         """
-        tc = await pv.TokenCtrtWithoutSplit.register(acnt1, 100, 1)
+        tc = await pv.TokCtrtWithoutSplit.register(acnt1, 100, 1)
         await cft.wait_for_block()
         return tc
 
     @pytest.fixture
     async def new_maker_tok_ctrt_with_tok(
-        self, new_maker_tok_ctrt: pv.TokenCtrtWithoutSplit, acnt0: pv.Account
-    ) -> pv.TokenCtrtWithoutSplit:
+        self, new_maker_tok_ctrt: pv.TokCtrtWithoutSplit, acnt0: pv.Account
+    ) -> pv.TokCtrtWithoutSplit:
         """
         new_maker_tok_ctrt_with_tok is the fixture that registers a new TokenWithoutSplit contract and issues tokens right after it.
 
         Args:
-            new_maker_tok_ctrt (pv.TokenCtrtWithoutSplit): The fixture that registers a new TokenWithoutSplit contract.
+            new_maker_tok_ctrt (pv.TokCtrtWithoutSplit): The fixture that registers a new TokenWithoutSplit contract.
             acnt0 (pv.Account): The account of nonce 0.
 
         Returns:
-            pv.TokenCtrtWithoutSplit: The TokenCtrtWithoutSplit instance.
+            pv.TokCtrtWithoutSplit: The TokCtrtWithoutSplit instance.
         """
         tc = new_maker_tok_ctrt
         await tc.issue(acnt0, 100)
@@ -64,17 +64,17 @@ class TestAtomicSwapCtrt:
 
     @pytest.fixture
     async def new_taker_tok_ctrt_with_tok(
-        self, new_taker_tok_ctrt: pv.TokenCtrtWithoutSplit, acnt1: pv.Account
-    ) -> pv.TokenCtrtWithoutSplit:
+        self, new_taker_tok_ctrt: pv.TokCtrtWithoutSplit, acnt1: pv.Account
+    ) -> pv.TokCtrtWithoutSplit:
         """
         new_taker_tok_ctrt_with_tok is the fixture that registers a new TokenWithoutSplit contract and issues tokens right after it.
 
         Args:
-            new_taker_tok_ctrt (pv.TokenCtrtWithoutSplit): The fixture that registers a new TokenWithoutSplit contract.
+            new_taker_tok_ctrt (pv.TokCtrtWithoutSplit): The fixture that registers a new TokenWithoutSplit contract.
             acnt1 (pv.Account): The account of nonce 1.
 
         Returns:
-            pv.TokenCtrtWithoutSplit: The TokenCtrtWithoutSplit instance.
+            pv.TokCtrtWithoutSplit: The TokCtrtWithoutSplit instance.
         """
         tc = new_taker_tok_ctrt
         await tc.issue(acnt1, 100)
@@ -84,14 +84,14 @@ class TestAtomicSwapCtrt:
     @pytest.fixture
     async def new_maker_atomic_swap_ctrt(
         self,
-        new_maker_tok_ctrt_with_tok: pv.TokenCtrtWithoutSplit,
+        new_maker_tok_ctrt_with_tok: pv.TokCtrtWithoutSplit,
         acnt0: pv.Account,
     ) -> pv.AtomicSwapCtrt:
         """
         new_maker_atomic_swap_ctrt is the fixture that registers a new atomic swap contract.
 
         Args:
-            new_maker_tok_ctrt_with_tok (pv.TokenCtrtWithoutSplit): The fixture that registers a new atomic swap contract and issues tokens right after it.
+            new_maker_tok_ctrt_with_tok (pv.TokCtrtWithoutSplit): The fixture that registers a new atomic swap contract and issues tokens right after it.
             acnt0 (pv.Account): The account of nonce 0.
 
         Returns:
@@ -110,14 +110,14 @@ class TestAtomicSwapCtrt:
     @pytest.fixture
     async def new_taker_atomic_swap_ctrt(
         self,
-        new_taker_tok_ctrt_with_tok: pv.TokenCtrtWithoutSplit,
+        new_taker_tok_ctrt_with_tok: pv.TokCtrtWithoutSplit,
         acnt1: pv.Account,
     ) -> pv.AtomicSwapCtrt:
         """
         new_taker_atomic_swap_ctrt is the fixture that registers a new atomic swap contract.
 
         Args:
-            new_taker_tok_ctrt_with_tok (pv.TokenCtrtWithoutSplit): The fixture that registers a new token contract and issues tokens right after it.
+            new_taker_tok_ctrt_with_tok (pv.TokCtrtWithoutSplit): The fixture that registers a new token contract and issues tokens right after it.
             acnt1 (pv.Account): The account of nonce 1.
 
         Returns:
@@ -134,14 +134,14 @@ class TestAtomicSwapCtrt:
         return ac
 
     async def test_register(
-        self, acnt0: pv.Account, new_maker_tok_ctrt_with_tok: pv.TokenCtrtWithoutSplit
+        self, acnt0: pv.Account, new_maker_tok_ctrt_with_tok: pv.TokCtrtWithoutSplit
     ) -> pv.AtomicSwapCtrt:
         """
         test_register tests the method register.
 
         Args:
             acnt0 (pv.Account): The account of nonce 0.
-            new_maker_tok_ctrt_with_tok (pv.TokenCtrtWithoutSplit): The fixture that registers a new atomic swap contract and issues tokens right after it.
+            new_maker_tok_ctrt_with_tok (pv.TokCtrtWithoutSplit): The fixture that registers a new atomic swap contract and issues tokens right after it.
 
         Returns:
             pv.AtomicSwapCtrt: the AtomicSwapCtrt instance.
@@ -335,7 +335,7 @@ class TestAtomicSwapCtrt:
         self,
         acnt0: pv.Account,
         acnt1: pv.Account,
-        new_maker_tok_ctrt_with_tok: pv.TokenCtrtWithoutSplit,
+        new_maker_tok_ctrt_with_tok: pv.TokCtrtWithoutSplit,
         new_taker_atomic_swap_ctrt: pv.AtomicSwapCtrt,
     ) -> None:
         """
@@ -344,7 +344,7 @@ class TestAtomicSwapCtrt:
         Args:
             acnt0 (pv.Account): The account of nonce 0.
             acnt1 (pv.Account): The account of nonce 1.
-            new_maker_tok_ctrt_with_tok (pv.TokenCtrtWithoutSplit): The fixture that registers a new atomic swap contract and issues tokens right after it.
+            new_maker_tok_ctrt_with_tok (pv.TokCtrtWithoutSplit): The fixture that registers a new atomic swap contract and issues tokens right after it.
             new_taker_atomic_swap_ctrt (pv.AtomicSwapCtrt): The fixture that registers a new atomic swap contract of taker's.
         """
         api = acnt0.api

@@ -315,7 +315,7 @@ class TestNFTCtrtV2Whitelist(TestNFTCtrt):
         ac = await pv.AtomicSwapCtrt.register(acnt0, tok_id.data)
 
         await cft.wait_for_block()
-        assert (await ac.maker) == acnt0.addr.data
+        assert (await ac.maker) == acnt0.addr
         assert (await ac.tok_id) == tok_id
 
         resp = await nc.update_list_ctrt(acnt0, ac.ctrt_id, True)
@@ -536,7 +536,7 @@ class TestNFTCtrtV2Blacklist(TestNFTCtrtV2Whitelist):
         ac = await pv.AtomicSwapCtrt.register(acnt0, tok_id.data)
 
         await cft.wait_for_block()
-        assert (await ac.maker) == acnt0.addr.data
+        assert (await ac.maker) == acnt0.addr
         assert (await ac.tok_id) == tok_id
 
         return ac

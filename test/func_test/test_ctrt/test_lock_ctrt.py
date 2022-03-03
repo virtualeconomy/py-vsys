@@ -16,7 +16,7 @@ class TestLockCtrt:
     TOK_UNIT = 1
 
     @pytest.fixture
-    async def new_tok_ctrt(self, acnt0: pv.Account) -> pv.TokenCtrtWithoutSplit:
+    async def new_tok_ctrt(self, acnt0: pv.Account) -> pv.TokCtrtWithoutSplit:
         """
         new_tok_ctrt is the fixture that registers a new token contract without split instance.
 
@@ -24,10 +24,10 @@ class TestLockCtrt:
             acnt0 (pv.Account): The account of nonce 0.
 
         Returns:
-            pv.TokenCtrtWithoutSplit: The token contract instance.
+            pv.TokCtrtWithoutSplit: The token contract instance.
         """
 
-        tc = await pv.TokenCtrtWithoutSplit.register(acnt0, self.TOK_MAX, self.TOK_UNIT)
+        tc = await pv.TokCtrtWithoutSplit.register(acnt0, self.TOK_MAX, self.TOK_UNIT)
         await cft.wait_for_block()
 
         await tc.issue(acnt0, self.TOK_MAX)
@@ -37,7 +37,7 @@ class TestLockCtrt:
 
     @pytest.fixture
     async def new_ctrt(
-        self, acnt0: pv.Account, new_tok_ctrt: pv.TokenCtrtWithoutSplit
+        self, acnt0: pv.Account, new_tok_ctrt: pv.TokCtrtWithoutSplit
     ) -> pv.LockCtrt:
         """
         new_ctrt is the fixture that registers a new Lock contract.
@@ -57,7 +57,7 @@ class TestLockCtrt:
     async def test_register(
         self,
         acnt0: pv.Account,
-        new_tok_ctrt: pv.TokenCtrtWithoutSplit,
+        new_tok_ctrt: pv.TokCtrtWithoutSplit,
         new_ctrt: pv.LockCtrt,
     ) -> pv.LockCtrt:
         """
@@ -65,7 +65,7 @@ class TestLockCtrt:
 
         Args:
             acnt0 (pv.Account): The account of nonce 0.
-            new_tok_ctrt (pv.TokenCtrtWithoutSplit): The fixture that registers a new Token contract.
+            new_tok_ctrt (pv.TokCtrtWithoutSplit): The fixture that registers a new Token contract.
             new_ctrt (pv.LockCtrt): The fixture that registers a new Lock contract.
 
         Returns:
@@ -84,7 +84,7 @@ class TestLockCtrt:
     async def test_lock(
         self,
         acnt0: pv.Account,
-        new_tok_ctrt: pv.TokenCtrtWithoutSplit,
+        new_tok_ctrt: pv.TokCtrtWithoutSplit,
         new_ctrt: pv.LockCtrt,
     ):
         """
@@ -92,7 +92,7 @@ class TestLockCtrt:
 
         Args:
             acnt0 (pv.Account): The account of nonce 0.
-            new_tok_ctrt (pv.TokenCtrtWithoutSplit): The fixture that registers a new Token contract.
+            new_tok_ctrt (pv.TokCtrtWithoutSplit): The fixture that registers a new Token contract.
             new_ctrt (pv.LockCtrt): The fixture that registers a new Lock contract.
         """
         tc = new_tok_ctrt
@@ -129,7 +129,7 @@ class TestLockCtrt:
     async def test_as_whole(
         self,
         acnt0: pv.Account,
-        new_tok_ctrt: pv.TokenCtrtWithoutSplit,
+        new_tok_ctrt: pv.TokCtrtWithoutSplit,
         new_ctrt: pv.LockCtrt,
     ):
         """
@@ -137,7 +137,7 @@ class TestLockCtrt:
 
         Args:
             acnt0 (pv.Account): The account of nonce 0.
-            new_tok_ctrt (pv.TokenCtrtWithoutSplit): The fixture that registers a new Token contract.
+            new_tok_ctrt (pv.TokCtrtWithoutSplit): The fixture that registers a new Token contract.
             new_ctrt (pv.LockCtrt): The fixture that registers a new Lock contract.
         """
         tc = new_tok_ctrt

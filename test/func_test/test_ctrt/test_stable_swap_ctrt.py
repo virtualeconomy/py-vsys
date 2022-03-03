@@ -14,7 +14,7 @@ class TestStableSwapCtrt:
     """
 
     @pytest.fixture
-    async def new_base_ctrt(self, acnt0: pv.Account) -> pv.TokenCtrtWithoutSplit:
+    async def new_base_ctrt(self, acnt0: pv.Account) -> pv.TokCtrtWithoutSplit:
         """
         new_base_ctrt is the fixture that registers a new base token contract.
 
@@ -22,25 +22,25 @@ class TestStableSwapCtrt:
             acnt0 (pv.Account): the account of nonce 0.
 
         Returns:
-            pv.TokenCtrtWithoutSplit: the TokenCtrtWithoutSplit instance.
+            pv.TokCtrtWithoutSplit: the TokCtrtWithoutSplit instance.
         """
-        tc = await pv.TokenCtrtWithoutSplit.register(acnt0, 1000, 1)
+        tc = await pv.TokCtrtWithoutSplit.register(acnt0, 1000, 1)
         await cft.wait_for_block()
         return tc
 
     @pytest.fixture
     async def new_base_ctrt_with_tok(
-        self, new_base_ctrt: pv.TokenCtrtWithoutSplit, acnt0: pv.Account
-    ) -> pv.TokenCtrtWithoutSplit:
+        self, new_base_ctrt: pv.TokCtrtWithoutSplit, acnt0: pv.Account
+    ) -> pv.TokCtrtWithoutSplit:
         """
         new_base_ctrt_with_tok is the fixture that registers a new TokenWithoutSplit contract and issues base tokens right after it.
 
         Args:
-            new_base_ctrt (pv.TokenCtrtWithoutSplit): The fixture that registers a new TokenWithoutSplit contract.
+            new_base_ctrt (pv.TokCtrtWithoutSplit): The fixture that registers a new TokenWithoutSplit contract.
             acnt0 (pv.Account): The account of nonce 0.
 
         Returns:
-            pv.TokenCtrtWithoutSplit: The TokenCtrtWithoutSplit instance.
+            pv.TokCtrtWithoutSplit: The TokCtrtWithoutSplit instance.
         """
         tc = new_base_ctrt
         await tc.issue(acnt0, 1000)
@@ -48,7 +48,7 @@ class TestStableSwapCtrt:
         return tc
 
     @pytest.fixture
-    async def new_target_ctrt(self, acnt0: pv.Account) -> pv.TokenCtrtWithoutSplit:
+    async def new_target_ctrt(self, acnt0: pv.Account) -> pv.TokCtrtWithoutSplit:
         """
         new_target_ctrt is the fixture that registers a new target token contract.
 
@@ -56,25 +56,25 @@ class TestStableSwapCtrt:
             acnt0 (pv.Account): the account of nonce 0.
 
         Returns:
-            pv.TokenCtrtWithoutSplit: the TokenCtrtWithoutSplit instance.
+            pv.TokCtrtWithoutSplit: the TokCtrtWithoutSplit instance.
         """
-        tc = await pv.TokenCtrtWithoutSplit.register(acnt0, 1000, 1)
+        tc = await pv.TokCtrtWithoutSplit.register(acnt0, 1000, 1)
         await cft.wait_for_block()
         return tc
 
     @pytest.fixture
     async def new_target_ctrt_with_tok(
-        self, new_target_ctrt: pv.TokenCtrtWithoutSplit, acnt0: pv.Account
-    ) -> pv.TokenCtrtWithoutSplit:
+        self, new_target_ctrt: pv.TokCtrtWithoutSplit, acnt0: pv.Account
+    ) -> pv.TokCtrtWithoutSplit:
         """
         new_target_ctrt_with_tok is the fixture that registers a new TokenWithoutSplit contract and issues target tokens right after it.
 
         Args:
-            new_target_ctrt (pv.TokenCtrtWithoutSplit): The fixture that registers a new TokenWithoutSplit contract.
+            new_target_ctrt (pv.TokCtrtWithoutSplit): The fixture that registers a new TokenWithoutSplit contract.
             acnt0 (pv.Account): The account of nonce 0.
 
         Returns:
-            pv.TokenCtrtWithoutSplit: The TokenCtrtWithoutSplit instance.
+            pv.TokCtrtWithoutSplit: The TokCtrtWithoutSplit instance.
         """
         tc = new_target_ctrt
         await tc.issue(acnt0, 1000)
@@ -85,16 +85,16 @@ class TestStableSwapCtrt:
     async def new_stable_ctrt(
         self,
         acnt0: pv.Account,
-        new_base_ctrt_with_tok: pv.TokenCtrtWithoutSplit,
-        new_target_ctrt_with_tok: pv.TokenCtrtWithoutSplit,
+        new_base_ctrt_with_tok: pv.TokCtrtWithoutSplit,
+        new_target_ctrt_with_tok: pv.TokCtrtWithoutSplit,
     ) -> pv.VStableSwapCtrt:
         """
         new_stable_ctrt is the fixture that registers a new V Stable Swap contract.
 
         Args:
             acnt0 (pv.Account): The account of nonce 0.
-            new_base_ctrt_with_tok (pv.TokenCtrtWithoutSplit): The fixture that registers a new token contract without split and issues base tokens right after it.
-            new_target_ctrt_with_tok (pv.TokenCtrtWithoutSplit): The fixture that registers a new token contract without split and issues target tokens right after it.
+            new_base_ctrt_with_tok (pv.TokCtrtWithoutSplit): The fixture that registers a new token contract without split and issues base tokens right after it.
+            new_target_ctrt_with_tok (pv.TokCtrtWithoutSplit): The fixture that registers a new token contract without split and issues target tokens right after it.
 
         Returns:
             pv.VStableSwapCtrt: The VStableSwapCtrt instance.

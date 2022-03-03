@@ -18,7 +18,7 @@ class TestPayChanCtrt:
     INIT_LOAD = TOK_MAX // 2
 
     @pytest.fixture
-    async def new_tok_ctrt(self, acnt0: pv.Account) -> pv.TokenCtrtWithoutSplit:
+    async def new_tok_ctrt(self, acnt0: pv.Account) -> pv.TokCtrtWithoutSplit:
         """
         new_tok_ctrt is the fixture that registers a new token contract without split instance.
 
@@ -26,10 +26,10 @@ class TestPayChanCtrt:
             acnt0 (pv.Account): The account of nonce 0.
 
         Returns:
-            pv.TokenCtrtWithoutSplit: The token contract instance.
+            pv.TokCtrtWithoutSplit: The token contract instance.
         """
 
-        tc = await pv.TokenCtrtWithoutSplit.register(acnt0, self.TOK_MAX, self.TOK_UNIT)
+        tc = await pv.TokCtrtWithoutSplit.register(acnt0, self.TOK_MAX, self.TOK_UNIT)
         await cft.wait_for_block()
 
         await tc.issue(acnt0, self.TOK_MAX)
@@ -39,14 +39,14 @@ class TestPayChanCtrt:
 
     @pytest.fixture
     async def new_ctrt(
-        self, acnt0: pv.Account, new_tok_ctrt: pv.TokenCtrtWithoutSplit
+        self, acnt0: pv.Account, new_tok_ctrt: pv.TokCtrtWithoutSplit
     ) -> pv.PayChanCtrt:
         """
         new_ctrt is the fixture that registers a new Payment Channel contract.
 
         Args:
             acnt0 (pv.Account): The account of nonce 0.
-            new_tok_ctrt (pv.TokenCtrtWithoutSplit): The fixture that registers a new Token contract.
+            new_tok_ctrt (pv.TokCtrtWithoutSplit): The fixture that registers a new Token contract.
 
         Returns:
             pv.PayChanCtrt: The PayChanCtrt instance.
@@ -100,7 +100,7 @@ class TestPayChanCtrt:
     async def test_register(
         self,
         acnt0: pv.Account,
-        new_tok_ctrt: pv.TokenCtrtWithoutSplit,
+        new_tok_ctrt: pv.TokCtrtWithoutSplit,
         new_ctrt: pv.PayChanCtrt,
     ) -> pv.PayChanCtrt:
         """
@@ -108,7 +108,7 @@ class TestPayChanCtrt:
 
         Args:
             acnt0 (pv.Account): The account of nonce 0.
-            new_tok_ctrt (pv.TokenCtrtWithoutSplit): The fixture that registers a new Token contract.
+            new_tok_ctrt (pv.TokCtrtWithoutSplit): The fixture that registers a new Token contract.
             new_ctrt (pv.PayChanCtrt): The fixture that registers a new Payment Channel contract.
 
         Returns:
@@ -361,7 +361,7 @@ class TestPayChanCtrt:
         self,
         acnt0: pv.Account,
         acnt1: pv.Account,
-        new_tok_ctrt: pv.TokenCtrtWithoutSplit,
+        new_tok_ctrt: pv.TokCtrtWithoutSplit,
         new_ctrt: pv.PayChanCtrt,
     ) -> None:
         """
@@ -370,7 +370,7 @@ class TestPayChanCtrt:
         Args:
             acnt0 (pv.Account): The account of nonce 0.
             acnt1 (pv.Account): The account of nonce 1.
-            new_tok_ctrt (pv.TokenCtrtWithoutSplit): The token contract instance.
+            new_tok_ctrt (pv.TokCtrtWithoutSplit): The token contract instance.
             new_ctrt (pv.PayChanCtrt): The fixture that registers a new Payment Channel contract.
         """
         tc = new_tok_ctrt

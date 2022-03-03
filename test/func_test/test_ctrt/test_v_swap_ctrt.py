@@ -18,7 +18,7 @@ class TestVSwapCtrt:
     MIN_LIQ = 10
     INIT_AMOUNT = 10_000
 
-    async def new_tok_ctrt(self, acnt0: pv.Account) -> pv.TokenCtrtWithoutSplit:
+    async def new_tok_ctrt(self, acnt0: pv.Account) -> pv.TokCtrtWithoutSplit:
         """
         new_tok_ctrt is the fixture that registers a new token contract without split
         to be used in a V Swap contract.
@@ -27,11 +27,11 @@ class TestVSwapCtrt:
             acnt0 (pv.Account): The account of nonce 0.
 
         Returns:
-            pv.TokenCtrtWithoutSplit: The TokenCtrtWithoutSplit instance.
+            pv.TokCtrtWithoutSplit: The TokCtrtWithoutSplit instance.
         """
         api = acnt0.api
 
-        tc = await pv.TokenCtrtWithoutSplit.register(
+        tc = await pv.TokCtrtWithoutSplit.register(
             by=acnt0,
             max=self.TOK_MAX,
             unit=self.TOK_UNIT,

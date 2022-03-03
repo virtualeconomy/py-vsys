@@ -19,9 +19,9 @@ from py_v_sdk import model as md
 from . import CtrtMeta, Ctrt, BaseTokCtrt
 
 
-class TokenCtrtWithoutSplit(BaseTokCtrt):
+class TokCtrtWithoutSplit(BaseTokCtrt):
     """
-    TokenCtrtWithoutSplit is the class that encapsulates behaviours of the VSYS TOKEN contract without split v1.
+    TokCtrtWithoutSplit is the class that encapsulates behaviours of the VSYS TOKEN contract without split v1.
     """
 
     CTRT_META = CtrtMeta.from_b58_str(
@@ -66,13 +66,13 @@ class TokenCtrtWithoutSplit(BaseTokCtrt):
         """
 
         @classmethod
-        def for_issuer(cls) -> TokenCtrtWithoutSplit.DBKey:
-            b = TokenCtrtWithoutSplit.StateVar.ISSUER.serialize()
+        def for_issuer(cls) -> TokCtrtWithoutSplit.DBKey:
+            b = TokCtrtWithoutSplit.StateVar.ISSUER.serialize()
             return cls(b)
 
         @classmethod
-        def for_maker(cls) -> TokenCtrtWithoutSplit.DBKey:
-            b = TokenCtrtWithoutSplit.StateVar.MAKER.serialize()
+        def for_maker(cls) -> TokCtrtWithoutSplit.DBKey:
+            b = TokCtrtWithoutSplit.StateVar.MAKER.serialize()
             return cls(b)
 
     @classmethod
@@ -84,7 +84,7 @@ class TokenCtrtWithoutSplit(BaseTokCtrt):
         token_description: str = "",
         ctrt_description: str = "",
         fee: int = md.RegCtrtFee.DEFAULT,
-    ) -> TokenCtrtWithoutSplit:
+    ) -> TokCtrtWithoutSplit:
         """
         register registers a token contract without split
 
@@ -97,7 +97,7 @@ class TokenCtrtWithoutSplit(BaseTokCtrt):
             fee (int, optional):  Register fee. Defaults to md.RegCtrtFee.DEFAULT.
 
         Returns:
-            TokenCtrtWithoutSplit: A token contract without split
+            TokCtrtWithoutSplit: A token contract without split
         """
 
         data = await by._register_contract(
@@ -470,7 +470,7 @@ class TokenCtrtWithoutSplit(BaseTokCtrt):
         return data
 
 
-class TokenCtrtWithSplit(TokenCtrtWithoutSplit):
+class TokCtrtWithSplit(TokCtrtWithoutSplit):
 
     CTRT_META = CtrtMeta.from_b58_str(
         "3dPGAWbTw4srh5hmMiRUhHtcxmXXLUooKGAfnmz11j5NruyJpBzZpgvADMdZS7Mevy5MAHqFbfHYdfqaAe1JEpLWt1pJWLHZBV62zUhLGmVLXUP5UDvSs24jsBRHqZMC71ciE1uYtgydKxCoFJ3rAgsYqp7GDeTU2PXS5ygDmL6WXmbAYPS8jE4sfNUbJVwpvL1cTw4nnjnJvmLET8VmQybxFt415RemV3MFPeYZay5i5gMmyZa63bjzK1uMZAVWA9TpF5YQ1NTZjPaRPvQGYVY4kY9L4LFJvUG2bib1QaNh7wUAQnTzJfRYJoy1aegFGFZFnBGp9GugH4fHAY69vGmZQnhDw3jU45G9odFyXo3T5Ww4R5szegbjCUKdUGpXf9vY2cKEMJ7i8eCkFVG1dDFZeVov1KMjkVNV8rDBDYfcp3oSGNWQQvGSUT5iGUvDRN8phy1UpR3A9uMVebvjLnVzPx9RyqQ8HaXLM8vPhLuWLoh5hk1Zi1n9nwz55XvKDYjP6eeB55yK5vpg8xjaYDnw9bjYV7ZmS7LAsHvXfnwi8y2W6vk2hGvs4rtR1vNRZSQMPGRRSuwCRJL1yngH6uHWwm2ajWxc684jApuoLdyjZomfCtdpabSyU3kp9Lrn8zT8BVY332sJPQU6gTQi8ke9s9dBxCae4cfSQM6HhuBmFc5KKWHCVG4bm4KZRYbMtidw8ZZnjaAMtcGq7k3Se6GXaTxdS3GcuttB3VB7njypyzuqAcfCdYb9ht8Y1WuTCZ1aLsXsL6eydfk2WLJVrqYpbTk6AchV5gMAEopvc3qXvzrDCedjtNsDmA56Lh6PxrrKr8aV8Wzz8aMaQ88YsVBpE8J4cDkxzo31AojhzEGVBKLmpb3bjmsaw9VkpB6yL8ngYs8eJMSPdM289TSMaEmG4eHt1jezpHTKxkuB9cwqcvhGNLWuv8KXQkik5pRMXV67Qs2FvjpzeJ81z2hnVh1wCtsa6M6qAG1gsqLHa1AVMRzsowafC99uDexwWMBS2RqsZWZBXJcUiNVULjApSnoBREYfHYEpjJ152hnTYZCAwpZMWEkVdBQpZ3zk8gbfLxB4fWMfKgJJucbKPGp1K56u7P8MHQu9aNb9dEof2mwX8rTHjk8jSQ7kXVX4Mf1JqMRWWftkV3GmU1nqYhxRGu4FjDNAomwTr5epHpcMF6P5oiXcLWh5BFQVmGYKz129oizAyUJBsZdxr2WZEGDieLxUg8cve25g28oTuCVENST4z1ZsFAN9wTa1"
@@ -499,7 +499,7 @@ class TokenCtrtWithSplit(TokenCtrtWithoutSplit):
         token_description: str = "",
         ctrt_description: str = "",
         fee: int = md.RegCtrtFee.DEFAULT,
-    ) -> TokenCtrtWithSplit:
+    ) -> TokCtrtWithSplit:
         """
         register registers a token contract with split
 
@@ -512,7 +512,7 @@ class TokenCtrtWithSplit(TokenCtrtWithoutSplit):
             fee (int, optional):  Register fee. Defaults to md.RegCtrtFee.DEFAULT.
 
         Returns:
-            TokenCtrtWithSplit: A token contract with split
+            TokCtrtWithSplit: A token contract with split
         """
 
         data = await by._register_contract(
@@ -583,7 +583,7 @@ class TokenCtrtWithSplit(TokenCtrtWithoutSplit):
         return data
 
 
-class TokenCtrtWithoutSplitV2WhiteList(TokenCtrtWithoutSplit):
+class TokCtrtWithoutSplitV2Whitelist(TokCtrtWithoutSplit):
 
     CTRT_META = CtrtMeta.from_b58_str(
         "7BekqFZ2yZqjiQFFnsxL4CDRFWCjHdZvFXQd6sxAgEktxwn5kkR6vkV27SFC7VmhuMysVfunZWTtHAqPjg4gGz72pha6TMUerSUSXSn7BHaVexyQJoUfqDT5bdr3XVpok1mU2gT29mwtJ6BibizpAEgZZncZauDnvqrWWdkCmRP8VXpPBiPEaUZuq9eRusrUcc5YHshhN6BVkArN84tarVQH3pTRmiekdQveuxFw4r4weXUxwEGCkYX3Zqeqc4mmRsajVCQwV5DuGTEwaBVWiAAfHLGPFgJF6w6aP3d22tdBRLqZ2Y4G5WHdhMunNDEZ2E79w7gbwqDXtz3eVfGtyET5NZEJGmM2S8pZSn2MPjvfPAYZMa9Zd4WXnPLZng1pxjYvrpqPDy27VQu1rhvxXMNPVMdP9QyCQSoExZUot1FmskS1NcmzKfguwsSWR1Z1py58iVDKm8t7x7RnaP7avcjtvixJQkPGg7qaxBKfRQ26vFePWeNdkbJwQJvqComvjEg3hEYjQrysk3j3M9QWEgXQzRqTPTFEVCTJSbdpL2GyYXYC4cLcB81UzJuWf2zoERNPdfpHwumoaaaSutfg7dccbWRaqogrBf6u9PfANQm9TsFca37UHhxvsq8WZdu71NQCY1V7w9NKKLbHF7MjjyCs6w2TM4Ej9Tyj8hFR4qo3MosgSbmQt298aEB3qQHVF8FshVwGg2vqAK7PNBHE7KgBgXQJiVRc4X1XZvWQt4uASvMowRECURoMZ17z2s3LnDrQYVqYedfzjJXxwsWXQkoQp51WWkFfp7QStBtfEhdUx15wtD8sjDdNrda8n3P6sNrN8J7NXxH4JPE7DzLLCjPSbn5Yc2jzomULSRiQN2yzC5qE43XiHB89VFqTHTduCFbP3Pom3uc5iBgjW9ky8LyPBMcsqQZSv99adjgbKpeaGPtJN6iUQ9mae1ddw6SBKTxZVZvqK6k7dJBjJ5UsFDyXLWkm8jogkRCFBfXPxmxyB5ihqk2wnsWNEbKEz6sg6RJqy5SR9A8r3QEx8FZt5z4DJpHyUAoi6KKVHEJfRvdjtjSDrayG2WUrBCgTTHsyGZEnuXLRXpy7XmdzFSwKSr4p7NPbAqt44yHdgjycn2MY5X1P9rneBdh4LukH3syRAarjmTSZr67QexRE4cca5fnxUZJ2zYNWRynqWmZy6aCBLBQziP81bHHbN5WP9MMseovCvzTpMso9TB3QLSRkCphJpyvv9qLN4tpFB9r9g3UGhTqqJFvxJDcLwR485AqLymM91kMjTvodniJ4coymUeE3MjGf2P67z4UiBDBxnzWbkCzmaPpkWFY9125hg9SovQrJnn9zzpF5smp7oiHhjrkzyi2G4qWVidtaWi6TipZFXwb8z6TSSjZkaj4SWexgnE2bUKeJS9P1xYwVSX39At735bqhfKCNP29n7UzX7bMwQiTWWK8bCiCpYSXfcfUpxtbYXdHgGMEZzpzawS9H5UeFiw31rS5Caps7QQJmMeetAuDa8tsiMJ9QauABLfJ4G6Hjkn5GM9jH9yXJWj2boH1U4ErVQXbr9KvmSsSsLeLLc3XeKQaczMtLroQax4D5estuP3Cy1gfqhbTsEWL2HkF7dUKDnuLmzsjv3kZXF9PMhcVR1Qj9j8KaYWYqKYV5TxXkrPrzSVa1yYEjU71A6ZYW327vgFJYFUJmx9vqTGym3yRiSoJiaYVfgf8iLwqS1EKSTMiisxE8hCHfKiew4YmiCTxPkq7pc5tHrKkogoRX7GdDnX93BsxGACu9nEbXwDZERLFLexrnRKpWDjqR2Z6CLWhXNPDJYMcUQ5rfGAhgu4ZK16q1"
@@ -612,26 +612,26 @@ class TokenCtrtWithoutSplitV2WhiteList(TokenCtrtWithoutSplit):
         MAKER = 1
         REGULATOR = 2
 
-    class DBKey(TokenCtrtWithoutSplit.DBKey):
+    class DBKey(TokCtrtWithoutSplit.DBKey):
         """
         DBKey is the class for DB key of a contract used to query data.
         """
 
         @classmethod
-        def for_regulator(cls) -> TokenCtrtWithoutSplitV2WhiteList.DBKey:
+        def for_regulator(cls) -> TokCtrtWithoutSplitV2Whitelist.DBKey:
             """
             for_regulator returns the DBKey for querying the regulator.
 
             Returns:
-                TokenCtrtWithoutSplitV2WhiteList.DBKey: The DBKey.
+                TokCtrtWithoutSplitV2Whitelist.DBKey: The DBKey.
             """
-            b = TokenCtrtWithoutSplitV2WhiteList.StateVar.REGULATOR.serialize()
+            b = TokCtrtWithoutSplitV2Whitelist.StateVar.REGULATOR.serialize()
             return cls(b)
 
         @classmethod
         def _for_is_in_list(
             cls, addr_data_entry: Union[de.Addr, de.CtrtAcnt]
-        ) -> TokenCtrtWithoutSplitV2WhiteList.DBKey:
+        ) -> TokCtrtWithoutSplitV2Whitelist.DBKey:
             """
             _for_is_in_list returns the DBKey for querying the status of if the address in the given data entry
             is in the list.
@@ -641,9 +641,9 @@ class TokenCtrtWithoutSplitV2WhiteList(TokenCtrtWithoutSplit):
                 addr_data_entry (Union[de.Addr, de.CtrtAcnt]): The data entry for the address.
 
             Returns:
-                TokenCtrtWithoutSplitV2WhiteList.DBKey: The DBKey.
+                TokCtrtWithoutSplitV2Whitelist.DBKey: The DBKey.
             """
-            stmp = TokenCtrtWithoutSplitV2WhiteList.StateMap(
+            stmp = TokCtrtWithoutSplitV2Whitelist.StateMap(
                 idx=0,
                 data_entry=addr_data_entry,
             )
@@ -651,29 +651,25 @@ class TokenCtrtWithoutSplitV2WhiteList(TokenCtrtWithoutSplit):
             return cls(b)
 
         @classmethod
-        def for_is_user_in_list(
-            cls, addr: str
-        ) -> TokenCtrtWithoutSplitV2WhiteList.DBKey:
+        def for_is_user_in_list(cls, addr: str) -> TokCtrtWithoutSplitV2Whitelist.DBKey:
             """
             for_is_user_in_list returns the DBKey for querying the status of if
             the given user address is in the list.
 
             Returns:
-                TokenCtrtWithoutSplitV2WhiteList.DBKey: The DBKey.
+                TokCtrtWithoutSplitV2Whitelist.DBKey: The DBKey.
             """
             addr_de = de.Addr(md.Addr(addr))
             return cls._for_is_in_list(addr_de)
 
         @classmethod
-        def for_is_ctrt_in_list(
-            cls, addr: str
-        ) -> TokenCtrtWithoutSplitV2WhiteList.DBKey:
+        def for_is_ctrt_in_list(cls, addr: str) -> TokCtrtWithoutSplitV2Whitelist.DBKey:
             """
             for_is_ctrt_in_list returns the DBKey for querying the status of if
             the given contract address is in the list.
 
             Returns:
-                TokenCtrtWithoutSplitV2WhiteList.DBKey: The DBKey.
+                TokCtrtWithoutSplitV2Whitelist.DBKey: The DBKey.
             """
             addr_de = de.CtrtAcnt(md.CtrtID(addr))
             return cls._for_is_in_list(addr_de)
@@ -698,7 +694,7 @@ class TokenCtrtWithoutSplitV2WhiteList(TokenCtrtWithoutSplit):
         token_description: str = "",
         ctrt_description: str = "",
         fee: int = md.RegCtrtFee.DEFAULT,
-    ) -> TokenCtrtWithoutSplitV2WhiteList:
+    ) -> TokCtrtWithoutSplitV2Whitelist:
         """
         register registers a token contract v2 with white list
 
@@ -711,7 +707,7 @@ class TokenCtrtWithoutSplitV2WhiteList(TokenCtrtWithoutSplit):
             fee (int, optional):  Register fee. Defaults to md.RegCtrtFee.DEFAULT.
 
         Returns:
-            TokenCtrtWithoutSplitV2WhiteList: A token contract v2 with white list
+            TokCtrtWithoutSplitV2Whitelist: A token contract v2 with white list
         """
 
         data = await by._register_contract(
@@ -736,13 +732,13 @@ class TokenCtrtWithoutSplitV2WhiteList(TokenCtrtWithoutSplit):
         tc._unit = unit
         return tc
 
-    async def _is_in_list(self, db_key: TokenCtrtWithoutSplitV2WhiteList.DBKey) -> bool:
+    async def _is_in_list(self, db_key: TokCtrtWithoutSplitV2Whitelist.DBKey) -> bool:
         """
         _is_in_list queries & returns the status of whether the address is
         in the list for the given db_key.
 
         Args:
-            db_key (TokenCtrtWithoutSplitV2WhiteList.DBKey): The DBKey for the query.
+            db_key (TokCtrtWithoutSplitV2Whitelist.DBKey): The DBKey for the query.
 
         Returns:
             bool: If the address is in the list.
@@ -903,7 +899,7 @@ class TokenCtrtWithoutSplitV2WhiteList(TokenCtrtWithoutSplit):
         return data
 
 
-class TokenCtrtWithoutSplitV2BlackList(TokenCtrtWithoutSplitV2WhiteList):
+class TokCtrtWithoutSplitV2Blacklist(TokCtrtWithoutSplitV2Whitelist):
     CTRT_META = CtrtMeta.from_b58_str(
         "2wsw3fMnDpB5PpXoJxJeuE9RkRNzQqZrV35hBa366PhG9Sb3sPeBNeYQo8CuExtT8GpKuc84PLMsevNoodw7YGVf24PKstuzhM96H2gQoawx4BVNZwy3UFyWn156SyZakSvJPXz521p1nzactXZod1Qnn7BWYXFYCU3JFe1LGy35Sg6aXwKz6swFmBtPg1vBeQsUq1TJ5GXkDksaUYjB8ix9ScNNG8faB1mCCMWwfrcr6PyBA7YeHsTLD86zuviak6HQEQQi9kqVr4XhnDJnZyiTKGcNDo49KZyTyvkPmkFyDEhLf9DYrJM3niePqtDQ9unJj52Bku7f47hrxo83eSh3UPncyq8Hti2Ffhgb8ZFCFdnPyRDEZ1YbKFGAsJL3h3GdPFoVdnYySmnVJWrm6fVUdGgkA5ijMeqEUpXte1m7MFYCJ1wQchjebpLk3NnZzrT8FysUJVUgUzmkoSniF2UPEPXuF9cyWFWGGoZjfDWqarPMi7miqdCPQMMw4QRvSWkB3gVyeZykAvKYzXm8wYGV6HDbipZeVoyZ1UVeR6E5C4VZQmjs4GupAR9EuT5mt1ALFT4HyAMX6RCRxjeHoSgnnUJcEiRHapAYSene174RvVkRGLTtonWTYnsXUrtPD6xks4GdpQWQv89EdNWFEtmMfyVvUEFuTPGXUS5TuqYxCzg8Gor5WjPip2wDmoMYQ3wikJoRpYSfRVw88RHQPBmkHrpeHYWkAx6N7Yk4WwgBF9SVVtEWnWmPVVbuH2bQrvks4iGL8DnmEiLMs6JuFsg3a3cMHqbdvQgfu72XYKFqQzzDbDhaqFKpR3bxgMMiJvGbPuydPk9DCsG5KpqZepkkD6RGhWTQzga9G6y6ryctoGZPBHpFRwirALkksarQSEuGryhatvnjqG9U14zyW2KvJYrErMyUVy3wNK5wRqAKMjE6hFPdoH9Cn6TYQLebVTBoYTfimn5gBmgnKqBtXSfUxiwrjWujQPGxgtbNCL1RXRNRJ8nrtcpphQyRVZ8JVeubYq1zM7G1AUurEyAQi64rcbsimGptcXMAvt9TbwDjpUGRWvF6dyw1XijcukfZBQh1fG5C8peumkGnP8PemmYWKP7qsifNc44PqnNG5qYVivwtK4sz2h3B6pwneX8XNYtGSjVJCb6gJ7oDG45shocvALKNu7LwfJxXT7MPAdx7CjbHU5B3qs71wJphwkc4yWa6hHTamPTGRFGuhJa4kFfeGMctE1WZrFe47L32fKZkSxaX1sguoi5w9UPHw6udJiKPYENSSbASYpfS9q8suCs1bbq8jdMhCwoGMDZaA4MNAW1Q6sLSX6ezZ436AMbVnXZLQW8jdBaX8rvRSMJu8fdYU9PHq4MkoczxNz5jNvRiTX9jTpN1Z1P5rtgnf6XN9vzTLdqsvwZcXqvSdBwdTVgk7qn9uNjuFZEgSmA6rnPhSu6TMxJLmjKP93uqiNmXsj1NKtqBZiHjrRaUzA4pAFEyfZTdo8oaDH7umSBU2s9ff5Cruds7cYFopLm2KavHH33S7BczL7FMXAcqrESiPUzhUhHbkBKHGiCAUMVE8zxo6Eo85W2PGn6D39MaUfahEmzq8zxmrDQdmagx5EQZUev3fNCFzTzU4zpY1sra5ZPknXJkyKKfj4r9xy9Kfd8s5hsiKFyX6V1Kc2T1Ehpdkobwb7Wc8V1n1GaeL7jRgvhVg1inPaWZ3zyqNBjxnzqtLpZor3VdXLo6SikzWNahCMLNMXaoBvmJDEJUazC9qGxin7SC3YWCTAyoskJRhVMp592ehmpruu2azeCHBF2rzP6LabikVfkBSeAzGQKVeiEkU3devRNpjNM4YDXQDm9wbkPKWrqBK4SRdo44PRYG3XwNhu2gpNX8b9AuirrbRPiaJ1tJ7rzodHzLheMyUMXRB9nYx8JgrhkZzPZa4oUxo8JUNuKZnn7Ku7fEt5y"
     )
