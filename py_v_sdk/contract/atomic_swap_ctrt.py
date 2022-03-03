@@ -467,7 +467,7 @@ class AtomicSwapCtrt(Ctrt):
         Returns:
             Dict[str, Any]: The response returned by the Node API.
         """
-        puzzle_db_key = self.DBKey.for_puzzle(maker_lock_tx_id)
+        puzzle_db_key = self.DBKey.for_swap_puzzle(maker_lock_tx_id)
         data = await self.chain.api.ctrt.get_ctrt_data(
             maker_swap_ctrt_id, puzzle_db_key.b58_str
         )
