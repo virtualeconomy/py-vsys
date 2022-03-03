@@ -51,7 +51,7 @@ class TestVEscrowCtrt:
 
         vc = await pv.VEscrowCtrt.register(
             by=maker,
-            tok_id=sc.tok_id,
+            tok_id=sc.tok_id.data,
             duration=duration,
             judge_duration=duration,
         )
@@ -394,11 +394,10 @@ class TestVEscrowCtrt:
         sc = new_sys_ctrt
         vc = new_ctrt
 
-        assert (await vc.maker).data == maker.addr.data
-        assert (await vc.judge).data == maker.addr.data
+        assert (await vc.maker) == maker.addr
+        assert (await vc.judge) == maker.addr
 
-        tok_id = await vc.tok_id
-        assert tok_id.data == sc.tok_id
+        assert (await vc.tok_id) == sc.tok_id
 
         duration = await vc.duration
         assert duration.unix_ts == self.DURATION
@@ -430,14 +429,14 @@ class TestVEscrowCtrt:
         api = acnt0.api
 
         judge = await vc.judge
-        assert judge.data == acnt0.addr.data
+        assert judge == acnt0.addr
 
         resp = await vc.supersede(acnt0, acnt1.addr.data)
         await cft.wait_for_block()
         await cft.assert_tx_success(api, resp["id"])
 
         judge = await vc.judge
-        assert judge.data == acnt1.addr.data
+        assert judge == acnt1.addr
 
     async def test_create(
         self,
@@ -478,8 +477,8 @@ class TestVEscrowCtrt:
 
         order_id = resp["id"]
 
-        assert (await vc.get_order_payer(order_id)).data == payer.addr.data
-        assert (await vc.get_order_recipient(order_id)).data == recipient.addr.data
+        assert (await vc.get_order_payer(order_id)) == payer.addr
+        assert (await vc.get_order_recipient(order_id)) == recipient.addr
         assert (await vc.get_order_amount(order_id)).amount == self.ORDER_AMOUNT
         assert (
             await vc.get_order_recipient_deposit(order_id)
