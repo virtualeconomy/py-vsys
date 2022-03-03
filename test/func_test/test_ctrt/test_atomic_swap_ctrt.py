@@ -1,6 +1,8 @@
-import pytest
+import asyncio
 import time
 import base58
+
+import pytest
 
 import py_v_sdk as pv
 from py_v_sdk.utils.crypto import hashes as hs
@@ -313,14 +315,15 @@ class TestAtomicSwapCtrt:
         api = maker_ctrt.chain.api
 
         maker_lock_tx_info = await maker_ctrt.maker_lock(
-            acnt0, 10, acnt1.addr.data, "abc", int(time.time()) + 10
+            acnt0, 10, acnt1.addr.data, "abc", int(time.time()) + 8
         )
         await cft.wait_for_block()
-        await cft.wait_for_block()  # wait for 12 seconds until the lock is expired.
         maker_lock_id = maker_lock_tx_info["id"]
         await cft.assert_tx_success(api, maker_lock_id)
 
         bal_old = await maker_ctrt.get_swap_balance(acnt0.addr.data)
+
+        await asyncio.sleep(5)  # wait unitl the lock is expired
 
         exp_withdraw_tx_info = await maker_ctrt.exp_withdraw(acnt0, maker_lock_id)
         await cft.wait_for_block()
