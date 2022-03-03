@@ -204,7 +204,7 @@ class TestTokCtrtWithoutSplit:
         tok_bal = await cft.get_tok_bal(api, acnt0.addr.data, tc.tok_id.data)
         assert tok_bal == 40
 
-        deposited_tok_bal = await ac.get_swap_balance(acnt0.addr.data)
+        deposited_tok_bal = await ac.get_ctrt_bal(acnt0.addr.data)
         assert deposited_tok_bal.amount == 10
 
         # withdraw
@@ -214,7 +214,7 @@ class TestTokCtrtWithoutSplit:
         tok_bal = await cft.get_tok_bal(api, acnt0.addr.data, tc.tok_id.data)
         assert tok_bal == 50
 
-        deposited_tok_bal = await ac.get_swap_balance(acnt0.addr.data)
+        deposited_tok_bal = await ac.get_ctrt_bal(acnt0.addr.data)
         assert deposited_tok_bal.amount == 0
 
     async def test_destroy(
