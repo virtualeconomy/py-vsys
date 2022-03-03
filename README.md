@@ -12,11 +12,11 @@ The official Python SDK for VSYS APIs. The [old Python SDK](https://github.com/v
     - [Pip](#pip)
     - [Pipenv](#pipenv)
   - [Quick Example](#quick-example)
+  - [Docs](#docs)
+    - [Smart Contracts](#smart-contracts)
   - [Run Tests](#run-tests)
     - [Functional Tests](#functional-tests)
   - [Logging](#logging)
-  - [Docs](#docs)
-    - [Smart Contracts](#smart-contracts)
   - [Contributing](#contributing)
 
 
@@ -139,6 +139,11 @@ Issuer: AU6BNRK34SLuc27evpzJbAswB6ntHV2hmjD
 Contract id:  CFB6zvcy39FCRGhxo8HH3PE6zZEG5zXevhG
 ```
 
+## Docs
+
+### Smart Contracts
+- [NFT Contract V1](./doc/smart_contract/nft_ctrt.md)
+
 ## Run Tests
 
 ### Functional Tests
@@ -178,13 +183,6 @@ To enable it, add the following to your codes.
 from loguru import logger
 logger.enable("py_v_sdk")
 ```
-
-## Docs
-
-> The complete documentation is on the way
-
-### Smart Contracts
-- [NFT Contract](./doc/smart_contract/nft_ctrt.md)
 
 
 ## Contributing
