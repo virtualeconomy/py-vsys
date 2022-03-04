@@ -143,6 +143,7 @@ Contract id:  CFB6zvcy39FCRGhxo8HH3PE6zZEG5zXevhG
 
 ### Smart Contracts
 - [NFT Contract V1](./doc/smart_contract/nft_ctrt.md)
+- [NFT Contract V2](./doc/smart_contract/nft_ctrt_v2.md)
 
 ## Run Tests
 
