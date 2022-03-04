@@ -36,7 +36,7 @@ Examples of NFT contract V2 with whitelist are shown below. The usage of the bla
 ### Registration
 
 ```python
-import py_v_sdk as pv
+import py_vsys as pv
 
 # acnt: pv.Account
 
@@ -53,7 +53,7 @@ CFD6rH5xHXQqweUwAJ3B7J2owvPiKpewsRc
 ### From Existing Contract
 
 ```python
-import py_v_sdk as pv
+import py_vsys as pv
 
 # ch: pv.Chain
 
@@ -158,7 +158,7 @@ False
 Define a new NFT and issue it. Only the issuer of the contract instance can take this action. The issued NFT will belong to the issuer.
 
 ```python
-import py_v_sdk as pv
+import py_vsys as pv
 
 # acnt: pv.Account
 # nc: pv.NFTCtrtV2Whitelist
@@ -176,7 +176,7 @@ Example output
 Send an NFT to another user.
 
 ```python
-import py_v_sdk as pv
+import py_vsys as pv
 
 # acnt0: pv.Account
 # acnt1: pv.Account
@@ -200,7 +200,7 @@ Transfer the ownership of an NFT to another account(e.g. user or contract).
 `transfer` is the underlying action of `send`, `deposit`, and `withdraw`. It is not recommended to use transfer directly. Use `send`, `deposit`, `withdraw` instead when possible.
 
 ```python
-import py_v_sdk as pv
+import py_vsys as pv
 
 # acnt0: pv.Account
 # acnt1: pv.Account
@@ -226,7 +226,7 @@ Deposit an NFT to a token-holding contract instance(e.g. lock contract).
 Note that only the token defined in the token-holding contract instance can be deposited into it.
 
 ```python
-import py_v_sdk as pv
+import py_vsys as pv
 
 # acnt0: pv.Account
 # nc: pv.NFTCtrtV2Whitelist
@@ -253,7 +253,7 @@ Withdraw an NFT from a token-holding contract instance(e.g. lock contract).
 Note that only the one who deposits the token can withdraw.
 
 ```python
-import py_v_sdk as pv
+import py_vsys as pv
 
 # acnt0: pv.Account
 # nc: pv.NFTCtrtV2Whitelist
@@ -280,7 +280,7 @@ Transfer the issuer & regulator role of the contract to a new user.
 Note that only the contract maker has the privilege to take this action.
 
 ```python
-import py_v_sdk as pv
+import py_vsys as pv
 
 # acnt0: pv.Account
 # acnt1: pv.Account
@@ -306,7 +306,7 @@ Add/remove a user from the whitelist/blacklist.
 Note the regulator has the privilege to take this action.
 
 ```python
-import py_v_sdk as pv
+import py_vsys as pv
 
 # acnt0: pv.Account
 # acnt1: pv.Account
@@ -331,7 +331,7 @@ Add/remove a contract from the whitelist/blacklist.
 Note the regulator has the privilege to take this action.
 
 ```python
-import py_v_sdk as pv
+import py_vsys as pv
 
 # acnt0: pv.Account
 # acnt1: pv.Account

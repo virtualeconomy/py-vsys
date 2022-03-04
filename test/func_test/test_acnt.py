@@ -5,7 +5,7 @@ test_acnt contains functional tests for Account.
 import uuid
 import pytest
 
-import py_v_sdk as pv
+import py_vsys as pv
 from . import conftest as cft
 
 

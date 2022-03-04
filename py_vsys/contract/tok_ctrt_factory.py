@@ -7,11 +7,11 @@ from typing import TYPE_CHECKING, Type
 
 # https://stackoverflow.com/a/39757388
 if TYPE_CHECKING:
-    from py_v_sdk import chain as ch
+    from py_vsys import chain as ch
 
-from py_v_sdk import model as md
+from py_vsys import model as md
 
-from py_v_sdk.contract import nft_ctrt, tok_ctrt, sys_ctrt
+from py_vsys.contract import nft_ctrt, tok_ctrt, sys_ctrt
 from . import BaseTokCtrt
 
 

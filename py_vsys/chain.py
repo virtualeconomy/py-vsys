@@ -7,7 +7,7 @@ from typing import Dict, Any, TYPE_CHECKING, List
 
 # https://stackoverflow.com/a/39757388
 if TYPE_CHECKING:
-    from py_v_sdk import api
+    from py_vsys import api
 
 
 class ChainID(enum.Enum):

@@ -40,7 +40,7 @@ pip install git+https://github.com/virtualeconomy/py-v-sdk.git
 ### Pipenv
 
 ```bash
-pipenv install git+https://github.com/virtualeconomy/py-v-sdk.git@main#egg=py_v_sdk
+pipenv install git+https://github.com/virtualeconomy/py-v-sdk.git@main#egg=py_vsys
 ```
 
 `@main` is necessary as the default branch is `develop`
@@ -49,14 +49,14 @@ pipenv install git+https://github.com/virtualeconomy/py-v-sdk.git@main#egg=py_v_
 If installing from the `develop` branch is desired, run
 
 ```bash
-pipenv install git+https://github.com/virtualeconomy/py-v-sdk.git#egg=py_v_sdk
+pipenv install git+https://github.com/virtualeconomy/py-v-sdk.git#egg=py_vsys
 ```
 
 ## Quick Example
 
 ```python
 import asyncio
-import py_v_sdk as pv
+import py_vsys as pv
 
 # The RESTful API host address to a node in a public test net
 HOST = "http://veldidina.vos.systems:9928"
@@ -148,9 +148,9 @@ Contract id:  CFB6zvcy39FCRGhxo8HH3PE6zZEG5zXevhG
 ## Run Tests
 
 ### Functional Tests
-Functional tests are scripts that simulate the behaviour of a normal user to interact wtih `py_v_sdk`(e.g. register a smart contract & call functions of it).
+Functional tests are scripts that simulate the behaviour of a normal user to interact wtih `py_vsys`(e.g. register a smart contract & call functions of it).
 
-To run it, ensure that you have `pytest` properly installed(it is a development dependency of `py_v_sdk` and can be installed via `pipenv install -d`).
+To run it, ensure that you have `pytest` properly installed(it is a development dependency of `py_vsys` and can be installed via `pipenv install -d`).
 
 > NOTE that the test environment defined as global variables in [conftest.py](./test/func_test/conftest.py) has to be configured through environment vairables before the test cases can be executed.
 
@@ -182,7 +182,7 @@ To enable it, add the following to your codes.
 
 ```python
 from loguru import logger
-logger.enable("py_v_sdk")
+logger.enable("py_vsys")
 ```
 
 

@@ -4,9 +4,9 @@ import base58
 
 import pytest
 
-import py_v_sdk as pv
-from py_v_sdk.utils.crypto import hashes as hs
-from py_v_sdk import data_entry as de
+import py_vsys as pv
+from py_vsys.utils.crypto import hashes as hs
+from py_vsys import data_entry as de
 from test.func_test import conftest as cft
 
 
