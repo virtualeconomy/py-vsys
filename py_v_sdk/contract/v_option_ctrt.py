@@ -696,14 +696,6 @@ class VOptionCtrt(Ctrt):
         Returns:
             VOptionCtrt: The VOptionCtrt object of the registered V Option contract.
         """
-        # a = await by.chain.api.ctrt.get_tok_info(base_tok_id)
-        # base_unit = a["unity"]
-        # b = await by.chain.api.ctrt.get_tok_info(target_tok_id)
-        # target_unit = b["unity"]
-        # c = await by.chain.api.ctrt.get_tok_info(option_tok_id)
-        # base_unit = a["unity"]
-        # b = await by.chain.api.ctrt.get_tok_info(proof_tok_id)
-        # target_unit = b["unity"]
 
         data = await by._register_contract(
             tx.RegCtrtTxReq(
