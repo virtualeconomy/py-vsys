@@ -71,7 +71,7 @@ print(await nc.issuer)
 Example output
 
 ```
-AU6BNRK34SLuc27evpzJbAswB6ntHV2hmjD
+Addr(AU6BNRK34SLuc27evpzJbAswB6ntHV2hmjD)
 ```
 
 #### Maker
@@ -85,7 +85,7 @@ print(await nc.maker)
 Example output
 
 ```
-AU6BNRK34SLuc27evpzJbAswB6ntHV2hmjD
+Addr(AU6BNRK34SLuc27evpzJbAswB6ntHV2hmjD)
 ```
 
 #### Unit
