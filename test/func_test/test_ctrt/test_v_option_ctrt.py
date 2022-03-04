@@ -211,10 +211,7 @@ class TestVOptionCtrt:
 
         Args:
             acnt0 (pv.Account): The account of nonce 0.
-            new_base_ctrt_with_tok (pv.TokCtrtWithoutSplit): The fixture that registers a new token contract without split and issues base tokens right after it.
-            new_target_ctrt_with_tok (pv.TokCtrtWithoutSplit): The fixture that registers a new token contract without split and issues target tokens right after it.
-            new_option_ctrt_with_tok (pv.TokCtrtWithoutSplit): The fixture that registers a new token contract without split and issues option tokens right after it.
-            new_proof_ctrt_with_tok (pv.TokCtrtWithoutSplit): The fixture that registers a new token contract without split and issues proof tokens right after it.
+            new_v_option_ctrt (pv.VOptionCtrt): The fixture that registers a new V Option contract.
 
         Returns:
             pv.VOptionCtrt: The VOptionCtrt instance.
@@ -255,6 +252,7 @@ class TestVOptionCtrt:
         test_activate tests the method activate.
 
         Args:
+            acnt0 (pv.Account): The account of nonce 0.
             new_v_option_ctrt (pv.VOptionCtrt): The fixture that registers a new V Option contract.
         """
         oc = new_v_option_ctrt
@@ -275,6 +273,7 @@ class TestVOptionCtrt:
         test_mint tests the method mint.
 
         Args:
+            acnt0 (pv.Account): The account of nonce 0.
             new_v_option_ctrt (pv.VOptionCtrt): The fixture that registers a new V Option contract.
         """
         oc = new_v_option_ctrt
@@ -298,6 +297,7 @@ class TestVOptionCtrt:
         test_unlock tests the method unlock.
 
         Args:
+            acnt0 (pv.Account): The account of nonce 0.
             new_v_option_ctrt_activated_and_minted (pv.VOptionCtrt): The fixture that registers a new V Option contract activated and minted.
         """
         oc = new_v_option_ctrt_activated_and_minted
@@ -353,28 +353,16 @@ class TestVOptionCtrt:
     async def test_as_whole(
         self,
         acnt0: pv.Account,
-        new_base_ctrt_with_tok: pv.TokCtrtWithoutSplit,
-        new_target_ctrt_with_tok: pv.TokCtrtWithoutSplit,
-        new_option_ctrt_with_tok: pv.TokCtrtWithoutSplit,
-        new_proof_ctrt_with_tok: pv.TokCtrtWithoutSplit,
+        new_v_option_ctrt: pv.VOptionCtrt,
     ) -> None:
         """
         test_as_whole tests methods of VOptionVtrt as a whole so as to reduce resource consumption.
 
         Args:
             acnt0 (pv.Account): The account of nonce 0.
-            new_base_ctrt_with_tok (pv.TokCtrtWithoutSplit): The fixture that registers a new token contract without split and issues base tokens right after it.
-            new_target_ctrt_with_tok (pv.TokCtrtWithoutSplit): The fixture that registers a new token contract without split and issues target tokens right after it.
-            new_option_ctrt_with_tok (pv.TokCtrtWithoutSplit): The fixture that registers a new token contract without split and issues option tokens right after it.
-            new_proof_ctrt_with_tok (pv.TokCtrtWithoutSplit): The fixture that registers a new token contract without split and issues proof tokens right after it.
+            new_v_option_ctrt (pv.VOptionCtrt): The fixture that registers a new V Option contract.
         """
-        option_ctrt = await self.test_register(
-            acnt0,
-            new_base_ctrt_with_tok,
-            new_target_ctrt_with_tok,
-            new_option_ctrt_with_tok,
-            new_proof_ctrt_with_tok,
-        )
+        option_ctrt = await self.test_register(acnt0, new_v_option_ctrt)
         await self.test_activate(acnt0, option_ctrt)
         await self.test_mint(acnt0, option_ctrt)
         await self.test_unlock(acnt0, option_ctrt)
