@@ -228,6 +228,7 @@ Example output
 
 #### Supersede
 Transfer the issuer role of the contract to a new user.
+The maker of the contract has the privilege to take this action.
 
 ```python
 import py_v_sdk as pv
