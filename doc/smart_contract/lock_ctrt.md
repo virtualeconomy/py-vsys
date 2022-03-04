@@ -104,7 +104,7 @@ print(await nc.get_ctrt_bal(addr=acnt.addr.data))
 Example output
 
 ```
-TokenID(200)
+Token(200)
 ```
 
 #### Lock time
