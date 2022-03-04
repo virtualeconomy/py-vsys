@@ -7,7 +7,7 @@ with open(os.path.join(this_dir, "README.md")) as f:
     long_description = f.read()
 
 setuptools.setup(
-    name="py-v-sdk",
+    name="py-vsys",
     version="0.1.0",
     description="The official Python SDK for VSYS APIs",
     long_description=long_description,
@@ -21,7 +21,7 @@ setuptools.setup(
         "supernode",
         "defi",
     ],
-    url="https://github.com/virtualeconomy/py-v-sdk",
+    url="https://github.com/virtualeconomy/py-vsys",
     author="V SYSTEMS",
     author_email="developers@v.systems",
     license="MIT",
@@ -32,5 +32,5 @@ setuptools.setup(
         "base58~=2.1.1",
         "loguru~=0.5.3",
     ],
-    python_requires=">=3.9",
+    python_requires=">=3.7",
 )
