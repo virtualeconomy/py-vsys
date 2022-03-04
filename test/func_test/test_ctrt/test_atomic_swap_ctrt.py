@@ -323,7 +323,7 @@ class TestAtomicSwapCtrt:
 
         bal_old = await maker_ctrt.get_ctrt_bal(acnt0.addr.data)
 
-        await asyncio.sleep(5)  # wait unitl the lock is expired
+        await asyncio.sleep(10)  # wait unitl the lock is expired
 
         exp_withdraw_tx_info = await maker_ctrt.exp_withdraw(acnt0, maker_lock_id)
         await cft.wait_for_block()
