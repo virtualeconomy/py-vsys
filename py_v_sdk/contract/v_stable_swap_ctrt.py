@@ -437,8 +437,10 @@ class VStableSwapCtrt(Ctrt):
         Returns:
             md.TokenID: The base token id.
         """
-        raw_val = await self._query_db_key(self.DBKey.for_base_token_id())
-        return md.TokenID(raw_val)
+        if not self._base_tok_id:
+            raw_val = await self._query_db_key(self.DBKey.for_base_token_id())
+            self._base_tok_id = md.TokenID(raw_val)
+        return self._base_tok_id
 
     @property
     async def target_tok_id(self) -> md.TokenID:
@@ -448,8 +450,10 @@ class VStableSwapCtrt(Ctrt):
         Returns:
             md.TokenID: The target token id.
         """
-        raw_val = await self._query_db_key(self.DBKey.for_target_token_id())
-        return md.TokenID(raw_val)
+        if not self._target_tok_id:
+            raw_val = await self._query_db_key(self.DBKey.for_target_token_id())
+            self._target_tok_id = md.TokenID(raw_val)
+        return self._target_tok_id
 
     @property
     async def base_tok_ctrt(self) -> BaseTokCtrt:
