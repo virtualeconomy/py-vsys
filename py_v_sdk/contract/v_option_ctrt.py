@@ -2,7 +2,7 @@
 v_option_ctrt contains V Option contract.
 """
 from __future__ import annotations
-from typing import TYPE_CHECKING, Dict, Union
+from typing import TYPE_CHECKING, Dict, Union, Optional
 
 from loguru import logger
 
@@ -14,9 +14,8 @@ if TYPE_CHECKING:
 from py_v_sdk import data_entry as de
 from py_v_sdk import tx_req as tx
 from py_v_sdk import model as md
-from . import CtrtMeta, Ctrt
-
-import py_v_sdk as pv
+from py_v_sdk.contract import tok_ctrt_factory as tcf
+from . import CtrtMeta, Ctrt, BaseTokCtrt
 
 
 class VOptionCtrt(Ctrt):
@@ -311,15 +310,41 @@ class VOptionCtrt(Ctrt):
             ).serialize()
             return cls(b)
 
+    def __init__(self, ctrt_id: str, chain: ch.Chain) -> None:
+        """
+        Args:
+            ctrt_id (str): The id of the contract.
+            chain (ch.Chain): The object of the chain where the contract is on.
+        """
+        self._ctrt_id = md.CtrtID(ctrt_id)
+        self._chain = chain
+
+        self._base_tok_id: Optional[md.TokenID] = None
+        self._target_tok_id: Optional[md.TokenID] = None
+        self._option_tok_id: Optional[md.TokenID] = None
+        self._proof_tok_id: Optional[md.TokenID] = None
+
+        self._base_tok_ctrt: Optional[BaseTokCtrt] = None
+        self._target_tok_ctrt: Optional[BaseTokCtrt] = None
+        self._option_tok_ctrt: Optional[BaseTokCtrt] = None
+        self._proof_tok_ctrt: Optional[BaseTokCtrt] = None
+
+        self._execute_time: Optional[md.VSYSTimestamp] = None
+        self._execute_time_deadline: Optional[md.VSYSTimestamp] = None
+        self._max_issue_num: Optional[md.Token] = None
+        self._price: Optional[md.Token] = None
+        self._price_unit: Optional[md.Token] = None
+
     @property
-    async def maker(self) -> str:
+    async def maker(self) -> md.Addr:
         """
         maker queries & returns the maker of the contract.
 
         Returns:
-            str: The address of the maker of the contract.
+            md.Addr: The address of the maker of the contract.
         """
-        return await self._query_db_key(self.DBKey.for_maker())
+        maker = await self._query_db_key(self.DBKey.for_maker())
+        return md.Addr(maker)
 
     @property
     async def base_token_id(self) -> md.TokenID:
@@ -327,19 +352,25 @@ class VOptionCtrt(Ctrt):
         base_token_id queries & returns the base token id.
 
         Returns:
-            str: The base token id.
+            md.TokenID: The base token id.
         """
-        return await self._query_db_key(self.DBKey.for_base_token_id())
+        if not self._base_tok_id:
+            raw_val = await self._query_db_key(self.DBKey.for_base_token_id())
+            self._base_tok_id = md.TokenID(raw_val)
+        return self._base_tok_id
 
     @property
-    async def target_token_id(self) -> str:
+    async def target_token_id(self) -> md.TokenID:
         """
         target_token_id queries & returns the target token id.
 
         Returns:
-            str: The target token id.
+            md.TokenID: The target token id.
         """
-        return await self._query_db_key(self.DBKey.for_target_token_id())
+        if not self._target_tok_id:
+            raw_val = await self._query_db_key(self.DBKey.for_target_token_id())
+            self._target_tok_id = md.TokenID(raw_val)
+        return self._target_tok_id
 
     @property
     async def option_token_id(self) -> md.TokenID:
@@ -347,42 +378,106 @@ class VOptionCtrt(Ctrt):
         option_token_id queries & returns the option token id.
 
         Returns:
-            str: The option token id.
+            md.TokenID: The option token id.
         """
-        return await self._query_db_key(self.DBKey.for_option_token_id())
+        if not self._option_tok_id:
+            raw_val = await self._query_db_key(self.DBKey.for_option_token_id())
+            self._option_tok_id = md.TokenID(raw_val)
+        return self._option_tok_id
 
     @property
-    async def proof_token_id(self) -> str:
+    async def proof_token_id(self) -> md.TokenID:
         """
         proof_token_id queries & returns the proof token id.
 
         Returns:
-            str: The proof token id.
+            md.TokenID: The proof token id.
         """
-        return await self._query_db_key(self.DBKey.for_proof_token_id())
+        if not self._proof_tok_id:
+            raw_val = await self._query_db_key(self.DBKey.for_proof_token_id())
+            self._proof_tok_id = md.TokenID(raw_val)
+        return self._proof_tok_id
 
     @property
-    async def execute_time(self) -> str:
+    async def base_tok_ctrt(self) -> BaseTokCtrt:
+        """
+        base_tok_ctrt returns the token contract instance for base token.
+
+        Returns:
+            BaseTokCtrt: The token contract intance.
+        """
+        if not self._base_tok_ctrt:
+            base_tok_id = await self.base_token_id
+            self._base_tok_ctrt = await tcf.from_tok_id(base_tok_id, self.chain)
+        return self._base_tok_ctrt
+
+    @property
+    async def target_tok_ctrt(self) -> BaseTokCtrt:
+        """
+        target_tok_ctrt returns the token contract instance for target token.
+
+        Returns:
+            BaseTokCtrt: The token contract intance.
+        """
+        if not self._target_tok_ctrt:
+            target_tok_id = await self.target_token_id
+            self._target_tok_ctrt = await tcf.from_tok_id(target_tok_id, self.chain)
+        return self._target_tok_ctrt
+
+    @property
+    async def option_tok_ctrt(self) -> BaseTokCtrt:
+        """
+        option_tok_ctrt returns the token contract instance for option token.
+
+        Returns:
+            BaseTokCtrt: The token contract intance.
+        """
+        if not self._base_tok_ctrt:
+            option_tok_id = await self.option_token_id
+            self._option_tok_ctrt = await tcf.from_tok_id(option_tok_id, self.chain)
+        return self._option_tok_ctrt
+
+    @property
+    async def proof_tok_ctrt(self) -> BaseTokCtrt:
+        """
+        proof_tok_ctrt returns the token contract instance for proof token.
+
+        Returns:
+            BaseTokCtrt: The token contract intance.
+        """
+        if not self._proof_tok_ctrt:
+            proof_tok_id = await self.proof_token_id
+            self._proof_tok_ctrt = await tcf.from_tok_id(proof_tok_id, self.chain)
+        return self._proof_tok_ctrt
+
+    @property
+    async def execute_time(self) -> md.VSYSTimestamp:
         """
         execute_time queries & returns the execute time.
 
         Returns:
-            str: The execute time.
+            md.VSYSTimestamp: The execute time.
         """
-        return await self._query_db_key(self.DBKey.for_execute_time())
+        if not self._execute_time:
+            time = await self._query_db_key(self.DBKey.for_execute_time())
+            self._execute_time = md.VSYSTimestamp(time)
+        return self._execute_time
 
     @property
-    async def execute_deadline(self) -> str:
+    async def execute_deadline(self) -> md.VSYSTimestamp:
         """
         execute_time queries & returns the execute time.
 
         Returns:
-            str: The execute time.
+            md.VSYSTimestamp: The execute time.
         """
-        return await self._query_db_key(self.DBKey.for_execute_deadline())
+        if not self._execute_time_deadline:
+            ddl = await self._query_db_key(self.DBKey.for_execute_deadline())
+            self._execute_time_deadline = md.VSYSTimestamp(ddl)
+        return self._execute_time_deadline
 
     @property
-    async def option_status(self) -> str:
+    async def option_status(self) -> bool:
         """
         execute_time queries & returns the option contract's status.
 
@@ -397,42 +492,47 @@ class VOptionCtrt(Ctrt):
         max_issue_num queries & returns the maximum issue of the option tokens.
 
         Returns:
-            str: The maximum issue of the option tokens.
+            md.Token: The maximum issue of the option tokens.
         """
-        a = await self._query_db_key(self.DBKey.for_max_issue_num())
-        return md.Token.for_amount(a, await self.base_tok_unit)
+        if not self._max_issue_num:
+            raw_val = await self._query_db_key(self.DBKey.for_max_issue_num())
+            self._max_issue_num = md.Token.for_amount(raw_val, await self.base_tok_unit)
+        return self._max_issue_num
 
     @property
-    async def reserved_option(self) -> str:
+    async def reserved_option(self) -> md.Token:
         """
         reserved_option queries & returns the reserved option tokens remaining in the pool.
 
         Returns:
-            str: The reserved option tokens remaining in the pool.
+            md.Token: The reserved option tokens remaining in the pool.
         """
-        return await self._query_db_key(self.DBKey.for_reserved_option())
+        token = await self._query_db_key(self.DBKey.for_reserved_option())
+        return md.Token(token, await self.option_tok_unit)
 
     @property
-    async def reserved_proof(self) -> str:
+    async def reserved_proof(self) -> md.Token:
         """
         reserved_proof queries & returns the reserved proof tokens remaining in the pool.
 
         Returns:
-            str: The reserved proof tokens remaining in the pool.
+            md.Token: The reserved proof tokens remaining in the pool.
         """
-        return await self._query_db_key(self.DBKey.for_reserved_proof())
+        token = await self._query_db_key(self.DBKey.for_reserved_proof())
+        return md.Token(token, await self.proof_tok_unit)
 
     @property
-    async def price(self) -> str:
+    async def price(self) -> md.Token:
         """
         price queries & returns the price of the contract creator.
 
         Returns:
-            str: The price of the contract creator.
+            md.Token: The price of the contract creator.
         """
-        a = await self._query_db_key(self.DBKey.for_price())
-        b = md.Token(a)
-        return b.data
+        if not self._price:
+            price = await self._query_db_key(self.DBKey.for_price())
+            self._price = md.Token(price, 1)
+        return self._price
 
     @property
     async def price_unit(self) -> md.Token:
@@ -442,8 +542,10 @@ class VOptionCtrt(Ctrt):
         Returns:
             str: The price unit of the contract creator.
         """
-        a = await self._query_db_key(self.DBKey.for_price_unit())
-        return md.Token(a)
+        if not self._price_unit:
+            price_unit = await self._query_db_key(self.DBKey.for_price_unit())
+            self._price_unit = md.Token(price_unit, 1)
+        return self._price_unit
 
     @property
     async def token_locked(self) -> md.Token:
@@ -451,10 +553,10 @@ class VOptionCtrt(Ctrt):
         token_locked queries & returns the locked token amount.
 
         Returns:
-            md.Addr: The lock token amount.
+            md.Token: The lock token amount.
         """
-        a = await self._query_db_key(self.DBKey.for_token_locked())
-        return md.Token(a, await self.target_tok_unit)
+        raw_val = await self._query_db_key(self.DBKey.for_token_locked())
+        return md.Token(raw_val, await self.target_tok_unit)
 
     @property
     async def token_collected(self) -> md.Token:
@@ -462,10 +564,10 @@ class VOptionCtrt(Ctrt):
         token_collected queries & returns the amount of the base tokens in the pool.
 
         Returns:
-            md.Addr: The amount of the base tokens in the pool.
+            md.Token: The amount of the base tokens in the pool.
         """
-        a = await self._query_db_key(self.DBKey.for_token_collected())
-        return md.Token(a)
+        raw_val = await self._query_db_key(self.DBKey.for_token_collected())
+        return md.Token(raw_val, await self.target_tok_unit)
 
     @property
     async def base_tok_unit(self) -> int:
@@ -475,9 +577,8 @@ class VOptionCtrt(Ctrt):
         Returns:
             int: The unit of base token.
         """
-        tok_a_id = await self.base_token_id
-        data = await self.chain.api.ctrt.get_tok_info(tok_a_id)
-        return data["unity"]
+        tc = await self.base_tok_ctrt
+        return await tc.unit
 
     @property
     async def target_tok_unit(self) -> int:
@@ -487,9 +588,8 @@ class VOptionCtrt(Ctrt):
         Returns:
             int: The unit of target token.
         """
-        tok_b_id = await self.target_token_id
-        data = await self.chain.api.ctrt.get_tok_info(tok_b_id)
-        return data["unity"]
+        tc = await self.target_tok_ctrt
+        return await tc.unit
 
     @property
     async def option_tok_unit(self) -> int:
@@ -499,9 +599,8 @@ class VOptionCtrt(Ctrt):
         Returns:
             int: The unit of option token.
         """
-        tok_c_id = await self.option_token_id
-        data = await self.chain.api.ctrt.get_tok_info(tok_c_id)
-        return data["unity"]
+        tc = await self.option_tok_ctrt
+        return await tc.unit
 
     @property
     async def proof_tok_unit(self) -> int:
@@ -511,9 +610,8 @@ class VOptionCtrt(Ctrt):
         Returns:
             int: The unit of proof token.
         """
-        tok_d_id = await self.proof_token_id
-        data = await self.chain.api.ctrt.get_tok_info(tok_d_id)
-        return data["unity"]
+        tc = await self.proof_tok_ctrt
+        return await tc.unit
 
     async def get_base_tok_bal(self, addr: str) -> md.Token:
         """
