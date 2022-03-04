@@ -12,7 +12,7 @@ class TestVOptionCtrt:
     """
 
     @pytest.fixture
-    async def new_base_ctrt(self, acnt0: pv.Account) -> pv.TokenCtrtWithoutSplit:
+    async def new_base_ctrt(self, acnt0: pv.Account) -> pv.TokCtrtWithoutSplit:
         """
         new_base_ctrt is the fixture that registers a new base token contract.
 
@@ -20,14 +20,14 @@ class TestVOptionCtrt:
             acnt0 (pv.Account): the account of nonce 0.
 
         Returns:
-            pv.TokenCtrtWithoutSplit: the TokenCtrtWithoutSplit instance.
+            pv.TokCtrtWithoutSplit: the TokCtrtWithoutSplit instance.
         """
-        tc = await pv.TokenCtrtWithoutSplit.register(acnt0, 1000, 1)
+        tc = await pv.TokCtrtWithoutSplit.register(acnt0, 1000, 1)
         await cft.wait_for_block()
         return tc
 
     @pytest.fixture
-    async def new_target_ctrt(self, acnt0: pv.Account) -> pv.TokenCtrtWithoutSplit:
+    async def new_target_ctrt(self, acnt0: pv.Account) -> pv.TokCtrtWithoutSplit:
         """
         new_target_ctrt is the fixture that registers a new target token contract.
 
@@ -35,14 +35,14 @@ class TestVOptionCtrt:
             acnt0 (pv.Account): the account of nonce 0.
 
         Returns:
-            pv.TokenCtrtWithoutSplit: the TokenCtrtWithoutSplit instance.
+            pv.TokCtrtWithoutSplit: the TokCtrtWithoutSplit instance.
         """
-        tc = await pv.TokenCtrtWithoutSplit.register(acnt0, 1000, 1)
+        tc = await pv.TokCtrtWithoutSplit.register(acnt0, 1000, 1)
         await cft.wait_for_block()
         return tc
 
     @pytest.fixture
-    async def new_option_ctrt(self, acnt0: pv.Account) -> pv.TokenCtrtWithoutSplit:
+    async def new_option_ctrt(self, acnt0: pv.Account) -> pv.TokCtrtWithoutSplit:
         """
         new_option_ctrt is the fixture that registers a new option token contract.
 
@@ -50,14 +50,14 @@ class TestVOptionCtrt:
             acnt0 (pv.Account): the account of nonce 0.
 
         Returns:
-            pv.TokenCtrtWithoutSplit: the TokenCtrtWithoutSplit instance.
+            pv.TokCtrtWithoutSplit: the TokCtrtWithoutSplit instance.
         """
-        tc = await pv.TokenCtrtWithoutSplit.register(acnt0, 1000, 1)
+        tc = await pv.TokCtrtWithoutSplit.register(acnt0, 1000, 1)
         await cft.wait_for_block()
         return tc
 
     @pytest.fixture
-    async def new_proof_ctrt(self, acnt0: pv.Account) -> pv.TokenCtrtWithoutSplit:
+    async def new_proof_ctrt(self, acnt0: pv.Account) -> pv.TokCtrtWithoutSplit:
         """
         new_proof_ctrt is the fixture that registers a new proof token contract.
 
@@ -65,25 +65,25 @@ class TestVOptionCtrt:
             acnt0 (pv.Account): the account of nonce 0.
 
         Returns:
-            pv.TokenCtrtWithoutSplit: the TokenCtrtWithoutSplit instance.
+            pv.TokCtrtWithoutSplit: the TokCtrtWithoutSplit instance.
         """
-        tc = await pv.TokenCtrtWithoutSplit.register(acnt0, 1000, 1)
+        tc = await pv.TokCtrtWithoutSplit.register(acnt0, 1000, 1)
         await cft.wait_for_block()
         return tc
 
     @pytest.fixture
     async def new_base_ctrt_with_tok(
-        self, new_base_ctrt: pv.TokenCtrtWithoutSplit, acnt0: pv.Account
-    ) -> pv.TokenCtrtWithoutSplit:
+        self, new_base_ctrt: pv.TokCtrtWithoutSplit, acnt0: pv.Account
+    ) -> pv.TokCtrtWithoutSplit:
         """
         new_base_ctrt_with_tok is the fixture that registers a new TokenWithoutSplit contract and issues base tokens right after it.
 
         Args:
-            new_base_ctrt (pv.TokenCtrtWithoutSplit): The fixture that registers a new TokenWithoutSplit contract.
+            new_base_ctrt (pv.TokCtrtWithoutSplit): The fixture that registers a new TokenWithoutSplit contract.
             acnt0 (pv.Account): The account of nonce 0.
 
         Returns:
-            pv.TokenCtrtWithoutSplit: The TokenCtrtWithoutSplit instance.
+            pv.TokCtrtWithoutSplit: The TokCtrtWithoutSplit instance.
         """
         tc = new_base_ctrt
         await tc.issue(acnt0, 1000)
@@ -92,17 +92,17 @@ class TestVOptionCtrt:
 
     @pytest.fixture
     async def new_target_ctrt_with_tok(
-        self, new_target_ctrt: pv.TokenCtrtWithoutSplit, acnt0: pv.Account
-    ) -> pv.TokenCtrtWithoutSplit:
+        self, new_target_ctrt: pv.TokCtrtWithoutSplit, acnt0: pv.Account
+    ) -> pv.TokCtrtWithoutSplit:
         """
         new_target_ctrt_with_tok is the fixture that registers a new TokenWithoutSplit contract and issues target tokens right after it.
 
         Args:
-            new_target_ctrt (pv.TokenCtrtWithoutSplit): The fixture that registers a new TokenWithoutSplit contract.
+            new_target_ctrt (pv.TokCtrtWithoutSplit): The fixture that registers a new TokenWithoutSplit contract.
             acnt0 (pv.Account): The account of nonce 0.
 
         Returns:
-            pv.TokenCtrtWithoutSplit: The TokenCtrtWithoutSplit instance.
+            pv.TokCtrtWithoutSplit: The TokCtrtWithoutSplit instance.
         """
         tc = new_target_ctrt
         await tc.issue(acnt0, 1000)
@@ -111,17 +111,17 @@ class TestVOptionCtrt:
 
     @pytest.fixture
     async def new_option_ctrt_with_tok(
-        self, new_option_ctrt: pv.TokenCtrtWithoutSplit, acnt0: pv.Account
-    ) -> pv.TokenCtrtWithoutSplit:
+        self, new_option_ctrt: pv.TokCtrtWithoutSplit, acnt0: pv.Account
+    ) -> pv.TokCtrtWithoutSplit:
         """
         new_option_ctrt_with_tok is the fixture that registers a new TokenWithoutSplit contract and issues option tokens right after it.
 
         Args:
-            new_option_ctrt (pv.TokenCtrtWithoutSplit): The fixture that registers a new TokenWithoutSplit contract.
+            new_option_ctrt (pv.TokCtrtWithoutSplit): The fixture that registers a new TokenWithoutSplit contract.
             acnt0 (pv.Account): The account of nonce 0.
 
         Returns:
-            pv.TokenCtrtWithoutSplit: The TokenCtrtWithoutSplit instance.
+            pv.TokCtrtWithoutSplit: The TokCtrtWithoutSplit instance.
         """
         tc = new_option_ctrt
         await tc.issue(acnt0, 1000)
@@ -130,17 +130,17 @@ class TestVOptionCtrt:
 
     @pytest.fixture
     async def new_proof_ctrt_with_tok(
-        self, new_proof_ctrt: pv.TokenCtrtWithoutSplit, acnt0: pv.Account
-    ) -> pv.TokenCtrtWithoutSplit:
+        self, new_proof_ctrt: pv.TokCtrtWithoutSplit, acnt0: pv.Account
+    ) -> pv.TokCtrtWithoutSplit:
         """
         new_proof_ctrt_with_tok is the fixture that registers a new TokenWithoutSplit contract and issues proof tokens right after it.
 
         Args:
-            new_proof_ctrt (pv.TokenCtrtWithoutSplit): The fixture that registers a new TokenWithoutSplit contract.
+            new_proof_ctrt (pv.TokCtrtWithoutSplit): The fixture that registers a new TokenWithoutSplit contract.
             acnt0 (pv.Account): The account of nonce 0.
 
         Returns:
-            pv.TokenCtrtWithoutSplit: The TokenCtrtWithoutSplit instance.
+            pv.TokCtrtWithoutSplit: The TokCtrtWithoutSplit instance.
         """
         tc = new_proof_ctrt
         await tc.issue(acnt0, 1000)
@@ -151,20 +151,20 @@ class TestVOptionCtrt:
     async def new_v_option_ctrt(
         self,
         acnt0: pv.Account,
-        new_base_ctrt_with_tok: pv.TokenCtrtWithoutSplit,
-        new_target_ctrt_with_tok: pv.TokenCtrtWithoutSplit,
-        new_option_ctrt_with_tok: pv.TokenCtrtWithoutSplit,
-        new_proof_ctrt_with_tok: pv.TokenCtrtWithoutSplit,
+        new_base_ctrt_with_tok: pv.TokCtrtWithoutSplit,
+        new_target_ctrt_with_tok: pv.TokCtrtWithoutSplit,
+        new_option_ctrt_with_tok: pv.TokCtrtWithoutSplit,
+        new_proof_ctrt_with_tok: pv.TokCtrtWithoutSplit,
     ) -> pv.VStableSwapCtrt:
         """
         new_v_option_ctrt is the fixture that registers a new V Option contract.
 
         Args:
             acnt0 (pv.Account): The account of nonce 0.
-            new_base_ctrt_with_tok (pv.TokenCtrtWithoutSplit): The fixture that registers a new token contract without split and issues base tokens right after it.
-            new_target_ctrt_with_tok (pv.TokenCtrtWithoutSplit): The fixture that registers a new token contract without split and issues target tokens right after it.
-            new_option_ctrt_with_tok (pv.TokenCtrtWithoutSplit): The fixture that registers a new token contract without split and issues option tokens right after it.
-            new_proof_ctrt_with_tok (pv.TokenCtrtWithoutSplit): The fixture that registers a new token contract without split and issues proof tokens right after it.
+            new_base_ctrt_with_tok (pv.TokCtrtWithoutSplit): The fixture that registers a new token contract without split and issues base tokens right after it.
+            new_target_ctrt_with_tok (pv.TokCtrtWithoutSplit): The fixture that registers a new token contract without split and issues target tokens right after it.
+            new_option_ctrt_with_tok (pv.TokCtrtWithoutSplit): The fixture that registers a new token contract without split and issues option tokens right after it.
+            new_proof_ctrt_with_tok (pv.TokCtrtWithoutSplit): The fixture that registers a new token contract without split and issues proof tokens right after it.
 
         Returns:
             pv.VStableSwapCtrt: The VStableSwapCtrt instance.
@@ -211,10 +211,10 @@ class TestVOptionCtrt:
 
         Args:
             acnt0 (pv.Account): The account of nonce 0.
-            new_base_ctrt_with_tok (pv.TokenCtrtWithoutSplit): The fixture that registers a new token contract without split and issues base tokens right after it.
-            new_target_ctrt_with_tok (pv.TokenCtrtWithoutSplit): The fixture that registers a new token contract without split and issues target tokens right after it.
-            new_option_ctrt_with_tok (pv.TokenCtrtWithoutSplit): The fixture that registers a new token contract without split and issues option tokens right after it.
-            new_proof_ctrt_with_tok (pv.TokenCtrtWithoutSplit): The fixture that registers a new token contract without split and issues proof tokens right after it.
+            new_base_ctrt_with_tok (pv.TokCtrtWithoutSplit): The fixture that registers a new token contract without split and issues base tokens right after it.
+            new_target_ctrt_with_tok (pv.TokCtrtWithoutSplit): The fixture that registers a new token contract without split and issues target tokens right after it.
+            new_option_ctrt_with_tok (pv.TokCtrtWithoutSplit): The fixture that registers a new token contract without split and issues option tokens right after it.
+            new_proof_ctrt_with_tok (pv.TokCtrtWithoutSplit): The fixture that registers a new token contract without split and issues proof tokens right after it.
 
         Returns:
             pv.VOptionCtrt: The VOptionCtrt instance.
@@ -232,20 +232,20 @@ class TestVOptionCtrt:
     async def test_register(
         self,
         acnt0: pv.Account,
-        new_base_ctrt_with_tok: pv.TokenCtrtWithoutSplit,
-        new_target_ctrt_with_tok: pv.TokenCtrtWithoutSplit,
-        new_option_ctrt_with_tok: pv.TokenCtrtWithoutSplit,
-        new_proof_ctrt_with_tok: pv.TokenCtrtWithoutSplit,
+        new_base_ctrt_with_tok: pv.TokCtrtWithoutSplit,
+        new_target_ctrt_with_tok: pv.TokCtrtWithoutSplit,
+        new_option_ctrt_with_tok: pv.TokCtrtWithoutSplit,
+        new_proof_ctrt_with_tok: pv.TokCtrtWithoutSplit,
     ) -> pv.VOptionCtrt:
         """
         test_register tests the method register.
 
         Args:
             acnt0 (pv.Account): The account of nonce 0.
-            new_base_ctrt_with_tok (pv.TokenCtrtWithoutSplit): The fixture that registers a new token contract without split and issues base tokens right after it.
-            new_target_ctrt_with_tok (pv.TokenCtrtWithoutSplit): The fixture that registers a new token contract without split and issues target tokens right after it.
-            new_option_ctrt_with_tok (pv.TokenCtrtWithoutSplit): The fixture that registers a new token contract without split and issues option tokens right after it.
-            new_proof_ctrt_with_tok (pv.TokenCtrtWithoutSplit): The fixture that registers a new token contract without split and issues proof tokens right after it.
+            new_base_ctrt_with_tok (pv.TokCtrtWithoutSplit): The fixture that registers a new token contract without split and issues base tokens right after it.
+            new_target_ctrt_with_tok (pv.TokCtrtWithoutSplit): The fixture that registers a new token contract without split and issues target tokens right after it.
+            new_option_ctrt_with_tok (pv.TokCtrtWithoutSplit): The fixture that registers a new token contract without split and issues option tokens right after it.
+            new_proof_ctrt_with_tok (pv.TokCtrtWithoutSplit): The fixture that registers a new token contract without split and issues proof tokens right after it.
 
         Returns:
             pv.VOptionCtrt: The VOptionCtrt instance.
@@ -387,20 +387,20 @@ class TestVOptionCtrt:
     async def test_as_whole(
         self,
         acnt0: pv.Account,
-        new_base_ctrt_with_tok: pv.TokenCtrtWithoutSplit,
-        new_target_ctrt_with_tok: pv.TokenCtrtWithoutSplit,
-        new_option_ctrt_with_tok: pv.TokenCtrtWithoutSplit,
-        new_proof_ctrt_with_tok: pv.TokenCtrtWithoutSplit,
+        new_base_ctrt_with_tok: pv.TokCtrtWithoutSplit,
+        new_target_ctrt_with_tok: pv.TokCtrtWithoutSplit,
+        new_option_ctrt_with_tok: pv.TokCtrtWithoutSplit,
+        new_proof_ctrt_with_tok: pv.TokCtrtWithoutSplit,
     ) -> None:
         """
         test_as_whole tests methods of VOptionVtrt as a whole so as to reduce resource consumption.
 
         Args:
             acnt0 (pv.Account): The account of nonce 0.
-            new_base_ctrt_with_tok (pv.TokenCtrtWithoutSplit): The fixture that registers a new token contract without split and issues base tokens right after it.
-            new_target_ctrt_with_tok (pv.TokenCtrtWithoutSplit): The fixture that registers a new token contract without split and issues target tokens right after it.
-            new_option_ctrt_with_tok (pv.TokenCtrtWithoutSplit): The fixture that registers a new token contract without split and issues option tokens right after it.
-            new_proof_ctrt_with_tok (pv.TokenCtrtWithoutSplit): The fixture that registers a new token contract without split and issues proof tokens right after it.
+            new_base_ctrt_with_tok (pv.TokCtrtWithoutSplit): The fixture that registers a new token contract without split and issues base tokens right after it.
+            new_target_ctrt_with_tok (pv.TokCtrtWithoutSplit): The fixture that registers a new token contract without split and issues target tokens right after it.
+            new_option_ctrt_with_tok (pv.TokCtrtWithoutSplit): The fixture that registers a new token contract without split and issues option tokens right after it.
+            new_proof_ctrt_with_tok (pv.TokCtrtWithoutSplit): The fixture that registers a new token contract without split and issues proof tokens right after it.
         """
         option_ctrt = await self.test_register(
             acnt0,
