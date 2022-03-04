@@ -10,12 +10,12 @@
       - [Maker](#maker)
       - [Unit](#unit)
     - [Actions](#actions)
-      - [issue](#issue)
-      - [send](#send)
-      - [transfer](#transfer)
-      - [deposit](#deposit)
-      - [withdraw](#withdraw)
-      - [supersede](#supersede)
+      - [Issue](#issue)
+      - [Send](#send)
+      - [Transfer](#transfer)
+      - [Deposit](#deposit)
+      - [Withdraw](#withdraw)
+      - [Supersede](#supersede)
 
 
 ## Introduction
@@ -106,7 +106,7 @@ Example output
 
 ### Actions
 
-#### issue
+#### Issue
 Define a new NFT and issue it. Only the issuer of the contract instance can take this action. The issued NFT will belong to the issuer.
 
 ```python
@@ -124,7 +124,7 @@ Example output
 {'type': 9, 'id': 'DyFKAkv6xSWuPjau3k8YXoPG4Awk2DL1iCK62Tch8k9u', 'fee': 30000000, 'feeScale': 100, 'timestamp': 1642064271931793920, 'proofs': [{'proofType': 'Curve25519', 'publicKey': '6gmM7UxzUyRJXidy2DpXXMvrPqEF9hR1eAqsmh33J6eL', 'address': 'AU6BNRK34SLuc27evpzJbAswB6ntHV2hmjD', 'signature': '5bVP3Krrddg8Z5J2XDcKb8MHfjqdhhFH6S3rh1pnj2wJde8YsatkBLHhyUs5f4LgqJHKK1zYVaUpdzF5Py2xUS27'}], 'contractId': 'CEvfK7Jw8ZxnbxZjEW8Ejumco5u4YSDKbYi', 'functionIndex': 1, 'functionData': '12Wfh1', 'attachment': ''}
 ```
 
-#### send
+#### Send
 Send an NFT to another user.
 
 ```python
@@ -147,7 +147,7 @@ Example output
 {'type': 9, 'id': '9AFRtsKvTjgGtvPhC4nGGkMkYZ8R1wDJvSL81dafzSSz', 'fee': 30000000, 'feeScale': 100, 'timestamp': 1646294591665059072, 'proofs': [{'proofType': 'Curve25519', 'publicKey': '6gmM7UxzUyRJXidy2DpXXMvrPqEF9hR1eAqsmh33J6eL', 'address': 'AU6BNRK34SLuc27evpzJbAswB6ntHV2hmjD', 'signature': '2UFsk8VGfJRTKTZjzBqsLQvymHrQuVo32CMo9sHDaGxPGKiu36teN3cboPqRTruMifX1oULPhotSgLwA1SQsVACb'}], 'contractId': 'CEu8AuKJS2Pr67RPV9dFjPAb8TL151weQsi', 'functionIndex': 2, 'functionData': '1bbXGi8m9ZYbKcwaURR5PCByaKR5gBCspa77NqkoRCLMM', 'attachment': ''}
 ```
 
-#### transfer
+#### Transfer
 Transfer the ownership of an NFT to another account(e.g. user or contract).
 `transfer` is the underlying action of `send`, `deposit`, and `withdraw`. It is not recommended to use transfer directly. Use `send`, `deposit`, `withdraw` instead when possible.
 
@@ -172,7 +172,7 @@ Example output
 {'type': 9, 'id': 'SCzmSvR379FNicWktdBSkbLAiYpbAtHDtvVqnMiuZ19', 'fee': 30000000, 'feeScale': 100, 'timestamp': 1646295272315819008, 'proofs': [{'proofType': 'Curve25519', 'publicKey': '4Z7yUcUqa1TcHMPtp7G6XMjxTKuZWXA2hQWNz7X8XsFZ', 'address': 'AU5NsHE8eC2guo3JobD8jrGvnEDQhBP8GtW', 'signature': '37wabTeKUaNLN17KqS8rsziS4NEfVsufrpxwv3zNB8WqnT3ykrR9tcwnxSkY6kW3e3fqWm2cqFijxWwBZYnqZGaN'}], 'contractId': 'CEu8AuKJS2Pr67RPV9dFjPAb8TL151weQsi', 'functionIndex': 3, 'functionData': '1Xv7sGyd9XHiohkKw3czXTogPULzBESxCD63rpmgaR9RTCPAKj4x9Q1WtWNJ357C1atzoEW81j5BXgQfV9', 'attachment': ''}
 ```
 
-#### deposit
+#### Deposit
 Deposit an NFT to a token-holding contract instance(e.g. lock contract).
 
 Note that only the token defined in the token-holding contract instance can be deposited into it.
@@ -199,7 +199,7 @@ Example output
 {'type': 9, 'id': '9mASDkeoJ8z9hLCoENGLRWfDSEjW7msAPExN1tGULSAs', 'fee': 30000000, 'feeScale': 100, 'timestamp': 1646295528164345088, 'proofs': [{'proofType': 'Curve25519', 'publicKey': '6gmM7UxzUyRJXidy2DpXXMvrPqEF9hR1eAqsmh33J6eL', 'address': 'AU6BNRK34SLuc27evpzJbAswB6ntHV2hmjD', 'signature': 'jWmo9BEV5WewhXZFi6cVVX918uLMG3A8YvbCaN9Xi3FE2MRBGeiGscnJ4JTMeLCGW87yLAAwcMwEFg1PBfb2jGo'}], 'contractId': 'CEu8AuKJS2Pr67RPV9dFjPAb8TL151weQsi', 'functionIndex': 4, 'functionData': '1Xv7sHDSN9pKrqwTTbWoYSpThW85PPDaJWpSGeL3sRGFVuQVfk4EcYKtk55bnWochAfaUm4nhah4YHY7F5', 'attachment': ''}
 ```
 
-#### withdraw
+#### Withdraw
 Withdraw an NFT from a token-holding contract instance(e.g. lock contract).
 
 Note that only the one who deposits the token can withdraw.
@@ -226,7 +226,7 @@ Example output
 {'type': 9, 'id': 'EF6Brq21Wi1Hv3N4z2BuVNRNfeXjb9uzv2HBVS8voRqG', 'fee': 30000000, 'feeScale': 100, 'timestamp': 1646295771726907904, 'proofs': [{'proofType': 'Curve25519', 'publicKey': '6gmM7UxzUyRJXidy2DpXXMvrPqEF9hR1eAqsmh33J6eL', 'address': 'AU6BNRK34SLuc27evpzJbAswB6ntHV2hmjD', 'signature': '4bEfdwPrwNzGkdLjP7JSvg2xdDnbPabtGK3fdGampaF9LySUHtsMJrD3V35F7C9zwgBrvMhEZfTfEB7iyY7SGquM'}], 'contractId': 'CEu8AuKJS2Pr67RPV9dFjPAb8TL151weQsi', 'functionIndex': 5, 'functionData': '1Y5SeLwhk5NvqLEeqZuAFHiVY6k713zijrRcTwsgJDd7gGwi9dxZpZCyGMqUWZJovQUcDw6MBsnz1AKygj', 'attachment': ''}
 ```
 
-#### supersede
+#### Supersede
 Transfer the issuer role of the contract to a new user.
 
 ```python
