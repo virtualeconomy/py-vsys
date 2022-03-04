@@ -12,11 +12,11 @@ from loguru import logger
 
 # https://stackoverflow.com/a/39757388
 if TYPE_CHECKING:
-    from py_v_sdk import chain as ch
+    from py_vsys import chain as ch
 
-from py_v_sdk import data_entry as de
-from py_v_sdk import model as md
-from py_v_sdk.utils.crypto import hashes as hs
+from py_vsys import data_entry as de
+from py_vsys import model as md
+from py_vsys.utils.crypto import hashes as hs
 
 
 class Bytes:

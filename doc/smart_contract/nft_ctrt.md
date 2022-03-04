@@ -32,7 +32,7 @@ Note that a NFT contract instance on the VSYS blockchain supports defining multi
 ### Registration
 
 ```python
-import py_v_sdk as pv
+import py_vsys as pv
 
 # acnt: pv.Account
 
@@ -49,7 +49,7 @@ CEu8AuKJS2Pr67RPV9dFjPAb8TL151weQsi
 ### From Existing Contract
 
 ```python
-import py_v_sdk as pv
+import py_vsys as pv
 
 # ch: pv.Chain
 
@@ -110,7 +110,7 @@ Example output
 Define a new NFT and issue it. Only the issuer of the contract instance can take this action. The issued NFT will belong to the issuer.
 
 ```python
-import py_v_sdk as pv
+import py_vsys as pv
 
 # acnt: pv.Account
 # nc: pv.NFTCtrt
@@ -128,7 +128,7 @@ Example output
 Send an NFT to another user.
 
 ```python
-import py_v_sdk as pv
+import py_vsys as pv
 
 # acnt0: pv.Account
 # acnt1: pv.Account
@@ -152,7 +152,7 @@ Transfer the ownership of an NFT to another account(e.g. user or contract).
 `transfer` is the underlying action of `send`, `deposit`, and `withdraw`. It is not recommended to use transfer directly. Use `send`, `deposit`, `withdraw` instead when possible.
 
 ```python
-import py_v_sdk as pv
+import py_vsys as pv
 
 # acnt0: pv.Account
 # acnt1: pv.Account
@@ -178,7 +178,7 @@ Deposit an NFT to a token-holding contract instance(e.g. lock contract).
 Note that only the token defined in the token-holding contract instance can be deposited into it.
 
 ```python
-import py_v_sdk as pv
+import py_vsys as pv
 
 # acnt0: pv.Account
 # nc: pv.NFTCtrt
@@ -205,7 +205,7 @@ Withdraw an NFT from a token-holding contract instance(e.g. lock contract).
 Note that only the one who deposits the token can withdraw.
 
 ```python
-import py_v_sdk as pv
+import py_vsys as pv
 
 # acnt0: pv.Account
 # nc: pv.NFTCtrt
@@ -231,7 +231,7 @@ Transfer the issuer role of the contract to a new user.
 The maker of the contract has the privilege to take this action.
 
 ```python
-import py_v_sdk as pv
+import py_vsys as pv
 
 # acnt0: pv.Account
 # acnt1: pv.Account

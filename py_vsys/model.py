@@ -8,9 +8,9 @@ from typing import Any, NamedTuple, Union
 
 import base58
 
-from py_v_sdk import chain as ch
-from py_v_sdk import words as wd
-from py_v_sdk.utils.crypto import hashes as hs
+from py_vsys import chain as ch
+from py_vsys import words as wd
+from py_vsys.utils.crypto import hashes as hs
 
 
 class Model(abc.ABC):

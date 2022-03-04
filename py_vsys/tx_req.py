@@ -9,12 +9,12 @@ from typing import Dict, Any, TYPE_CHECKING
 
 # https://stackoverflow.com/a/39757388
 if TYPE_CHECKING:
-    from py_v_sdk import data_entry as de
-    from py_v_sdk import contract as ctrt
+    from py_vsys import data_entry as de
+    from py_vsys import contract as ctrt
 
-from py_v_sdk import model as md
-from py_v_sdk import dbput as dp
-from py_v_sdk.utils.crypto import curve_25519 as curve
+from py_vsys import model as md
+from py_vsys import dbput as dp
+from py_vsys.utils.crypto import curve_25519 as curve
 
 
 class TxType(enum.Enum):
