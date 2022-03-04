@@ -232,53 +232,19 @@ class TestVOptionCtrt:
     async def test_register(
         self,
         acnt0: pv.Account,
-        new_base_ctrt_with_tok: pv.TokCtrtWithoutSplit,
-        new_target_ctrt_with_tok: pv.TokCtrtWithoutSplit,
-        new_option_ctrt_with_tok: pv.TokCtrtWithoutSplit,
-        new_proof_ctrt_with_tok: pv.TokCtrtWithoutSplit,
+        new_v_option_ctrt: pv.VOptionCtrt,
     ) -> pv.VOptionCtrt:
         """
         test_register tests the method register.
 
         Args:
             acnt0 (pv.Account): The account of nonce 0.
-            new_base_ctrt_with_tok (pv.TokCtrtWithoutSplit): The fixture that registers a new token contract without split and issues base tokens right after it.
-            new_target_ctrt_with_tok (pv.TokCtrtWithoutSplit): The fixture that registers a new token contract without split and issues target tokens right after it.
-            new_option_ctrt_with_tok (pv.TokCtrtWithoutSplit): The fixture that registers a new token contract without split and issues option tokens right after it.
-            new_proof_ctrt_with_tok (pv.TokCtrtWithoutSplit): The fixture that registers a new token contract without split and issues proof tokens right after it.
+            new_v_option_ctrt (pv.VOptionCtrt): The fixture that registers a new V Option contract.
 
         Returns:
             pv.VOptionCtrt: The VOptionCtrt instance.
         """
-        base_tc = new_base_ctrt_with_tok
-        target_tc = new_target_ctrt_with_tok
-        option_tc = new_option_ctrt_with_tok
-        proof_tc = new_proof_ctrt_with_tok
-
-        base_tok_id = pv.Ctrt.get_tok_id(base_tc.ctrt_id, 0)
-        target_tok_id = pv.Ctrt.get_tok_id(target_tc.ctrt_id, 0)
-        option_tok_id = pv.Ctrt.get_tok_id(option_tc.ctrt_id, 0)
-        proof_tok_id = pv.Ctrt.get_tok_id(proof_tc.ctrt_id, 0)
-
-        oc = await pv.VOptionCtrt.register(
-            acnt0,
-            base_tok_id,
-            target_tok_id,
-            option_tok_id,
-            proof_tok_id,
-            int(time.time() + 50),
-            int(time.time() + 96),
-        )
-        await cft.wait_for_block()
-
-        await asyncio.gather(
-            base_tc.deposit(acnt0, oc.ctrt_id, 1000),
-            target_tc.deposit(acnt0, oc.ctrt_id, 1000),
-            option_tc.deposit(acnt0, oc.ctrt_id, 1000),
-            proof_tc.deposit(acnt0, oc.ctrt_id, 1000),
-        )
-        await cft.wait_for_block()
-
+        oc = new_v_option_ctrt
         assert (await oc.maker) == acnt0.addr.b58_str
         return oc
 
