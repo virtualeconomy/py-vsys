@@ -1,6 +1,8 @@
-import pytest
+import asyncio
 import time
 from typing import Tuple
+
+import pytest
 
 import py_v_sdk as pv
 from test.func_test import conftest as cft
@@ -12,7 +14,7 @@ class TestStableSwapCtrt:
     """
 
     @pytest.fixture
-    async def new_base_ctrt(self, acnt0: pv.Account) -> pv.TokenCtrtWithoutSplit:
+    async def new_base_ctrt(self, acnt0: pv.Account) -> pv.TokCtrtWithoutSplit:
         """
         new_base_ctrt is the fixture that registers a new base token contract.
 
@@ -20,25 +22,25 @@ class TestStableSwapCtrt:
             acnt0 (pv.Account): the account of nonce 0.
 
         Returns:
-            pv.TokenCtrtWithoutSplit: the TokenCtrtWithoutSplit instance.
+            pv.TokCtrtWithoutSplit: the TokCtrtWithoutSplit instance.
         """
-        tc = await pv.TokenCtrtWithoutSplit.register(acnt0, 1000, 1)
+        tc = await pv.TokCtrtWithoutSplit.register(acnt0, 1000, 1)
         await cft.wait_for_block()
         return tc
 
     @pytest.fixture
     async def new_base_ctrt_with_tok(
-        self, new_base_ctrt: pv.TokenCtrtWithoutSplit, acnt0: pv.Account
-    ) -> pv.TokenCtrtWithoutSplit:
+        self, new_base_ctrt: pv.TokCtrtWithoutSplit, acnt0: pv.Account
+    ) -> pv.TokCtrtWithoutSplit:
         """
         new_base_ctrt_with_tok is the fixture that registers a new TokenWithoutSplit contract and issues base tokens right after it.
 
         Args:
-            new_base_ctrt (pv.TokenCtrtWithoutSplit): The fixture that registers a new TokenWithoutSplit contract.
+            new_base_ctrt (pv.TokCtrtWithoutSplit): The fixture that registers a new TokenWithoutSplit contract.
             acnt0 (pv.Account): The account of nonce 0.
 
         Returns:
-            pv.TokenCtrtWithoutSplit: The TokenCtrtWithoutSplit instance.
+            pv.TokCtrtWithoutSplit: The TokCtrtWithoutSplit instance.
         """
         tc = new_base_ctrt
         await tc.issue(acnt0, 1000)
@@ -46,7 +48,7 @@ class TestStableSwapCtrt:
         return tc
 
     @pytest.fixture
-    async def new_target_ctrt(self, acnt0: pv.Account) -> pv.TokenCtrtWithoutSplit:
+    async def new_target_ctrt(self, acnt0: pv.Account) -> pv.TokCtrtWithoutSplit:
         """
         new_target_ctrt is the fixture that registers a new target token contract.
 
@@ -54,25 +56,25 @@ class TestStableSwapCtrt:
             acnt0 (pv.Account): the account of nonce 0.
 
         Returns:
-            pv.TokenCtrtWithoutSplit: the TokenCtrtWithoutSplit instance.
+            pv.TokCtrtWithoutSplit: the TokCtrtWithoutSplit instance.
         """
-        tc = await pv.TokenCtrtWithoutSplit.register(acnt0, 1000, 1)
+        tc = await pv.TokCtrtWithoutSplit.register(acnt0, 1000, 1)
         await cft.wait_for_block()
         return tc
 
     @pytest.fixture
     async def new_target_ctrt_with_tok(
-        self, new_target_ctrt: pv.TokenCtrtWithoutSplit, acnt0: pv.Account
-    ) -> pv.TokenCtrtWithoutSplit:
+        self, new_target_ctrt: pv.TokCtrtWithoutSplit, acnt0: pv.Account
+    ) -> pv.TokCtrtWithoutSplit:
         """
         new_target_ctrt_with_tok is the fixture that registers a new TokenWithoutSplit contract and issues target tokens right after it.
 
         Args:
-            new_target_ctrt (pv.TokenCtrtWithoutSplit): The fixture that registers a new TokenWithoutSplit contract.
+            new_target_ctrt (pv.TokCtrtWithoutSplit): The fixture that registers a new TokenWithoutSplit contract.
             acnt0 (pv.Account): The account of nonce 0.
 
         Returns:
-            pv.TokenCtrtWithoutSplit: The TokenCtrtWithoutSplit instance.
+            pv.TokCtrtWithoutSplit: The TokCtrtWithoutSplit instance.
         """
         tc = new_target_ctrt
         await tc.issue(acnt0, 1000)
@@ -83,27 +85,30 @@ class TestStableSwapCtrt:
     async def new_stable_ctrt(
         self,
         acnt0: pv.Account,
-        new_base_ctrt_with_tok: pv.TokenCtrtWithoutSplit,
-        new_target_ctrt_with_tok: pv.TokenCtrtWithoutSplit,
+        new_base_ctrt_with_tok: pv.TokCtrtWithoutSplit,
+        new_target_ctrt_with_tok: pv.TokCtrtWithoutSplit,
     ) -> pv.VStableSwapCtrt:
         """
         new_stable_ctrt is the fixture that registers a new V Stable Swap contract.
 
         Args:
             acnt0 (pv.Account): The account of nonce 0.
-            new_base_ctrt_with_tok (pv.TokenCtrtWithoutSplit): The fixture that registers a new token contract without split and issues base tokens right after it.
-            new_target_ctrt_with_tok (pv.TokenCtrtWithoutSplit): The fixture that registers a new token contract without split and issues target tokens right after it.
+            new_base_ctrt_with_tok (pv.TokCtrtWithoutSplit): The fixture that registers a new token contract without split and issues base tokens right after it.
+            new_target_ctrt_with_tok (pv.TokCtrtWithoutSplit): The fixture that registers a new token contract without split and issues target tokens right after it.
 
         Returns:
             pv.VStableSwapCtrt: The VStableSwapCtrt instance.
         """
         base_tc = new_base_ctrt_with_tok
         target_tc = new_target_ctrt_with_tok
-        base_tok_id = pv.Ctrt.get_tok_id(base_tc.ctrt_id, 0)
-        target_tok_id = pv.Ctrt.get_tok_id(target_tc.ctrt_id, 0)
 
         ssc = await pv.VStableSwapCtrt.register(
-            acnt0, base_tok_id, target_tok_id, 5, 1, 1
+            acnt0,
+            base_tc.tok_id.data,
+            target_tc.tok_id.data,
+            5,
+            1,
+            1,
         )
         await cft.wait_for_block()
         await base_tc.deposit(acnt0, ssc.ctrt_id, 1000)
@@ -116,32 +121,19 @@ class TestStableSwapCtrt:
     async def new_stable_ctrt_with_order(
         self,
         acnt0: pv.Account,
-        new_base_ctrt_with_tok: pv.TokenCtrtWithoutSplit,
-        new_target_ctrt_with_tok: pv.TokenCtrtWithoutSplit,
+        new_stable_ctrt: pv.VStableSwapCtrt,
     ) -> Tuple[pv.VStableSwapCtrt, str]:
         """
         new_stable_ctrt_with_order is the fixture that registers a new V Stable Swap contract that already created an order.
 
         Args:
             acnt0 (pv.Account): The account of nonce 0.
-            new_base_ctrt_with_tok (pv.TokenCtrtWithoutSplit): The fixture that registers a new token contract without split and issues base tokens right after it.
-            new_target_ctrt_with_tok (pv.TokenCtrtWithoutSplit): The fixture that registers a new token contract without split and issues target tokens right after it.
+            new_stable_ctrt (pv.VStableSwapCtrt): The VStableSwapCtrt instance.
 
         Returns:
-            pv.VStableSwapCtrt: The VStableSwapCtrt instance.
+            Tuple[pv.VStableSwapCtrt, str]: The VStableSwapCtrt instance and the order_id.
         """
-        base_tc = new_base_ctrt_with_tok
-        target_tc = new_target_ctrt_with_tok
-        base_tok_id = pv.Ctrt.get_tok_id(base_tc.ctrt_id, 0)
-        target_tok_id = pv.Ctrt.get_tok_id(target_tc.ctrt_id, 0)
-
-        ssc = await pv.VStableSwapCtrt.register(
-            acnt0, base_tok_id, target_tok_id, 5, 1, 1
-        )
-        await cft.wait_for_block()
-        await base_tc.deposit(acnt0, ssc.ctrt_id, 1000)
-        await target_tc.deposit(acnt0, ssc.ctrt_id, 1000)
-        await cft.wait_for_block()
+        ssc = new_stable_ctrt
 
         resp = await ssc.set_order(acnt0, 1, 1, 0, 100, 0, 100, 1, 1, 500, 500)
         await cft.wait_for_block()
@@ -152,35 +144,20 @@ class TestStableSwapCtrt:
     async def test_register(
         self,
         acnt0: pv.Account,
-        new_base_ctrt_with_tok: pv.TokenCtrtWithoutSplit,
-        new_target_ctrt_with_tok: pv.TokenCtrtWithoutSplit,
+        new_stable_ctrt: pv.VStableSwapCtrt,
     ) -> pv.VStableSwapCtrt:
         """
         test_register tests the method register.
 
         Args:
             acnt0 (pv.Account): The account of nonce 0.
-            new_base_ctrt_with_tok (pv.TokenCtrtWithoutSplit): The fixture that registers a new token contract without split and issues base tokens right after it.
-            new_target_ctrt_with_tok (pv.TokenCtrtWithoutSplit): The fixture that registers a new token contract without split and issues target tokens right after it.
+            new_stable_ctrt (pv.VStableSwapCtrt): The fixture that registers a new V Stable Swap contract.
 
         Returns:
             pv.VStableSwapCtrt: The VStableSwapCtrt instance.
         """
-        base_tc = new_base_ctrt_with_tok
-        target_tc = new_target_ctrt_with_tok
-        base_tok_id = pv.Ctrt.get_tok_id(base_tc.ctrt_id, 0)
-        target_tok_id = pv.Ctrt.get_tok_id(target_tc.ctrt_id, 0)
-
-        ssc = await pv.VStableSwapCtrt.register(
-            acnt0, base_tok_id, target_tok_id, 5, 1, 1
-        )
-        await cft.wait_for_block()
-
-        await base_tc.deposit(acnt0, ssc.ctrt_id, 1000)
-        await target_tc.deposit(acnt0, ssc.ctrt_id, 1000)
-        await cft.wait_for_block()
-
-        assert (await ssc.maker) == acnt0.addr.b58_str
+        ssc = new_stable_ctrt
+        assert (await ssc.maker) == acnt0.addr
         return ssc
 
     async def test_set_and_update_order(
@@ -206,9 +183,12 @@ class TestStableSwapCtrt:
         order_id = resp["id"]
         await cft.assert_tx_success(api, order_id)
 
-        base_tok_bal = await ssc.get_base_tok_bal(acnt0.addr.b58_str)
-        target_tok_bal = await ssc.get_target_tok_bal(acnt0.addr.b58_str)
-        price_base1 = await ssc.get_price_base(order_id)
+        base_tok_bal, target_tok_bal, price_base1 = await asyncio.gather(
+            ssc.get_base_tok_bal(acnt0.addr.data),
+            ssc.get_target_tok_bal(acnt0.addr.data),
+            ssc.get_price_base(order_id),
+        )
+
         assert base_tok_bal.data == 500
         assert target_tok_bal.data == 500
         assert price_base1.data == 2
@@ -245,20 +225,25 @@ class TestStableSwapCtrt:
         deposit_tx_id = resp["id"]
         await cft.assert_tx_success(api, deposit_tx_id)
 
-        base_tok_bal1 = await ssc.get_base_tok_bal(acnt0.addr.b58_str)
-        target_tok_bal1 = await ssc.get_target_tok_bal(acnt0.addr.b58_str)
-        assert base_tok_bal1.data == 300
-        assert target_tok_bal1.data == 400
+        base_tok_bal, target_tok_bal = await asyncio.gather(
+            ssc.get_base_tok_bal(acnt0.addr.data),
+            ssc.get_target_tok_bal(acnt0.addr.data),
+        )
+
+        assert base_tok_bal.data == 300
+        assert target_tok_bal.data == 400
 
         resp = await ssc.order_withdraw(acnt0, order_id, 200, 100)
         await cft.wait_for_block()
         withdraw_tx_id = resp["id"]
         await cft.assert_tx_success(api, withdraw_tx_id)
 
-        base_tok_bal1 = await ssc.get_base_tok_bal(acnt0.addr.b58_str)
-        target_tok_bal1 = await ssc.get_target_tok_bal(acnt0.addr.b58_str)
-        assert base_tok_bal1.data == 500
-        assert target_tok_bal1.data == 500
+        base_tok_bal, target_tok_bal = await asyncio.gather(
+            ssc.get_base_tok_bal(acnt0.addr.data),
+            ssc.get_target_tok_bal(acnt0.addr.data),
+        )
+        assert base_tok_bal.data == 500
+        assert target_tok_bal.data == 500
 
     async def test_swap(
         self,
@@ -282,10 +267,12 @@ class TestStableSwapCtrt:
         swap1_tx_id = swap1["id"]
         await cft.assert_tx_success(api, swap1_tx_id)
 
-        base_tok_bal1 = await ssc.get_base_tok_bal(acnt0.addr.b58_str)
-        target_tok_bal1 = await ssc.get_target_tok_bal(acnt0.addr.b58_str)
-        assert base_tok_bal1.data == 490
-        assert target_tok_bal1.data == 509
+        base_tok_bal, target_tok_bal = await asyncio.gather(
+            ssc.get_base_tok_bal(acnt0.addr.data),
+            ssc.get_target_tok_bal(acnt0.addr.data),
+        )
+        assert base_tok_bal.data == 490
+        assert target_tok_bal.data == 509
 
         # test swap_target_to_base
         swap2 = await ssc.swap_target_to_base(acnt0, order_id, 10, 1, 1, deadline)
@@ -293,10 +280,12 @@ class TestStableSwapCtrt:
         swap2_tx_id = swap2["id"]
         await cft.assert_tx_success(api, swap2_tx_id)
 
-        base_tok_bal2 = await ssc.get_base_tok_bal(acnt0.addr.b58_str)
-        target_tok_bal2 = await ssc.get_target_tok_bal(acnt0.addr.b58_str)
-        assert base_tok_bal2.data == 499
-        assert target_tok_bal2.data == 499
+        base_tok_bal, target_tok_bal = await asyncio.gather(
+            ssc.get_base_tok_bal(acnt0.addr.data),
+            ssc.get_target_tok_bal(acnt0.addr.data),
+        )
+        assert base_tok_bal.data == 499
+        assert target_tok_bal.data == 499
 
     async def test_close_order(
         self,
@@ -326,27 +315,19 @@ class TestStableSwapCtrt:
     async def test_as_whole(
         self,
         acnt0: pv.Account,
-        new_base_ctrt_with_tok: pv.TokenCtrtWithoutSplit,
-        new_target_ctrt_with_tok: pv.TokenCtrtWithoutSplit,
+        new_stable_ctrt: pv.VStableSwapCtrt,
     ) -> None:
         """
         test_as_whole tests methods of VStableSwapCtrt as a whole so as to reduce resource consumption.
 
         Args:
             acnt0 (pv.Account): The account of nonce 0.
-            new_base_ctrt_with_tok (pv.TokenCtrtWithoutSplit): The fixture that registers a new token contract without split and issues base tokens right after it.
-            new_target_ctrt_with_tok (pv.TokenCtrtWithoutSplit): The fixture that registers a new token contract without split and issues target tokens right after it.
+            new_stable_ctrt (pv.VStableSwapCtrt): The fixture that registers a new V Stable Swap contract.
         """
-        swap_ctrt = await self.test_register(
-            acnt0, new_base_ctrt_with_tok, new_target_ctrt_with_tok
-        )
-
+        swap_ctrt = await self.test_register(acnt0, new_stable_ctrt)
         order_id = await self.test_set_and_update_order(acnt0, swap_ctrt)
 
         swap_tuple = (swap_ctrt, order_id)
-
         await self.test_order_deposit_and_withdraw(acnt0, swap_tuple)
-
         await self.test_swap(acnt0, swap_tuple)
-
         await self.test_close_order(acnt0, swap_tuple)

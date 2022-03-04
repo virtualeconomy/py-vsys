@@ -18,7 +18,7 @@ class TestPayChanCtrt:
     INIT_LOAD = TOK_MAX // 2
 
     @pytest.fixture
-    async def new_tok_ctrt(self, acnt0: pv.Account) -> pv.TokenCtrtWithoutSplit:
+    async def new_tok_ctrt(self, acnt0: pv.Account) -> pv.TokCtrtWithoutSplit:
         """
         new_tok_ctrt is the fixture that registers a new token contract without split instance.
 
@@ -26,10 +26,10 @@ class TestPayChanCtrt:
             acnt0 (pv.Account): The account of nonce 0.
 
         Returns:
-            pv.TokenCtrtWithoutSplit: The token contract instance.
+            pv.TokCtrtWithoutSplit: The token contract instance.
         """
 
-        tc = await pv.TokenCtrtWithoutSplit.register(acnt0, self.TOK_MAX, self.TOK_UNIT)
+        tc = await pv.TokCtrtWithoutSplit.register(acnt0, self.TOK_MAX, self.TOK_UNIT)
         await cft.wait_for_block()
 
         await tc.issue(acnt0, self.TOK_MAX)
@@ -39,14 +39,14 @@ class TestPayChanCtrt:
 
     @pytest.fixture
     async def new_ctrt(
-        self, acnt0: pv.Account, new_tok_ctrt: pv.TokenCtrtWithoutSplit
+        self, acnt0: pv.Account, new_tok_ctrt: pv.TokCtrtWithoutSplit
     ) -> pv.PayChanCtrt:
         """
         new_ctrt is the fixture that registers a new Payment Channel contract.
 
         Args:
             acnt0 (pv.Account): The account of nonce 0.
-            new_tok_ctrt (pv.TokenCtrtWithoutSplit): The fixture that registers a new Token contract.
+            new_tok_ctrt (pv.TokCtrtWithoutSplit): The fixture that registers a new Token contract.
 
         Returns:
             pv.PayChanCtrt: The PayChanCtrt instance.
@@ -54,9 +54,7 @@ class TestPayChanCtrt:
         tc = new_tok_ctrt
         api = acnt0.api
 
-        tok_id = pv.Ctrt.get_tok_id(tc.ctrt_id, 0)
-
-        pc = await pv.PayChanCtrt.register(acnt0, tok_id)
+        pc = await pv.PayChanCtrt.register(acnt0, tc.tok_id.data)
         await cft.wait_for_block()
 
         resp = await tc.deposit(acnt0, pc.ctrt_id, self.TOK_MAX)
@@ -91,7 +89,7 @@ class TestPayChanCtrt:
 
         resp = await pc.create_and_load(
             by=acnt0,
-            recipient=acnt1.addr.b58_str,
+            recipient=acnt1.addr.data,
             amount=load_amount,
             expire_at=later,
         )
@@ -102,7 +100,7 @@ class TestPayChanCtrt:
     async def test_register(
         self,
         acnt0: pv.Account,
-        new_tok_ctrt: pv.TokenCtrtWithoutSplit,
+        new_tok_ctrt: pv.TokCtrtWithoutSplit,
         new_ctrt: pv.PayChanCtrt,
     ) -> pv.PayChanCtrt:
         """
@@ -110,7 +108,7 @@ class TestPayChanCtrt:
 
         Args:
             acnt0 (pv.Account): The account of nonce 0.
-            new_tok_ctrt (pv.TokenCtrtWithoutSplit): The fixture that registers a new Token contract.
+            new_tok_ctrt (pv.TokCtrtWithoutSplit): The fixture that registers a new Token contract.
             new_ctrt (pv.PayChanCtrt): The fixture that registers a new Payment Channel contract.
 
         Returns:
@@ -118,17 +116,12 @@ class TestPayChanCtrt:
         """
         tc = new_tok_ctrt
 
-        tok_id = pv.Ctrt.get_tok_id(tc.ctrt_id, 0)
-
         pc = new_ctrt
 
-        maker = await pc.maker
-        assert maker.data == acnt0.addr.b58_str
+        assert (await pc.maker) == acnt0.addr
+        assert (await pc.tok_id) == tc.tok_id
 
-        tok_id_md = await pc.tok_id
-        assert tok_id_md.data == tok_id
-
-        ctrt_bal = await pc.get_ctrt_bal(acnt0.addr.b58_str)
+        ctrt_bal = await pc.get_ctrt_bal(acnt0.addr.data)
         assert ctrt_bal.amount == self.TOK_MAX
 
         return pc
@@ -159,7 +152,7 @@ class TestPayChanCtrt:
 
         resp = await pc.create_and_load(
             by=acnt0,
-            recipient=acnt1.addr.b58_str,
+            recipient=acnt1.addr.data,
             amount=load_amount,
             expire_at=later,
         )
@@ -169,10 +162,10 @@ class TestPayChanCtrt:
         chan_id = resp["id"]
 
         chan_creator = await pc.get_chan_creator(chan_id)
-        assert chan_creator.data == acnt0.addr.b58_str
+        assert chan_creator == acnt0.addr
 
         chan_creator_pub_key = await pc.get_chan_creator_pub_key(chan_id)
-        assert chan_creator_pub_key.data == acnt0.key_pair.pub.data
+        assert chan_creator_pub_key == acnt0.key_pair.pub
 
         chan_accum_load = await pc.get_chan_accum_load(chan_id)
         assert chan_accum_load.amount == load_amount
@@ -300,7 +293,7 @@ class TestPayChanCtrt:
         # create a channel
         resp = await pc.create_and_load(
             by=acnt0,
-            recipient=acnt1.addr.b58_str,
+            recipient=acnt1.addr.data,
             amount=load_amount,
             expire_at=later,
         )
@@ -309,7 +302,7 @@ class TestPayChanCtrt:
 
         chan_id = resp["id"]
 
-        bal_old = await pc.get_ctrt_bal(acnt0.addr.b58_str)
+        bal_old = await pc.get_ctrt_bal(acnt0.addr.data)
 
         # wait until the channel expires
         await asyncio.sleep(cft.AVG_BLOCK_DELAY * 2)
@@ -318,7 +311,7 @@ class TestPayChanCtrt:
         await cft.wait_for_block()
         await cft.assert_tx_success(api, resp["id"])
 
-        bal = await pc.get_ctrt_bal(acnt0.addr.b58_str)
+        bal = await pc.get_ctrt_bal(acnt0.addr.data)
         assert bal.amount == bal_old.amount + load_amount
 
     async def test_offchain_pay_and_collect_payment(
@@ -360,7 +353,7 @@ class TestPayChanCtrt:
         accum_pay = await pc.get_chan_accum_pay(chan_id)
         assert accum_pay.amount == self.INIT_LOAD
 
-        acnt1_bal = await pc.get_ctrt_bal(acnt1.addr.b58_str)
+        acnt1_bal = await pc.get_ctrt_bal(acnt1.addr.data)
         assert acnt1_bal.amount == self.INIT_LOAD
 
     @pytest.mark.whole
@@ -368,7 +361,7 @@ class TestPayChanCtrt:
         self,
         acnt0: pv.Account,
         acnt1: pv.Account,
-        new_tok_ctrt: pv.TokenCtrtWithoutSplit,
+        new_tok_ctrt: pv.TokCtrtWithoutSplit,
         new_ctrt: pv.PayChanCtrt,
     ) -> None:
         """
@@ -377,7 +370,7 @@ class TestPayChanCtrt:
         Args:
             acnt0 (pv.Account): The account of nonce 0.
             acnt1 (pv.Account): The account of nonce 1.
-            new_tok_ctrt (pv.TokenCtrtWithoutSplit): The token contract instance.
+            new_tok_ctrt (pv.TokCtrtWithoutSplit): The token contract instance.
             new_ctrt (pv.PayChanCtrt): The fixture that registers a new Payment Channel contract.
         """
         tc = new_tok_ctrt

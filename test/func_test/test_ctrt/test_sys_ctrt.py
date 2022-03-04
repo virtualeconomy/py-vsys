@@ -40,7 +40,7 @@ class TestSysCtrt:
             pv.PayChanCtrt: The Payment Channel contract instance.
         """
         sc = new_ctrt
-        pc = await pv.PayChanCtrt.register(acnt0, sc.tok_id)
+        pc = await pv.PayChanCtrt.register(acnt0, sc.tok_id.data)
         await cft.wait_for_block()
         return pc
 
@@ -65,7 +65,7 @@ class TestSysCtrt:
         acnt0_bal_old = (await acnt0.bal).data
         acnt1_bal_old = (await acnt1.bal).data
 
-        resp = await sc.send(acnt0, acnt1.addr.b58_str, amount)
+        resp = await sc.send(acnt0, acnt1.addr.data, amount)
         await cft.wait_for_block()
         await cft.assert_tx_success(api, resp["id"])
 
@@ -99,7 +99,7 @@ class TestSysCtrt:
         acnt0_bal_old = (await acnt0.bal).data
         acnt1_bal_old = (await acnt1.bal).data
 
-        resp = await sc.transfer(acnt0, acnt0.addr.b58_str, acnt1.addr.b58_str, amount)
+        resp = await sc.transfer(acnt0, acnt0.addr.data, acnt1.addr.data, amount)
         await cft.wait_for_block()
         await cft.assert_tx_success(api, resp["id"])
 

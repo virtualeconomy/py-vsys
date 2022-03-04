@@ -98,7 +98,7 @@ async def main():
     # Get the account's private key
     print("Private key:", acnt.key_pair.pri.b58_str)
     # Get the account's address
-    print("Account address:", acnt.addr.b58_str)
+    print("Account address:", acnt.addr.data)
 
     print_heading("Try out Smart Contract")
     ctrt_id = "CFB6zvcy39FCRGhxo8HH3PE6zZEG5zXevhG"

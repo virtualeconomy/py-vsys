@@ -435,7 +435,7 @@ class Ctrt(abc.ABC):
         return data["value"]
 
     @staticmethod
-    def get_tok_id(ctrt_id: str, tok_idx: int) -> str:
+    def get_tok_id(ctrt_id: str, tok_idx: int) -> md.TokenID:
         """
         get_tok_id computes the token ID based on the given contract ID & token index.
 
@@ -444,7 +444,7 @@ class Ctrt(abc.ABC):
             tok_idx (int): The token index.
 
         Returns:
-            str: The token ID.
+            md.TokenID: The token ID.
         """
         b = base58.b58decode(ctrt_id)
         raw_ctrt_id = b[1 : (len(b) - CtrtMeta.CHECKSUM_LEN)]
@@ -459,7 +459,8 @@ class Ctrt(abc.ABC):
             ctrt_id_no_checksum + h[: CtrtMeta.CHECKSUM_LEN]
         )
 
-        return tok_id_bytes.decode("latin-1")
+        tok_id = tok_id_bytes.decode("latin-1")
+        return md.TokenID(tok_id)
 
 
 class BaseTokCtrt(Ctrt):
