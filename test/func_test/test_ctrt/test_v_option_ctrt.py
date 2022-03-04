@@ -242,7 +242,7 @@ class TestVOptionCtrt:
             pv.VOptionCtrt: The VOptionCtrt instance.
         """
         oc = new_v_option_ctrt
-        assert (await oc.maker) == acnt0.addr.b58_str
+        assert (await oc.maker) == acnt0.addr
         return oc
 
     async def test_activate(
@@ -287,7 +287,7 @@ class TestVOptionCtrt:
         mint_tx_id = resp["id"]
         await cft.assert_tx_success(api, mint_tx_id)
 
-        a = await oc.get_target_tok_bal(acnt0.addr.b58_str)
+        a = await oc.get_target_tok_bal(acnt0.addr.data)
         assert a.data == 900
 
     async def test_unlock(
@@ -308,7 +308,7 @@ class TestVOptionCtrt:
         unlock_tx_id = resp["id"]
         await cft.assert_tx_success(api, unlock_tx_id)
 
-        b = await oc.get_target_tok_bal(acnt0.addr.b58_str)
+        b = await oc.get_target_tok_bal(acnt0.addr.data)
         assert b.data == 1000
 
         await oc.mint(acnt0, 100)
@@ -326,7 +326,7 @@ class TestVOptionCtrt:
         oc = new_v_option_ctrt_activated_and_minted
         api = acnt0.api
 
-        a = await oc.get_target_tok_bal(acnt0.addr.b58_str)
+        a = await oc.get_target_tok_bal(acnt0.addr.data)
         assert a.data == 900
 
         await asyncio.sleep(cft.AVG_BLOCK_DELAY * 6)
@@ -336,7 +336,7 @@ class TestVOptionCtrt:
         exe_tx_id = exe_tx["id"]
         await cft.assert_tx_success(api, exe_tx_id)
 
-        b = await oc.get_target_tok_bal(acnt0.addr.b58_str)
+        b = await oc.get_target_tok_bal(acnt0.addr.data)
         assert b.data == 910
 
         await asyncio.sleep(cft.AVG_BLOCK_DELAY * 5)
@@ -346,7 +346,7 @@ class TestVOptionCtrt:
         col_tx_id = col_tx["id"]
         await cft.assert_tx_success(api, col_tx_id)
 
-        b = await oc.get_target_tok_bal(acnt0.addr.b58_str)
+        b = await oc.get_target_tok_bal(acnt0.addr.data)
         assert b.data == 1000
 
     @pytest.mark.whole
