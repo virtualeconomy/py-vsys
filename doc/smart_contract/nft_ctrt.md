@@ -37,7 +37,7 @@ import py_v_sdk as pv
 # acnt: pv.Account
 
 # Register a new NFT contract
-nc = pv.NFTCtrt.register(by=acnt)
+nc = await pv.NFTCtrt.register(by=acnt)
 print(nc.ctrt_id) # print the id of the newly registered contract
 ```
 Example output
