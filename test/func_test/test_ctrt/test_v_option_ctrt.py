@@ -181,10 +181,10 @@ class TestVOptionCtrt:
 
         oc = await pv.VOptionCtrt.register(
             acnt0,
-            base_tok_id,
-            target_tok_id,
-            option_tok_id,
-            proof_tok_id,
+            base_tok_id.data,
+            target_tok_id.data,
+            option_tok_id.data,
+            proof_tok_id.data,
             int(time.time() + 50),
             int(time.time() + 95),
         )
