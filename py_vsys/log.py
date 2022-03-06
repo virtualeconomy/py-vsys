@@ -11,4 +11,4 @@ logger.configure(
     ]
 )
 
-logger.disable("py_v_sdk")
+logger.disable("py_vsys")

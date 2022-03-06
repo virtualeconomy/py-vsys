@@ -4,7 +4,7 @@ from typing import Tuple
 
 import pytest
 
-import py_v_sdk as pv
+import py_vsys as pv
 from test.func_test import conftest as cft
 
 

@@ -4,7 +4,7 @@ from typing import Optional
 
 import pytest
 
-import py_v_sdk as pv
+import py_vsys as pv
 
 HOST = os.getenv("PY_SDK_HOST")
 API_KEY = os.getenv("PY_SDK_API_KEY", "")

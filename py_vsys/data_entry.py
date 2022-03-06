@@ -6,7 +6,7 @@ import abc
 import struct
 from typing import Tuple, List, Union, Type
 
-from py_v_sdk import model as md
+from py_vsys import model as md
 
 
 class DataEntry(abc.ABC):

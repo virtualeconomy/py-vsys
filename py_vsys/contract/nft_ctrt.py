@@ -8,11 +8,11 @@ from loguru import logger
 
 # https://stackoverflow.com/a/39757388
 if TYPE_CHECKING:
-    from py_v_sdk import account as acnt
+    from py_vsys import account as acnt
 
-from py_v_sdk import data_entry as de
-from py_v_sdk import tx_req as tx
-from py_v_sdk import model as md
+from py_vsys import data_entry as de
+from py_vsys import tx_req as tx
+from py_vsys import model as md
 
 from . import CtrtMeta, Ctrt, BaseTokCtrt
 

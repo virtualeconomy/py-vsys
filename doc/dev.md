@@ -76,7 +76,7 @@ Then the Github Action will be triggered on each push to your own fork project.
 
 ## Git Commit Style
 
-`py-v-sdk`'s commit style is a **simplified** version of [Angular Commit style](https://github.com/angular/angular/blob/master/CONTRIBUTING.md#-commit-message-format).
+`py-vsys`'s commit style is a **simplified** version of [Angular Commit style](https://github.com/angular/angular/blob/master/CONTRIBUTING.md#-commit-message-format).
 
 ### Commit Format
 ```
@@ -160,7 +160,7 @@ fix: XXX is incorrect
 
 Doc string is a must for wherever it is applicable (e.g. module, class, function, method, etc) so that API references documentation can be auto-generated out of it.
 
-`py-v-sdk` follows [Google Style](https://stackoverflow.com/a/24385103) and borrows from Golang the idea of starting the commentary always with the name of the object you'd like to comment.
+`py-vsys` follows [Google Style](https://stackoverflow.com/a/24385103) and borrows from Golang the idea of starting the commentary always with the name of the object you'd like to comment.
 
 Below is an example.
 
