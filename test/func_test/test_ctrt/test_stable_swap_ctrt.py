@@ -111,8 +111,8 @@ class TestStableSwapCtrt:
             1,
         )
         await cft.wait_for_block()
-        await base_tc.deposit(acnt0, ssc.ctrt_id, 1000)
-        await target_tc.deposit(acnt0, ssc.ctrt_id, 1000)
+        await base_tc.deposit(acnt0, ssc.ctrt_id.data, 1000)
+        await target_tc.deposit(acnt0, ssc.ctrt_id.data, 1000)
         await cft.wait_for_block()
 
         return ssc

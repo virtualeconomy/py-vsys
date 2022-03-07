@@ -135,7 +135,7 @@ class TestSysCtrt:
 
         bal_init = (await acnt0.bal).data
 
-        resp = await sc.deposit(acnt0, pc.ctrt_id, deposit_amount)
+        resp = await sc.deposit(acnt0, pc.ctrt_id.data, deposit_amount)
         await cft.wait_for_block()
         await cft.assert_tx_success(api, resp["id"])
 
@@ -147,7 +147,7 @@ class TestSysCtrt:
             - pv.ExecCtrtFee.DEFAULT
         )
 
-        resp = await sc.withdraw(acnt0, pc.ctrt_id, deposit_amount)
+        resp = await sc.withdraw(acnt0, pc.ctrt_id.data, deposit_amount)
         await cft.wait_for_block()
         await cft.assert_tx_success(api, resp["id"])
 
