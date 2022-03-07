@@ -398,14 +398,14 @@ class Ctrt(abc.ABC):
         self._chain = chain
 
     @property
-    def ctrt_id(self) -> str:
+    def ctrt_id(self) -> md.CtrtID:
         """
         ctrt_id returns the contract id in base58 string format.
 
         Returns:
-            str: The contract id in base58 string format.
+            md.CtrtID: The contract id.
         """
-        return self._ctrt_id.data
+        return self._ctrt_id
 
     @property
     def chain(self) -> ch.Chain:
