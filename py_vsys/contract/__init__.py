@@ -428,7 +428,7 @@ class Ctrt(abc.ABC):
             Any: The result.
         """
         data = await self.chain.api.ctrt.get_ctrt_data(
-            ctrt_id=self.ctrt_id,
+            ctrt_id=self.ctrt_id.data,
             db_key=db_key.b58_str,
         )
         logger.debug(data)

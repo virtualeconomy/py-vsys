@@ -58,9 +58,9 @@ class TestVEscrowCtrt:
         await cft.wait_for_block()
 
         judge_resp, payer_resp, rcpt_resp = await asyncio.gather(
-            sc.deposit(judge, vc.ctrt_id, self.CTRT_DEPOSIT_AMOUNT),
-            sc.deposit(payer, vc.ctrt_id, self.CTRT_DEPOSIT_AMOUNT),
-            sc.deposit(recipient, vc.ctrt_id, self.CTRT_DEPOSIT_AMOUNT),
+            sc.deposit(judge, vc.ctrt_id.data, self.CTRT_DEPOSIT_AMOUNT),
+            sc.deposit(payer, vc.ctrt_id.data, self.CTRT_DEPOSIT_AMOUNT),
+            sc.deposit(recipient, vc.ctrt_id.data, self.CTRT_DEPOSIT_AMOUNT),
         )
         await cft.wait_for_block()
 

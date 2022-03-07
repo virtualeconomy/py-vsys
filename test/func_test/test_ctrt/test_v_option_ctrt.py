@@ -191,10 +191,10 @@ class TestVOptionCtrt:
         await cft.wait_for_block()
 
         await asyncio.gather(
-            base_tc.deposit(acnt0, oc.ctrt_id, 1000),
-            target_tc.deposit(acnt0, oc.ctrt_id, 1000),
-            option_tc.deposit(acnt0, oc.ctrt_id, 1000),
-            proof_tc.deposit(acnt0, oc.ctrt_id, 1000),
+            base_tc.deposit(acnt0, oc.ctrt_id.data, 1000),
+            target_tc.deposit(acnt0, oc.ctrt_id.data, 1000),
+            option_tc.deposit(acnt0, oc.ctrt_id.data, 1000),
+            proof_tc.deposit(acnt0, oc.ctrt_id.data, 1000),
         )
         await cft.wait_for_block()
 

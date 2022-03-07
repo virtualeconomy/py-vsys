@@ -85,11 +85,11 @@ class TestVSwapCtrt:
         await cft.wait_for_block()
 
         resp_a0, resp_b0, resp_l, resp_a1, resp_b1 = await asyncio.gather(
-            tca.deposit(acnt0, vc.ctrt_id, self.HALF_TOK_MAX),
-            tcb.deposit(acnt0, vc.ctrt_id, self.HALF_TOK_MAX),
-            tcl.deposit(acnt0, vc.ctrt_id, self.TOK_MAX),
-            tca.deposit(acnt1, vc.ctrt_id, self.HALF_TOK_MAX),
-            tcb.deposit(acnt1, vc.ctrt_id, self.HALF_TOK_MAX),
+            tca.deposit(acnt0, vc.ctrt_id.data, self.HALF_TOK_MAX),
+            tcb.deposit(acnt0, vc.ctrt_id.data, self.HALF_TOK_MAX),
+            tcl.deposit(acnt0, vc.ctrt_id.data, self.TOK_MAX),
+            tca.deposit(acnt1, vc.ctrt_id.data, self.HALF_TOK_MAX),
+            tcb.deposit(acnt1, vc.ctrt_id.data, self.HALF_TOK_MAX),
         )
 
         await cft.wait_for_block()

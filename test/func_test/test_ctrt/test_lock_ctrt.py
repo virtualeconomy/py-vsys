@@ -99,7 +99,7 @@ class TestLockCtrt:
         lc = new_ctrt
         api = acnt0.api
 
-        resp = await tc.deposit(acnt0, lc.ctrt_id, self.TOK_MAX)
+        resp = await tc.deposit(acnt0, lc.ctrt_id.data, self.TOK_MAX)
         await cft.wait_for_block()
         await cft.assert_tx_success(api, resp["id"])
         assert (await lc.get_ctrt_bal(acnt0.addr.data)).amount == self.TOK_MAX
@@ -111,7 +111,7 @@ class TestLockCtrt:
         assert (await lc.get_ctrt_lock_time(acnt0.addr.data)).unix_ts == later
 
         # withdraw before the expiration will fail
-        resp = await tc.withdraw(acnt0, lc.ctrt_id, self.TOK_MAX)
+        resp = await tc.withdraw(acnt0, lc.ctrt_id.data, self.TOK_MAX)
         await cft.wait_for_block()
         await cft.assert_tx_status(api, resp["id"], "Failed")
         assert (await lc.get_ctrt_bal(acnt0.addr.data)).amount == self.TOK_MAX
@@ -120,7 +120,7 @@ class TestLockCtrt:
         await asyncio.sleep(6)
 
         # withdraw after the expiration will succeed
-        resp = await tc.withdraw(acnt0, lc.ctrt_id, self.TOK_MAX)
+        resp = await tc.withdraw(acnt0, lc.ctrt_id.data, self.TOK_MAX)
         await cft.wait_for_block()
         await cft.assert_tx_success(api, resp["id"])
         assert (await lc.get_ctrt_bal(acnt0.addr.data)).amount == 0

@@ -196,7 +196,7 @@ class TestNFTCtrt:
         tok_bal = await cft.get_tok_bal(api, acnt0.addr.data, tok_id.data)
         assert tok_bal == 1
 
-        resp = await nc.deposit(acnt0, ac.ctrt_id, 0)
+        resp = await nc.deposit(acnt0, ac.ctrt_id.data, 0)
         await cft.wait_for_block()
         tx_info = await api.tx.get_info(resp["id"])
         assert tx_info["status"] == "Success"
@@ -207,7 +207,7 @@ class TestNFTCtrt:
         deposited_tok_bal = await ac.get_ctrt_bal(acnt0.addr.data)
         assert deposited_tok_bal.amount == 1
 
-        await nc.withdraw(acnt0, ac.ctrt_id, 0)
+        await nc.withdraw(acnt0, ac.ctrt_id.data, 0)
         await cft.wait_for_block()
 
         tok_bal = await cft.get_tok_bal(api, acnt0.addr.data, tok_id.data)
@@ -525,7 +525,7 @@ class TestNFTCtrtV2Whitelist(_TestNFTCtrtV2Base):
         assert (await ac.maker) == acnt0.addr
         assert (await ac.tok_id) == tok_id
 
-        resp = await nc.update_list_ctrt(acnt0, ac.ctrt_id, True)
+        resp = await nc.update_list_ctrt(acnt0, ac.ctrt_id.data, True)
         await cft.wait_for_block()
         await cft.assert_tx_success(api, resp["id"])
 

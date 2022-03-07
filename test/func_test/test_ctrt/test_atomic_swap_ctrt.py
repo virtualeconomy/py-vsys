@@ -104,7 +104,7 @@ class TestAtomicSwapCtrt:
         ac = await pv.AtomicSwapCtrt.register(acnt0, tc.tok_id.data)
         await cft.wait_for_block()
 
-        await tc.deposit(acnt0, ac.ctrt_id, 100)
+        await tc.deposit(acnt0, ac.ctrt_id.data, 100)
         await cft.wait_for_block()
 
         return ac
@@ -130,7 +130,7 @@ class TestAtomicSwapCtrt:
         ac = await pv.AtomicSwapCtrt.register(acnt1, tc.tok_id.data)
         await cft.wait_for_block()
 
-        await tc.deposit(acnt1, ac.ctrt_id, 100)
+        await tc.deposit(acnt1, ac.ctrt_id.data, 100)
         await cft.wait_for_block()
 
         return ac
@@ -224,7 +224,7 @@ class TestAtomicSwapCtrt:
         taker_lock_tx_info = await taker_ctrt.taker_lock(
             acnt1,
             5,
-            maker_ctrt.ctrt_id,
+            maker_ctrt.ctrt_id.data,
             acnt0.addr.data,
             maker_lock_tx_id,
             taker_lock_timestamp,
@@ -267,7 +267,7 @@ class TestAtomicSwapCtrt:
         taker_lock_tx_info = await taker_ctrt.taker_lock(
             acnt1,
             5,
-            maker_ctrt.ctrt_id,
+            maker_ctrt.ctrt_id.data,
             acnt0.addr.data,
             maker_lock_id,
             taker_lock_timestamp,
@@ -277,7 +277,7 @@ class TestAtomicSwapCtrt:
         await cft.assert_tx_success(api, taker_lock_id)
 
         maker_solve_tx_info = await maker_ctrt.maker_solve(
-            acnt0, taker_ctrt.ctrt_id, taker_lock_id, "abc"
+            acnt0, taker_ctrt.ctrt_id.data, taker_lock_id, "abc"
         )
         await cft.wait_for_block()
         maker_solve_id = maker_solve_tx_info["id"]
@@ -291,7 +291,7 @@ class TestAtomicSwapCtrt:
         assert revealed_secret == "abc"
 
         taker_solve_tx_info = await taker_ctrt.taker_solve(
-            acnt1, maker_ctrt.ctrt_id, maker_lock_id, maker_solve_id
+            acnt1, maker_ctrt.ctrt_id.data, maker_lock_id, maker_solve_id
         )
         await cft.wait_for_block()
         taker_solve_id = taker_solve_tx_info["id"]
@@ -355,7 +355,7 @@ class TestAtomicSwapCtrt:
         maker_tc = new_maker_tok_ctrt_with_tok
         maker_ctrt = await self.test_register(acnt0, maker_tc)
 
-        resp = await maker_tc.deposit(acnt0, maker_ctrt.ctrt_id, 100)
+        resp = await maker_tc.deposit(acnt0, maker_ctrt.ctrt_id.data, 100)
         await cft.wait_for_block()
         await cft.assert_tx_success(api, resp["id"])
 

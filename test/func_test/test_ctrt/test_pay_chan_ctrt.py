@@ -57,7 +57,7 @@ class TestPayChanCtrt:
         pc = await pv.PayChanCtrt.register(acnt0, tc.tok_id.data)
         await cft.wait_for_block()
 
-        resp = await tc.deposit(acnt0, pc.ctrt_id, self.TOK_MAX)
+        resp = await tc.deposit(acnt0, pc.ctrt_id.data, self.TOK_MAX)
         await cft.wait_for_block()
         await cft.assert_tx_success(api, resp["id"])
 
