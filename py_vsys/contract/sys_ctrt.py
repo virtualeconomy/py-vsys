@@ -88,7 +88,7 @@ class SysCtrt(BaseTokCtrt):
             md.TokenID: The token ID.
         """
         if not self._tok_id:
-            self._tok_id = self.get_tok_id(self.ctrt_id, 0)
+            self._tok_id = self.get_tok_id(self.ctrt_id, md.TokenIdx(0))
         return self._tok_id
 
     @property

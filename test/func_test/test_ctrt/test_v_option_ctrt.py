@@ -174,10 +174,10 @@ class TestVOptionCtrt:
         option_tc = new_option_ctrt_with_tok
         proof_tc = new_proof_ctrt_with_tok
 
-        base_tok_id = pv.Ctrt.get_tok_id(base_tc.ctrt_id, 0)
-        target_tok_id = pv.Ctrt.get_tok_id(target_tc.ctrt_id, 0)
-        option_tok_id = pv.Ctrt.get_tok_id(option_tc.ctrt_id, 0)
-        proof_tok_id = pv.Ctrt.get_tok_id(proof_tc.ctrt_id, 0)
+        base_tok_id = pv.Ctrt.get_tok_id(base_tc.ctrt_id, pv.TokenIdx(0))
+        target_tok_id = pv.Ctrt.get_tok_id(target_tc.ctrt_id, pv.TokenIdx(0))
+        option_tok_id = pv.Ctrt.get_tok_id(option_tc.ctrt_id, pv.TokenIdx(0))
+        proof_tok_id = pv.Ctrt.get_tok_id(proof_tc.ctrt_id, pv.TokenIdx(0))
 
         oc = await pv.VOptionCtrt.register(
             acnt0,

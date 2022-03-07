@@ -435,23 +435,23 @@ class Ctrt(abc.ABC):
         return data["value"]
 
     @staticmethod
-    def get_tok_id(ctrt_id: str, tok_idx: int) -> md.TokenID:
+    def get_tok_id(ctrt_id: md.CtrtID, tok_idx: md.TokenIdx) -> md.TokenID:
         """
         get_tok_id computes the token ID based on the given contract ID & token index.
 
         Args:
-            ctrt_id (str): The contract ID.
-            tok_idx (int): The token index.
+            ctrt_id (md.CtrtID): The contract ID.
+            tok_idx (md.TokenIdx): The token index.
 
         Returns:
             md.TokenID: The token ID.
         """
-        b = base58.b58decode(ctrt_id)
+        b = ctrt_id.bytes
         raw_ctrt_id = b[1 : (len(b) - CtrtMeta.CHECKSUM_LEN)]
         ctrt_id_no_checksum = (
             struct.pack("<b", CtrtMeta.TOKEN_ADDR_VER)
             + raw_ctrt_id
-            + struct.pack(">I", tok_idx)
+            + struct.pack(">I", tok_idx.data)
         )
         h = hs.keccak256_hash(hs.blake2b_hash(ctrt_id_no_checksum))
 

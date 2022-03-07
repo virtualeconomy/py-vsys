@@ -63,7 +63,7 @@ class TestNFTCtrt:
         """
         nc = new_ctrt_with_tok
 
-        tok_id = pv.Ctrt.get_tok_id(nc.ctrt_id, 0)
+        tok_id = pv.Ctrt.get_tok_id(nc.ctrt_id, pv.TokenIdx(0))
         ac = await pv.AtomicSwapCtrt.register(acnt0, tok_id.data)
 
         await cft.wait_for_block()
@@ -105,7 +105,7 @@ class TestNFTCtrt:
 
         await cft.assert_tx_success(api, resp["id"])
 
-        tok_id = pv.Ctrt.get_tok_id(nc.ctrt_id, 0)
+        tok_id = pv.Ctrt.get_tok_id(nc.ctrt_id, pv.TokenIdx(0))
         tok_bal = await cft.get_tok_bal(api, acnt0.addr.data, tok_id.data)
         assert tok_bal == 1
 
@@ -123,7 +123,7 @@ class TestNFTCtrt:
         nc = new_ctrt_with_tok
         api = nc.chain.api
 
-        tok_id = pv.Ctrt.get_tok_id(nc.ctrt_id, 0)
+        tok_id = pv.Ctrt.get_tok_id(nc.ctrt_id, pv.TokenIdx(0))
 
         tok_bal_acnt0 = await cft.get_tok_bal(api, acnt0.addr.data, tok_id.data)
         assert tok_bal_acnt0 == 1
@@ -155,7 +155,7 @@ class TestNFTCtrt:
         nc = new_ctrt_with_tok
         api = nc.chain.api
 
-        tok_id = pv.Ctrt.get_tok_id(nc.ctrt_id, 0)
+        tok_id = pv.Ctrt.get_tok_id(nc.ctrt_id, pv.TokenIdx(0))
 
         tok_bal_acnt0 = await cft.get_tok_bal(api, acnt0.addr.data, tok_id.data)
         assert tok_bal_acnt0 == 1
@@ -190,7 +190,7 @@ class TestNFTCtrt:
         nc = new_ctrt_with_tok
         api = nc.chain.api
 
-        tok_id = pv.Ctrt.get_tok_id(nc.ctrt_id, 0)
+        tok_id = pv.Ctrt.get_tok_id(nc.ctrt_id, pv.TokenIdx(0))
         ac = new_atomic_swap_ctrt
 
         tok_bal = await cft.get_tok_bal(api, acnt0.addr.data, tok_id.data)
@@ -518,7 +518,7 @@ class TestNFTCtrtV2Whitelist(_TestNFTCtrtV2Base):
         nc = new_ctrt_with_tok
         api = nc.chain.api
 
-        tok_id = pv.Ctrt.get_tok_id(nc.ctrt_id, 0)
+        tok_id = pv.Ctrt.get_tok_id(nc.ctrt_id, pv.TokenIdx(0))
         ac = await pv.AtomicSwapCtrt.register(acnt0, tok_id.data)
 
         await cft.wait_for_block()
@@ -572,7 +572,7 @@ class TestNFTCtrtV2Blacklist(_TestNFTCtrtV2Base):
         """
         nc = new_ctrt_with_tok
 
-        tok_id = pv.Ctrt.get_tok_id(nc.ctrt_id, 0)
+        tok_id = pv.Ctrt.get_tok_id(nc.ctrt_id, pv.TokenIdx(0))
         ac = await pv.AtomicSwapCtrt.register(acnt0, tok_id.data)
 
         await cft.wait_for_block()
