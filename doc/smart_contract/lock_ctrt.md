@@ -7,11 +7,11 @@
     - [From Existing Contract](#from-existing-contract)
     - [Querying](#querying)
       - [Maker](#maker)
-      - [Token_id](#Token_id)
-      - [Contract balance](#Contract balance)
-      - [Lock time](#Lock time)
+      - [Token id](#token-id)
+      - [Contract balance](#contract-balance)
+      - [Lock time](#lock-time)
     - [Actions](#actions)
-      - [Lock](#Lock)
+      - [Lock](#lock)
 
 
 ## Introduction
@@ -40,7 +40,7 @@ print(nc.ctrt_id) # print the id of the newly registered contract
 Example output
 
 ```
-CEvsegnqoPWF1e4ATyvmqx5PxDcEy6G6vZa
+CtrtID(CEvsegnqoPWF1e4ATyvmqx5PxDcEy6G6vZa)
 ```
 
 ### From Existing Contract

@@ -135,7 +135,7 @@ Account address: Addr(AU6BNRK34SLuc27evpzJbAswB6ntHV2hmjD)
 ========== Try out Smart Contract ==========
 Maker: Addr(AU6BNRK34SLuc27evpzJbAswB6ntHV2hmjD)
 Issuer: Addr(AU6BNRK34SLuc27evpzJbAswB6ntHV2hmjD)
-Contract id:  CFB6zvcy39FCRGhxo8HH3PE6zZEG5zXevhG
+Contract id:  CtrtID(CFB6zvcy39FCRGhxo8HH3PE6zZEG5zXevhG)
 ```
 
 ## Docs

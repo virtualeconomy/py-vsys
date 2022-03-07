@@ -43,7 +43,7 @@ print(nc.ctrt_id) # print the id of the newly registered contract
 Example output
 
 ```
-CEu8AuKJS2Pr67RPV9dFjPAb8TL151weQsi
+CtrtID(CEu8AuKJS2Pr67RPV9dFjPAb8TL151weQsi)
 ```
 
 ### From Existing Contract
@@ -184,7 +184,7 @@ import py_vsys as pv
 # nc: pv.NFTCtrt
 # lc: pv.LockCtrt
 
-lc_id = lc.ctrt_id
+lc_id = lc.ctrt_id.data
 
 resp = await nc.deposit(
     by=acnt0,
@@ -211,7 +211,7 @@ import py_vsys as pv
 # nc: pv.NFTCtrt
 # lc: pv.LockCtrt
 
-lc_id = lc.ctrt_id
+lc_id = lc.ctrt_id.data
 
 resp = await nc.withdraw(
     by=acnt0,
