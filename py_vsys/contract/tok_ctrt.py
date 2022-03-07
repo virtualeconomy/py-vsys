@@ -171,7 +171,7 @@ class TokCtrtWithoutSplit(BaseTokCtrt):
             self._unit = info["unity"]
         return self._unit
 
-    async def get_tok_bal(self, addr: str) -> int:
+    async def get_tok_bal(self, addr: str) -> md.Token:
         """
         get_tok_bal queries & returns the balance of the token of the contract belonging to the user address.
 
@@ -179,10 +179,11 @@ class TokCtrtWithoutSplit(BaseTokCtrt):
             addr (str): The user address.
 
         Returns:
-            int: The balance.
+            md.Token: The balance.
         """
-        data = await self.chain.api.ctrt.get_tok_bal(addr, self.tok_id.data)
-        return data["balance"]
+        resp = await self.chain.api.ctrt.get_tok_bal(addr, self.tok_id.data)
+        raw_val = resp["balance"]
+        return md.Token(raw_val, await self.unit)
 
     async def supersede(
         self,
