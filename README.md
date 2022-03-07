@@ -92,13 +92,13 @@ async def main():
     # Get the account's balance
     print("Balance:", await acnt.bal)
     # Get the account's nonce'
-    print("Nonce:", acnt.nonce.data)
+    print("Nonce:", acnt.nonce)
     # Get the account's public key
-    print("Public key: ", acnt.key_pair.pub.b58_str)
+    print("Public key: ", acnt.key_pair.pub)
     # Get the account's private key
-    print("Private key:", acnt.key_pair.pri.b58_str)
+    print("Private key:", acnt.key_pair.pri)
     # Get the account's address
-    print("Account address:", acnt.addr.data)
+    print("Account address:", acnt.addr)
 
     print_heading("Try out Smart Contract")
     ctrt_id = "CFB6zvcy39FCRGhxo8HH3PE6zZEG5zXevhG"
@@ -120,22 +120,21 @@ if __name__ == "__main__":
 Example output
 ```
 ========== Try out NodeAPI ==========
-{'height': 668531}
+{'height': 1294386}
 {'version': 'VSYS Core v0.4.1'}
 ========== Try out Chain ==========
-Height:  668531
+Height:  1294386
 Last blcok:
- {'version': 1, 'timestamp': 1642861992010691002, 'reference': '39hQCUgB2zQe7NqFsYqWfY6gTv9Zf7z7vCavjaqRZi4B6qKbfxNSVeaxFndjq5y1cuRJ4FoVHkb2AytYDMeG2iaS', 'SPOSConsensus': {'mintTime': 1642861992000000000, 'mintBalance': 50030598629237850}, 'resourcePricingData': {'computation': 0, 'storage': 0, 'memory': 0, 'randomIO': 0, 'sequentialIO': 0}, 'TransactionMerkleRoot': 'FBELMGpFbVcAJse2kLXoDh7CJHcw6ZYHKLRvvfzeKijw', 'transactions': [{'type': 5, 'id': 'B6r1AuPXBvTiMLRHPe4fcMthsd6Sq35n71ZvXnqgAKoS', 'recipient': 'AU6sMeLdsswqDQrw4RDo5PVxdGh1v6JDv6t', 'timestamp': 1642861992010691002, 'amount': 900000000, 'currentBlockHeight': 668531, 'status': 'Success', 'feeCharged': 0}], 'generator': 'AU6sMeLdsswqDQrw4RDo5PVxdGh1v6JDv6t', 'signature': '2kBVPPYpkFzSZSAu1fVv85U2xBKUYqMBibtstknJYAXSaDUA6WDz31AqYrkL4Uv3SQuGxDTDSRZjqY2sADGD4r7w', 'fee': 0, 'blocksize': 330, 'height': 668531, 'transaction count': 1}
+ {'version': 1, 'timestamp': 1646617122022012339, 'reference': '5iCNrcmHAd7ksnsKbt793DbyeRhheNLuxqzo1CRspYrkPL1oXcqSwb3jdEb5nKra9XFvnqPXHS4R6fsRzEdqDFwx', 'SPOSConsensus': {'mintTime': 1646617122000000000, 'mintBalance': 50097894873482088}, 'resourcePricingData': {'computation': 0, 'storage': 0, 'memory': 0, 'randomIO': 0, 'sequentialIO': 0}, 'TransactionMerkleRoot': 'gSDLiXotSAb8iTqZynm13syWGEg2t22sqxsnExLZwLA', 'transactions': [{'type': 5, 'id': 'FE4gbQwmg8cUPHeEmbiGH4HdjD7d7GN1Y6Xvhv4AQsu4', 'recipient': 'ATxtBDygMvWtvh9xJaGQn5MdaHsbuQxbjiG', 'timestamp': 1646617122022012339, 'amount': 900000000, 'currentBlockHeight': 1294386, 'status': 'Success', 'feeCharged': 0}], 'generator': 'ATxtBDygMvWtvh9xJaGQn5MdaHsbuQxbjiG', 'signature': '4Q9LwLEJgQmUv5iQqWbt1ScDBYyNq1d3KcZUdUvEbUNsH3zJmdvRg4BvAVoBrb82NGLTrX8pPwpWMCseWraGbi5u', 'fee': 0, 'blocksize': 330, 'height': 1294386, 'transaction count': 1}
 ========== Try out Account ==========
-Balance: 0
-Seed: amount palm soldier device cereal fashion fringe copper huge mansion animal banana ready garment setup
-Nonce: 0
-Public key:  JyDuPhvWGQDV5SQfTQCo8yaenuY4dLF3YeZwhkhzCgz8L2xxrPevvgyzS5ze
-Private key: PDUZn2xzfn8GKgKjYviTcLM24ThLffBSB8EYeba8tA7ixTuChJLmaAD4yGTw
-Account address: ATrcMo5NnFECc6sN2Ca8evBr26bYJgwFnvK
+Balance: VSYS(4867193229105012)
+Nonce: Nonce(0)
+Public key:  PubKey(6gmM7UxzUyRJXidy2DpXXMvrPqEF9hR1eAqsmh33J6eL)
+Private key: PriKey(BHpnszuqFHXuwesGbvrozYpevZiMsL29vLvud1zScqEK)
+Account address: Addr(AU6BNRK34SLuc27evpzJbAswB6ntHV2hmjD)
 ========== Try out Smart Contract ==========
-Maker: AU6BNRK34SLuc27evpzJbAswB6ntHV2hmjD
-Issuer: AU6BNRK34SLuc27evpzJbAswB6ntHV2hmjD
+Maker: Addr(AU6BNRK34SLuc27evpzJbAswB6ntHV2hmjD)
+Issuer: Addr(AU6BNRK34SLuc27evpzJbAswB6ntHV2hmjD)
 Contract id:  CFB6zvcy39FCRGhxo8HH3PE6zZEG5zXevhG
 ```
 
