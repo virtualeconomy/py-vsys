@@ -143,6 +143,9 @@ Contract id:  CtrtID(CFB6zvcy39FCRGhxo8HH3PE6zZEG5zXevhG)
 ### Smart Contracts
 - [NFT Contract V1](./doc/smart_contract/nft_ctrt.md)
 - [NFT Contract V2](./doc/smart_contract/nft_ctrt_v2.md)
+- [Token Contract V1 without split](./doc/smart_contract/tok_ctrt_no_split.md)
+- [Token Contract V1 with split](./doc/smart_contract/tok_ctrt_split.md)
+- [Token Contract V2 without split](./doc/smart_contract/tok_ctrt_no_split_v2.md)
 
 ## Run Tests
 
