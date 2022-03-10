@@ -690,8 +690,8 @@ class VOptionCtrt(Ctrt):
             option_tok_id (str): The option token id.
             proof_token_id (str): The proof token id.
             max_order_per_user (Union[int, float]): The max order number that per user can create.
-            unit_price_base (Union[int, float]): The unit price of the base token.
-            unit_price_target (Union[int, float]): The unit price of the target token.
+            base_price_unit (Union[int, float]): The unit price of the base token.
+            target_price_unit (Union[int, float]): The unit price of the target token.
 
         Returns:
             VOptionCtrt: The VOptionCtrt object of the registered V Option contract.

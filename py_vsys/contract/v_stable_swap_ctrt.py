@@ -126,9 +126,9 @@ class VStableSwapCtrt(Ctrt):
             return cls(b)
 
         @classmethod
-        def for_unit_price_base(cls) -> VStableSwapCtrt.DBKey:
+        def for_base_price_unit(cls) -> VStableSwapCtrt.DBKey:
             """
-            for_unit_price_base returns the VStableSwapCtrt.DBKey object for querying the unit of base token price.
+            for_base_price_unit returns the VStableSwapCtrt.DBKey object for querying the unit of base token price.
 
             Returns:
                 VStableSwapCtrt.DBKey: The VStableSwapCtrt.DBKey object.
@@ -137,9 +137,9 @@ class VStableSwapCtrt(Ctrt):
             return cls(b)
 
         @classmethod
-        def for_unit_price_target(cls) -> VStableSwapCtrt.DBKey:
+        def for_target_price_unit(cls) -> VStableSwapCtrt.DBKey:
             """
-            for_unit_price_target returns the VStableSwapCtrt.DBKey object for querying the unit of target token price.
+            for_target_price_unit returns the VStableSwapCtrt.DBKey object for querying the unit of target token price.
 
             Returns:
                 VStableSwapCtrt.DBKey: The VStableSwapCtrt.DBKey object.
@@ -514,24 +514,24 @@ class VStableSwapCtrt(Ctrt):
         return await self._query_db_key(self.DBKey.for_max_order_per_user())
 
     @property
-    async def unit_price_base(self) -> int:
+    async def base_price_unit(self) -> int:
         """
-        unit_price_base queries & returns the unit of price of base token.
+        base_price_unit queries & returns the unit of price of base token.
 
         Returns:
             int: the unit of price of base.
         """
-        return await self._query_db_key(self.DBKey.for_unit_price_base())
+        return await self._query_db_key(self.DBKey.for_base_price_unit())
 
     @property
-    async def unit_price_target(self) -> int:
+    async def target_price_unit(self) -> int:
         """
-        unit_price_target queries & returns the unit of price of target token.
+        target_price_unit queries & returns the unit of price of target token.
 
         Returns:
             int: the unit of price of target.
         """
-        return await self._query_db_key(self.DBKey.for_unit_price_target())
+        return await self._query_db_key(self.DBKey.for_target_price_unit())
 
     async def get_base_tok_bal(self, addr: str) -> md.Token:
         """
@@ -675,7 +675,7 @@ class VStableSwapCtrt(Ctrt):
             md.Addr: The price of the base token.
         """
         price_base = await self._query_db_key(self.DBKey.for_price_base(order_id))
-        return md.Token(price_base, await self.unit_price_base)
+        return md.Token(price_base, await self.base_price_unit)
 
     async def get_price_target(self, order_id: str) -> md.Token:
         """
@@ -688,7 +688,7 @@ class VStableSwapCtrt(Ctrt):
             md.Token: The price of the target token.
         """
         price_target = await self._query_db_key(self.DBKey.for_price_target(order_id))
-        return md.Token(price_target, await self.unit_price_target)
+        return md.Token(price_target, await self.target_price_unit)
 
     async def get_base_tok_locked(self, order_id: str) -> md.Token:
         """
@@ -736,8 +736,8 @@ class VStableSwapCtrt(Ctrt):
         base_tok_id: str,
         target_tok_id: str,
         max_order_per_user: int,
-        unit_price_base: int,
-        unit_price_target: int,
+        base_price_unit: int,
+        target_price_unit: int,
         ctrt_description: str = "",
         fee: int = md.RegCtrtFee.DEFAULT,
     ) -> VStableSwapCtrt:
@@ -749,8 +749,8 @@ class VStableSwapCtrt(Ctrt):
             base_tok_id (str): The base token id.
             target_tok_id (str): The target token id.
             max_order_per_user (int): The max order number that per user can create.
-            unit_price_base (int): The unit of price of the base token.
-            unit_price_target (int): The unit of price of the target token.
+            base_price_unit (int): The unit of price of the base token.
+            target_price_unit (int): The unit of price of the target token.
 
         Returns:
             VStableSwapCtrt: The VStableSwapCtrt object of the registered Stable Swap contract.
@@ -761,8 +761,8 @@ class VStableSwapCtrt(Ctrt):
                     de.TokenID(md.TokenID(base_tok_id)),
                     de.TokenID(md.TokenID(target_tok_id)),
                     de.Amount(md.Int(max_order_per_user)),
-                    de.Amount(md.Int(unit_price_base)),
-                    de.Amount(md.Int(unit_price_target)),
+                    de.Amount(md.Int(base_price_unit)),
+                    de.Amount(md.Int(target_price_unit)),
                 ),
                 ctrt_meta=cls.CTRT_META,
                 timestamp=md.VSYSTimestamp.now(),
@@ -849,8 +849,8 @@ class VStableSwapCtrt(Ctrt):
         base_unit = await self.base_tok_unit
         target_unit = await self.target_tok_unit
 
-        base_price_unit = await self.unit_price_base
-        target_price_unit = await self.unit_price_target
+        base_price_unit = await self.base_price_unit
+        target_price_unit = await self.target_price_unit
 
         data = await by._execute_contract(
             tx.ExecCtrtFuncTxReq(
@@ -914,8 +914,8 @@ class VStableSwapCtrt(Ctrt):
         base_unit = await self.base_tok_unit
         target_unit = await self.target_tok_unit
 
-        base_price_unit = await self.unit_price_base
-        target_price_unit = await self.unit_price_target
+        base_price_unit = await self.base_price_unit
+        target_price_unit = await self.target_price_unit
 
         data = await by._execute_contract(
             tx.ExecCtrtFuncTxReq(
@@ -1089,7 +1089,7 @@ class VStableSwapCtrt(Ctrt):
             Dict[str, any]: The response returned by the Node API.
         """
         base_unit = await self.base_tok_unit
-        base_price_unit = await self.unit_price_base
+        base_price_unit = await self.base_price_unit
 
         data = await by._execute_contract(
             tx.ExecCtrtFuncTxReq(
@@ -1138,7 +1138,7 @@ class VStableSwapCtrt(Ctrt):
             Dict[str, any]: The response returned by the Node API.
         """
         target_unit = await self.target_tok_unit
-        target_price_unit = await self.unit_price_target
+        target_price_unit = await self.target_price_unit
 
         data = await by._execute_contract(
             tx.ExecCtrtFuncTxReq(
