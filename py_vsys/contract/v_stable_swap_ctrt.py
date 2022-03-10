@@ -762,7 +762,6 @@ class VStableSwapCtrt(Ctrt):
             by.chain.api.ctrt.get_tok_info(base_tok_id),
             by.chain.api.ctrt.get_tok_info(target_tok_id),
         )
-        print(base_resp)
         base_unit = base_resp["unity"]
         target_unit = target_resp["unity"]
 
