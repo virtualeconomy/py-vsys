@@ -92,7 +92,7 @@ import py_v_sdk as pv
 # ch: pv.Chain
 # nc_id: str
 
-nc_id = "CFF4SuQRfkbWzNQx3NdykwZf1kfrZGHwzek"
+nc_id = "CEzgEwke6qw4im78x22aNgnqKe3dVxfeciD"
 nc = pv.VEscrowCtrt(ctrt_id=nc_id, chain=ch)
 ```
 
