@@ -521,8 +521,8 @@ class VStableSwapCtrt(Ctrt):
         Returns:
             md.Token: the unit price of base.
         """
-        data = await self._query_db_key(self.DBKey.for_unit_price_base())
-        return md.Token.for_amount(data, await self.base_tok_unit)
+        raw_val = await self._query_db_key(self.DBKey.for_unit_price_base())
+        return md.Token(raw_val, await self.base_tok_unit)
 
     @property
     async def unit_price_target(self) -> md.Token:
@@ -532,8 +532,8 @@ class VStableSwapCtrt(Ctrt):
         Returns:
             md.Token: the unit price of target.
         """
-        data = await self._query_db_key(self.DBKey.for_unit_price_target())
-        return md.Token.for_amount(data, await self.target_tok_unit)
+        raw_val = await self._query_db_key(self.DBKey.for_unit_price_target())
+        return md.Token(raw_val, await self.target_tok_unit)
 
     async def get_base_tok_bal(self, addr: str) -> md.Token:
         """
@@ -545,9 +545,8 @@ class VStableSwapCtrt(Ctrt):
         Returns:
             md.Token: The balance of the token.
         """
-        bal = await self._query_db_key(self.DBKey.for_base_token_balance(addr))
-
-        return md.Token.for_amount(bal, await self.base_tok_unit)
+        raw_val = await self._query_db_key(self.DBKey.for_base_token_balance(addr))
+        return md.Token(raw_val, await self.base_tok_unit)
 
     async def get_target_tok_bal(self, addr: str) -> md.Token:
         """
@@ -559,8 +558,8 @@ class VStableSwapCtrt(Ctrt):
         Returns:
             md.Token: The balance of the token.
         """
-        bal = await self._query_db_key(self.DBKey.for_target_token_balance(addr))
-        return md.Token.for_amount(bal, await self.target_tok_unit)
+        raw_val = await self._query_db_key(self.DBKey.for_target_token_balance(addr))
+        return md.Token(raw_val, await self.target_tok_unit)
 
     async def get_user_orders(self, addr: str) -> int:
         """
@@ -703,8 +702,8 @@ class VStableSwapCtrt(Ctrt):
         Returns:
             md.Token: The balance of locked base token.
         """
-        bal = await self._query_db_key(self.DBKey.for_base_token_locked(order_id))
-        return md.Token.for_amount(bal, await self.base_tok_unit)
+        raw_val = await self._query_db_key(self.DBKey.for_base_token_locked(order_id))
+        return md.Token(raw_val, await self.base_tok_unit)
 
     async def get_target_tok_locked(self, order_id: str) -> md.Token:
         """
@@ -716,8 +715,8 @@ class VStableSwapCtrt(Ctrt):
         Returns:
             md.Token: The balance of locked target token.
         """
-        bal = await self._query_db_key(self.DBKey.for_target_token_locked(order_id))
-        return md.Token.for_amount(bal, await self.target_tok_unit)
+        raw_val = await self._query_db_key(self.DBKey.for_target_token_locked(order_id))
+        return md.Token(raw_val, await self.target_tok_unit)
 
     async def get_order_status(self, order_id: str) -> bool:
         """
