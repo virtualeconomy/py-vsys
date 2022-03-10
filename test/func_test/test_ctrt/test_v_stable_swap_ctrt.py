@@ -189,9 +189,9 @@ class TestStableSwapCtrt:
             ssc.get_price_base(order_id),
         )
 
-        assert base_tok_bal.data == 500
-        assert target_tok_bal.data == 500
-        assert price_base1.data == 2
+        assert base_tok_bal.amount == 500
+        assert target_tok_bal.amount == 500
+        assert price_base1.amount == 2
 
         resp = await ssc.update_order(
             acnt0, order_id, 1, 1, 0, 100, 0, 100, 1, 1
@@ -201,7 +201,7 @@ class TestStableSwapCtrt:
         await cft.assert_tx_success(api, update_tx_id)
 
         price_base2 = await ssc.get_price_base(order_id)
-        assert price_base2.data == 1
+        assert price_base2.amount == 1
 
         return order_id
 
@@ -230,8 +230,8 @@ class TestStableSwapCtrt:
             ssc.get_target_tok_bal(acnt0.addr.data),
         )
 
-        assert base_tok_bal.data == 300
-        assert target_tok_bal.data == 400
+        assert base_tok_bal.amount == 300
+        assert target_tok_bal.amount == 400
 
         resp = await ssc.order_withdraw(acnt0, order_id, 200, 100)
         await cft.wait_for_block()
@@ -242,8 +242,8 @@ class TestStableSwapCtrt:
             ssc.get_base_tok_bal(acnt0.addr.data),
             ssc.get_target_tok_bal(acnt0.addr.data),
         )
-        assert base_tok_bal.data == 500
-        assert target_tok_bal.data == 500
+        assert base_tok_bal.amount == 500
+        assert target_tok_bal.amount == 500
 
     async def test_swap(
         self,
@@ -271,8 +271,8 @@ class TestStableSwapCtrt:
             ssc.get_base_tok_bal(acnt0.addr.data),
             ssc.get_target_tok_bal(acnt0.addr.data),
         )
-        assert base_tok_bal.data == 490
-        assert target_tok_bal.data == 509
+        assert base_tok_bal.amount == 490
+        assert target_tok_bal.amount == 509
 
         # test swap_target_to_base
         swap2 = await ssc.swap_target_to_base(acnt0, order_id, 10, 1, 1, deadline)
@@ -284,8 +284,8 @@ class TestStableSwapCtrt:
             ssc.get_base_tok_bal(acnt0.addr.data),
             ssc.get_target_tok_bal(acnt0.addr.data),
         )
-        assert base_tok_bal.data == 499
-        assert target_tok_bal.data == 499
+        assert base_tok_bal.amount == 499
+        assert target_tok_bal.amount == 499
 
     async def test_close_order(
         self,
