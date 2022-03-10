@@ -171,7 +171,7 @@ class TokCtrtWithoutSplit(BaseTokCtrt):
             self._unit = info["unity"]
         return self._unit
 
-    async def get_tok_bal(self, addr: str) -> int:
+    async def get_tok_bal(self, addr: str) -> md.Token:
         """
         get_tok_bal queries & returns the balance of the token of the contract belonging to the user address.
 
@@ -179,10 +179,11 @@ class TokCtrtWithoutSplit(BaseTokCtrt):
             addr (str): The user address.
 
         Returns:
-            int: The balance.
+            md.Token: The balance.
         """
-        data = await self.chain.api.ctrt.get_tok_bal(addr, self.tok_id.data)
-        return data["balance"]
+        resp = await self.chain.api.ctrt.get_tok_bal(addr, self.tok_id.data)
+        raw_val = resp["balance"]
+        return md.Token(raw_val, await self.unit)
 
     async def supersede(
         self,
@@ -384,7 +385,7 @@ class TokCtrtWithoutSplit(BaseTokCtrt):
     async def deposit(
         self,
         by: acnt.Account,
-        contract: str,
+        ctrt_id: str,
         amount: Union[int, float],
         attachment: str = "",
         fee: int = md.ExecCtrtFee.DEFAULT,
@@ -394,7 +395,7 @@ class TokCtrtWithoutSplit(BaseTokCtrt):
 
         Args:
             by (acnt.Account): The action maker.
-            contract (str): The contract id to deposit into
+            ctrt_id (str): The contract id to deposit into
             amount (Union[int, float]): The amount to deposit
             attachment (str, optional): The attachment of this action. Defaults to "".
             fee (int, optional): Execution fee of this tx. Defaults to md.ExecCtrtFee.DEFAULT.
@@ -414,7 +415,7 @@ class TokCtrtWithoutSplit(BaseTokCtrt):
                 func_id=self.FuncIdx.DEPOSIT,
                 data_stack=de.DataStack(
                     de.Addr(sender_md),
-                    de.CtrtAcnt(md.CtrtID(contract)),
+                    de.CtrtAcnt(md.CtrtID(ctrt_id)),
                     de.Amount.for_tok_amount(amount, unit),
                 ),
                 timestamp=md.VSYSTimestamp.now(),
@@ -428,7 +429,7 @@ class TokCtrtWithoutSplit(BaseTokCtrt):
     async def withdraw(
         self,
         by: acnt.Account,
-        contract: str,
+        ctrt_id: str,
         amount: Union[int, float],
         attachment: str = "",
         fee: int = md.ExecCtrtFee.DEFAULT,
@@ -438,7 +439,7 @@ class TokCtrtWithoutSplit(BaseTokCtrt):
 
         Args:
             by (acnt.Account): The action maker.
-            contract (str): The contract id that you want to withdraw token from
+            ctrt_id (str): The contract id that you want to withdraw token from
             amount (Union[int, float]): The amount to withdraw
             attachment (str, optional): The attachment of this action. Defaults to "".
             fee (int, optional): Execution fee of this tx. Defaults to md.ExecCtrtFee.DEFAULT.
@@ -457,7 +458,7 @@ class TokCtrtWithoutSplit(BaseTokCtrt):
                 ctrt_id=self._ctrt_id,
                 func_id=self.FuncIdx.WITHDRAW,
                 data_stack=de.DataStack(
-                    de.CtrtAcnt(md.CtrtID(contract)),
+                    de.CtrtAcnt(md.CtrtID(ctrt_id)),
                     de.Addr(rcpt_md),
                     de.Amount.for_tok_amount(amount, unit),
                 ),
