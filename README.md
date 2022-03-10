@@ -150,7 +150,10 @@ Contract id:  CtrtID(CFB6zvcy39FCRGhxo8HH3PE6zZEG5zXevhG)
 - [Payment Channel Contract](./doc/smart_contract/pay_chan_ctrt.md)
 - [Lock Contract](./doc/smart_contract/lock_ctrt.md)
 - [System Contract](./doc/smart_contract/sys_ctrt.md)
-
+- [V Escrow Contract](./doc/smart_contract/v_escrow_ctrt.md)
+- [V Option Contract](./doc/smart_contract/v_option_ctrt.md)
+- [V Stable Swap Contract](./doc/smart_contract/v_stable_swap_ctrt.md)
+- [V Swap Contract](./doc/smart_contract/v_swap_ctrt.md)
 
 ## Run Tests
 
