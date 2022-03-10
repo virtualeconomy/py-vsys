@@ -128,7 +128,7 @@ class VStableSwapCtrt(Ctrt):
         @classmethod
         def for_unit_price_base(cls) -> VStableSwapCtrt.DBKey:
             """
-            for_unit_price_base returns the VStableSwapCtrt.DBKey object for querying the base unit price.
+            for_unit_price_base returns the VStableSwapCtrt.DBKey object for querying the unit of base token price.
 
             Returns:
                 VStableSwapCtrt.DBKey: The VStableSwapCtrt.DBKey object.
@@ -139,7 +139,7 @@ class VStableSwapCtrt(Ctrt):
         @classmethod
         def for_unit_price_target(cls) -> VStableSwapCtrt.DBKey:
             """
-            for_unit_price_target returns the VStableSwapCtrt.DBKey object for querying the target unit price.
+            for_unit_price_target returns the VStableSwapCtrt.DBKey object for querying the unit of target token price.
 
             Returns:
                 VStableSwapCtrt.DBKey: The VStableSwapCtrt.DBKey object.
@@ -735,9 +735,9 @@ class VStableSwapCtrt(Ctrt):
         by: acnt.Account,
         base_tok_id: str,
         target_tok_id: str,
-        max_order_per_user: Union[int, float],
-        unit_price_base: Union[int, float],
-        unit_price_target: Union[int, float],
+        max_order_per_user: int,
+        unit_price_base: int,
+        unit_price_target: int,
         ctrt_description: str = "",
         fee: int = md.RegCtrtFee.DEFAULT,
     ) -> VStableSwapCtrt:
@@ -748,28 +748,21 @@ class VStableSwapCtrt(Ctrt):
             by (acnt.Account): The action maker.
             base_tok_id (str): The base token id.
             target_tok_id (str): The target token id.
-            max_order_per_user (Union[int, float]): The max order number that per user can create.
-            unit_price_base (Union[int, float]): The unit price of the base token.
-            unit_price_target (Union[int, float]): The unit price of the target token.
+            max_order_per_user (int): The max order number that per user can create.
+            unit_price_base (int): The unit of price of the base token.
+            unit_price_target (int): The unit of price of the target token.
 
         Returns:
             VStableSwapCtrt: The VStableSwapCtrt object of the registered Stable Swap contract.
         """
-        base_resp, target_resp = await asyncio.gather(
-            by.chain.api.ctrt.get_tok_info(base_tok_id),
-            by.chain.api.ctrt.get_tok_info(target_tok_id),
-        )
-        base_unit = base_resp["unity"]
-        target_unit = target_resp["unity"]
-
         data = await by._register_contract(
             tx.RegCtrtTxReq(
                 data_stack=de.DataStack(
                     de.TokenID(md.TokenID(base_tok_id)),
                     de.TokenID(md.TokenID(target_tok_id)),
-                    de.Amount.for_tok_amount(max_order_per_user, 1),
-                    de.Amount.for_tok_amount(unit_price_base, target_unit),
-                    de.Amount.for_tok_amount(unit_price_target, base_unit),
+                    de.Amount(md.Int(max_order_per_user)),
+                    de.Amount(md.Int(unit_price_base)),
+                    de.Amount(md.Int(unit_price_target)),
                 ),
                 ctrt_meta=cls.CTRT_META,
                 timestamp=md.VSYSTimestamp.now(),
