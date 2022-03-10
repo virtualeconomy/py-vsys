@@ -751,6 +751,8 @@ class VStableSwapCtrt(Ctrt):
             max_order_per_user (int): The max order number that per user can create.
             base_price_unit (int): The unit of price of the base token.
             target_price_unit (int): The unit of price of the target token.
+            ctrt_description (str, optional): The description of the contract. Defaults to "".
+            fee (int, optional): The fee to pay for this action. Defaults to md.RegCtrtFee.DEFAULT.
 
         Returns:
             VStableSwapCtrt: The VStableSwapCtrt object of the registered Stable Swap contract.
