@@ -514,26 +514,24 @@ class VStableSwapCtrt(Ctrt):
         return await self._query_db_key(self.DBKey.for_max_order_per_user())
 
     @property
-    async def unit_price_base(self) -> md.Token:
+    async def unit_price_base(self) -> int:
         """
-        unit_price_base queries & returns the unit price of base token.
+        unit_price_base queries & returns the unit of price of base token.
 
         Returns:
-            md.Token: the unit price of base.
+            int: the unit of price of base.
         """
-        raw_val = await self._query_db_key(self.DBKey.for_unit_price_base())
-        return md.Token(raw_val, await self.base_tok_unit)
+        return await self._query_db_key(self.DBKey.for_unit_price_base())
 
     @property
-    async def unit_price_target(self) -> md.Token:
+    async def unit_price_target(self) -> int:
         """
-        unit_price_target queries & returns the unit price of target token.
+        unit_price_target queries & returns the unit of price of target token.
 
         Returns:
-            md.Token: the unit price of target.
+            int: the unit of price of target.
         """
-        raw_val = await self._query_db_key(self.DBKey.for_unit_price_target())
-        return md.Token(raw_val, await self.target_tok_unit)
+        return await self._query_db_key(self.DBKey.for_unit_price_target())
 
     async def get_base_tok_bal(self, addr: str) -> md.Token:
         """
