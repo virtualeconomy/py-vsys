@@ -57,7 +57,7 @@ The V Escrow contract allows two parties to do transactions with one another if 
 
 ### Registration
 
-`tok_id` is the token id of the token that deposited into this payment channel contract.
+`tok_id` is the token id of the token that deposited into this V Escrow contract.
 
 Note that the caller is the judge of the escrow contract.
 
