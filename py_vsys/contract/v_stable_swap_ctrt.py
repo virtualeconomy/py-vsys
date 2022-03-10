@@ -675,7 +675,7 @@ class VStableSwapCtrt(Ctrt):
             md.Addr: The price of the base token.
         """
         price_base = await self._query_db_key(self.DBKey.for_price_base(order_id))
-        return md.Token(price_base, await self.base_tok_unit)
+        return md.Token(price_base, await self.unit_price_base)
 
     async def get_price_target(self, order_id: str) -> md.Token:
         """
@@ -688,7 +688,7 @@ class VStableSwapCtrt(Ctrt):
             md.Token: The price of the target token.
         """
         price_target = await self._query_db_key(self.DBKey.for_price_target(order_id))
-        return md.Token(price_target, await self.target_tok_unit)
+        return md.Token(price_target, await self.unit_price_target)
 
     async def get_base_tok_locked(self, order_id: str) -> md.Token:
         """
@@ -788,7 +788,7 @@ class VStableSwapCtrt(Ctrt):
 
         Args:
             by (acnt.Account): The action taker
-            new_owner (int): The new owner of the contract
+            new_owner (str): The new owner of the contract
             attachment (str, optional): The attachment of this action. Defaults to "".
             fee (int, optional): Execution fee of this tx. Defaults to md.ExecCtrtFee.DEFAULT.
 
@@ -849,6 +849,9 @@ class VStableSwapCtrt(Ctrt):
         base_unit = await self.base_tok_unit
         target_unit = await self.target_tok_unit
 
+        base_price_unit = await self.unit_price_base
+        target_price_unit = await self.unit_price_target
+
         data = await by._execute_contract(
             tx.ExecCtrtFuncTxReq(
                 ctrt_id=self._ctrt_id,
@@ -860,8 +863,8 @@ class VStableSwapCtrt(Ctrt):
                     de.Amount.for_tok_amount(max_base, base_unit),
                     de.Amount.for_tok_amount(min_target, target_unit),
                     de.Amount.for_tok_amount(max_target, target_unit),
-                    de.Amount.for_tok_amount(price_base, base_unit),
-                    de.Amount.for_tok_amount(price_target, target_unit),
+                    de.Amount.for_tok_amount(price_base, base_price_unit),
+                    de.Amount.for_tok_amount(price_target, target_price_unit),
                     de.Amount.for_tok_amount(base_deposit, base_unit),
                     de.Amount.for_tok_amount(target_deposit, target_unit),
                 ),
@@ -911,6 +914,9 @@ class VStableSwapCtrt(Ctrt):
         base_unit = await self.base_tok_unit
         target_unit = await self.target_tok_unit
 
+        base_price_unit = await self.unit_price_base
+        target_price_unit = await self.unit_price_target
+
         data = await by._execute_contract(
             tx.ExecCtrtFuncTxReq(
                 ctrt_id=self._ctrt_id,
@@ -923,8 +929,8 @@ class VStableSwapCtrt(Ctrt):
                     de.Amount.for_tok_amount(max_base, base_unit),
                     de.Amount.for_tok_amount(min_target, target_unit),
                     de.Amount.for_tok_amount(max_target, target_unit),
-                    de.Amount.for_tok_amount(price_base, base_unit),
-                    de.Amount.for_tok_amount(price_target, target_unit),
+                    de.Amount.for_tok_amount(price_base, base_price_unit),
+                    de.Amount.for_tok_amount(price_target, target_price_unit),
                 ),
                 timestamp=md.VSYSTimestamp.now(),
                 attachment=md.Str(attachment),
@@ -1083,6 +1089,7 @@ class VStableSwapCtrt(Ctrt):
             Dict[str, any]: The response returned by the Node API.
         """
         base_unit = await self.base_tok_unit
+        base_price_unit = await self.unit_price_base
 
         data = await by._execute_contract(
             tx.ExecCtrtFuncTxReq(
@@ -1092,7 +1099,7 @@ class VStableSwapCtrt(Ctrt):
                     de.Bytes.for_base58_str(order_id),
                     de.Amount.for_tok_amount(amount, base_unit),
                     de.Amount.for_tok_amount(swap_fee, base_unit),
-                    de.Amount.for_tok_amount(price, base_unit),
+                    de.Amount.for_tok_amount(price, base_price_unit),
                     de.Timestamp(md.VSYSTimestamp.from_unix_ts(deadline)),
                 ),
                 timestamp=md.VSYSTimestamp.now(),
@@ -1131,6 +1138,7 @@ class VStableSwapCtrt(Ctrt):
             Dict[str, any]: The response returned by the Node API.
         """
         target_unit = await self.target_tok_unit
+        target_price_unit = await self.unit_price_target
 
         data = await by._execute_contract(
             tx.ExecCtrtFuncTxReq(
@@ -1140,7 +1148,7 @@ class VStableSwapCtrt(Ctrt):
                     de.Bytes.for_base58_str(order_id),
                     de.Amount.for_tok_amount(amount, target_unit),
                     de.Amount.for_tok_amount(swap_fee, target_unit),
-                    de.Amount.for_tok_amount(price, target_unit),
+                    de.Amount.for_tok_amount(price, target_price_unit),
                     de.Timestamp(md.VSYSTimestamp.from_unix_ts(deadline)),
                 ),
                 timestamp=md.VSYSTimestamp.now(),
