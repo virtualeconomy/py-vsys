@@ -689,9 +689,10 @@ class VOptionCtrt(Ctrt):
             target_token_id (str): The target token id.
             option_tok_id (str): The option token id.
             proof_token_id (str): The proof token id.
-            max_order_per_user (Union[int, float]): The max order number that per user can create.
-            unit_price_base (Union[int, float]): The unit price of the base token.
-            unit_price_target (Union[int, float]): The unit price of the target token.
+            execute_time (int): The timestamp after which the option token can be used to buy target tokens.
+            execute_deadline (int): The timestamp after which the option token can no longer be used to buy target tokens.
+            ctrt_description (str, optional): The description of the contract. Defaults to "".
+            fee (int, optional): The fee to pay for this action. Defaults to md.RegCtrtFee.DEFAULT.
 
         Returns:
             VOptionCtrt: The VOptionCtrt object of the registered V Option contract.
