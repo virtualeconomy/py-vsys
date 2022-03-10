@@ -183,9 +183,9 @@ class VStableSwapCtrt(Ctrt):
             return cls(b)
 
         @classmethod
-        def for_user_order(cls, addr: str) -> VStableSwapCtrt.DBKey:
+        def for_user_orders(cls, addr: str) -> VStableSwapCtrt.DBKey:
             """
-            for_user_order returns the VStableSwapCtrt.DBKey object for querying the number of orders of the user's.
+            for_user_orders returns the VStableSwapCtrt.DBKey object for querying the number of orders of the user's.
 
             Args:
                 addr (str): The address of the account that create the orders.
@@ -569,7 +569,7 @@ class VStableSwapCtrt(Ctrt):
         Returns:
             int: The number of user orders.
         """
-        num = await self._query_db_key(self.DBKey.for_user_order(addr))
+        num = await self._query_db_key(self.DBKey.for_user_orders(addr))
 
         return num
 
