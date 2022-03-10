@@ -552,7 +552,7 @@ class VEscrowCtrt(Ctrt):
         if tok_id.is_vsys_tok:
             return md.VSYS.UNIT
         else:
-            tc = await tcf.from_tok_id(tok_id.data, self.chain)
+            tc = await tcf.from_tok_id(tok_id, self.chain)
             return await tc.unit
 
     async def get_ctrt_bal(self, addr: str) -> md.Token:
