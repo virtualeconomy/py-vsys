@@ -14,6 +14,7 @@ The official Python SDK for VSYS APIs. The [old Python SDK](https://github.com/v
   - [Quick Example](#quick-example)
   - [Docs](#docs)
     - [Account & Wallet](#account--wallet)
+    - [Chain & API](#chain--api)
     - [Smart Contracts](#smart-contracts)
   - [Run Tests](#run-tests)
     - [Functional Tests](#functional-tests)
@@ -144,6 +145,10 @@ Contract id:  CtrtID(CFB6zvcy39FCRGhxo8HH3PE6zZEG5zXevhG)
 ### Account & Wallet
 - [Account](./doc/account.md)
 - [Wallet](./doc/wallet.md)
+
+### Chain & API
+- [Chain](./doc/chain.md)
+- [Api](./doc/api.md)
 
 ### Smart Contracts
 - [NFT Contract V1](./doc/smart_contract/nft_ctrt.md)
