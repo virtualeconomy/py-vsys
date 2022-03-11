@@ -3,6 +3,7 @@
 - [Lock Contract](#lock-contract)
   - [Introduction](#introduction)
   - [Usage with Python SDK](#usage-with-python-sdk)
+    - [work flow of the contract](#work-flow-of-the-contract)
     - [Registration](#registration)
     - [From Existing Contract](#from-existing-contract)
     - [Querying](#querying)
@@ -19,6 +20,15 @@
 Lock contract allows users to lock a specific token in the contract for some period of time. This allows users to guarantee they have a certain amount of funds upon lock expiration. This may be helpful in implementing some kinds of staking interactions with users of a VSYS token for instance.
 
 ## Usage with Python SDK
+
+### work flow of the contract
+
+Remember to comment out the previous transaction when acting on the new transaction. Before start the new transaction, wait 6 seconds until the transaction is completely on blockchain. Make sure the token is issued before the registration(if no token prepared, can register new [token contract](tok_ctrt_no_split.md) and issue tokens).
+
+First [register](#registration) a new lock contract, and keep a record of the contract id.
+Then deposit the token into the lock contract.
+[Lock](#lock) the token with specific lock timestamp.
+
 
 ### Registration
 
