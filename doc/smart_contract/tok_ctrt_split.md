@@ -3,6 +3,7 @@
 - [Token Contract V1 With Split](#token-contract-v1-with-split)
   - [Introduction](#introduction)
   - [Usage with Python SDK](#usage-with-python-sdk)
+    - [Work flow of the contract](#work-flow-of-the-contract)
     - [Registration](#registration)
     - [From Existing Contract](#from-existing-contract)
     - [Querying](#querying)
@@ -22,10 +23,23 @@
       - [Split](#split)
 
 ## Introduction
+
 *Token Contract V1 with Split* is the twin case for *[Token Contract V1 Without Split](./tok_ctrt_no_split.md)*.
 The token unit can be updated at any time after the contract instance is registered.
 
 ## Usage with Python SDK
+
+### Work flow of the contract
+
+Remember to comment out the previous transaction when acting on the new transaction.
+
+First register a token contract with split, wait 6 seconds until the transaction completely on blockchain. Keep a record of the contract id.
+
+Issue the tokens. The max issue amount is defined when the token contract is registered.
+
+Now the tokens can be deposited into(and withdraw from) other smart contracts(except for token contract and system contract).
+
+The contract also provide some optional functions. For example, supersede is to transfer the owner right to another account, transfer is a combination of deposit and withdraw, destroy is to destroy a certain amount of the tokens, split is to use the new unit of the token.
 
 ### Registration
 
@@ -43,6 +57,7 @@ tc = await pv.TokCtrtWithSplit.register(
 )
 print(tc.ctrt_id)
 ```
+
 Example output
 
 ```
@@ -71,6 +86,7 @@ The address that has the issuing right of the Token contract instance.
 
 print(await tc.issuer)
 ```
+
 Example output
 
 ```
@@ -86,6 +102,7 @@ The address that made this Token contract instance.
 
 print(await tc.maker)
 ```
+
 Example output
 
 ```
@@ -93,6 +110,7 @@ Addr(AU6BNRK34SLuc27evpzJbAswB6ntHV2hmjD)
 ```
 
 #### Token ID
+
 The token ID of the token defined in the token contract instance.
 
 Note that theoretically a token contract instance can have multiple kinds of token, it is restricted to 1 kind of token per token contract instance. In other word, the token ID is of the token index `0`.
@@ -102,6 +120,7 @@ Note that theoretically a token contract instance can have multiple kinds of tok
 
 print(tc.tok_id)
 ```
+
 Example output
 
 ```
@@ -109,6 +128,7 @@ TokenID(TWtS7LFdWTiyWvMJSBThL1Jz6z5WgKX6ECfxhYRcL)
 ```
 
 #### Unit
+
 The unit of the token defined in this token contract instance.
 
 ```python
@@ -116,6 +136,7 @@ The unit of the token defined in this token contract instance.
 
 print(await tc.unit)
 ```
+
 Example output
 
 ```
@@ -123,6 +144,7 @@ Example output
 ```
 
 #### Token Balance
+
 Query the balance of the token defined in the contract for the given user.
 
 ```python
@@ -131,6 +153,7 @@ Query the balance of the token defined in the contract for the given user.
 
 print(await tc.get_tok_bal(acnt.addr.data))
 ```
+
 Example output
 
 ```
@@ -158,6 +181,7 @@ resp = await tc.supersede(
 )
 print(resp)
 ```
+
 Example output
 
 ```
@@ -179,6 +203,7 @@ import py_vsys as pv
 resp = await tc.issue(by=acnt, amount=50)
 print(resp)
 ```
+
 Example output
 
 ```
@@ -186,6 +211,7 @@ Example output
 ```
 
 #### Send
+
 Send a certain amount of the token to another user.
 
 ```python
@@ -202,6 +228,7 @@ resp = await tc.send(
 )
 print(resp)
 ```
+
 Example output
 
 ```
@@ -209,6 +236,7 @@ Example output
 ```
 
 #### Destroy
+
 Destroy a certain amount of the token.
 
 Note that only the address with the issuer role can take this action.
@@ -225,6 +253,7 @@ resp = await tc.destroy(
 )
 print(resp)
 ```
+
 Example output
 
 ```
@@ -232,6 +261,7 @@ Example output
 ```
 
 #### Transfer
+
 Transfer a certain amount of the token to another account(e.g. user or contract).
 `transfer` is the underlying action of `send`, `deposit`, and `withdraw`. It is not recommended to use transfer directly. Use `send`, `deposit`, `withdraw` instead when possible.
 
@@ -249,6 +279,7 @@ resp = await tc.transfer(
 )
 print(resp)
 ```
+
 Example output
 
 ```
@@ -256,6 +287,7 @@ Example output
 ```
 
 #### Deposit
+
 Deposit a certain amount of the token into a token-holding contract instance(e.g. lock contract).
 
 Note that only the token defined in the token-holding contract instance can be deposited into it.
@@ -276,6 +308,7 @@ resp = await tc.deposit(
 )
 print(resp)
 ```
+
 Example output
 
 ```
@@ -283,6 +316,7 @@ Example output
 ```
 
 #### Withdraw
+
 Withdraw a certain amount of the token from a token-holding contract instance(e.g. lock contract).
 
 Note that only the token defined in the token-holding contract instance can be withdrawn from it.
@@ -303,6 +337,7 @@ resp = await tc.withdraw(
 )
 print(resp)
 ```
+
 Example output
 
 ```
@@ -310,6 +345,7 @@ Example output
 ```
 
 #### Split
+
 Update the unit of the token.
 
 The address with the issuer & maker role can take this action.
@@ -326,6 +362,7 @@ resp = await tc.split(
 )
 print(resp)
 ```
+
 Example output
 
 ```
