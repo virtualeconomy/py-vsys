@@ -93,6 +93,8 @@ class Chain:
         """
         get_blocks_within gets blocks fall in the given range.
 
+        NOTE that the max length of the range is 100.
+
         Args:
             start_height (int): The start height.
             end_height (int): The end height.
