@@ -3,6 +3,7 @@
 - [Token Contract V2 Without Split](#token-contract-v2-without-split)
   - [Introduction](#introduction)
   - [Usage with Python SDK](#usage-with-python-sdk)
+    - [Work flow of the contract](#work-flow-of-the-contract)
     - [Registration](#registration)
     - [From Existing Contract](#from-existing-contract)
     - [Querying](#querying)
@@ -32,6 +33,18 @@ For the whitelist flavor, only users & contracts included in the list can intera
 For the blacklist flavor, only users & contracts excluded from the list can interact with the contract instance.
 
 ## Usage with Python SDK
+
+### Work flow of the contract
+
+Remember to comment out the previous transaction when acting on the new transaction. Before start the new transaction, wait 6 seconds until the transaction is completely on blockchain.
+
+First [register](#registration) a token contract without split V2, Keep a record of the contract id.
+
+[Issue](issue) the tokens. The max issue amount is defined when the token contract is registered.
+
+Now the tokens can be [deposited](#deposit) into(and [withdrawed](#withdraw) from) other smart contracts(except for token contract and system contract).
+
+The contract also provide some optional functions. For example, [supersede](#supersede) is to transfer the owner right to another account, [transfer](#transfer) is a combination of deposit and withdraw, [destroy](#destroy) is to destroy a certain amount of the tokens, [update_list_user](#Add/remove a user from the list) is to add/remove a user from the whitelist/blacklist, [update_list_ctrt](#Add/remove a contract from the list) is to add/remove a contract from the whitelist/blacklist.
 
 ### Registration
 

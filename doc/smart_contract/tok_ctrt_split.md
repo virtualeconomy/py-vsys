@@ -31,15 +31,15 @@ The token unit can be updated at any time after the contract instance is registe
 
 ### Work flow of the contract
 
-Remember to comment out the previous transaction when acting on the new transaction.
+Remember to comment out the previous transaction when acting on the new transaction. Before start the new transaction, wait 6 seconds until the transaction is completely on blockchain.
 
-First register a token contract with split, wait 6 seconds until the transaction completely on blockchain. Keep a record of the contract id.
+First [register](#registration) a token contract with split, Keep a record of the contract id.
 
-Issue the tokens. The max issue amount is defined when the token contract is registered.
+[Issue](issue) the tokens. The max issue amount is defined when the token contract is registered.
 
-Now the tokens can be deposited into(and withdraw from) other smart contracts(except for token contract and system contract).
+Now the tokens can be [deposited](#deposit) into(and [withdrawed](#withdraw) from) other smart contracts(except for token contract and system contract).
 
-The contract also provide some optional functions. For example, supersede is to transfer the owner right to another account, transfer is a combination of deposit and withdraw, destroy is to destroy a certain amount of the tokens, split is to use the new unit of the token.
+The contract also provide some optional functions. For example, [supersede](#supersede) is to transfer the owner right to another account, [transfer](#transfer) is a combination of deposit and withdraw, [destroy](#destroy) is to destroy a certain amount of the tokens, [split](#split) is to use the new unit of the token.
 
 ### Registration
 

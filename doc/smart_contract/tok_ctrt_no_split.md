@@ -3,6 +3,7 @@
 - [Token Contract V1 Without Split](#token-contract-v1-without-split)
   - [Introduction](#introduction)
   - [Usage with Python SDK](#usage-with-python-sdk)
+    - [Work flow of the contract](#work-flow-of-the-contract)
     - [Registration](#registration)
     - [From Existing Contract](#from-existing-contract)
     - [Querying](#querying)
@@ -35,6 +36,18 @@ A contract can be thought of as a class in OOP with a bunch of methods. An insta
 > With “Unit”, float numbers can be represented in integers so as to avoid the uncertainty comes from float computation. If we set unit == 100, 1.5 tokens are actually stored as 150 on the blockchain.
 
 ## Usage with Python SDK
+
+### Work flow of the contract
+
+Remember to comment out the previous transaction when acting on the new transaction. Before start the new transaction, wait 6 seconds until the previous transaction is completely on blockchain.
+
+First [register](#registration) a token contract without split, Keep a record of the contract id.
+
+[Issue](issue) the tokens. The max issue amount is defined when the token contract is registered.
+
+Now the tokens can be [deposited](#deposit) into(and [withdrawed](#withdraw) from) other smart contracts(except for token contract and system contract).
+
+The contract also provide some optional functions. For example, [supersede](#supersede) is to transfer the owner right to another account, [transfer](#transfer) is a combination of deposit and withdraw, [destroy](#destroy) is to destroy a certain amount of the tokens.
 
 ### Registration
 
