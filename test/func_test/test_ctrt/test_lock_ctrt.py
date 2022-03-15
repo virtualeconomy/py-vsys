@@ -104,7 +104,7 @@ class TestLockCtrt:
         await cft.assert_tx_success(api, resp["id"])
         assert (await lc.get_ctrt_bal(acnt0.addr.data)).amount == self.TOK_MAX
 
-        later = int(time.time()) + cft.AVG_BLOCK_DELAY * 2 + 2
+        later = int(time.time()) + cft.AVG_BLOCK_DELAY * 3
         resp = await lc.lock(acnt0, later)
         await cft.wait_for_block()
         await cft.assert_tx_success(api, resp["id"])
@@ -116,8 +116,7 @@ class TestLockCtrt:
         await cft.assert_tx_status(api, resp["id"], "Failed")
         assert (await lc.get_ctrt_bal(acnt0.addr.data)).amount == self.TOK_MAX
 
-        # till here, 2 block time has passed, wait for a few seconds more the lock will expire
-        await asyncio.sleep(6)
+        await asyncio.sleep(later - int(time.time()) + cft.AVG_BLOCK_DELAY)
 
         # withdraw after the expiration will succeed
         resp = await tc.withdraw(acnt0, lc.ctrt_id.data, self.TOK_MAX)
