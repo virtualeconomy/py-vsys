@@ -1,11 +1,9 @@
 # py-vsys
 [![Python](https://img.shields.io/badge/Python-3.7%2B-blue)](https://www.python.org/downloads/) [![License](https://img.shields.io/badge/License-BSD_4--Clause-green.svg)](./LICENSE)
 
-> ***Under active development. Contributions are always welcome!***
+> ***Under active maintenance. Contributions are always welcome!***
 
 The official Python SDK for VSYS APIs. The [old Python SDK](https://github.com/virtualeconomy/pyvsystems) is deprecated and will be archived soon.
-
-
 
 - [py-vsys](#py-vsys)
   - [Installation](#installation)
@@ -24,35 +22,34 @@ The official Python SDK for VSYS APIs. The [old Python SDK](https://github.com/v
 
 ## Installation
 
-> Will be published to PYPI soon
-
 ### Pip
+
+Install from PYPI
+```bash
+pip install py-vsys
+```
+
+Install from Github
 ```bash
 pip install git+https://github.com/virtualeconomy/py-vsys.git@main
 ```
 
 `@main` is necessary as the default branch is `develop`
 
-If installing from the `develop` branch is desired, run
-
-```bash
-pip install git+https://github.com/virtualeconomy/py-vsys.git
-```
-
 ### Pipenv
 
+Install from PYPI
+
+```bash
+pipenv install py-vsys
+```
+
+Install from Github
 ```bash
 pipenv install git+https://github.com/virtualeconomy/py-vsys.git@main#egg=py_vsys
 ```
 
 `@main` is necessary as the default branch is `develop`
-
-
-If installing from the `develop` branch is desired, run
-
-```bash
-pipenv install git+https://github.com/virtualeconomy/py-vsys.git#egg=py_vsys
-```
 
 ## Quick Example
 
