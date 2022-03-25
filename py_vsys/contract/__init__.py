@@ -176,6 +176,20 @@ class CtrtMeta:
         Returns:
             CtrtMeta: The result CtrtMeta object.
         """
+        b = base58.b58decode(b58_str)
+        return cls.deserialize(b)
+
+    @classmethod
+    def deserialize(cls, b: bytes) -> CtrtMeta:
+        """
+        deserialize deserializes the given bytes to a CtrtMeta object.
+
+        Args:
+            b (bytes): The bytes to deserialize.
+
+        Returns:
+            CtrtMeta: The result CtrtMeta object.
+        """
 
         def parse_len(b: bytes) -> int:
             """
@@ -188,8 +202,6 @@ class CtrtMeta:
                 int: The unpacked value.
             """
             return struct.unpack(">H", b)[0]
-
-        b = base58.b58decode(b58_str)
 
         lang_code = b[:4].decode("latin-1")
         b = b[4:]
