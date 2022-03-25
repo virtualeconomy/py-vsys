@@ -269,9 +269,9 @@ class Text(DataEntry):
         return self.idx_bytes + self.len_bytes + self.bytes
 
 
-class String(Text):
+class Str(Text):
     """
-    String is the data entry for a string.
+    Str is the data entry for a string.
     """
 
     IDX = 5
@@ -284,8 +284,12 @@ class String(Text):
         self.data = data
 
     @classmethod
-    def from_bytes(cls, b: bytes) -> String:
+    def from_bytes(cls, b: bytes) -> Str:
         return cls(md.Str.from_bytes(b))
+
+    @classmethod
+    def from_str(cls, s: str) -> Str:
+        return cls(md.Str(s))
 
     @property
     def bytes(self) -> bytes:
@@ -471,7 +475,7 @@ class IndexMap:
         2: Addr,
         3: Amount,
         4: INT32,
-        5: String,
+        5: Str,
         6: CtrtAcnt,
         7: Acnt,
         8: TokenID,

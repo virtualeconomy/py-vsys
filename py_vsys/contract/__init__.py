@@ -47,26 +47,6 @@ class Bytes:
         return cls(b[2 : 2 + l])
 
     @property
-    def bytes(self) -> bytes:
-        """
-        bytes returns the containing bytes data
-
-        Returns:
-            bytes: the containing bytes data
-        """
-        return self.data
-
-    @property
-    def b58_str(self) -> str:
-        """
-        b58_str returns the base58 string representation of the containing bytes data.
-
-        Returns:
-            str: The base58 string representation of data
-        """
-        return base58.b58encode(self.data).decode("latin-1")
-
-    @property
     def len_bytes(self) -> bytes:
         """
         len_bytes returns the length in bytes of the containing data.
@@ -74,7 +54,7 @@ class Bytes:
         Returns:
             bytes: The length in bytes.
         """
-        return struct.pack(">H", len(self.bytes))
+        return struct.pack(">H", len(self.data))
 
     def serialize(self) -> bytes:
         """
@@ -83,7 +63,7 @@ class Bytes:
         Returns:
             bytes: The serialization result.
         """
-        return self.len_bytes + self.bytes
+        return self.len_bytes + self.data
 
 
 class BytesList:
@@ -196,6 +176,20 @@ class CtrtMeta:
         Returns:
             CtrtMeta: The result CtrtMeta object.
         """
+        b = base58.b58decode(b58_str)
+        return cls.deserialize(b)
+
+    @classmethod
+    def deserialize(cls, b: bytes) -> CtrtMeta:
+        """
+        deserialize deserializes the given bytes to a CtrtMeta object.
+
+        Args:
+            b (bytes): The bytes to deserialize.
+
+        Returns:
+            CtrtMeta: The result CtrtMeta object.
+        """
 
         def parse_len(b: bytes) -> int:
             """
@@ -208,8 +202,6 @@ class CtrtMeta:
                 int: The unpacked value.
             """
             return struct.unpack(">H", b)[0]
-
-        b = base58.b58decode(b58_str)
 
         lang_code = b[:4].decode("latin-1")
         b = b[4:]
@@ -353,40 +345,10 @@ class Ctrt(abc.ABC):
             b = struct.pack(">B", self.idx.value) + self.data_entry.serialize()
             return b
 
-    class DBKey:
+    class DBKey(md.Bytes):
         """
         DBKey is the class for DB key of a contract used to query data.
         """
-
-        def __init__(self, data: bytes = b"") -> None:
-            """
-            Args:
-                data (bytes, optional): The data to contain. Defaults to b"".
-            """
-            self.data = data
-
-        @classmethod
-        def from_b58_str(cls, s: str) -> Ctrt.DBKey:
-            """
-            from_b58_str creates a DBKey object from the given base58 string.
-
-            Args:
-                s (str): The base58 string to parse.
-
-            Returns:
-                Ctrt.DBKey: The result Ctrt.DBKey object.
-            """
-            return cls(base58.b58decode(s))
-
-        @property
-        def b58_str(self) -> str:
-            """
-            b58_str returns the base58 string representation of the containing bytes data.
-
-            Returns:
-                str: The base58 string representation of data
-            """
-            return base58.b58encode(self.data).decode("latin-1")
 
     def __init__(self, ctrt_id: str, chain: ch.Chain) -> None:
         """

@@ -105,7 +105,7 @@ class TokCtrtWithoutSplit(BaseTokCtrt):
                 data_stack=de.DataStack(
                     de.Amount.for_tok_amount(max, unit),
                     de.Amount(md.Int(unit)),
-                    de.String(md.Str(token_description)),
+                    de.Str.from_str(token_description),
                 ),
                 ctrt_meta=cls.CTRT_META,
                 timestamp=md.VSYSTimestamp.now(),
@@ -521,7 +521,7 @@ class TokCtrtWithSplit(TokCtrtWithoutSplit):
                 data_stack=de.DataStack(
                     de.Amount.for_tok_amount(max, unit),
                     de.Amount(md.Int(unit)),
-                    de.String(md.Str(token_description)),
+                    de.Str.from_str(token_description),
                 ),
                 ctrt_meta=cls.CTRT_META,
                 timestamp=md.VSYSTimestamp.now(),
@@ -716,7 +716,7 @@ class TokCtrtWithoutSplitV2Whitelist(TokCtrtWithoutSplit):
                 data_stack=de.DataStack(
                     de.Amount.for_tok_amount(max, unit),
                     de.Amount(md.Int(unit)),
-                    de.String(md.Str(token_description)),
+                    de.Str.from_str(token_description),
                 ),
                 ctrt_meta=cls.CTRT_META,
                 timestamp=md.VSYSTimestamp.now(),
