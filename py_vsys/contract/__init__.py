@@ -345,40 +345,10 @@ class Ctrt(abc.ABC):
             b = struct.pack(">B", self.idx.value) + self.data_entry.serialize()
             return b
 
-    class DBKey:
+    class DBKey(md.Bytes):
         """
         DBKey is the class for DB key of a contract used to query data.
         """
-
-        def __init__(self, data: bytes = b"") -> None:
-            """
-            Args:
-                data (bytes, optional): The data to contain. Defaults to b"".
-            """
-            self.data = data
-
-        @classmethod
-        def from_b58_str(cls, s: str) -> Ctrt.DBKey:
-            """
-            from_b58_str creates a DBKey object from the given base58 string.
-
-            Args:
-                s (str): The base58 string to parse.
-
-            Returns:
-                Ctrt.DBKey: The result Ctrt.DBKey object.
-            """
-            return cls(base58.b58decode(s))
-
-        @property
-        def b58_str(self) -> str:
-            """
-            b58_str returns the base58 string representation of the containing bytes data.
-
-            Returns:
-                str: The base58 string representation of data
-            """
-            return base58.b58encode(self.data).decode("latin-1")
 
     def __init__(self, ctrt_id: str, chain: ch.Chain) -> None:
         """
