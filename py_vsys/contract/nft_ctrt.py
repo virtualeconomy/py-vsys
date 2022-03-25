@@ -164,7 +164,7 @@ class NFTCtrt(BaseTokCtrt):
                 ctrt_id=self._ctrt_id,
                 func_id=self.FuncIdx.ISSUE,
                 data_stack=de.DataStack(
-                    de.String(md.Str(tok_description)),
+                    de.Str.from_str(tok_description),
                 ),
                 timestamp=md.VSYSTimestamp.now(),
                 attachment=md.Str(attachment),
