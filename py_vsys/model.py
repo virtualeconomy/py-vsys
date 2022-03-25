@@ -470,7 +470,7 @@ class VSYSTimestamp(NonNegativeInt):
         Returns:
             VSYSTimestamp: The VSYSTimestamp.
         """
-        return cls(time.time() * cls.SCALE)
+        return cls(int(time.time() * cls.SCALE))
 
     @property
     def unix_ts(self) -> float:
