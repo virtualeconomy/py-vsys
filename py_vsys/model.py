@@ -316,21 +316,8 @@ class Addr(FixedSizeB58Str):
             return hs.keccak256_hash(hs.blake2b_hash(b))
 
         cl = self.CHECKSUM_BYTES_LEN
-        if self.bytes[-cl:] != ke_bla_hash(self.bytes[:-cl])[:cl]:
+        if self.checksum != ke_bla_hash(self.bytes[:-cl])[:cl]:
             raise ValueError(f"Data in {cls_name} has invalid checksum")
-
-    @classmethod
-    def from_bytes(cls, b: bytes) -> Addr:
-        """
-        from_bytes contructs an Addr object from the given bytes.
-
-        Args:
-            b (bytes): The given bytes.
-
-        Returns:
-            Addr: The Addr object.
-        """
-        return cls(Bytes(b).b58_str)
 
     @classmethod
     def from_bytes_md(cls, b: Bytes) -> Addr:
@@ -473,9 +460,6 @@ class VSYSTimestamp(NonNegativeInt):
         if not (isinstance(ux_ts, int) or isinstance(ux_ts, float)):
             raise TypeError("ux_ts must be an int or float")
 
-        if ux_ts < 0:
-            raise ValueError("ux_ts must be greater than or equal to 0")
-
         return cls(int(ux_ts * cls.SCALE))
 
     @classmethod
@@ -564,16 +548,6 @@ class VSYS(NonNegativeInt):
 
     UNIT = 1_00_000_000
 
-    @classmethod
-    def one(cls) -> VSYS:
-        """
-        one creates a new VSYS where the amount is equal to ONE VSYS coin on the VSYS blockchain.
-
-        Returns:
-            VSYS: The VSYS.
-        """
-        return cls.for_amount(1)
-
     @property
     def amount(self) -> float:
         """
@@ -609,7 +583,7 @@ class VSYS(NonNegativeInt):
         __mul__ defines the behaviour of the '*' operator.
 
         E.g.
-            v1 = VSYS.one()
+            v1 = VSYS.for_amount(1)
             v20 = v1 * 20
             v2 = v20 * 0.1
 
@@ -632,7 +606,7 @@ class Fee(VSYS):
     def __init__(self, data: int = 0) -> None:
         """
         Args:
-            data (int, optional): The data to contain. Defaults to 0.
+            data (int, optional): The data to contain. Defaults to VSYS.UNIT * 0.1.
         """
         if data == 0:
             data = self.DEFAULT
