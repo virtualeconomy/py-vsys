@@ -583,7 +583,7 @@ class VSYS(NonNegativeInt):
         __mul__ defines the behaviour of the '*' operator.
 
         E.g.
-            v1 = VSYS.one()
+            v1 = VSYS.for_amount(1)
             v20 = v1 * 20
             v2 = v20 * 0.1
 
@@ -606,7 +606,7 @@ class Fee(VSYS):
     def __init__(self, data: int = 0) -> None:
         """
         Args:
-            data (int, optional): The data to contain. Defaults to 0.
+            data (int, optional): The data to contain. Defaults to VSYS.UNIT * 0.1.
         """
         if data == 0:
             data = self.DEFAULT
