@@ -320,19 +320,6 @@ class Addr(FixedSizeB58Str):
             raise ValueError(f"Data in {cls_name} has invalid checksum")
 
     @classmethod
-    def from_bytes(cls, b: bytes) -> Addr:
-        """
-        from_bytes contructs an Addr object from the given bytes.
-
-        Args:
-            b (bytes): The given bytes.
-
-        Returns:
-            Addr: The Addr object.
-        """
-        return cls(Bytes(b).b58_str)
-
-    @classmethod
     def from_bytes_md(cls, b: Bytes) -> Addr:
         """
         from_bytes_md contructs an Addr object from the given Bytes object.
@@ -473,9 +460,6 @@ class VSYSTimestamp(NonNegativeInt):
         if not (isinstance(ux_ts, int) or isinstance(ux_ts, float)):
             raise TypeError("ux_ts must be an int or float")
 
-        if ux_ts < 0:
-            raise ValueError("ux_ts must be greater than or equal to 0")
-
         return cls(int(ux_ts * cls.SCALE))
 
     @classmethod
@@ -563,16 +547,6 @@ class VSYS(NonNegativeInt):
     """
 
     UNIT = 1_00_000_000
-
-    @classmethod
-    def one(cls) -> VSYS:
-        """
-        one creates a new VSYS where the amount is equal to ONE VSYS coin on the VSYS blockchain.
-
-        Returns:
-            VSYS: The VSYS.
-        """
-        return cls.for_amount(1)
 
     @property
     def amount(self) -> float:

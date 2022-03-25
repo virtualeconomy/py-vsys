@@ -47,26 +47,6 @@ class Bytes:
         return cls(b[2 : 2 + l])
 
     @property
-    def bytes(self) -> bytes:
-        """
-        bytes returns the containing bytes data
-
-        Returns:
-            bytes: the containing bytes data
-        """
-        return self.data
-
-    @property
-    def b58_str(self) -> str:
-        """
-        b58_str returns the base58 string representation of the containing bytes data.
-
-        Returns:
-            str: The base58 string representation of data
-        """
-        return base58.b58encode(self.data).decode("latin-1")
-
-    @property
     def len_bytes(self) -> bytes:
         """
         len_bytes returns the length in bytes of the containing data.
@@ -74,7 +54,7 @@ class Bytes:
         Returns:
             bytes: The length in bytes.
         """
-        return struct.pack(">H", len(self.bytes))
+        return struct.pack(">H", len(self.data))
 
     def serialize(self) -> bytes:
         """
@@ -83,7 +63,7 @@ class Bytes:
         Returns:
             bytes: The serialization result.
         """
-        return self.len_bytes + self.bytes
+        return self.len_bytes + self.data
 
 
 class BytesList:
