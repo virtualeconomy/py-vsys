@@ -251,7 +251,7 @@ class Text(DataEntry):
     """
 
     @classmethod
-    def deserialize(cls, b: bytes) -> String:
+    def deserialize(cls, b: bytes) -> Str:
         l = struct.unpack(">H", b[1:3])[0]
         return cls.from_bytes(b[3 : 3 + l])
 
