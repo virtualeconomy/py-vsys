@@ -528,7 +528,7 @@ class DataStack:
             de_cls = IndexMap.get_de_cls(idx)
             de = de_cls.deserialize(b)
             entries.append(de)
-            b = b[len(de.serialize()) :]
+            b = b[de.SIZE :]
 
         return cls(*entries)
 

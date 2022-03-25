@@ -316,7 +316,7 @@ class Addr(FixedSizeB58Str):
             return hs.keccak256_hash(hs.blake2b_hash(b))
 
         cl = self.CHECKSUM_BYTES_LEN
-        if self.bytes[-cl:] != ke_bla_hash(self.bytes[:-cl])[:cl]:
+        if self.checksum != ke_bla_hash(self.bytes[:-cl])[:cl]:
             raise ValueError(f"Data in {cls_name} has invalid checksum")
 
     @classmethod
