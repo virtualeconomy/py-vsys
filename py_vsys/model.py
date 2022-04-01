@@ -445,7 +445,7 @@ class VSYSTimestamp(NonNegativeInt):
     @classmethod
     def from_unix_ts(cls, ux_ts: Union[int, float]) -> VSYSTimestamp:
         """
-        from_unix_ts creates a new VSYSTimestamp from the given UNIX timestamp.
+        from_unix_ts creates a new VSYSTimestamp from the given UNIX timestamp at seconds.
 
         Args:
             ux_ts (Union[int, float]): The UNIX timestamp.
