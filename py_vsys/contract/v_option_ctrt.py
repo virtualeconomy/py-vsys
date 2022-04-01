@@ -802,11 +802,11 @@ class VOptionCtrt(Ctrt):
         fee: int = md.ExecCtrtFee.DEFAULT,
     ) -> Dict[str, any]:
         """
-        mint mints target tokens into the pool to get option tokens and proof tokens.
+        mint locks target tokens into the pool to get option tokens and proof tokens.
 
         Args:
             by (acnt.Account): The action taker
-            amount Union[int, float]: The mint amount.
+            amount (Union[int, float]): The mint amount.
             attachment (str, optional): The attachment of this action. Defaults to "".
             fee (int, optional): Execution fee of this tx. Defaults to md.ExecCtrtFee.DEFAULT.
 

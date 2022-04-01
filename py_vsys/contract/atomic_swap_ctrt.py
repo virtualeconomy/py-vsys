@@ -116,7 +116,7 @@ class AtomicSwapCtrt(Ctrt):
             """
             b = AtomicSwapCtrt.StateMap(
                 idx=AtomicSwapCtrt.StateMapIdx.SWAP_OWNER,
-                data_entry=de.Bytes.for_base58_str(tx_id),
+                data_entry=de.Bytes.from_base58_str(tx_id),
             ).serialize()
             return cls(b)
 
@@ -133,7 +133,7 @@ class AtomicSwapCtrt(Ctrt):
             """
             b = AtomicSwapCtrt.StateMap(
                 idx=AtomicSwapCtrt.StateMapIdx.SWAP_RECIPIENT,
-                data_entry=de.Bytes.for_base58_str(tx_id),
+                data_entry=de.Bytes.from_base58_str(tx_id),
             ).serialize()
             return cls(b)
 
@@ -167,7 +167,7 @@ class AtomicSwapCtrt(Ctrt):
             """
             b = AtomicSwapCtrt.StateMap(
                 idx=AtomicSwapCtrt.StateMapIdx.SWAP_AMOUNT,
-                data_entry=de.Bytes.for_base58_str(tx_id),
+                data_entry=de.Bytes.from_base58_str(tx_id),
             ).serialize()
             return cls(b)
 
@@ -184,7 +184,7 @@ class AtomicSwapCtrt(Ctrt):
             """
             b = AtomicSwapCtrt.StateMap(
                 idx=AtomicSwapCtrt.StateMapIdx.SWAP_EXPIRED_TIME,
-                data_entry=de.Bytes.for_base58_str(tx_id),
+                data_entry=de.Bytes.from_base58_str(tx_id),
             ).serialize()
             return cls(b)
 
@@ -201,7 +201,7 @@ class AtomicSwapCtrt(Ctrt):
             """
             b = AtomicSwapCtrt.StateMap(
                 idx=AtomicSwapCtrt.StateMapIdx.SWAP_STATUS,
-                data_entry=de.Bytes.for_base58_str(tx_id),
+                data_entry=de.Bytes.from_base58_str(tx_id),
             ).serialize()
             return cls(b)
 
@@ -524,8 +524,8 @@ class AtomicSwapCtrt(Ctrt):
                 ctrt_id=md.CtrtID(taker_ctrt_id),
                 func_id=self.FuncIdx.SOLVE_PUZZLE,
                 data_stack=de.DataStack(
-                    de.Bytes.for_base58_str(tx_id),
-                    de.Bytes.for_str(secret),
+                    de.Bytes.from_base58_str(tx_id),
+                    de.Bytes.from_str(secret),
                 ),
                 timestamp=md.VSYSTimestamp.now(),
                 attachment=md.Str(attachment),
@@ -569,8 +569,8 @@ class AtomicSwapCtrt(Ctrt):
                 ctrt_id=md.CtrtID(maker_ctrt_id),
                 func_id=self.FuncIdx.SOLVE_PUZZLE,
                 data_stack=de.DataStack(
-                    de.Bytes.for_base58_str(maker_lock_tx_id),
-                    de.Bytes.for_str(revealed_secret),
+                    de.Bytes.from_base58_str(maker_lock_tx_id),
+                    de.Bytes.from_str(revealed_secret),
                 ),
                 timestamp=md.VSYSTimestamp.now(),
                 attachment=md.Str(attachment),
@@ -604,7 +604,7 @@ class AtomicSwapCtrt(Ctrt):
             tx.ExecCtrtFuncTxReq(
                 ctrt_id=self._ctrt_id,
                 func_id=self.FuncIdx.EXPIRE_WITHDRAW,
-                data_stack=de.DataStack(de.Bytes.for_base58_str(tx_id)),
+                data_stack=de.DataStack(de.Bytes.from_base58_str(tx_id)),
                 timestamp=md.VSYSTimestamp.now(),
                 attachment=md.Str(attachment),
                 fee=md.ExecCtrtFee(fee),

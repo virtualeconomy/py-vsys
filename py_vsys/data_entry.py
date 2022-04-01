@@ -77,26 +77,26 @@ class DataEntry(abc.ABC):
         """
 
 
-class B58Str(DataEntry):
+class FixedSizeB58Str(DataEntry):
     """
-    B58Str is the data entry base class for a base58 string.
+    FixedSizeB58Str is the data entry base class for a fixed size base58 string.
     """
 
-    MODEL = md.B58Str
+    MODEL = md.FixedSizeB58Str
 
-    def __init__(self, data: md.B58Str = md.B58Str()) -> None:
+    def __init__(self, data: md.FixedSizeB58Str = md.FixedSizeB58Str()) -> None:
         """
         Args:
-            data (md.B58Str, optional): The containing data. Defaults to md.B58Str().
+            data (md.FixedSizeB58Str, optional): The containing data. Defaults to md.FixedSizeB58Str().
         """
         self.data = data
 
     @classmethod
-    def from_bytes(cls, b: bytes) -> B58Str:
+    def from_bytes(cls, b: bytes) -> FixedSizeB58Str:
         return cls(cls.MODEL.from_bytes(b))
 
     @classmethod
-    def deserialize(cls, b: bytes) -> B58Str:
+    def deserialize(cls, b: bytes) -> FixedSizeB58Str:
         return cls.from_bytes(b[1 : 1 + cls.SIZE])
 
     @property
@@ -107,7 +107,7 @@ class B58Str(DataEntry):
         return self.idx_bytes + self.bytes
 
 
-class PubKey(B58Str):
+class PubKey(FixedSizeB58Str):
     """
     PubKey is the data entry for a public key.
     """
@@ -125,7 +125,7 @@ class PubKey(B58Str):
         self.data = data
 
 
-class Addr(B58Str):
+class Addr(FixedSizeB58Str):
     """
     Addr is the data entry for an address.
     """
@@ -220,21 +220,21 @@ class Amount(Long):
         return cls(md.Token.for_amount(amount, unit))
 
 
-class INT32(Int):
+class Int32(Int):
     """
-    INT32 is the data entry for a 4-bytes integer.
+    Int32 is the data entry for a 4-bytes integer.
     """
 
     IDX = 4
     SIZE = 4
 
     @classmethod
-    def from_bytes(cls, b: bytes) -> INT32:
+    def from_bytes(cls, b: bytes) -> Int32:
         i = struct.unpack(">I", b)[0]
         return cls(md.Int(i))
 
     @classmethod
-    def deserialize(cls, b: bytes) -> INT32:
+    def deserialize(cls, b: bytes) -> Int32:
         return cls.from_bytes(b[1 : 1 + cls.SIZE])
 
     @property
@@ -251,7 +251,7 @@ class Text(DataEntry):
     """
 
     @classmethod
-    def deserialize(cls, b: bytes) -> String:
+    def deserialize(cls, b: bytes) -> Str:
         l = struct.unpack(">H", b[1:3])[0]
         return cls.from_bytes(b[3 : 3 + l])
 
@@ -296,7 +296,7 @@ class Str(Text):
         return self.data.bytes
 
 
-class CtrtAcnt(B58Str):
+class CtrtAcnt(FixedSizeB58Str):
     """
     CtrtAcnt is the data entry for contract account.
     """
@@ -314,7 +314,7 @@ class CtrtAcnt(B58Str):
         self.data = data
 
 
-class Acnt(B58Str):
+class Acnt(FixedSizeB58Str):
     """
     Acnt is the data entry for account.
     """
@@ -332,7 +332,7 @@ class Acnt(B58Str):
         self.data = data
 
 
-class TokenID(B58Str):
+class TokenID(FixedSizeB58Str):
     """
     TokenID is the data entry for token ID.
     """
@@ -431,9 +431,9 @@ class Bytes(Text):
         return self.data.data
 
     @classmethod
-    def for_str(cls, s: str) -> Bytes:
+    def from_str(cls, s: str) -> Bytes:
         """
-        for_str is the handy method to get the data entry for a string.
+        from_str is the handy method to get the data entry from a string.
 
         Args:
             s (str): The string.
@@ -444,9 +444,9 @@ class Bytes(Text):
         return cls(md.Bytes.from_str(s))
 
     @classmethod
-    def for_base58_str(cls, s: str) -> Bytes:
+    def from_base58_str(cls, s: str) -> Bytes:
         """
-        for_base58_str is the handy method to get the data entry for a b58 string.
+        from_base58_str is the handy method to get the data entry from a b58 string.
 
         Args:
             s (str): The base58 string.
@@ -474,7 +474,7 @@ class IndexMap:
         1: PubKey,
         2: Addr,
         3: Amount,
-        4: INT32,
+        4: Int32,
         5: Str,
         6: CtrtAcnt,
         7: Acnt,
