@@ -205,7 +205,7 @@ class NFTCtrt(BaseTokCtrt):
                 func_id=self.FuncIdx.SEND,
                 data_stack=de.DataStack(
                     de.Addr(rcpt_md),
-                    de.INT32(md.TokenIdx(tok_idx)),
+                    de.Int32(md.TokenIdx(tok_idx)),
                 ),
                 timestamp=md.VSYSTimestamp.now(),
                 attachment=md.Str(attachment),
@@ -251,7 +251,7 @@ class NFTCtrt(BaseTokCtrt):
                 data_stack=de.DataStack(
                     de.Addr(sender_md),
                     de.Addr(rcpt_md),
-                    de.INT32(md.TokenIdx(tok_idx)),
+                    de.Int32(md.TokenIdx(tok_idx)),
                 ),
                 timestamp=md.VSYSTimestamp.now(),
                 attachment=md.Str(attachment),
@@ -289,7 +289,7 @@ class NFTCtrt(BaseTokCtrt):
                 data_stack=de.DataStack(
                     de.Addr(md.Addr(by.addr.data)),
                     de.CtrtAcnt(md.CtrtID(ctrt_id)),
-                    de.INT32(md.TokenIdx(tok_idx)),
+                    de.Int32(md.TokenIdx(tok_idx)),
                 ),
                 timestamp=md.VSYSTimestamp.now(),
                 attachment=md.Str(attachment),
@@ -327,7 +327,7 @@ class NFTCtrt(BaseTokCtrt):
                 data_stack=de.DataStack(
                     de.CtrtAcnt(md.CtrtID(ctrt_id)),
                     de.Addr(md.Addr(by.addr.data)),
-                    de.INT32(md.TokenIdx(tok_idx)),
+                    de.Int32(md.TokenIdx(tok_idx)),
                 ),
                 timestamp=md.VSYSTimestamp.now(),
                 attachment=md.Str(attachment),
