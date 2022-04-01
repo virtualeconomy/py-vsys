@@ -13,6 +13,10 @@ class TestVEscrowCtrt:
     TestVEscrowCtrt is the collection of functional tests of V Escrow Contract.
     """
 
+    TOK_EACH = 1_000_000_000
+    TOK_TOTAL = TOK_EACH * 3
+    TOK_UNIT = 100
+
     ORDER_AMOUNT = 10
     RCPT_DEPOSIT_AMOUNT = 2
     JUDGE_DEPOSIT_AMOUNT = 3
@@ -24,7 +28,7 @@ class TestVEscrowCtrt:
 
     async def _new_ctrt(
         self,
-        new_sys_ctrt: pv.SysCtrt,
+        new_tok_ctrt: pv.TokCtrtWithoutSplit,
         maker: pv.Account,
         judge: pv.Account,
         payer: pv.Account,
@@ -36,7 +40,7 @@ class TestVEscrowCtrt:
         are all the given duration.
 
         Args:
-            new_sys_ctrt (pv.SysCtrt): The system contract instance.
+            new_tok_ctrt (pv.TokCtrtWithoutSplit): The token contract instance.
             maker (pv.Account): The account of the contract maker.
             judge (pv.Account): The account of the contract judge.
             payer (pv.Account): The account of the contract payer.
@@ -46,21 +50,21 @@ class TestVEscrowCtrt:
         Returns:
             pv.VEscrowCtrt: The VEscrowCtrt instance.
         """
-        sc = new_sys_ctrt
+        tc = new_tok_ctrt
         api = maker.api
 
         vc = await pv.VEscrowCtrt.register(
             by=maker,
-            tok_id=sc.tok_id.data,
+            tok_id=tc.tok_id.data,
             duration=duration,
             judge_duration=duration,
         )
         await cft.wait_for_block()
 
         judge_resp, payer_resp, rcpt_resp = await asyncio.gather(
-            sc.deposit(judge, vc.ctrt_id.data, self.CTRT_DEPOSIT_AMOUNT),
-            sc.deposit(payer, vc.ctrt_id.data, self.CTRT_DEPOSIT_AMOUNT),
-            sc.deposit(recipient, vc.ctrt_id.data, self.CTRT_DEPOSIT_AMOUNT),
+            tc.deposit(judge, vc.ctrt_id.data, self.CTRT_DEPOSIT_AMOUNT),
+            tc.deposit(payer, vc.ctrt_id.data, self.CTRT_DEPOSIT_AMOUNT),
+            tc.deposit(recipient, vc.ctrt_id.data, self.CTRT_DEPOSIT_AMOUNT),
         )
         await cft.wait_for_block()
 
@@ -230,22 +234,56 @@ class TestVEscrowCtrt:
         return acnt2
 
     @pytest.fixture
-    async def new_sys_ctrt(self, chain: pv.Chain) -> pv.SysCtrt:
+    async def new_tok_ctrt(
+        self,
+        acnt0: pv.Account,
+        acnt1: pv.Account,
+        acnt2: pv.Account,
+    ) -> pv.TokCtrtWithoutSplit:
         """
-        new_sys_ctrt is the fixture that returns a system contract instance.
+        new_tok_ctrt is the fixture that returns a token contract instance.
 
         Args:
-            chain (pv.Chain): The chain object.
+            acnt0 (pv.Account): The account of nonce 0.
+            acnt1 (pv.Account): The account of nonce 1.
+            acnt2 (pv.Account): The account of nonce 2.
 
         Returns:
-            pv.SysCtrt: The system contract instance.
+            pv.TokCtrtWithoutSplit: The token contract instance.
         """
-        return pv.SysCtrt.for_testnet(chain)
+        api = acnt0.api
+
+        tc = await pv.TokCtrtWithoutSplit.register(
+            by=acnt0,
+            max=self.TOK_TOTAL,
+            unit=self.TOK_UNIT,
+        )
+        await cft.wait_for_block()
+
+        resp = await tc.issue(
+            by=acnt0,
+            amount=self.TOK_TOTAL,
+        )
+        await cft.wait_for_block()
+        await cft.assert_tx_success(api, resp["id"])
+
+        acnt1_resp, acnt2_resp = await asyncio.gather(
+            tc.send(by=acnt0, recipient=acnt1.addr.data, amount=self.TOK_EACH),
+            tc.send(by=acnt0, recipient=acnt2.addr.data, amount=self.TOK_EACH),
+        )
+        await cft.wait_for_block()
+
+        await asyncio.gather(
+            cft.assert_tx_success(api, acnt1_resp["id"]),
+            cft.assert_tx_success(api, acnt2_resp["id"]),
+        )
+
+        return tc
 
     @pytest.fixture
     async def new_ctrt(
         self,
-        new_sys_ctrt: pv.SysCtrt,
+        new_tok_ctrt: pv.TokCtrtWithoutSplit,
         maker: pv.Account,
         judge: pv.Account,
         payer: pv.Account,
@@ -256,7 +294,7 @@ class TestVEscrowCtrt:
         registers a new V Escrow Contract
 
         Args:
-            new_sys_ctrt (pv.SysCtrt): The system contract instance.
+            new_tok_ctrt (pv.TokCtrtWithoutSplit): The token contract instance.
             maker (pv.Account): The account of the contract maker.
             judge (pv.Account): The account of the contract judge.
             payer (pv.Account): The account of the contract payer.
@@ -266,7 +304,7 @@ class TestVEscrowCtrt:
             pv.VEscrowCtrt: The VEscrowCtrt instance.
         """
         return await self._new_ctrt(
-            new_sys_ctrt,
+            new_tok_ctrt,
             maker,
             judge,
             payer,
@@ -375,7 +413,7 @@ class TestVEscrowCtrt:
 
     async def test_register(
         self,
-        new_sys_ctrt: pv.SysCtrt,
+        new_tok_ctrt: pv.TokCtrtWithoutSplit,
         new_ctrt: pv.VEscrowCtrt,
         maker: pv.Account,
     ) -> pv.VEscrowCtrt:
@@ -383,7 +421,7 @@ class TestVEscrowCtrt:
         test_register tests the method register.
 
         Args:
-            new_sys_ctrt (pv.SysCtrt): The system contract instance.
+            new_tok_ctrt (pv.TokCtrtWithoutSplit): The token contract instance.
             new_ctrt (pv.VEscrowCtrt): The V Escrow contract instance.
             maker (pv.Account): The account of the contract maker.
 
@@ -391,13 +429,13 @@ class TestVEscrowCtrt:
             pv.VEscrowCtrt: The VEscrowCtrt instance.
         """
 
-        sc = new_sys_ctrt
+        tc = new_tok_ctrt
         vc = new_ctrt
 
         assert (await vc.maker) == maker.addr
         assert (await vc.judge) == maker.addr
 
-        assert (await vc.tok_id) == sc.tok_id
+        assert (await vc.tok_id) == tc.tok_id
 
         duration = await vc.duration
         assert duration.unix_ts == self.DURATION
@@ -405,7 +443,7 @@ class TestVEscrowCtrt:
         judge_duration = await vc.judge_duration
         assert judge_duration.unix_ts == self.DURATION
 
-        assert (await vc.unit) == (await sc.unit)
+        assert (await vc.unit) == (await tc.unit)
 
     async def test_supersede(
         self,
@@ -954,7 +992,7 @@ class TestVEscrowCtrt:
     @pytest.mark.whole
     async def test_as_whole(
         self,
-        new_sys_ctrt: pv.SysCtrt,
+        new_tok_ctrt: pv.TokCtrtWithoutSplit,
         new_ctrt: pv.VEscrowCtrt,
         new_ctrt_quick_expire_order_deposited: Tuple[pv.VEscrowCtrt, str],
         maker: pv.Account,
@@ -966,16 +1004,16 @@ class TestVEscrowCtrt:
         test_as_whole tests methods of PayChanCtrt as a whole so as to reduce resource consumption.
 
         Args:
-            new_sys_ctrt (pv.SysCtrt): The system contract instance.
+            new_tok_ctrt (pv.TokCtrtWithoutSplit): The token contract instance.
             maker (pv.Account): The account of the contract maker.
             judge (pv.Account): The account of the contract judge.
             payer (pv.Account): The account of the contract payer.
             recipient (pv.Account): The account of the contract recipient.
         """
         vc = new_ctrt
-        sc = new_sys_ctrt
+        tc = new_tok_ctrt
 
-        await self.test_register(sc, vc, maker)
+        await self.test_register(tc, vc, maker)
         vc_with_order = await self.test_create(vc, payer, recipient, judge)
         await self.test_recipient_deposit(vc_with_order, recipient)
         await self.test_judge_deposit(vc_with_order, judge)

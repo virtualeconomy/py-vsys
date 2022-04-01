@@ -212,7 +212,7 @@ class VStableSwapCtrt(Ctrt):
             """
             b = VStableSwapCtrt.StateMap(
                 idx=VStableSwapCtrt.StateMapIdx.ORDER_OWNER,
-                data_entry=de.Bytes.for_base58_str(order_id),
+                data_entry=de.Bytes.from_base58_str(order_id),
             ).serialize()
             return cls(b)
 
@@ -229,7 +229,7 @@ class VStableSwapCtrt(Ctrt):
             """
             b = VStableSwapCtrt.StateMap(
                 idx=VStableSwapCtrt.StateMapIdx.FEE_BASE,
-                data_entry=de.Bytes.for_base58_str(order_id),
+                data_entry=de.Bytes.from_base58_str(order_id),
             ).serialize()
             return cls(b)
 
@@ -246,7 +246,7 @@ class VStableSwapCtrt(Ctrt):
             """
             b = VStableSwapCtrt.StateMap(
                 idx=VStableSwapCtrt.StateMapIdx.FEE_TARGET,
-                data_entry=de.Bytes.for_base58_str(order_id),
+                data_entry=de.Bytes.from_base58_str(order_id),
             ).serialize()
             return cls(b)
 
@@ -263,7 +263,7 @@ class VStableSwapCtrt(Ctrt):
             """
             b = VStableSwapCtrt.StateMap(
                 idx=VStableSwapCtrt.StateMapIdx.MIN_BASE,
-                data_entry=de.Bytes.for_base58_str(order_id),
+                data_entry=de.Bytes.from_base58_str(order_id),
             ).serialize()
             return cls(b)
 
@@ -280,7 +280,7 @@ class VStableSwapCtrt(Ctrt):
             """
             b = VStableSwapCtrt.StateMap(
                 idx=VStableSwapCtrt.StateMapIdx.MAX_BASE,
-                data_entry=de.Bytes.for_base58_str(order_id),
+                data_entry=de.Bytes.from_base58_str(order_id),
             ).serialize()
             return cls(b)
 
@@ -297,7 +297,7 @@ class VStableSwapCtrt(Ctrt):
             """
             b = VStableSwapCtrt.StateMap(
                 idx=VStableSwapCtrt.StateMapIdx.MIN_TARGET,
-                data_entry=de.Bytes.for_base58_str(order_id),
+                data_entry=de.Bytes.from_base58_str(order_id),
             ).serialize()
             return cls(b)
 
@@ -314,7 +314,7 @@ class VStableSwapCtrt(Ctrt):
             """
             b = VStableSwapCtrt.StateMap(
                 idx=VStableSwapCtrt.StateMapIdx.MAX_TARGET,
-                data_entry=de.Bytes.for_base58_str(order_id),
+                data_entry=de.Bytes.from_base58_str(order_id),
             ).serialize()
             return cls(b)
 
@@ -331,7 +331,7 @@ class VStableSwapCtrt(Ctrt):
             """
             b = VStableSwapCtrt.StateMap(
                 idx=VStableSwapCtrt.StateMapIdx.PRICE_BASE,
-                data_entry=de.Bytes.for_base58_str(order_id),
+                data_entry=de.Bytes.from_base58_str(order_id),
             ).serialize()
             return cls(b)
 
@@ -348,7 +348,7 @@ class VStableSwapCtrt(Ctrt):
             """
             b = VStableSwapCtrt.StateMap(
                 idx=VStableSwapCtrt.StateMapIdx.PRICE_TARGET,
-                data_entry=de.Bytes.for_base58_str(order_id),
+                data_entry=de.Bytes.from_base58_str(order_id),
             ).serialize()
             return cls(b)
 
@@ -365,7 +365,7 @@ class VStableSwapCtrt(Ctrt):
             """
             b = VStableSwapCtrt.StateMap(
                 idx=VStableSwapCtrt.StateMapIdx.BASE_TOKEN_LOCKED,
-                data_entry=de.Bytes.for_base58_str(order_id),
+                data_entry=de.Bytes.from_base58_str(order_id),
             ).serialize()
             return cls(b)
 
@@ -382,7 +382,7 @@ class VStableSwapCtrt(Ctrt):
             """
             b = VStableSwapCtrt.StateMap(
                 idx=VStableSwapCtrt.StateMapIdx.TARGET_TOKEN_LOCKED,
-                data_entry=de.Bytes.for_base58_str(order_id),
+                data_entry=de.Bytes.from_base58_str(order_id),
             ).serialize()
             return cls(b)
 
@@ -399,7 +399,7 @@ class VStableSwapCtrt(Ctrt):
             """
             b = VStableSwapCtrt.StateMap(
                 idx=VStableSwapCtrt.StateMapIdx.ORDER_STATUS,
-                data_entry=de.Bytes.for_base58_str(order_id),
+                data_entry=de.Bytes.from_base58_str(order_id),
             ).serialize()
             return cls(b)
 
@@ -924,7 +924,7 @@ class VStableSwapCtrt(Ctrt):
                 ctrt_id=self._ctrt_id,
                 func_id=self.FuncIdx.UPDATE_ORDER,
                 data_stack=de.DataStack(
-                    de.Bytes.for_base58_str(order_id),
+                    de.Bytes.from_base58_str(order_id),
                     de.Amount.for_tok_amount(fee_base, base_unit),
                     de.Amount.for_tok_amount(fee_target, target_unit),
                     de.Amount.for_tok_amount(min_base, base_unit),
@@ -973,7 +973,7 @@ class VStableSwapCtrt(Ctrt):
                 ctrt_id=self._ctrt_id,
                 func_id=self.FuncIdx.ORDER_DEPOSIT,
                 data_stack=de.DataStack(
-                    de.Bytes.for_base58_str(order_id),
+                    de.Bytes.from_base58_str(order_id),
                     de.Amount.for_tok_amount(base_deposit, base_unit),
                     de.Amount.for_tok_amount(target_deposit, target_unit),
                 ),
@@ -1016,7 +1016,7 @@ class VStableSwapCtrt(Ctrt):
                 ctrt_id=self._ctrt_id,
                 func_id=self.FuncIdx.ORDER_WITHDRAW,
                 data_stack=de.DataStack(
-                    de.Bytes.for_base58_str(order_id),
+                    de.Bytes.from_base58_str(order_id),
                     de.Amount.for_tok_amount(base_withdraw, base_unit),
                     de.Amount.for_tok_amount(target_withdraw, target_unit),
                 ),
@@ -1053,7 +1053,7 @@ class VStableSwapCtrt(Ctrt):
                 ctrt_id=self._ctrt_id,
                 func_id=self.FuncIdx.CLOSE_ORDER,
                 data_stack=de.DataStack(
-                    de.Bytes.for_base58_str(order_id),
+                    de.Bytes.from_base58_str(order_id),
                 ),
                 timestamp=md.VSYSTimestamp.now(),
                 attachment=md.Str(attachment),
@@ -1098,7 +1098,7 @@ class VStableSwapCtrt(Ctrt):
                 ctrt_id=self._ctrt_id,
                 func_id=self.FuncIdx.SWAP_BASE_TO_TARGET,
                 data_stack=de.DataStack(
-                    de.Bytes.for_base58_str(order_id),
+                    de.Bytes.from_base58_str(order_id),
                     de.Amount.for_tok_amount(amount, base_unit),
                     de.Amount.for_tok_amount(swap_fee, base_unit),
                     de.Amount.for_tok_amount(price, base_price_unit),
@@ -1147,7 +1147,7 @@ class VStableSwapCtrt(Ctrt):
                 ctrt_id=self._ctrt_id,
                 func_id=self.FuncIdx.SWAP_TARGET_TO_BASE,
                 data_stack=de.DataStack(
-                    de.Bytes.for_base58_str(order_id),
+                    de.Bytes.from_base58_str(order_id),
                     de.Amount.for_tok_amount(amount, target_unit),
                     de.Amount.for_tok_amount(swap_fee, target_unit),
                     de.Amount.for_tok_amount(price, target_price_unit),

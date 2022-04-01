@@ -179,7 +179,7 @@ class VEscrowCtrt(Ctrt):
             """
             b = VEscrowCtrt.StateMap(
                 idx=VEscrowCtrt.StateMapIdx.ORDER_PAYER,
-                data_entry=de.Bytes.for_base58_str(order_id),
+                data_entry=de.Bytes.from_base58_str(order_id),
             ).serialize()
             return cls(b)
 
@@ -197,7 +197,7 @@ class VEscrowCtrt(Ctrt):
             """
             b = VEscrowCtrt.StateMap(
                 idx=VEscrowCtrt.StateMapIdx.ORDER_RECIPIENT,
-                data_entry=de.Bytes.for_base58_str(order_id),
+                data_entry=de.Bytes.from_base58_str(order_id),
             ).serialize()
             return cls(b)
 
@@ -215,7 +215,7 @@ class VEscrowCtrt(Ctrt):
             """
             b = VEscrowCtrt.StateMap(
                 idx=VEscrowCtrt.StateMapIdx.ORDER_AMOUNT,
-                data_entry=de.Bytes.for_base58_str(order_id),
+                data_entry=de.Bytes.from_base58_str(order_id),
             ).serialize()
             return cls(b)
 
@@ -233,7 +233,7 @@ class VEscrowCtrt(Ctrt):
             """
             b = VEscrowCtrt.StateMap(
                 idx=VEscrowCtrt.StateMapIdx.ORDER_RECIPIENT_DEPOSIT,
-                data_entry=de.Bytes.for_base58_str(order_id),
+                data_entry=de.Bytes.from_base58_str(order_id),
             ).serialize()
             return cls(b)
 
@@ -251,7 +251,7 @@ class VEscrowCtrt(Ctrt):
             """
             b = VEscrowCtrt.StateMap(
                 idx=VEscrowCtrt.StateMapIdx.ORDER_JUDGE_DEPOSIT,
-                data_entry=de.Bytes.for_base58_str(order_id),
+                data_entry=de.Bytes.from_base58_str(order_id),
             ).serialize()
             return cls(b)
 
@@ -269,7 +269,7 @@ class VEscrowCtrt(Ctrt):
             """
             b = VEscrowCtrt.StateMap(
                 idx=VEscrowCtrt.StateMapIdx.ORDER_FEE,
-                data_entry=de.Bytes.for_base58_str(order_id),
+                data_entry=de.Bytes.from_base58_str(order_id),
             ).serialize()
             return cls(b)
 
@@ -287,7 +287,7 @@ class VEscrowCtrt(Ctrt):
             """
             b = VEscrowCtrt.StateMap(
                 idx=VEscrowCtrt.StateMapIdx.ORDER_RECIPIENT_AMOUNT,
-                data_entry=de.Bytes.for_base58_str(order_id),
+                data_entry=de.Bytes.from_base58_str(order_id),
             ).serialize()
             return cls(b)
 
@@ -305,7 +305,7 @@ class VEscrowCtrt(Ctrt):
             """
             b = VEscrowCtrt.StateMap(
                 idx=VEscrowCtrt.StateMapIdx.ORDER_REFUND,
-                data_entry=de.Bytes.for_base58_str(order_id),
+                data_entry=de.Bytes.from_base58_str(order_id),
             ).serialize()
             return cls(b)
 
@@ -323,7 +323,7 @@ class VEscrowCtrt(Ctrt):
             """
             b = VEscrowCtrt.StateMap(
                 idx=VEscrowCtrt.StateMapIdx.ORDER_RECIPIENT_REFUND,
-                data_entry=de.Bytes.for_base58_str(order_id),
+                data_entry=de.Bytes.from_base58_str(order_id),
             ).serialize()
             return cls(b)
 
@@ -341,7 +341,7 @@ class VEscrowCtrt(Ctrt):
             """
             b = VEscrowCtrt.StateMap(
                 idx=VEscrowCtrt.StateMapIdx.ORDER_EXPIRATION_TIME,
-                data_entry=de.Bytes.for_base58_str(order_id),
+                data_entry=de.Bytes.from_base58_str(order_id),
             ).serialize()
             return cls(b)
 
@@ -359,7 +359,7 @@ class VEscrowCtrt(Ctrt):
             """
             b = VEscrowCtrt.StateMap(
                 idx=VEscrowCtrt.StateMapIdx.ORDER_STATUS,
-                data_entry=de.Bytes.for_base58_str(order_id),
+                data_entry=de.Bytes.from_base58_str(order_id),
             ).serialize()
             return cls(b)
 
@@ -377,7 +377,7 @@ class VEscrowCtrt(Ctrt):
             """
             b = VEscrowCtrt.StateMap(
                 idx=VEscrowCtrt.StateMapIdx.ORDER_RECIPIENT_DEPOSIT_STATUS,
-                data_entry=de.Bytes.for_base58_str(order_id),
+                data_entry=de.Bytes.from_base58_str(order_id),
             ).serialize()
             return cls(b)
 
@@ -395,7 +395,7 @@ class VEscrowCtrt(Ctrt):
             """
             b = VEscrowCtrt.StateMap(
                 idx=VEscrowCtrt.StateMapIdx.ORDER_JUDGE_DEPOSIT_STATUS,
-                data_entry=de.Bytes.for_base58_str(order_id),
+                data_entry=de.Bytes.from_base58_str(order_id),
             ).serialize()
             return cls(b)
 
@@ -413,7 +413,7 @@ class VEscrowCtrt(Ctrt):
             """
             b = VEscrowCtrt.StateMap(
                 idx=VEscrowCtrt.StateMapIdx.ORDER_SUBMIT_STATUS,
-                data_entry=de.Bytes.for_base58_str(order_id),
+                data_entry=de.Bytes.from_base58_str(order_id),
             ).serialize()
             return cls(b)
 
@@ -431,7 +431,7 @@ class VEscrowCtrt(Ctrt):
             """
             b = VEscrowCtrt.StateMap(
                 idx=VEscrowCtrt.StateMapIdx.ORDER_JUDGE_STATUS,
-                data_entry=de.Bytes.for_base58_str(order_id),
+                data_entry=de.Bytes.from_base58_str(order_id),
             ).serialize()
             return cls(b)
 
@@ -449,7 +449,7 @@ class VEscrowCtrt(Ctrt):
             """
             b = VEscrowCtrt.StateMap(
                 idx=VEscrowCtrt.StateMapIdx.ORDER_RECIPIENT_LOCKED_AMOUNT,
-                data_entry=de.Bytes.for_base58_str(order_id),
+                data_entry=de.Bytes.from_base58_str(order_id),
             ).serialize()
             return cls(b)
 
@@ -467,7 +467,7 @@ class VEscrowCtrt(Ctrt):
             """
             b = VEscrowCtrt.StateMap(
                 idx=VEscrowCtrt.StateMapIdx.ORDER_JUDGE_LOCKED_AMOUNT,
-                data_entry=de.Bytes.for_base58_str(order_id),
+                data_entry=de.Bytes.from_base58_str(order_id),
             ).serialize()
             return cls(b)
 
@@ -991,7 +991,7 @@ class VEscrowCtrt(Ctrt):
                 ctrt_id=self._ctrt_id,
                 func_id=self.FuncIdx.RECIPIENT_DEPOSIT,
                 data_stack=de.DataStack(
-                    de.Bytes.for_base58_str(order_id),
+                    de.Bytes.from_base58_str(order_id),
                 ),
                 timestamp=md.VSYSTimestamp.now(),
                 attachment=md.Str(attachment),
@@ -1026,7 +1026,7 @@ class VEscrowCtrt(Ctrt):
                 ctrt_id=self._ctrt_id,
                 func_id=self.FuncIdx.JUDGE_DEPOSIT,
                 data_stack=de.DataStack(
-                    de.Bytes.for_base58_str(order_id),
+                    de.Bytes.from_base58_str(order_id),
                 ),
                 timestamp=md.VSYSTimestamp.now(),
                 attachment=md.Str(attachment),
@@ -1061,7 +1061,7 @@ class VEscrowCtrt(Ctrt):
                 ctrt_id=self._ctrt_id,
                 func_id=self.FuncIdx.PAYER_CANCEL,
                 data_stack=de.DataStack(
-                    de.Bytes.for_base58_str(order_id),
+                    de.Bytes.from_base58_str(order_id),
                 ),
                 timestamp=md.VSYSTimestamp.now(),
                 attachment=md.Str(attachment),
@@ -1096,7 +1096,7 @@ class VEscrowCtrt(Ctrt):
                 ctrt_id=self._ctrt_id,
                 func_id=self.FuncIdx.RECIPIENT_CANCEL,
                 data_stack=de.DataStack(
-                    de.Bytes.for_base58_str(order_id),
+                    de.Bytes.from_base58_str(order_id),
                 ),
                 timestamp=md.VSYSTimestamp.now(),
                 attachment=md.Str(attachment),
@@ -1131,7 +1131,7 @@ class VEscrowCtrt(Ctrt):
                 ctrt_id=self._ctrt_id,
                 func_id=self.FuncIdx.JUDGE_CANCEL,
                 data_stack=de.DataStack(
-                    de.Bytes.for_base58_str(order_id),
+                    de.Bytes.from_base58_str(order_id),
                 ),
                 timestamp=md.VSYSTimestamp.now(),
                 attachment=md.Str(attachment),
@@ -1166,7 +1166,7 @@ class VEscrowCtrt(Ctrt):
                 ctrt_id=self._ctrt_id,
                 func_id=self.FuncIdx.SUBMIT_WORK,
                 data_stack=de.DataStack(
-                    de.Bytes.for_base58_str(order_id),
+                    de.Bytes.from_base58_str(order_id),
                 ),
                 timestamp=md.VSYSTimestamp.now(),
                 attachment=md.Str(attachment),
@@ -1201,7 +1201,7 @@ class VEscrowCtrt(Ctrt):
                 ctrt_id=self._ctrt_id,
                 func_id=self.FuncIdx.APPROVE_WORK,
                 data_stack=de.DataStack(
-                    de.Bytes.for_base58_str(order_id),
+                    de.Bytes.from_base58_str(order_id),
                 ),
                 timestamp=md.VSYSTimestamp.now(),
                 attachment=md.Str(attachment),
@@ -1236,7 +1236,7 @@ class VEscrowCtrt(Ctrt):
                 ctrt_id=self._ctrt_id,
                 func_id=self.FuncIdx.APPLY_TO_JUDGE,
                 data_stack=de.DataStack(
-                    de.Bytes.for_base58_str(order_id),
+                    de.Bytes.from_base58_str(order_id),
                 ),
                 timestamp=md.VSYSTimestamp.now(),
                 attachment=md.Str(attachment),
@@ -1277,7 +1277,7 @@ class VEscrowCtrt(Ctrt):
                 ctrt_id=self._ctrt_id,
                 func_id=self.FuncIdx.JUDGE,
                 data_stack=de.DataStack(
-                    de.Bytes.for_base58_str(order_id),
+                    de.Bytes.from_base58_str(order_id),
                     de.Amount.for_tok_amount(payer_amount, unit),
                     de.Amount.for_tok_amount(rcpt_amount, unit),
                 ),
@@ -1316,7 +1316,7 @@ class VEscrowCtrt(Ctrt):
                 ctrt_id=self._ctrt_id,
                 func_id=self.FuncIdx.SUBMIT_PENALTY,
                 data_stack=de.DataStack(
-                    de.Bytes.for_base58_str(order_id),
+                    de.Bytes.from_base58_str(order_id),
                 ),
                 timestamp=md.VSYSTimestamp.now(),
                 attachment=md.Str(attachment),
@@ -1354,7 +1354,7 @@ class VEscrowCtrt(Ctrt):
                 ctrt_id=self._ctrt_id,
                 func_id=self.FuncIdx.PAYER_REFUND,
                 data_stack=de.DataStack(
-                    de.Bytes.for_base58_str(order_id),
+                    de.Bytes.from_base58_str(order_id),
                 ),
                 timestamp=md.VSYSTimestamp.now(),
                 attachment=md.Str(attachment),
@@ -1392,7 +1392,7 @@ class VEscrowCtrt(Ctrt):
                 ctrt_id=self._ctrt_id,
                 func_id=self.FuncIdx.RECIPIENT_REFUND,
                 data_stack=de.DataStack(
-                    de.Bytes.for_base58_str(order_id),
+                    de.Bytes.from_base58_str(order_id),
                 ),
                 timestamp=md.VSYSTimestamp.now(),
                 attachment=md.Str(attachment),
@@ -1429,7 +1429,7 @@ class VEscrowCtrt(Ctrt):
                 ctrt_id=self._ctrt_id,
                 func_id=self.FuncIdx.COLLECT,
                 data_stack=de.DataStack(
-                    de.Bytes.for_base58_str(order_id),
+                    de.Bytes.from_base58_str(order_id),
                 ),
                 timestamp=md.VSYSTimestamp.now(),
                 attachment=md.Str(attachment),

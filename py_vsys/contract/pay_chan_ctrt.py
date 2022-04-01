@@ -121,7 +121,7 @@ class PayChanCtrt(Ctrt):
             """
             b = PayChanCtrt.StateMap(
                 idx=PayChanCtrt.StateMapIdx.CHANNEL_CREATOR,
-                data_entry=de.Bytes.for_base58_str(chan_id),
+                data_entry=de.Bytes.from_base58_str(chan_id),
             ).serialize()
             return cls(b)
 
@@ -139,7 +139,7 @@ class PayChanCtrt(Ctrt):
             """
             b = PayChanCtrt.StateMap(
                 idx=PayChanCtrt.StateMapIdx.CHANNEL_CREATOR_PUBLIC_KEY,
-                data_entry=de.Bytes.for_base58_str(chan_id),
+                data_entry=de.Bytes.from_base58_str(chan_id),
             ).serialize()
             return cls(b)
 
@@ -156,7 +156,7 @@ class PayChanCtrt(Ctrt):
             """
             b = PayChanCtrt.StateMap(
                 idx=PayChanCtrt.StateMapIdx.CHANNEL_RECIPIENT,
-                data_entry=de.Bytes.for_base58_str(chan_id),
+                data_entry=de.Bytes.from_base58_str(chan_id),
             ).serialize()
             return cls(b)
 
@@ -174,7 +174,7 @@ class PayChanCtrt(Ctrt):
             """
             b = PayChanCtrt.StateMap(
                 idx=PayChanCtrt.StateMapIdx.CHANNEL_ACCUMULATED_LOAD,
-                data_entry=de.Bytes.for_base58_str(chan_id),
+                data_entry=de.Bytes.from_base58_str(chan_id),
             ).serialize()
             return cls(b)
 
@@ -192,7 +192,7 @@ class PayChanCtrt(Ctrt):
             """
             b = PayChanCtrt.StateMap(
                 idx=PayChanCtrt.StateMapIdx.CHANNEL_ACCUMULATED_PAYMENT,
-                data_entry=de.Bytes.for_base58_str(chan_id),
+                data_entry=de.Bytes.from_base58_str(chan_id),
             ).serialize()
             return cls(b)
 
@@ -210,7 +210,7 @@ class PayChanCtrt(Ctrt):
             """
             b = PayChanCtrt.StateMap(
                 idx=PayChanCtrt.StateMapIdx.CHANNEL_EXPIRATION_TIME,
-                data_entry=de.Bytes.for_base58_str(chan_id),
+                data_entry=de.Bytes.from_base58_str(chan_id),
             ).serialize()
             return cls(b)
 
@@ -228,7 +228,7 @@ class PayChanCtrt(Ctrt):
             """
             b = PayChanCtrt.StateMap(
                 idx=PayChanCtrt.StateMapIdx.CHANNEL_STATUS,
-                data_entry=de.Bytes.for_base58_str(chan_id),
+                data_entry=de.Bytes.from_base58_str(chan_id),
             ).serialize()
             return cls(b)
 
@@ -522,7 +522,7 @@ class PayChanCtrt(Ctrt):
                 ctrt_id=self._ctrt_id,
                 func_id=self.FuncIdx.EXTEND_EXPIRATION_TIME,
                 data_stack=de.DataStack(
-                    de.Bytes.for_base58_str(chan_id),
+                    de.Bytes.from_base58_str(chan_id),
                     de.Timestamp(md.VSYSTimestamp.from_unix_ts(expire_at)),
                 ),
                 timestamp=md.VSYSTimestamp.now(),
@@ -562,7 +562,7 @@ class PayChanCtrt(Ctrt):
                 ctrt_id=self._ctrt_id,
                 func_id=self.FuncIdx.LOAD,
                 data_stack=de.DataStack(
-                    de.Bytes.for_base58_str(chan_id),
+                    de.Bytes.from_base58_str(chan_id),
                     de.Amount.for_tok_amount(
                         amount,
                         unit,
@@ -603,7 +603,7 @@ class PayChanCtrt(Ctrt):
                 ctrt_id=self._ctrt_id,
                 func_id=self.FuncIdx.ABORT,
                 data_stack=de.DataStack(
-                    de.Bytes.for_base58_str(chan_id),
+                    de.Bytes.from_base58_str(chan_id),
                 ),
                 timestamp=md.VSYSTimestamp.now(),
                 attachment=md.Str(attachment),
@@ -638,7 +638,7 @@ class PayChanCtrt(Ctrt):
                 ctrt_id=self._ctrt_id,
                 func_id=self.FuncIdx.UNLOAD,
                 data_stack=de.DataStack(
-                    de.Bytes.for_base58_str(chan_id),
+                    de.Bytes.from_base58_str(chan_id),
                 ),
                 timestamp=md.VSYSTimestamp.now(),
                 attachment=md.Str(attachment),
@@ -683,12 +683,12 @@ class PayChanCtrt(Ctrt):
                 ctrt_id=self._ctrt_id,
                 func_id=self.FuncIdx.COLLECT_PAYMENT,
                 data_stack=de.DataStack(
-                    de.Bytes.for_base58_str(chan_id),
+                    de.Bytes.from_base58_str(chan_id),
                     de.Amount.for_tok_amount(
                         amount,
                         unit,
                     ),
-                    de.Bytes.for_base58_str(signature),
+                    de.Bytes.from_base58_str(signature),
                 ),
                 timestamp=md.VSYSTimestamp.now(),
                 attachment=md.Str(attachment),
