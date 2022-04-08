@@ -15,6 +15,7 @@
       - [VSYS Available Balance](#vsys-available-balance)
       - [VSYS Effective Balance](#vsys-effective-balance)
     - [Actions](#actions)
+      - [Get Token Balance](#get-token-balance)
       - [Pay](#pay)
       - [Lease](#lease)
       - [Cancel Lease](#cancel-lease)
@@ -195,6 +196,24 @@ VSYS(4866397839105012)
 ```
 
 ### Actions
+
+#### Get Token Balance
+Get the account balance of the token of the given token ID.
+
+The example below shows querying the token balance of a certain kind of token.
+```python
+import py_vsys as pv
+
+# acnt0: pv.Account
+tok_id = "TWu66r3ebS3twXNWh7aiAEWcNAaRPs1JxkAw2A3Hi"
+
+print(await acnt0.get_tok_bal(tok_id))
+```
+Example output
+
+```
+Token(900)
+```
 
 #### Pay
 Pay the VSYS coins from the action taker to the recipient.
