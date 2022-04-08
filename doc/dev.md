@@ -36,9 +36,8 @@
 To contribute, please work on a forked repo and create a PR from the forked repo to the `develop` branch of the main repo.
 
 The main repo will have 3 branches:
-- **main**: The latest version that is released.
-- **develop**: The latest version that is being worked on. **The default branch**.
-- **release**: The version that is going to be released. The **release** branch shall be checked out from the **develop** branch and be tested. All fixes shall be committed to the **release** branch directly. When the test passed, the **release** branch shall be merged into the **main** branch with a tag of the released version and be merged to the **develop** branch as well if there is any fixes commits.
+- `main`: The latest version that is released.
+- `develop`: The latest version that is being worked on. 
 
 
 ## Set Up Development Environment
