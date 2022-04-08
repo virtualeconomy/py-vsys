@@ -31,10 +31,8 @@ pip install py-vsys
 
 Install from Github
 ```bash
-pip install git+https://github.com/virtualeconomy/py-vsys.git@main
+pip install git+https://github.com/virtualeconomy/py-vsys.git
 ```
-
-`@main` is necessary as the default branch is `develop`
 
 ### Pipenv
 
@@ -46,10 +44,8 @@ pipenv install py-vsys
 
 Install from Github
 ```bash
-pipenv install git+https://github.com/virtualeconomy/py-vsys.git@main#egg=py_vsys
+pipenv install git+https://github.com/virtualeconomy/py-vsys.git#egg=py_vsys
 ```
-
-`@main` is necessary as the default branch is `develop`
 
 ## Quick Example
 
