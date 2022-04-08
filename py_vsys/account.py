@@ -18,6 +18,7 @@ from py_vsys import dbput as dp
 from py_vsys.utils.crypto import hashes as hs
 from py_vsys.utils.crypto import curve_25519 as curve
 from py_vsys import words as wd
+from py_vsys.contract import tok_ctrt_factory as tcf
 
 
 class Wallet:
@@ -305,6 +306,26 @@ class Account:
         """
         resp = await self.api.addr.get_balance_details(self.addr.data)
         return md.VSYS(resp["effective"])
+
+    async def get_tok_bal(self, tok_id: str) -> md.Token:
+        """
+        get_tok_bal returns the raw balance of the token of the given token ID for this account.
+        NOTE that the token ID from the system contract is not supported due to the pre-defined & built-in nature
+        of system contract.
+
+        Args:
+            tok_id (str): The token ID.
+
+        Returns:
+            md.Token: The token balance.
+        """
+
+        tc = await tcf.from_tok_id(md.TokenID(tok_id), self.chain)
+        resp = await self.api.ctrt.get_tok_bal(
+            addr=self.addr.data,
+            tok_id=tok_id,
+        )
+        return md.Token(resp["balance"], await tc.unit)
 
     async def _pay(self, req: tx.PaymentTxReq) -> Dict[str, Any]:
         """
