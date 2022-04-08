@@ -67,8 +67,11 @@ async def from_tok_id(tok_id: md.TokenID, chain: ch.Chain) -> BaseTokCtrt:
     if tok_id.is_testnet_vsys_tok:
         return sys_ctrt.SysCtrt.for_testnet(chain)
 
-    tok_info = await chain.api.ctrt.get_tok_info(tok_id.data)
-    ctrt_id = tok_info["contractId"]
+    resp = await chain.api.ctrt.get_tok_info(tok_id.data)
+    try:
+        ctrt_id = resp["contractId"]
+    except KeyError:
+        raise Exception(resp)
 
     ctrt_info = await chain.api.ctrt.get_ctrt_info(ctrt_id)
 
