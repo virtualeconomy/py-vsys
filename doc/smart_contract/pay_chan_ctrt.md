@@ -42,7 +42,7 @@ The payment channel contract in VSYS is a one-way payment channel, which means t
 For testing purpose, you can create a new [token contract]() , then [issue]() some tokens and [deposit]() into the payment channel contract.
 
 ```python
-import py_v_sdk as pv
+import py_vsys as pv
 
 # acnt: pv.Account
 # tok_id: str
@@ -63,7 +63,7 @@ CtrtID(CFF4SuQRfkbWzNQx3NdykwZf1kfrZGHwzek)
 nc_id is the payment channel contract's id.
 
 ```python
-import py_v_sdk as pv
+import py_vsys as pv
 
 # ch: pv.Chain
 # nc_id: str
@@ -253,7 +253,7 @@ Create the payment channel and loads an amount into it.
 Note that this transaction id is the channel id.
 
 ```python
-import py_v_sdk as pv
+import py_vsys as pv
 
 # acnt: pv.Account
 # receipt: str
@@ -275,7 +275,7 @@ Example output
 Extend the expiration time of the channel to the new input timestamp.
 
 ```python
-import py_v_sdk as pv
+import py_vsys as pv
 
 # acnt: pv.Account
 # chan_id: str
@@ -296,7 +296,7 @@ Example output
 Load more tokens into the channel.
 
 ```python
-import py_v_sdk as pv
+import py_vsys as pv
 
 # acnt: pv.Account
 # chan_id: str
@@ -317,7 +317,7 @@ Example output
 Abort the channel, triggering a 2-day grace period where the recipient can still collect payments. After 2 days, the payer can unload all the remaining funds that was locked in the channel.
 
 ```python
-import py_v_sdk as pv
+import py_vsys as pv
 
 # acnt: pv.Account
 # chan_id: str
@@ -337,7 +337,7 @@ Example output
 Unload all the funcs locked in the channel (only works if the channel has expired).
 
 ```python
-import py_v_sdk as pv
+import py_vsys as pv
 
 # acnt: pv.Account
 # chan_id: str
@@ -357,7 +357,7 @@ Example output
 Collect the payment from the channel (only works if the channel has expired).
 
 ```python
-import py_v_sdk as pv
+import py_vsys as pv
 
 # acnt: pv.Account
 # chan_id: str
@@ -379,7 +379,7 @@ Example output
 Generate the offchain payment signature.
 
 ```python
-import py_v_sdk as pv
+import py_vsys as pv
 
 # key_pair: md.KeyPair
 # chan_id: str
@@ -400,7 +400,7 @@ Example output
 Verify the payment signature.
 
 ```python
-import py_v_sdk as pv
+import py_vsys as pv
 
 # chan_id: str
 # amount: Union[int,float]

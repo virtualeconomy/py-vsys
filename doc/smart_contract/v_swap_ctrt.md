@@ -45,7 +45,7 @@ The contract allows completely decentralised exchanges to be formed, and allows 
 For testing purpose, you can create a new [token contract]() , then [issue]() some tokens and [deposit]() into the V Swap contract.
 
 ```python
-import py_v_sdk as pv
+import py_vsys as pv
 
 # acnt: pv.Account
 # tok_a_id: str
@@ -69,7 +69,7 @@ CtrtID(CF5XanD64XpzMZPoaMZ1svYrAriaqsUDeSb)
 nc_id is the V Swap contract's id.
 
 ```python
-import py_v_sdk as pv
+import py_vsys as pv
 
 # ch: pv.Chain
 # nc_id: str
@@ -302,7 +302,7 @@ Token(1000)
 Transfer the contract rights of the contract to a new account.
 
 ```python
-import py_v_sdk as pv
+import py_vsys as pv
 
 # acnt0: pv.Account
 # acnt1: pv.Account
@@ -322,7 +322,7 @@ Example output
 Create a swap and deposit initial amounts into the pool.
 
 ```python
-import py_v_sdk as pv
+import py_vsys as pv
 
 # acnt: pv.Account
 # amount_a: int | float
@@ -343,7 +343,7 @@ Example output
 Adds liquidity to the pool. The final added amount of token A & B will be in the same proportion as the pool at that moment as the liquidity provider shouldn't change the price of the token while the price is determined by the ratio between A & B.
 
 ```python
-import py_v_sdk as pv
+import py_vsys as pv
 
 # acnt: pv.Account
 # amount_a: int | float
@@ -367,7 +367,7 @@ Example output
 Remove liquidity from the pool by redeeming token A & B with liquidity tokens.
 
 ```python
-import py_v_sdk as pv
+import py_vsys as pv
 
 # acnt: pv.Account
 # amount_liq: int | float
@@ -389,7 +389,7 @@ Example output
 Swap token B for token A where the desired amount of token A is fixed.
 
 ```python
-import py_v_sdk as pv
+import py_vsys as pv
 
 # acnt: pv.Account
 # amount_a: int | float
@@ -411,7 +411,7 @@ Example output
 Swap token B for token A where the amount of token B to pay is fixed.
 
 ```python
-import py_v_sdk as pv
+import py_vsys as pv
 
 # acnt: pv.Account
 # amount_a_min: int | float
@@ -433,7 +433,7 @@ Example output
 Swap token A for token B where the desired amount of token B is fixed.
 
 ```python
-import py_v_sdk as pv
+import py_vsys as pv
 
 # acnt: pv.Account
 # amount_b: int | float
@@ -455,7 +455,7 @@ Example output
 Swap token B for token B where the amount of token A to pay is fixed.
 
 ```python
-import py_v_sdk as pv
+import py_vsys as pv
 
 # acnt: pv.Account
 # amount_b_min: int | float
