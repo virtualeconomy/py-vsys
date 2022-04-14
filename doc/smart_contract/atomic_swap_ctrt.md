@@ -36,7 +36,7 @@ Atomic Swap Contract is the VSYS implementation of [Atomic Swap](https://en.bitc
 Register an Atomic Swap Contract instance.
 
 ```python
-import py_v_sdk as pv
+import py_vsys as pv
 
 # acnt: pv.Account
 # tok_id: str
@@ -55,7 +55,7 @@ CtrtID(CFAAxTu44NsfwMUfpmVd6y4vuN9xQNVFtGa)
 Get an object for an existing contract instance.
 
 ```python
-import py_v_sdk as pv
+import py_vsys as pv
 
 # ch: pv.Chain
 

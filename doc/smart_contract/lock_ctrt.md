@@ -27,7 +27,7 @@ Lock contract allows users to lock a specific token in the contract for some per
 For testing purpose, you can create a new [token contract]() , then [issue]() some tokens and [deposit]() into the lock contract.
 
 ```python
-import py_v_sdk as pv
+import py_vsys as pv
 
 # acnt: pv.Account
 # tok_id: str
@@ -46,7 +46,7 @@ CtrtID(CEvsegnqoPWF1e4ATyvmqx5PxDcEy6G6vZa)
 ### From Existing Contract
 
 ```python
-import py_v_sdk as pv
+import py_vsys as pv
 
 # ch: pv.Chain
 
@@ -131,7 +131,7 @@ VSYSTimestamp(1646387206000000000)
 Lock the token until the expire time. The token can't be withdrawn before the expire time.
 
 ```python
-import py_v_sdk as pv
+import py_vsys as pv
 
 # acnt: pv.Account
 # expire_time: int

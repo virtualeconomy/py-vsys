@@ -77,7 +77,7 @@ CtrtID(CF4T3EVdaDcu5Y2xMbYKZ1xs1jBsfxGDf29)
 Get an object for an existing contract instance.
 
 ```python
-import py_v_sdk as pv
+import py_vsys as pv
 
 # ch: pv.Chain
 

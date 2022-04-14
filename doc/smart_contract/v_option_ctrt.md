@@ -46,7 +46,7 @@ Option Contract in VSYS provides an opportunity for the interested parties to bu
 Register an V Option Contract instance.
 
 ```python
-import py_v_sdk as pv
+import py_vsys as pv
 
 # acnt: pv.Account
 # base_tok_id: str
@@ -72,7 +72,7 @@ CtrtID(CEyb8Q7A1kQw62vem1Jz5gmQFVrK28iny9b)
 Get an object for an existing contract instance.
 
 ```python
-import py_v_sdk as pv
+import py_vsys as pv
 
 # ch: pv.Chain
 

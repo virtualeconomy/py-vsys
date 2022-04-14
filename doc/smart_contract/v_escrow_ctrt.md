@@ -64,7 +64,7 @@ Note that the caller is the judge of the escrow contract.
 For testing purpose, you can create a new [token contract]() , then [issue]() some tokens and [deposit]() into the escrow contract.
 
 ```python
-import py_v_sdk as pv
+import py_vsys as pv
 
 # acnt: pv.Account
 # tok_id: str
@@ -87,7 +87,7 @@ CtrtID(CEzgEwke6qw4im78x22aNgnqKe3dVxfeciD)
 nc_id is the escrow contract's id.
 
 ```python
-import py_v_sdk as pv
+import py_vsys as pv
 
 # ch: pv.Chain
 # nc_id: str
@@ -510,7 +510,7 @@ Token(200)
 Transfer the judge right of the contract to another account.
 
 ```python
-import py_v_sdk as pv
+import py_vsys as pv
 
 # acnt: pv.Account
 # new_judge: str
@@ -532,7 +532,7 @@ Create an escrow order and called by the payer.
 Note that this transaction id of this action is the order ID.
 
 ```python
-import py_v_sdk as pv
+import py_vsys as pv
 
 # acnt: pv.Account
 # recipient: str
@@ -560,7 +560,7 @@ Deposit tokens the recipient deposited into the contract into the order.
 Note that it is called by the recipient.
 
 ```python
-import py_v_sdk as pv
+import py_vsys as pv
 
 # acnt: pv.Account
 # order_id: str
@@ -583,7 +583,7 @@ Deposit tokens the judge deposited into the contract into the order.
 Note that it is called by the judge.
 
 ```python
-import py_v_sdk as pv
+import py_vsys as pv
 
 # acnt: pv.Account
 # order_id: str
@@ -606,7 +606,7 @@ Cancel the order by the payer.
 Note that it is called by the payer.
 
 ```python
-import py_v_sdk as pv
+import py_vsys as pv
 
 # acnt: pv.Account
 # order_id: str
@@ -629,7 +629,7 @@ Cancel the order by the recipient.
 Note that it is called by the recipient.
 
 ```python
-import py_v_sdk as pv
+import py_vsys as pv
 
 # acnt: pv.Account
 # order_id: str
@@ -652,7 +652,7 @@ Cancel the order by the judge.
 Note that it is called by the judge.
 
 ```python
-import py_v_sdk as pv
+import py_vsys as pv
 
 # acnt: pv.Account
 # order_id: str
@@ -675,7 +675,7 @@ Submit the work by the recipient.
 Note that it is called by the recipient.
 
 ```python
-import py_v_sdk as pv
+import py_vsys as pv
 
 # acnt: pv.Account
 # order_id: str
@@ -698,7 +698,7 @@ Approve the work and agrees the amounts are paid by the payer.
 Note that it is called by the payer.
 
 ```python
-import py_v_sdk as pv
+import py_vsys as pv
 
 # acnt: pv.Account
 # order_id: str
@@ -721,7 +721,7 @@ Apply for the help from judge by the payer.
 Note that it is called by the payer.
 
 ```python
-import py_v_sdk as pv
+import py_vsys as pv
 
 # acnt: pv.Account
 # order_id: str
@@ -744,7 +744,7 @@ Judge the work and decides on how much the payer & recipient will receive.
 Note that it is called by the judge.
 
 ```python
-import py_v_sdk as pv
+import py_vsys as pv
 
 # acnt: pv.Account
 # order_id: str
@@ -769,7 +769,7 @@ The judge will still get the fee.
 Note that it is called by the payer.
 
 ```python
-import py_v_sdk as pv
+import py_vsys as pv
 
 # acnt: pv.Account
 # order_id: str
@@ -796,7 +796,7 @@ The recipient receives the rest.
 Note that it is called by the payer.
 
 ```python
-import py_v_sdk as pv
+import py_vsys as pv
 
 # acnt: pv.Account
 # order_id: str
@@ -823,7 +823,7 @@ The recipient receives the rest.
 Note that it is called by the recipient.
 
 ```python
-import py_v_sdk as pv
+import py_vsys as pv
 
 # acnt: pv.Account
 # order_id: str
@@ -848,7 +848,7 @@ The judge will get judge deposited amount & fee.
 Note that it is called by the recipient.
 
 ```python
-import py_v_sdk as pv
+import py_vsys as pv
 
 # acnt: pv.Account
 # order_id: str
