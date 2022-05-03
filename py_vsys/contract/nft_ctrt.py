@@ -454,6 +454,9 @@ class NFTCtrtV2Base(NFTCtrt):
             for_is_user_in_list returns the DBKey for querying the status of if
             the given user address is in the list.
 
+            Args:
+                addr (str): The user address.
+
             Returns:
                 NFTCtrtV2Base.DBKey: The DBKey.
             """
@@ -465,6 +468,9 @@ class NFTCtrtV2Base(NFTCtrt):
             """
             for_is_ctrt_in_list returns the DBKey for querying the status of if
             the given contract address is in the list.
+
+            Args:
+                addr (str): The contract address.
 
             Returns:
                 NFTCtrtV2Base.DBKey: The DBKey.

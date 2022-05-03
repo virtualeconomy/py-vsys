@@ -452,10 +452,10 @@ class AtomicSwapCtrt(Ctrt):
         fee: int = md.ExecCtrtFee.DEFAULT,
     ) -> Dict[str, Any]:
         """
-        taker_lock locks the token by the maker.
+        taker_lock locks the token by the taker.
 
         Args:
-            by (acnt.Account): The action maker.
+            by (acnt.Account): The action taker.
             amount (Union[int, float]): The amount of the token to be locked.
             maker_swap_ctrt_id: The contract id of the maker's.
             recipient (str): The maker's address.
@@ -505,10 +505,10 @@ class AtomicSwapCtrt(Ctrt):
         fee: int = md.ExecCtrtFee.DEFAULT,
     ) -> Dict[str, Any]:
         """
-        maker_solve encapsulates the secret.
+        maker_solve solves the puzzle and reveals the secret to get taker's locked tokens for maker.
 
         Args:
-            by (acnt.Account): The action maker.
+            by (acnt.Account): The action taker.
             taker_ctrt_id (str): The swap ctrt id of the taker's.
             tx_id (str): The lock transaction id of taker's .
             secret (str): The secret.
@@ -545,10 +545,11 @@ class AtomicSwapCtrt(Ctrt):
         fee: int = md.ExecCtrtFee.DEFAULT,
     ) -> Dict[str, Any]:
         """
-        taker_solve gets the puzzle.
+        taker_solve solves the puzzle by the secret the maker reveals and gets the makers' locked tokens
+        for taker.
 
         Args:
-            by (acnt.Account): The action maker.
+            by (acnt.Account): The action taker.
             maker_ctrt_id (str): The contract id of the maker's.
             maker_lock_tx_id (str): The lock tx id of the maker's.
             maker_solve_tx_id (str): The solve tx id of the maker's.
