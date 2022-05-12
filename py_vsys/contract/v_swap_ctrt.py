@@ -874,8 +874,8 @@ class VSwapCtrt(Ctrt):
                 ctrt_id=self._ctrt_id,
                 func_id=self.FuncIdx.SWAP_A_FOR_EXACT_B,
                 data_stack=de.DataStack(
-                    de.Amount.for_tok_amount(amount_b, tok_a_unit),
-                    de.Amount.for_tok_amount(amount_a_max, tok_b_unit),
+                    de.Amount.for_tok_amount(amount_b, tok_b_unit),
+                    de.Amount.for_tok_amount(amount_a_max, tok_a_unit),
                     de.Timestamp(md.VSYSTimestamp.from_unix_ts(deadline)),
                 ),
                 timestamp=md.VSYSTimestamp.now(),
@@ -920,8 +920,8 @@ class VSwapCtrt(Ctrt):
                 ctrt_id=self._ctrt_id,
                 func_id=self.FuncIdx.SWAP_EXACT_A_FOR_B,
                 data_stack=de.DataStack(
-                    de.Amount.for_tok_amount(amount_b_min, tok_a_unit),
-                    de.Amount.for_tok_amount(amount_a, tok_b_unit),
+                    de.Amount.for_tok_amount(amount_b_min, tok_b_unit),
+                    de.Amount.for_tok_amount(amount_a, tok_a_unit),
                     de.Timestamp(md.VSYSTimestamp.from_unix_ts(deadline)),
                 ),
                 timestamp=md.VSYSTimestamp.now(),
