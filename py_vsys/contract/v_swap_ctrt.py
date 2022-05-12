@@ -896,12 +896,12 @@ class VSwapCtrt(Ctrt):
         fee: int = md.ExecCtrtFee.DEFAULT,
     ) -> Dict[str, Any]:
         """
-        swap_exact_a_for_b swaps token B for token B where the amount of token A to pay is fixed.
+        swap_exact_a_for_b swaps token A for token B where the amount of token A to pay is fixed.
 
         Args:
             by (acnt.Account): The action taker.
             amount_b_min (Union[int, float]): The minimum acceptable amount of token B.
-            amount_a (Union[int, float]): The amount of token b to pay.
+            amount_a (Union[int, float]): The amount of token A to pay.
             deadline (int): Unix timestamp. The deadline for this operation to complete.
             attachment (str, optional): The attachment of this action. Defaults to "".
             fee (int, optional): The fee to pay for this action. Defaults to md.ExecCtrtFee.DEFAULT.
