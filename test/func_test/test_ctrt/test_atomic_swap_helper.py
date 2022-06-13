@@ -10,9 +10,9 @@ from py_vsys import data_entry as de
 from test.func_test import conftest as cft
 
 
-class TestAtomicSwapCtrt:
+class TestAtomicSwapHelper:
     """
-    TestAtomicSwapCtrt is the collection of functional tests of atomic swap contract.
+    TestAtomicSwapHelper is the collection of functional tests of atomic swap contract.
     """
 
     @pytest.fixture
@@ -88,20 +88,20 @@ class TestAtomicSwapCtrt:
         self,
         new_maker_tok_ctrt_with_tok: pv.TokCtrtWithoutSplit,
         acnt0: pv.Account,
-    ) -> pv.AtomicSwapCtrt:
+    ) -> pv.AtomicSwapHelper:
         """
-        new_maker_atomic_swap_ctrt is the fixture that registers a new atomic swap contract.
+        new_maker_atomic_swap_ctrt is the fixture that registers a new atomic swap helper.
 
         Args:
-            new_maker_tok_ctrt_with_tok (pv.TokCtrtWithoutSplit): The fixture that registers a new atomic swap contract and issues tokens right after it.
+            new_maker_tok_ctrt_with_tok (pv.TokCtrtWithoutSplit): The fixture that registers a new atomic swap helper and issues tokens right after it.
             acnt0 (pv.Account): The account of nonce 0.
 
         Returns:
-            pv.AtomicSwapCtrt: The AtomicSwapCtrt instance.
+            pv.AtomicSwapHelper: The AtomicSwapHelper instance.
         """
         tc = new_maker_tok_ctrt_with_tok
 
-        ac = await pv.AtomicSwapCtrt.register(acnt0, tc.tok_id.data)
+        ac = await pv.AtomicSwapHelper.register(acnt0, tc.tok_id.data)
         await cft.wait_for_block()
 
         await tc.deposit(acnt0, ac.ctrt_id.data, 100)
@@ -114,20 +114,20 @@ class TestAtomicSwapCtrt:
         self,
         new_taker_tok_ctrt_with_tok: pv.TokCtrtWithoutSplit,
         acnt1: pv.Account,
-    ) -> pv.AtomicSwapCtrt:
+    ) -> pv.AtomicSwapHelper:
         """
-        new_taker_atomic_swap_ctrt is the fixture that registers a new atomic swap contract.
+        new_taker_atomic_swap_ctrt is the fixture that registers a new atomic swap helper.
 
         Args:
             new_taker_tok_ctrt_with_tok (pv.TokCtrtWithoutSplit): The fixture that registers a new token contract and issues tokens right after it.
             acnt1 (pv.Account): The account of nonce 1.
 
         Returns:
-            pv.AtomicSwapCtrt: The AtomicSwapCtrt instance.
+            pv.AtomicSwapHelper: The AtomicSwapHelper instance.
         """
         tc = new_taker_tok_ctrt_with_tok
 
-        ac = await pv.AtomicSwapCtrt.register(acnt1, tc.tok_id.data)
+        ac = await pv.AtomicSwapHelper.register(acnt1, tc.tok_id.data)
         await cft.wait_for_block()
 
         await tc.deposit(acnt1, ac.ctrt_id.data, 100)
@@ -137,7 +137,7 @@ class TestAtomicSwapCtrt:
 
     async def test_register(
         self, acnt0: pv.Account, new_maker_tok_ctrt_with_tok: pv.TokCtrtWithoutSplit
-    ) -> pv.AtomicSwapCtrt:
+    ) -> pv.AtomicSwapHelper:
         """
         test_register tests the method register.
 
@@ -146,10 +146,10 @@ class TestAtomicSwapCtrt:
             new_maker_tok_ctrt_with_tok (pv.TokCtrtWithoutSplit): The fixture that registers a new atomic swap contract and issues tokens right after it.
 
         Returns:
-            pv.AtomicSwapCtrt: the AtomicSwapCtrt instance.
+            pv.AtomicSwapHelper: the AtomicSwapHelper instance.
         """
         tc = new_maker_tok_ctrt_with_tok
-        ac = await pv.AtomicSwapCtrt.register(acnt0, tc.tok_id.data)
+        ac = await pv.AtomicSwapHelper.register(acnt0, tc.tok_id.data)
         await cft.wait_for_block()
 
         assert (await ac.maker) == acnt0.addr
@@ -157,12 +157,12 @@ class TestAtomicSwapCtrt:
 
         return ac
 
-    async def test_lock(
+    async def test_maker_lock_and_taker_lock(
         self,
         acnt0: pv.Account,
         acnt1: pv.Account,
-        new_maker_atomic_swap_ctrt: pv.AtomicSwapCtrt,
-        new_taker_atomic_swap_ctrt: pv.AtomicSwapCtrt,
+        new_maker_atomic_swap_ctrt: pv.AtomicSwapHelper,
+        new_taker_atomic_swap_ctrt: pv.AtomicSwapHelper,
     ) -> None:
         """
         test_maker_lock_and_taker_lock tests the method maker_lock and taker_lock.
@@ -170,8 +170,8 @@ class TestAtomicSwapCtrt:
         Args:
             acnt0 (pv.Account): The account of nonce 0.
             acnt1 (pv.Account): The account of nonce 1.
-            new_maker_atomic_swap_ctrt (pv.AtomicSwapCtrt): The fixture that registers a new atomic swap contract of maker's.
-            new_taker_atomic_swap_ctrt (pv.AtomicSwapCtrt): The fixture that registers a new atomic swap contract of taker's.
+            new_maker_atomic_swap_ctrt (pv.AtomicSwapHelper): The fixture that registers a new atomic swap helper of maker's.
+            new_taker_atomic_swap_ctrt (pv.AtomicSwapHelper): The fixture that registers a new atomic swap helper of taker's.
         """
         maker_ctrt = new_maker_atomic_swap_ctrt
         taker_ctrt = new_taker_atomic_swap_ctrt
@@ -184,13 +184,12 @@ class TestAtomicSwapCtrt:
         maker_lock_amount = 10
         maker_lock_timestamp = int(time.time()) + 1800
         maker_puzzle_plain = "abc"
-        puzzle_bytes1 = hs.sha256_hash(maker_puzzle_plain.encode("latin-1"))
 
-        maker_lock_tx_info = await maker_ctrt.lock(
+        maker_lock_tx_info = await maker_ctrt.maker_lock(
             acnt0,
             maker_lock_amount,
             acnt1.addr.data,
-            puzzle_bytes1,
+            maker_puzzle_plain,
             maker_lock_timestamp,
         )
         await cft.wait_for_block()
@@ -221,18 +220,13 @@ class TestAtomicSwapCtrt:
         assert maker_bal_after_lock.amount == maker_bal_init.amount - 10
 
         # taker lock.
-        puzzle_db_key = pv.AtomicSwapCtrt.DBKey.for_swap_puzzle(maker_lock_tx_id)
-        resp = await acnt1._chain._api._ctrt.get_ctrt_data(maker_ctrt._ctrt_id.data,puzzle_db_key.b58_str)
-        hashed_puzzle = resp["value"]
-
-        puzzle_bytes2 = base58.b58decode(hashed_puzzle)
-
         taker_lock_timestamp = int(time.time()) + 1500
-        taker_lock_tx_info = await taker_ctrt.lock(
+        taker_lock_tx_info = await taker_ctrt.taker_lock(
             acnt1,
             5,
+            maker_ctrt.ctrt_id.data,
             acnt0.addr.data,
-            puzzle_bytes2,
+            maker_lock_tx_id,
             taker_lock_timestamp,
         )
         await cft.wait_for_block()
@@ -241,12 +235,12 @@ class TestAtomicSwapCtrt:
         taker_bal_after_lock = await taker_ctrt.get_ctrt_bal(acnt1.addr.data)
         assert taker_bal_after_lock.amount == taker_bal_init.amount - 5
 
-    async def test_solve(
+    async def test_maker_solve_and_taker_solve(
         self,
         acnt0: pv.Account,
         acnt1: pv.Account,
-        new_maker_atomic_swap_ctrt: pv.AtomicSwapCtrt,
-        new_taker_atomic_swap_ctrt: pv.AtomicSwapCtrt,
+        new_maker_atomic_swap_ctrt: pv.AtomicSwapHelper,
+        new_taker_atomic_swap_ctrt: pv.AtomicSwapHelper,
     ) -> None:
         """
         test_maker_solve_and_taker_solve tests the method maker_solve and taker_solve.
@@ -254,52 +248,36 @@ class TestAtomicSwapCtrt:
         Args:
             acnt0 (pv.Account): The account of nonce 0.
             acnt1 (pv.Account): The account of nonce 1.
-            new_maker_atomic_swap_ctrt (pv.AtomicSwapCtrt): The fixture that registers a new atomic swap contract of maker's.
-            new_taker_atomic_swap_ctrt (pv.AtomicSwapCtrt): The fixture that registers a new atomic swap contract of taker's.
+            new_maker_atomic_swap_ctrt (pv.AtomicSwapHelper): The fixture that registers a new atomic swap helper of maker's.
+            new_taker_atomic_swap_ctrt (pv.AtomicSwapHelper): The fixture that registers a new atomic swap helper of taker's.
         """
         maker_ctrt = new_maker_atomic_swap_ctrt
         taker_ctrt = new_taker_atomic_swap_ctrt
         api = maker_ctrt.chain.api
 
-        # maker lock.
-        maker_lock_amount = 10
         maker_lock_timestamp = int(time.time()) + 1800
-        maker_puzzle_plain = "abc"
-        puzzle_bytes1 = hs.sha256_hash(maker_puzzle_plain.encode("latin-1"))
-
-        maker_lock_tx_info = await maker_ctrt.lock(
-            acnt0,
-            maker_lock_amount,
-            acnt1.addr.data,
-            puzzle_bytes1,
-            maker_lock_timestamp,
+        maker_lock_tx_info = await maker_ctrt.maker_lock(
+            acnt0, 10, acnt1.addr.data, "abc", maker_lock_timestamp
         )
         await cft.wait_for_block()
-        maker_lock_tx_id = maker_lock_tx_info["id"]
-        await cft.assert_tx_success(api, maker_lock_tx_id)
-
-        # taker lock.
-        puzzle_db_key = pv.AtomicSwapCtrt.DBKey.for_swap_puzzle(maker_lock_tx_id)
-        resp = await acnt1._chain._api._ctrt.get_ctrt_data(maker_ctrt._ctrt_id.data,puzzle_db_key.b58_str)
-
-        hashed_puzzle = resp["value"];
-        puzzle_bytes2 = base58.b58decode(hashed_puzzle)
+        maker_lock_id = maker_lock_tx_info["id"]
+        await cft.assert_tx_success(api, maker_lock_id)
 
         taker_lock_timestamp = int(time.time()) + 1500
-        taker_lock_tx_info = await taker_ctrt.lock(
+        taker_lock_tx_info = await taker_ctrt.taker_lock(
             acnt1,
             5,
+            maker_ctrt.ctrt_id.data,
             acnt0.addr.data,
-            puzzle_bytes2,
+            maker_lock_id,
             taker_lock_timestamp,
         )
         await cft.wait_for_block()
-        taker_lock_tx_id = taker_lock_tx_info["id"]
-        await cft.assert_tx_success(api, taker_lock_tx_id)
+        taker_lock_id = taker_lock_tx_info["id"]
+        await cft.assert_tx_success(api, taker_lock_id)
 
-        # maker solve
-        maker_solve_tx_info = await taker_ctrt.solve(
-            acnt0, taker_lock_tx_id, "abc"
+        maker_solve_tx_info = await maker_ctrt.maker_solve(
+            acnt0, taker_ctrt.ctrt_id.data, taker_lock_id, "abc"
         )
         await cft.wait_for_block()
         maker_solve_id = maker_solve_tx_info["id"]
@@ -312,8 +290,8 @@ class TestAtomicSwapCtrt:
 
         assert revealed_secret == "abc"
 
-        taker_solve_tx_info = await maker_ctrt.solve(
-            acnt1, maker_lock_tx_id, revealed_secret
+        taker_solve_tx_info = await taker_ctrt.taker_solve(
+            acnt1, maker_ctrt.ctrt_id.data, maker_lock_id, maker_solve_id
         )
         await cft.wait_for_block()
         taker_solve_id = taker_solve_tx_info["id"]
@@ -323,7 +301,7 @@ class TestAtomicSwapCtrt:
         self,
         acnt0: pv.Account,
         acnt1: pv.Account,
-        new_maker_atomic_swap_ctrt: pv.AtomicSwapCtrt,
+        new_maker_atomic_swap_ctrt: pv.AtomicSwapHelper,
     ) -> None:
         """
         test_exp_withdraw tests the method exp_withdraw.
@@ -331,7 +309,7 @@ class TestAtomicSwapCtrt:
         Args:
             acnt0 (pv.Account): The account of nonce 0.
             acnt1 (pv.Account): The account of nonce 1.
-            new_maker_atomic_swap_ctrt (pv.AtomicSwapCtrt): The fixture that registers a new atomic swap contract of maker's.
+            new_maker_atomic_swap_ctrt (pv.AtomicSwapHelper): The fixture that registers a new atomic swap helper of maker's.
         """
         maker_ctrt = new_maker_atomic_swap_ctrt
         api = maker_ctrt.chain.api
@@ -345,7 +323,7 @@ class TestAtomicSwapCtrt:
 
         bal_old = await maker_ctrt.get_ctrt_bal(acnt0.addr.data)
 
-        await asyncio.sleep(10)  # wait until the lock is expired
+        await asyncio.sleep(10)  # wait unitl the lock is expired
 
         exp_withdraw_tx_info = await maker_ctrt.exp_withdraw(acnt0, maker_lock_id)
         await cft.wait_for_block()
@@ -361,16 +339,16 @@ class TestAtomicSwapCtrt:
         acnt0: pv.Account,
         acnt1: pv.Account,
         new_maker_tok_ctrt_with_tok: pv.TokCtrtWithoutSplit,
-        new_taker_atomic_swap_ctrt: pv.AtomicSwapCtrt,
+        new_taker_atomic_swap_ctrt: pv.AtomicSwapHelper,
     ) -> None:
         """
-        test_as_whole tests methods of AtomicSwapCtrt as a whole so as to reduce resource consumption.
+        test_as_whole tests methods of AtomicSwapHelper as a whole so as to reduce resource consumption.
 
         Args:
             acnt0 (pv.Account): The account of nonce 0.
             acnt1 (pv.Account): The account of nonce 1.
             new_maker_tok_ctrt_with_tok (pv.TokCtrtWithoutSplit): The fixture that registers a new atomic swap contract and issues tokens right after it.
-            new_taker_atomic_swap_ctrt (pv.AtomicSwapCtrt): The fixture that registers a new atomic swap contract of taker's.
+            new_taker_atomic_swap_ctrt (pv.AtomicSwapHelper): The fixture that registers a new atomic swap helper of taker's.
         """
         api = acnt0.api
 
