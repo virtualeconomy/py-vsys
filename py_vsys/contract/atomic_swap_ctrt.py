@@ -410,7 +410,7 @@ class AtomicSwapCtrt(Ctrt):
             by (acnt.Account): The action taker.
             amount (Union[int, float]): The amount of the token to be locked.
             recipient (str): The taker's address.
-            secret (str): The hash of secret.
+            hash_secret (str): The hash of secret.
             expire_time (int): The expired timestamp to lock.
             attachment (str, optional): Defaults to "".
             fee (int, optional): Defaults to md.ExecCtrtFee.DEFAULT.
@@ -428,7 +428,7 @@ class AtomicSwapCtrt(Ctrt):
                 data_stack=de.DataStack(
                     de.Amount.for_tok_amount(amount, unit),
                     de.Addr(md.Addr(recipient)),
-                    de.Bytes(md.Bytes(hash_secret)),
+                    de.Bytes.from_bytes(hash_secret),
                     de.Timestamp(md.VSYSTimestamp.from_unix_ts(int(expire_time))),
                 ),
                 timestamp=md.VSYSTimestamp.now(),
@@ -451,7 +451,6 @@ class AtomicSwapCtrt(Ctrt):
         solve solves the puzzle in the swap so that the action taker can get the tokens in the swap.
         Args:
             by (acnt.Account): The action taker.
-            atomic_ctrt_id (str): The atomic contract id.
             lock_tx_id (str): The lock transaction ID that created the swap.
             secret (str): The secret.
             attachment (str, optional): The attachment of this action. Defaults to "".
