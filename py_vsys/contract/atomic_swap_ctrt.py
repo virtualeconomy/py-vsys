@@ -16,7 +16,6 @@ from py_vsys import data_entry as de
 from py_vsys import tx_req as tx
 from py_vsys import model as md
 from py_vsys.contract import tok_ctrt_factory as tcf
-from py_vsys.utils.crypto import hashes as hs
 from . import CtrtMeta, Ctrt, BaseTokCtrt
 
 

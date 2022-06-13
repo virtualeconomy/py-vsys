@@ -3,7 +3,7 @@ module contract/atomicSwapHelper provides higher level encapsulation of function
 """
 
 from __future__ import annotations
-from typing import TYPE_CHECKING, Dict, Any, Union, Optional
+from typing import TYPE_CHECKING, Dict, Any, Union
 
 from loguru import logger
 import base58
@@ -13,14 +13,11 @@ from py_vsys.contract.atomic_swap_ctrt import AtomicSwapCtrt
 # https://stackoverflow.com/a/39757388
 if TYPE_CHECKING:
     from py_vsys import account as acnt
-    from py_vsys import chain as ch
 
 from py_vsys import data_entry as de
 from py_vsys import tx_req as tx
 from py_vsys import model as md
-from py_vsys.contract import tok_ctrt_factory as tcf
 from py_vsys.utils.crypto import hashes as hs
-from . import CtrtMeta, Ctrt, BaseTokCtrt
 
 
 class atomicSwapHelper(AtomicSwapCtrt):
