@@ -452,10 +452,10 @@ class AtomicSwapCtrt(Ctrt):
         fee: int = md.ExecCtrtFee.DEFAULT,
     ) -> Dict[str, Any]:
         """
-        taker_lock locks the token by the maker.
+        taker_lock locks the token by the taker.
 
         Args:
-            by (acnt.Account): The action maker.
+            by (acnt.Account): The action taker.
             amount (Union[int, float]): The amount of the token to be locked.
             maker_swap_ctrt_id: The contract id of the maker's.
             recipient (str): The maker's address.
@@ -498,18 +498,18 @@ class AtomicSwapCtrt(Ctrt):
     async def maker_solve(
         self,
         by: acnt.Account,
-        taker_ctrt_id: str,
+        taker_swap_ctrt_id: str,
         tx_id: str,
         secret: str,
         attachment: str = "",
         fee: int = md.ExecCtrtFee.DEFAULT,
     ) -> Dict[str, Any]:
         """
-        maker_solve encapsulates the secret.
+        maker_solve solves the puzzle and reveals the secret to get taker's locked tokens for maker.
 
         Args:
-            by (acnt.Account): The action maker.
-            taker_ctrt_id (str): The swap ctrt id of the taker's.
+            by (acnt.Account): The action taker.
+            taker_swap_ctrt_id (str): The swap ctrt id of the taker's.
             tx_id (str): The lock transaction id of taker's .
             secret (str): The secret.
             attachment (str, optional): The attachment of this action. Defaults to "".
@@ -521,7 +521,7 @@ class AtomicSwapCtrt(Ctrt):
 
         data = await by._execute_contract(
             tx.ExecCtrtFuncTxReq(
-                ctrt_id=md.CtrtID(taker_ctrt_id),
+                ctrt_id=md.CtrtID(taker_swap_ctrt_id),
                 func_id=self.FuncIdx.SOLVE_PUZZLE,
                 data_stack=de.DataStack(
                     de.Bytes.from_base58_str(tx_id),
@@ -538,18 +538,19 @@ class AtomicSwapCtrt(Ctrt):
     async def taker_solve(
         self,
         by: acnt.Account,
-        maker_ctrt_id: str,
+        maker_swap_ctrt_id: str,
         maker_lock_tx_id: str,
         maker_solve_tx_id: str,
         attachment: str = "",
         fee: int = md.ExecCtrtFee.DEFAULT,
     ) -> Dict[str, Any]:
         """
-        taker_solve gets the puzzle.
+        taker_solve solves the puzzle by the secret the maker reveals and gets the makers' locked tokens
+        for taker.
 
         Args:
-            by (acnt.Account): The action maker.
-            maker_ctrt_id (str): The contract id of the maker's.
+            by (acnt.Account): The action taker.
+            maker_swap_ctrt_id (str): The contract id of the maker's.
             maker_lock_tx_id (str): The lock tx id of the maker's.
             maker_solve_tx_id (str): The solve tx id of the maker's.
             attachment (str, optional): The attachment of this action. Defaults to "".
@@ -566,7 +567,7 @@ class AtomicSwapCtrt(Ctrt):
 
         data = await by._execute_contract(
             tx.ExecCtrtFuncTxReq(
-                ctrt_id=md.CtrtID(maker_ctrt_id),
+                ctrt_id=md.CtrtID(maker_swap_ctrt_id),
                 func_id=self.FuncIdx.SOLVE_PUZZLE,
                 data_stack=de.DataStack(
                     de.Bytes.from_base58_str(maker_lock_tx_id),
@@ -583,7 +584,7 @@ class AtomicSwapCtrt(Ctrt):
     async def exp_withdraw(
         self,
         by: acnt.Account,
-        tx_id: str,
+        lock_tx_id: str,
         attachment: str = "",
         fee: int = md.ExecCtrtFee.DEFAULT,
     ) -> Dict[str, Any]:
@@ -592,7 +593,7 @@ class AtomicSwapCtrt(Ctrt):
 
         Args:
             by (acnt.Account): the action taker.
-            tx_id (str): The transaction lock id.
+            lock_tx_id (str): The transaction lock id.
             attachment (str, optional): The attachment of this action. Defaults to "".
             fee (int, optional): Execution fee of this tx. Defaults to md.ExecCtrtFee.DEFAULT.
 
@@ -604,7 +605,7 @@ class AtomicSwapCtrt(Ctrt):
             tx.ExecCtrtFuncTxReq(
                 ctrt_id=self._ctrt_id,
                 func_id=self.FuncIdx.EXPIRE_WITHDRAW,
-                data_stack=de.DataStack(de.Bytes.from_base58_str(tx_id)),
+                data_stack=de.DataStack(de.Bytes.from_base58_str(lock_tx_id)),
                 timestamp=md.VSYSTimestamp.now(),
                 attachment=md.Str(attachment),
                 fee=md.ExecCtrtFee(fee),
