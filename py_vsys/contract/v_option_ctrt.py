@@ -567,7 +567,7 @@ class VOptionCtrt(Ctrt):
             md.Token: The amount of the base tokens in the pool.
         """
         raw_val = await self._query_db_key(self.DBKey.for_token_collected())
-        return md.Token(raw_val, await self.target_tok_unit)
+        return md.Token(raw_val, await self.base_tok_unit)
 
     @property
     async def base_tok_unit(self) -> int:

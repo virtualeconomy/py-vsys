@@ -874,8 +874,8 @@ class VSwapCtrt(Ctrt):
                 ctrt_id=self._ctrt_id,
                 func_id=self.FuncIdx.SWAP_A_FOR_EXACT_B,
                 data_stack=de.DataStack(
-                    de.Amount.for_tok_amount(amount_b, tok_a_unit),
-                    de.Amount.for_tok_amount(amount_a_max, tok_b_unit),
+                    de.Amount.for_tok_amount(amount_b, tok_b_unit),
+                    de.Amount.for_tok_amount(amount_a_max, tok_a_unit),
                     de.Timestamp(md.VSYSTimestamp.from_unix_ts(deadline)),
                 ),
                 timestamp=md.VSYSTimestamp.now(),
@@ -896,12 +896,12 @@ class VSwapCtrt(Ctrt):
         fee: int = md.ExecCtrtFee.DEFAULT,
     ) -> Dict[str, Any]:
         """
-        swap_exact_a_for_b swaps token B for token B where the amount of token A to pay is fixed.
+        swap_exact_a_for_b swaps token A for token B where the amount of token A to pay is fixed.
 
         Args:
             by (acnt.Account): The action taker.
             amount_b_min (Union[int, float]): The minimum acceptable amount of token B.
-            amount_a (Union[int, float]): The amount of token b to pay.
+            amount_a (Union[int, float]): The amount of token A to pay.
             deadline (int): Unix timestamp. The deadline for this operation to complete.
             attachment (str, optional): The attachment of this action. Defaults to "".
             fee (int, optional): The fee to pay for this action. Defaults to md.ExecCtrtFee.DEFAULT.
@@ -920,8 +920,8 @@ class VSwapCtrt(Ctrt):
                 ctrt_id=self._ctrt_id,
                 func_id=self.FuncIdx.SWAP_EXACT_A_FOR_B,
                 data_stack=de.DataStack(
-                    de.Amount.for_tok_amount(amount_b_min, tok_a_unit),
-                    de.Amount.for_tok_amount(amount_a, tok_b_unit),
+                    de.Amount.for_tok_amount(amount_b_min, tok_b_unit),
+                    de.Amount.for_tok_amount(amount_a, tok_a_unit),
                     de.Timestamp(md.VSYSTimestamp.from_unix_ts(deadline)),
                 ),
                 timestamp=md.VSYSTimestamp.now(),

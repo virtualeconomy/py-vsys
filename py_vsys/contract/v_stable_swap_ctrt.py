@@ -506,7 +506,7 @@ class VStableSwapCtrt(Ctrt):
     @property
     async def max_order_per_user(self) -> int:
         """
-        max_order_per_user queries & returns the max order numbers that per user is allowed.
+        max_order_per_user queries & returns the max order number that each user can create.
 
         Returns:
             int: The max order number.
@@ -516,20 +516,20 @@ class VStableSwapCtrt(Ctrt):
     @property
     async def base_price_unit(self) -> int:
         """
-        base_price_unit queries & returns the unit of price of base token.
+        base_price_unit queries & returns the price unit of base token.
 
         Returns:
-            int: the unit of price of base.
+            int: the price unit of base token.
         """
         return await self._query_db_key(self.DBKey.for_base_price_unit())
 
     @property
     async def target_price_unit(self) -> int:
         """
-        target_price_unit queries & returns the unit of price of target token.
+        target_price_unit queries & returns the price unit of target token.
 
         Returns:
-            int: the unit of price of target.
+            int: the price unit of target token.
         """
         return await self._query_db_key(self.DBKey.for_target_price_unit())
 
@@ -564,14 +564,12 @@ class VStableSwapCtrt(Ctrt):
         get_user_orders queries & returns the number of user orders.
 
         Args:
-            addr (str): The account address that deposits the token.
+            addr (str): The account address.
 
         Returns:
             int: The number of user orders.
         """
-        num = await self._query_db_key(self.DBKey.for_user_orders(addr))
-
-        return num
+        return await self._query_db_key(self.DBKey.for_user_orders(addr))
 
     async def get_order_owner(self, order_id: str) -> md.Addr:
         """
@@ -588,13 +586,13 @@ class VStableSwapCtrt(Ctrt):
 
     async def get_fee_base(self, order_id: str) -> md.Token:
         """
-        get_fee_base queries & returns the base fee.
+        get_fee_base queries & returns the fee for base token.
 
         Args:
             order_id (str): The order id.
 
         Returns:
-            md.Token: The base fee.
+            md.Token: The fee for base token..
         """
         fee_base = await self._query_db_key(self.DBKey.for_fee_base(order_id))
         return md.Token(fee_base, await self.base_tok_unit)
@@ -620,7 +618,7 @@ class VStableSwapCtrt(Ctrt):
             order_id (str): The order id.
 
         Returns:
-            md.Token: The amount of min base token.
+            md.Token: The minimum amount of base token.
         """
         min_base = await self._query_db_key(self.DBKey.for_min_base(order_id))
         return md.Token(min_base, await self.base_tok_unit)
@@ -633,7 +631,7 @@ class VStableSwapCtrt(Ctrt):
             order_id (str): The order id.
 
         Returns:
-            md.Token: The amount of max base token.
+            md.Token: The maximum amount of base token.
         """
         max_base = await self._query_db_key(self.DBKey.for_max_base(order_id))
         return md.Token(max_base, await self.base_tok_unit)
@@ -646,7 +644,7 @@ class VStableSwapCtrt(Ctrt):
             order_id (str): The order id.
 
         Returns:
-            md.Token: The amount of min target token.
+            md.Token: The minimum amount of target token.
         """
         min_target = await self._query_db_key(self.DBKey.for_min_target(order_id))
         return md.Token(min_target, await self.target_tok_unit)
@@ -659,7 +657,7 @@ class VStableSwapCtrt(Ctrt):
             order_id (str): The order id.
 
         Returns:
-            md.Token: The amount of max target token.
+            md.Token: The maximum amount of target token.
         """
         max_target = await self._query_db_key(self.DBKey.for_max_target(order_id))
         return md.Token(max_target, await self.target_tok_unit)
@@ -745,7 +743,7 @@ class VStableSwapCtrt(Ctrt):
         register registers a v stable swap contract.
 
         Args:
-            by (acnt.Account): The action maker.
+            by (acnt.Account): The action taker.
             base_tok_id (str): The base token id.
             target_tok_id (str): The target token id.
             max_order_per_user (int): The max order number that per user can create.
@@ -831,13 +829,13 @@ class VStableSwapCtrt(Ctrt):
         set_order creates the order.
 
         Args:
-            by (acnt.Account): The action maker.
+            by (acnt.Account): The action taker.
             fee_base (Union[int, float]): The fee of base token.
             fee_target (Union[int, float]): The fee of target token.
-            min_base (Union[int, float]): The minimum base token.
-            max_base (Union[int, float]): The maximum base token.
-            min_target (Union[int, float]): The minimum target token.
-            max_target (Union[int, float]): The maximum target token.
+            min_base (Union[int, float]): The minimum value of base token.
+            max_base (Union[int, float]): The maximum value of base token.
+            min_target (Union[int, float]): The minimum value of target token.
+            max_target (Union[int, float]): The maximum value of target token.
             price_base (Union[int, float]): The price of base token.
             price_target (Union[int, float]): The price of target token.
             base_deposit (Union[int, float]): The balance that base token deposits.
@@ -897,7 +895,7 @@ class VStableSwapCtrt(Ctrt):
         update_order updates the order settings.
 
         Args:
-            by (acnt.Account): The action maker.
+            by (acnt.Account): The action taker.
             order_id (str): The order id.
             fee_base (Union[int, float]): The fee of base token.
             fee_target (Union[int, float]): The fee of target token.
@@ -955,7 +953,7 @@ class VStableSwapCtrt(Ctrt):
         order_deposit locks the tokens.
 
         Args:
-            by (acnt.Account): The action maker.
+            by (acnt.Account): The action taker.
             order_id (str): The order id.
             base_deposit (Union[int, float]): The balance that base token deposits.
             target_deposit (Union[int, float]): The balance that target token deposits.
@@ -998,7 +996,7 @@ class VStableSwapCtrt(Ctrt):
         order_withdraw unlocks the tokens.
 
         Args:
-            by (acnt.Account): The action maker.
+            by (acnt.Account): The action taker.
             order_id (str): The order id.
             base_withdraw (Union[int, float]): The balance that base token withdraws.
             target_withdraw (Union[int, float]): The balance that target token withdraws.
@@ -1039,7 +1037,7 @@ class VStableSwapCtrt(Ctrt):
         close_order closes the order.
 
         Args:
-            by (acnt.Account): The action maker.
+            by (acnt.Account): The action taker.
             order_id (str): The order id.
             attachment (str, optional): Defaults to "".
             fee (int, optional): Defaults to md.ExecCtrtFee.DEFAULT.
@@ -1078,7 +1076,7 @@ class VStableSwapCtrt(Ctrt):
         swap_base_to_target swaps base token to target token.
 
         Args:
-            by (acnt.Account): The action maker.
+            by (acnt.Account): The action taker.
             order_id (str): The order id.
             amount (Union[int, float]): The swap amount.
             swap_fee (Union[int, float]): The swap fee.
@@ -1127,7 +1125,7 @@ class VStableSwapCtrt(Ctrt):
         swap_target_to_base swaps target token to base token.
 
         Args:
-            by (acnt.Account): The action maker.
+            by (acnt.Account): The action taker.
             order_id (str): The order id.
             amount (Union[int, float]): The swap amount.
             swap_fee (Union[int, float]): The swap fee.
