@@ -398,7 +398,7 @@ class AtomicSwapCtrt(Ctrt):
         by: acnt.Account,
         amount: Union[int, float],
         recipient: str,
-        secret: str,
+        hash_secret: bytes,
         expire_time: int,
         attachment: str = "",
         fee: int = md.ExecCtrtFee.DEFAULT,
@@ -428,7 +428,7 @@ class AtomicSwapCtrt(Ctrt):
                 data_stack=de.DataStack(
                     de.Amount.for_tok_amount(amount, unit),
                     de.Addr(md.Addr(recipient)),
-                    de.Bytes(md.Bytes(puzzle_bytes)),
+                    de.Bytes(md.Bytes(hash_secret)),
                     de.Timestamp(md.VSYSTimestamp.from_unix_ts(int(expire_time))),
                 ),
                 timestamp=md.VSYSTimestamp.now(),
@@ -442,7 +442,6 @@ class AtomicSwapCtrt(Ctrt):
     async def solve(
         self, 
         by: acnt.Account,
-        atomic_ctrt_id: str,
         lock_tx_id: str,
         secret: str,
         attachment: str = "",
@@ -464,10 +463,10 @@ class AtomicSwapCtrt(Ctrt):
 
         data = await by._execute_contract(
             tx.ExecCtrtFuncTxReq(
-                ctrt_id=md.CtrtID(taker_swap_ctrt_id),
+                ctrt_id=self._ctrt_id,
                 func_id=self.FuncIdx.SOLVE_PUZZLE,
                 data_stack=de.DataStack(
-                    de.Bytes.from_base58_str(tx_id),
+                    de.Bytes.from_base58_str(lock_tx_id),
                     de.Bytes.from_str(secret),
                 ),
                 timestamp=md.VSYSTimestamp.now(),
