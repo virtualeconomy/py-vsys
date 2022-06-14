@@ -383,8 +383,8 @@ class TestAtomicSwapCtrt:
 
         taker_ctrt = new_taker_atomic_swap_ctrt
 
-        await self.test_maker_lock_and_taker_lock(acnt0, acnt1, maker_ctrt, taker_ctrt)
-        await self.test_maker_solve_and_taker_solve(
+        await self.test_lock(acnt0, acnt1, maker_ctrt, taker_ctrt)
+        await self.test_solve(
             acnt0, acnt1, maker_ctrt, taker_ctrt
         )
         await self.test_exp_withdraw(acnt0, acnt1, maker_ctrt)
