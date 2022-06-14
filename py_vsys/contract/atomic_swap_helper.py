@@ -20,7 +20,7 @@ from py_vsys import model as md
 from py_vsys.utils.crypto import hashes as hs
 
 
-class atomicSwapHelper(AtomicSwapCtrt):
+class AtomicSwapHelper(AtomicSwapCtrt):
 
     async def maker_lock(
         self,
