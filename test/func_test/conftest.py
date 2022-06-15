@@ -32,7 +32,7 @@ async def api(host: str, api_key: str) -> pv.NodeAPI:
 
 @pytest.fixture
 def chain(api: pv.NodeAPI) -> pv.Chain:
-    return pv.Chain(api)
+    return pv.Chain(api, pv.ChainID.TEST_NET)
 
 
 @pytest.fixture
