@@ -25,7 +25,7 @@ class Chain:
     It contains handy methods for querying chain-related data(e.g. height, last block, etc).
     """
 
-    def __init__(self, node_api: api.NodeAPI, chain_id: ChainID = ChainID.TEST_NET):
+    def __init__(self, node_api: api.NodeAPI, chain_id: ChainID):
         """
         Args:
             node_api (api.NodeAPI): The NodeAPI object the chain uses.

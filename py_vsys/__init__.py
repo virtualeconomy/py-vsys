@@ -6,6 +6,7 @@ from py_vsys.model import *
 from py_vsys.contract import *
 from py_vsys.contract.nft_ctrt import *
 from py_vsys.contract.atomic_swap_ctrt import *
+from py_vsys.contract.atomic_swap_helper import *
 from py_vsys.contract.v_swap_ctrt import *
 from py_vsys.contract.tok_ctrt import *
 from py_vsys.contract.lock_ctrt import *

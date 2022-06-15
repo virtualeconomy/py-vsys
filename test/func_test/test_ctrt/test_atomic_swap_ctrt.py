@@ -336,8 +336,11 @@ class TestAtomicSwapCtrt:
         maker_ctrt = new_maker_atomic_swap_ctrt
         api = maker_ctrt.chain.api
 
-        maker_lock_tx_info = await maker_ctrt.maker_lock(
-            acnt0, 10, acnt1.addr.data, "abc", int(time.time()) + 8
+        maker_puzzle_plain = "abc"
+        puzzle_bytes = hs.sha256_hash(maker_puzzle_plain.encode("latin-1"))
+
+        maker_lock_tx_info = await maker_ctrt.lock(
+            acnt0, 10, acnt1.addr.data, puzzle_bytes, int(time.time()) + 8
         )
         await cft.wait_for_block()
         maker_lock_id = maker_lock_tx_info["id"]
@@ -383,8 +386,8 @@ class TestAtomicSwapCtrt:
 
         taker_ctrt = new_taker_atomic_swap_ctrt
 
-        await self.test_maker_lock_and_taker_lock(acnt0, acnt1, maker_ctrt, taker_ctrt)
-        await self.test_maker_solve_and_taker_solve(
+        await self.test_lock(acnt0, acnt1, maker_ctrt, taker_ctrt)
+        await self.test_solve(
             acnt0, acnt1, maker_ctrt, taker_ctrt
         )
         await self.test_exp_withdraw(acnt0, acnt1, maker_ctrt)

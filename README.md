@@ -74,7 +74,7 @@ async def main():
 
     print_heading("Try out Chain")
     # Chain represents the chain itself
-    chain: pv.Chain = pv.Chain(api)
+    chain: pv.Chain = pv.Chain(api, pv.ChainID.TEST_NET)
     # Get chain's height
     print("Height: ", await chain.height)
     # Get chain's last block
