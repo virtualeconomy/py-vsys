@@ -6,7 +6,8 @@ from __future__ import annotations
 
 
 import hashlib
-import sha3
+
+from . import keccak
 
 
 def sha256_hash(b: bytes) -> bytes:
@@ -32,9 +33,7 @@ def keccak256_hash(b: bytes) -> bytes:
     Returns:
         bytes: The hash result
     """
-    k = sha3.keccak_256()
-    k.update(b)
-    return k.digest()
+    return keccak.keccak256.digest(b)
 
 
 def blake2b_hash(b: bytes) -> bytes:
