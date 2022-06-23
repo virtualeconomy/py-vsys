@@ -18,6 +18,7 @@ def gen_pri_key(rand32: bytes) -> bytes:
     Returns:
         bytes: The generated private key
     """
+    rand32 = bytes.fromhex(rand32.hex())
     return curve.generatePrivateKey(rand32)
 
 
