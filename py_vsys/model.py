@@ -4,7 +4,8 @@ model contains data model related resources.
 from __future__ import annotations
 import abc
 import time
-from typing import Any, NamedTuple, Union
+from typing import Any, NamedTuple, Union, Tuple, List
+import struct
 
 import base58
 
@@ -333,12 +334,277 @@ class Addr(FixedSizeB58Str):
         return cls(b.b58_str)
 
 
+class CtrtMetaBytes:
+    """
+    CtrtMetaBytes is the helper data container for bytes used in contract meta data
+    with handy methods.
+    """
+
+    def __init__(self, data: bytes = b"") -> None:
+        """
+        Args:
+            data (bytes, optional): The data to contain. Defaults to b"".
+        """
+        self.data = data
+
+    @classmethod
+    def deserialize(cls, b: bytes) -> CtrtMetaBytes:
+        """
+        deserialize deserializes the given bytes and creates a CtrtMetaBytes object.
+
+        Args:
+            b (bytes): The bytes to deserialize.
+
+        Returns:
+            CtrtMetaBytes: The CtrtMetaBytes object created by deserialization.
+        """
+        l = struct.unpack(">H", b[:2])[0]
+        return cls(b[2 : 2 + l])
+
+    @property
+    def len_bytes(self) -> bytes:
+        """
+        len_bytes returns the length in bytes of the containing data.
+
+        Returns:
+            bytes: The length in bytes.
+        """
+        return struct.pack(">H", len(self.data))
+
+    def serialize(self) -> bytes:
+        """
+        serialize serializes CtrtMetaBytes object to bytes.
+
+        Returns:
+            bytes: The serialization result.
+        """
+        return self.len_bytes + self.data
+
+
+class CtrtMetaBytesList:
+    """
+    CtrtMetaBytesList is a collection of CtrtMetaBytes
+    """
+
+    def __init__(self, *items: Tuple[CtrtMetaBytes]) -> None:
+        """
+        Args:
+            *items (Tuple[CtrtMetaBytes]): CtrtMetaBytes objects to contain
+        """
+        self.items: List[CtrtMetaBytes] = list(items)
+
+    @classmethod
+    def deserialize(cls, b: bytes, with_bytes_len: bool = True) -> CtrtMetaBytesList:
+        """
+        deserialize deserializes the given bytes and creates a BytesList object.
+
+        Args:
+            b (bytes): The bytes to deserialize.
+            with_bytes_len (bool, optional): If the first 2 bytes of the given data
+                should be treated as the meta data that indicates the length for the data.
+                Defaults to True.
+
+        Returns:
+            CtrtMetaBytesList: The CtrtMetaBytesList object created by deserialization.
+        """
+        if with_bytes_len:
+            l = struct.unpack(">H", b[:2])[0]
+            b = b[2 : 2 + l]
+
+        items_cnt = struct.unpack(">H", b[:2])[0]
+        b = b[2:]
+        items = []
+        for _ in range(items_cnt):
+            l = struct.unpack(">H", b[:2])[0]
+            item = CtrtMetaBytes.deserialize(b)
+            items.append(item)
+            b = b[2 + l :]
+
+        return cls(*items)
+
+    def serialize(self, with_bytes_len: bool = True) -> bytes:
+        """
+        serialize serializes CtrtMetaBytesList object to bytes.
+
+        Args:
+            with_bytes_len (bool, optional): If the 2-bytes meta data that indicates
+                the length of the data should be prepended.
+                Defaults to True.
+
+        Returns:
+            bytes: The serialization result.
+        """
+        b = struct.pack(">H", len(self.items))
+
+        for i in self.items:
+            b += i.serialize()
+
+        if with_bytes_len:
+            b = struct.pack(">H", len(b)) + b
+
+        return b
+
+
+class CtrtMeta:
+
+    LANG_CODE_BYTE_LEN = 4
+    LANG_VER_BYTE_LEN = 4
+    TOKEN_ADDR_VER = -124
+    CTRT_ADDR_VER = 6
+    CHECKSUM_LEN = 4
+    TOKEN_IDX_BYTES_LEN = 4
+
+    def __init__(
+        self,
+        lang_code: str,
+        lang_ver: int,
+        triggers: CtrtMetaBytesList,
+        descriptors: CtrtMetaBytesList,
+        state_vars: CtrtMetaBytesList,
+        state_map: CtrtMetaBytesList,
+        textual: CtrtMetaBytesList,
+    ) -> None:
+        """
+        Args:
+            lang_code (str): The language code of the contract. E.g. "vdds".
+            lang_ver (int): The language version of the contract. E.g. 1
+            triggers (CtrtMetaBytesList): The triggers of the contract.
+            descriptors (CtrtMetaBytesList): The descriptors of the contract.
+            state_vars (CtrtMetaBytesList): The state variables of the contract.
+            state_map (CtrtMetaBytesList): The state map of the contract.
+            textual (CtrtMetaBytesList): The textual of the contract.
+        """
+        self.lang_code = lang_code
+        self.lang_ver = lang_ver
+        self.triggers = triggers
+        self.descriptors = descriptors
+        self.state_vars = state_vars
+        self.state_map = state_map
+        self.textual = textual
+
+    @classmethod
+    def from_b58_str(cls, b58_str: str) -> CtrtMeta:
+        """
+        from_b58_str creates a CtrtMeta object from the given base58 string.
+
+        Args:
+            b58_str (str): The base58 string to parse.
+
+        Returns:
+            CtrtMeta: The result CtrtMeta object.
+        """
+        b = base58.b58decode(b58_str)
+        return cls.deserialize(b)
+
+    @classmethod
+    def deserialize(cls, b: bytes) -> CtrtMeta:
+        """
+        deserialize deserializes the given bytes to a CtrtMeta object.
+
+        Args:
+            b (bytes): The bytes to deserialize.
+
+        Returns:
+            CtrtMeta: The result CtrtMeta object.
+        """
+
+        def parse_len(b: bytes) -> int:
+            """
+            parse_len unpacks the given 2 bytes as an unsigned short integer.
+
+            Args:
+                b (bytes): The bytes to unpack.
+
+            Returns:
+                int: The unpacked value.
+            """
+            return struct.unpack(">H", b)[0]
+
+        lang_code = b[:4].decode("latin-1")
+        b = b[4:]
+
+        lang_ver = struct.unpack(">I", b[:4])[0]
+        b = b[4:]
+
+        l = parse_len(b[:2])
+        triggers = CtrtMetaBytesList.deserialize(b)
+        b = b[2 + l :]
+
+        l = parse_len(b[:2])
+        descriptors = CtrtMetaBytesList.deserialize(b)
+        b = b[2 + l :]
+
+        l = parse_len(b[:2])
+        state_vars = CtrtMetaBytesList.deserialize(b)
+        b = b[2 + l :]
+
+        if lang_ver == 1:
+            state_map = CtrtMetaBytesList()
+        else:
+            l = parse_len(b[:2])
+            state_map = CtrtMetaBytesList.deserialize(b)
+            b = b[2 + l :]
+
+        textual = CtrtMetaBytesList.deserialize(b, with_bytes_len=False)
+
+        return cls(
+            lang_code, lang_ver, triggers, descriptors, state_vars, state_map, textual
+        )
+
+    def serialize(self) -> bytes:
+        """
+        serialize serializes CtrtMeta to a bytes.
+
+        Returns:
+            bytes: The serialization result.
+        """
+        stmap_bytes = b"" if self.lang_ver == 1 else self.state_map.serialize()
+        b = (
+            self.lang_code.encode("latin-1")
+            + struct.pack(">I", self.lang_ver)
+            + self.triggers.serialize()
+            + self.descriptors.serialize()
+            + self.state_vars.serialize()
+            + stmap_bytes
+            + self.textual.serialize(with_bytes_len=False)
+        )
+        return b
+
+
 class CtrtID(FixedSizeB58Str):
     """
     CtrtID is the data model for contract ID.
     """
 
     BYTES_LEN = 26
+
+    def get_tok_id(self, tok_idx: int) -> TokenID:
+        """
+        get_tok_id computes the token ID based on the given token index.
+
+        Args:
+            tok_idx (int): The token index.
+
+        Returns:
+            TokenID: The token ID.
+        """
+        # TokenIdx(tok_idx) # for validation
+
+        b = self.bytes
+        raw_ctrt_id = b[1 : (len(b) - CtrtMeta.CHECKSUM_LEN)]
+        ctrt_id_no_checksum = (
+            struct.pack("<b", CtrtMeta.TOKEN_ADDR_VER)
+            + raw_ctrt_id
+            + struct.pack(">I", tok_idx)
+        )
+        h = hs.keccak256_hash(hs.blake2b_hash(ctrt_id_no_checksum))
+
+        tok_id_bytes = base58.b58encode(
+            ctrt_id_no_checksum + h[: CtrtMeta.CHECKSUM_LEN]
+        )
+
+        tok_id = tok_id_bytes.decode("latin-1")
+        return TokenID(tok_id)
 
 
 class TokenID(FixedSizeB58Str):
@@ -361,6 +627,27 @@ class TokenID(FixedSizeB58Str):
     @property
     def is_testnet_vsys_tok(self) -> bool:
         return self.data == self.TESTNET_VSYS_TOK_ID
+
+    def get_ctrt_id(self):
+        """
+        get_ctrt_id computes the contract ID from token ID.
+
+        Returns:
+            CtrtID: The contract ID.
+        """
+        b = base58.b58decode(self.data)
+        raw_ctrt_id = b[
+            1 : (len(b) - CtrtMeta.TOKEN_IDX_BYTES_LEN - CtrtMeta.CHECKSUM_LEN)
+        ]
+        ctrt_id_no_checksum = struct.pack("<b", CtrtMeta.CTRT_ADDR_VER) + raw_ctrt_id
+
+        h = hs.keccak256_hash(hs.blake2b_hash(ctrt_id_no_checksum))
+
+        ctrt_id_bytes = base58.b58encode(
+            ctrt_id_no_checksum + h[: CtrtMeta.CHECKSUM_LEN]
+        )
+        ctrt_id_str = ctrt_id_bytes.decode("latin1")
+        return CtrtID(ctrt_id_str)
 
 
 class TXID(FixedSizeB58Str):

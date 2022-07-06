@@ -249,7 +249,7 @@ class RegCtrtTxReq(TxReq):
     def __init__(
         self,
         data_stack: de.DataStack,
-        ctrt_meta: ctrt.CtrtMeta,
+        ctrt_meta: md.CtrtMeta,
         timestamp: md.VSYSTimestamp,
         description: md.Str = md.Str(),
         fee: md.RegCtrtFee = md.RegCtrtFee(),
@@ -257,7 +257,7 @@ class RegCtrtTxReq(TxReq):
         """
         Args:
             data_stack (de.DataStack): The payload of this request
-            ctrt_meta (ctrt.CtrtMeta): The meta data of the contract to register
+            ctrt_meta (md.CtrtMeta): The meta data of the contract to register
             timestamp (md.VSYSTimestamp): The timestamp of this request
             description (md.Str, optional): The description for this request. Defaults to md.Str().
             fee (md.Fee, optional): The fee for this request.
