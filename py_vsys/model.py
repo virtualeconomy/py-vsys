@@ -12,6 +12,7 @@ import base58
 from py_vsys import chain as ch
 from py_vsys import words as wd
 from py_vsys.utils.crypto import hashes as hs
+from py_vsys.utils.crypto import curve_25519 as curve
 
 
 class Model(abc.ABC):
@@ -105,6 +106,40 @@ class Bytes(Model):
         return cls(s.encode("latin-1"))
 
 
+class AcntSeedHash(Bytes):
+    """
+    AcntSeedHash is the data model class for account seed hash.
+    """
+
+    BYTES_LEN = 32
+
+    def validate(self) -> None:
+        super().validate()
+
+        cls_name = self.__class__.__name__
+
+        if len(self.data) != self.BYTES_LEN:
+            raise ValueError(
+                f"Data in {cls_name} must be exactly {self.BYTES_LEN} bytes."
+            )
+
+    @property
+    def key_pair(self):
+        """
+        getKeyPair generates a key pair.
+
+        Returns:
+            KeyPair: The generated key pair.
+        """
+        pri_key = curve.gen_pri_key(self.data)
+        pub_key = curve.gen_pub_key(pri_key)
+
+        return KeyPair(
+            PubKey.from_bytes(pub_key),
+            PriKey.from_bytes(pri_key),
+        )
+
+
 class Str(Model):
     """
     Str is the data model for string.
@@ -174,6 +209,23 @@ class Seed(Str):
         for w in words:
             if not w in wd.WORDS_SET:
                 raise ValueError(f"Data in {cls_name} contains invalid words")
+
+    def get_acnt_seed_hash(self, nonce):
+        """
+        getAcntSeedHash gets account seed hash
+
+        Args:
+            AcntSeedHash: The account seed hash.
+
+        Returns:
+            B58Str: The B58Str instance.
+        """
+        b = hs.sha256_hash(
+            hs.keccak256_hash(
+                hs.blake2b_hash(f"{nonce.data}{self.data}".encode("latin-1"))
+            )
+        )
+        return AcntSeedHash(b)
 
 
 class B58Str(Str):
@@ -301,6 +353,33 @@ class Addr(FixedSizeB58Str):
             raise ValueError(
                 f"Addr is not on the chain. The Addr has chain_id '{self.chain_id}' while the chain expects '{chain.chain_id.value}'"
             )
+
+    @staticmethod
+    def from_pub_key(pub_key, chain_id):
+        """
+        from_pub_key creates a new Addr instance from the given public key & chain ID.
+
+        Args:
+            pub_key (PubKey): The public key.
+            chain_id (chain.ChainID): The chain ID.
+
+        Returns:
+            Addr: The generated address.        
+        """
+
+        def ke_bla_hash(b: bytes) -> bytes:
+            return hs.keccak256_hash(hs.blake2b_hash(b))
+
+        raw_addr: str = (
+            chr(Addr.VER)
+            + chain_id.value
+            + ke_bla_hash(pub_key.bytes).decode("latin-1")[:20]
+        )
+
+        checksum: str = ke_bla_hash(raw_addr.encode("latin-1")).decode("latin-1")[:4]
+
+        b = bytes((raw_addr + checksum).encode("latin-1"))
+        return Addr.from_bytes(b)
 
     def validate(self) -> None:
         super().validate()
@@ -985,10 +1064,29 @@ class Bool(Model):
             raise TypeError(f"Data in {cls_name} must be a bool")
 
 
-class KeyPair(NamedTuple):
+class KeyPair():
     """
     KeyPair is the data model for a key pair(public / private keys).
     """
 
-    pub: PubKey
-    pri: PriKey
+    def __init__(self, pub_key, pri_key):
+        """
+        Args:
+            pub_key (PubKey): The public key.
+            pri_key (PriKey): The private key.
+        """
+        self.pub = pub_key
+        self.pri = pri_key
+
+        self.validate()
+    
+    def validate(self):
+        msg = bytes('abc', 'utf-8')
+        sig = curve.sign(self.pri.bytes, msg)
+
+        is_valid = curve.verify_sig(self.pub.bytes, msg, sig)
+
+        if not is_valid:
+            raise ValueError("Public key & private key do not match.")
+
+

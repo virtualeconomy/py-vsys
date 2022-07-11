@@ -14,6 +14,10 @@ class TestAccount:
     TestAccount is the collection of functional tests of Account.
     """
 
+    pri_key = "EV5stVcWZ1kEQhrS7qcfYQdHpMHM5jwkyRxi9n9kXteZ";
+    pub_key = "4EyuJtDzQH15qAfnTPgqa8QB4ZU1dzqihdCs13UYEiV4";
+    addr = "ATuQXbkZV4dCKsoFtXSCH5eKw92dMXQdUYU";
+
     @pytest.fixture
     def supernode_addr(self) -> str:
         """
@@ -23,6 +27,53 @@ class TestAccount:
             str: The address.
         """
         return cft.SUPERNODE_ADDR
+
+    def test_pri_str_cons(self, chain: pv.Chain):
+        """
+        test_pri_str_cons tests method from_pri_key_str.
+
+        Args:
+            chain (pv.Chain): The chain.
+        """
+
+        acnt = pv.Account.from_pri_key_str(chain, self.pri_key)
+
+        assert acnt.key_pair.pri.data == self.pri_key
+        assert acnt.key_pair.pub.data == self.pub_key
+        assert acnt.addr.data == self.addr
+
+    def test_pri_pub_cons(self, chain: pv.Chain):
+        """
+        test_pri_pub_cons tests class Account constructor.
+
+        Args:
+            chain (pv.Chain): The chain.
+        """
+
+        acnt = pv.Account(chain, pv.PriKey(self.pri_key), pv.PubKey(self.pub_key))
+
+        assert acnt.key_pair.pri.data == self.pri_key
+        assert acnt.key_pair.pub.data == self.pub_key
+        assert acnt.addr.data == self.addr
+
+    def test_key_match(self, chain: pv.Chain):
+        """
+        test_key_match tests the class KeyPair method validate.
+
+        Args:
+            chain (pv.Chain): The chain.
+        """
+        wrong_pub_key = "4EyuJtDzQH15qAfnTPgqa8QB4ZU1dzqihdCs13U12345"
+
+        try:
+            acnt = pv.Account(chain, pv.PriKey(self.pri_key), pv.PubKey(wrong_pub_key))
+            assert False
+        except ValueError as e:
+            print(e.args)
+            if e.args[0] == "Public key & private key do not match.":
+                assert True
+            else:
+                assert False
 
     async def test_pay(self, acnt0: pv.Account, acnt1: pv.Account) -> None:
         """
