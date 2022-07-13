@@ -451,7 +451,7 @@ class Contract(APIGrp):
             ctrt_id (str): The contract ID.
 
         Returns:
-            Dict[str, Any]: The response.
+            Dict[str, Union[int, str]]: The response.
         """
         return await self._get(f"/lastTokenIndex/{ctrt_id}")    
 
