@@ -445,7 +445,7 @@ class Contract(APIGrp):
 
     async def get_last_index(self, ctrt_id: str) -> Dict[str, Union[int, str]]:
         """
-        get_last_index gets the last index of the NFT contract.
+        get_last_index gets the last index of the token in a token-defining contract(e.g. NFT contract, token contract).
 
         Args:
             ctrt_id (str): The contract ID.
