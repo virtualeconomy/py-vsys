@@ -41,7 +41,7 @@ import py_vsys as pv
 # acnt: pv.Account
 
 # Register a new NFT contract
-nc = await pv.NFTCtrtV2Whitelist.register(by=acnt)
+nc = await pv.NFTCtrtV2WithWhitelist.register(by=acnt)
 print(nc.ctrt_id) # print the id of the newly registered contract
 ```
 Example output
