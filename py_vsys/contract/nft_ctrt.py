@@ -149,7 +149,7 @@ class NFTCtrt(BaseTokCtrt):
             int: The last index.
         """
         res = await self.chain.api.ctrt.get_last_index(self._ctrt_id.data)
-        return res["lastTokenIndex"]
+        return md.TokenIdx(res["lastTokenIndex"])
 
     async def issue(
         self,
