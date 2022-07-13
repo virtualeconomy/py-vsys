@@ -141,12 +141,12 @@ class NFTCtrt(BaseTokCtrt):
         return 1
 
     @property
-    async def last_index(self) -> int:
+    async def last_index(self) -> md.TokenIdx:
         """
         last_index returns the last index of the NFT contract.
 
         Returns:
-            int: The last index.
+            md.TokenIdx: The last index.
         """
         res = await self.chain.api.ctrt.get_last_index(self._ctrt_id.data)
         return md.TokenIdx(res["lastTokenIndex"])
