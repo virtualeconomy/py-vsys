@@ -787,16 +787,6 @@ class Token(NonNegativeInt):
         super().__init__(data)
         self.unit = unit
 
-    @classmethod
-    def one(cls) -> Token:
-        """
-        one creates a new Token where the amount is equal to ONE.
-
-        Returns:
-            Token: The Token.
-        """
-        return cls.for_amount(1)
-
     @property
     def amount(self) -> float:
         """
