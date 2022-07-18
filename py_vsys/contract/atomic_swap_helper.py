@@ -21,7 +21,6 @@ from py_vsys.utils.crypto import hashes as hs
 
 
 class AtomicSwapHelper(AtomicSwapCtrt):
-
     async def maker_lock(
         self,
         by: acnt.Account,
@@ -209,4 +208,3 @@ class AtomicSwapHelper(AtomicSwapCtrt):
         )
         logger.debug(data)
         return data
-

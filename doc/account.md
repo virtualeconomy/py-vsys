@@ -3,12 +3,12 @@
 - [Account](#account)
   - [Introduction](#introduction)
   - [Usage with Python SDK](#usage-with-python-sdk)
+      - [Create Account](#create-account)
+      - [From Wallet](#from-wallet)
+      - [From Private Key & Public Key](#from-private-key--public-key)
     - [Properties](#properties)
       - [Chain](#chain)
       - [Api](#api)
-      - [Wallet](#wallet)
-      - [Nonce](#nonce)
-      - [Account Seed Hash](#account-seed-hash)
       - [Key Pair](#key-pair)
       - [Address](#address)
       - [VSYS Balance](#vsys-balance)
@@ -36,6 +36,32 @@ The key difference between them lies in whether they have a private key.
 ## Usage with Python SDK
 
 In Python SDK we have an `Account` class that represents a user account on the VSYS blockchain.
+
+### Create Account
+
+#### From Wallet
+The `Account` object can be contructed by a `Wallet` object given the `Chain` object & nonce.
+
+```python
+import py_vsys as pv
+# ch: pv.Chain
+# wal: pv.Wallet
+acnt0 = wal.get_account(ch, 0) # get the account of nonce 0 of the wallet.
+```
+
+#### From Private Key & Public Key
+The `Account` object can be constructed by a private key & opionally along with a public key.
+
+If the public key is omitted, it will be derived from the private key.
+If the public key is provided, it will be verified against the private key.
+
+```python
+import py_vsys as pv
+# ch: pv.Chain
+acnt0 = pv.Account.from_pri_key_str(ch, 'your_private_key')
+acnt1 = pv.Account(ch, pv.PriKey('your_private_key'))
+acnt2 = pv.Account(ch, pv.PriKey('your_private_key'), pv.PubKey('your_public_key'))
+```
 
 ### Properties
 
@@ -67,55 +93,6 @@ Example output
 
 ```
 <py_vsys.api.NodeAPI object at 0x1027c1b10>
-```
-
-#### Wallet
-The `Wallet` object that represents the wallet that contains this account.
-
-```python
-import py_vsys as pv
-
-# acnt: pv.Account
-print(acnt.wallet)
-```
-Example output
-
-```
-<py_vsys.account.Wallet object at 0x102765540>
-```
-
-#### Nonce
-The nonce of this account in the wallet.
-
-```python
-import py_vsys as pv
-
-# acnt: pv.Account
-print(acnt.nonce)
-```
-Example output
-
-```
-Nonce(0)
-```
-
-#### Account Seed Hash
-Account Seed Hash is the hashing result of
-- the seed of the wallet the account is in
-- the nonce of the account that
-
-Account Seed Hash can be used to generate the private/public key pair of the account.
-
-```python
-import py_vsys as pv
-
-# acnt: pv.Account
-print(acnt.acnt_seed_hash)
-```
-Example output
-
-```
-Bytes(b'\x805\x10\x81y\x12\xd2\t\x97\xc6\x17R\x0b\x17\x08\x12\xb6s\x90\xe5\xba}\x1co\x81\xc6\xeap\xa5j\xb5U')
 ```
 
 #### Key Pair

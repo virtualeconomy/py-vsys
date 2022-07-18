@@ -443,6 +443,18 @@ class Contract(APIGrp):
         """
         return await self._get(f"/tokenInfo/{tok_id}")
 
+    async def get_last_index(self, ctrt_id: str) -> Dict[str, Union[int, str]]:
+        """
+        get_last_index gets the last index of the token in a token-defining contract(e.g. NFT contract, token contract).
+
+        Args:
+            ctrt_id (str): The contract ID.
+
+        Returns:
+            Dict[str, Union[int, str]]: The response.
+        """
+        return await self._get(f"/lastTokenIndex/{ctrt_id}")    
+
 
 class Addresses(APIGrp):
     """
