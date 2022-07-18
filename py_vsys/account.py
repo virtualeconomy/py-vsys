@@ -77,10 +77,13 @@ class Wallet:
         Returns:
             Account: The account.
         """
+
+        acnt_seed_hash = (self.seed).get_acnt_seed_hash(md.Nonce(nonce))
+        key_pair = acnt_seed_hash.key_pair
         return Account(
             chain=chain,
-            wallet=self,
-            nonce=nonce,
+            pri_key=key_pair.pri,
+            pub_key=key_pair.pub
         )
 
     @staticmethod
@@ -109,96 +112,41 @@ class Wallet:
         s = " ".join(words)
         return md.Seed(s)
 
-    @staticmethod
-    def get_key_pair(acnt_seed_hash: md.Bytes) -> md.KeyPair:
-        """
-        get_key_pair generates a key pair based on the given account seed hash.
-
-        Args:
-            acnt_seed_hash (md.Bytes): The account seed hash.
-
-        Returns:
-            md.KeyPair: The generated key pair.
-        """
-        pri_key = curve.gen_pri_key(acnt_seed_hash.data)
-        pub_key = curve.gen_pub_key(pri_key)
-
-        return md.KeyPair(
-            pub=md.PubKey.from_bytes(pub_key),
-            pri=md.PriKey.from_bytes(pri_key),
-        )
-
-    @staticmethod
-    def get_addr(pub_key: md.PubKey, addr_ver: int, chain_id: ch.ChainID) -> md.Addr:
-        """
-        get_addr generates the address based on the given data.
-
-        Args:
-            pub_key (md.PubKey): The public key.
-            addr_ver (int): The address version.
-            chain_id (ch.ChainID): The chain ID.
-
-        Returns:
-            md.Addr: The generated address.
-        """
-
-        def ke_bla_hash(b: bytes) -> bytes:
-            return hs.keccak256_hash(hs.blake2b_hash(b))
-
-        raw_addr: str = (
-            chr(addr_ver)
-            + chain_id.value
-            + ke_bla_hash(pub_key.bytes).decode("latin-1")[:20]
-        )
-
-        checksum: str = ke_bla_hash(raw_addr.encode("latin-1")).decode("latin-1")[:4]
-
-        b = bytes((raw_addr + checksum).encode("latin-1"))
-        return md.Addr.from_bytes(b)
-
-    @staticmethod
-    def get_acnt_seed_hash(seed: md.Seed, nonce: md.Nonce) -> md.Bytes:
-        """
-        get_acnt_seed_hash generates account seed hash based on the given seed & nonce.
-
-        Args:
-            seed (md.Seed): The account seed.
-            nonce (md.Nonce): The account nonce.
-
-        Returns:
-            md.Bytes: The generated account seed hash.
-        """
-        b = hs.sha256_hash(
-            hs.keccak256_hash(
-                hs.blake2b_hash(f"{nonce.data}{seed.data}".encode("latin-1"))
-            )
-        )
-        return md.Bytes(b)
-
 
 class Account:
     """
     Account is a class for an account on the chain.
     """
 
-    ADDR_VER = 5
-
-    def __init__(self, chain: ch.Chain, wallet: Wallet, nonce: int = 0) -> Account:
+    def __init__(self, chain: ch.Chain, pri_key: md.PriKey, pub_key: md.PubKey=None) -> Account:
         """
         Args:
             chain (ch.Chain): The chain that the account is on.
-            wallet (Wallet): The wallet that owns the account.
-            nonce (int, optional): The nonce of the account. Defaults to 0.
+            pri_key (md.PriKey): The private key of the account.
+            pub_key (md.PubKey): The public key of the account.
         """
-        self._chain = chain
-        self._wallet = wallet
-        self._nonce = md.Nonce(nonce)
 
-        self._acnt_seed_hash = wallet.get_acnt_seed_hash(wallet.seed, self._nonce)
-        self._key_pair = wallet.get_key_pair(self._acnt_seed_hash)
-        self._addr = wallet.get_addr(
-            self.key_pair.pub, self.ADDR_VER, self.chain.chain_id
-        )
+        self._chain = chain
+
+        if(not pub_key):
+            pub_key = md.PubKey.from_bytes(curve.gen_pub_key(pri_key.bytes))
+
+        self.key_pair = md.KeyPair(pub_key, pri_key)
+        self.addr = md.Addr.from_pub_key(pub_key, chain.chain_id)
+
+    @staticmethod
+    def from_pri_key_str(chain: ch.Chain, pri_key: str):
+        """
+        fromPriKeyStr creates a new account from the given chain object & private key string.
+
+        Args:
+            chain (ch.Chain): The chain where the account is on.
+            priKey (str): The private key string.
+        
+        Returns:
+            Account: The new Account instance.
+        """
+        return Account(chain, md.PriKey(pri_key))
 
     @property
     def chain(self) -> ch.Chain:
@@ -249,26 +197,6 @@ class Account:
             md.Bytes: The account's account seed hash.
         """
         return self._acnt_seed_hash
-
-    @property
-    def key_pair(self) -> md.KeyPair:
-        """
-        key_pair returns the account's key pair.
-
-        Returns:
-            md.KeyPair: The account's key pair.
-        """
-        return self._key_pair
-
-    @property
-    def addr(self) -> md.Addr:
-        """
-        addr returns the account's address.
-
-        Returns:
-            md.Addr: The account's address.
-        """
-        return self._addr
 
     @property
     async def bal(self) -> md.VSYS:

@@ -86,8 +86,6 @@ async def main():
     acnt: pv.Account = wallet.get_account(chain, nonce=0)
     # Get the account's balance
     print("Balance:", await acnt.bal)
-    # Get the account's nonce'
-    print("Nonce:", acnt.nonce)
     # Get the account's public key
     print("Public key: ", acnt.key_pair.pub)
     # Get the account's private key

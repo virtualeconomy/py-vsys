@@ -14,6 +14,10 @@ class TestAccount:
     TestAccount is the collection of functional tests of Account.
     """
 
+    PRI_KEY = "EV5stVcWZ1kEQhrS7qcfYQdHpMHM5jwkyRxi9n9kXteZ";
+    PUB_KEY = "4EyuJtDzQH15qAfnTPgqa8QB4ZU1dzqihdCs13UYEiV4";
+    ADDR = "ATuQXbkZV4dCKsoFtXSCH5eKw92dMXQdUYU";
+
     @pytest.fixture
     def supernode_addr(self) -> str:
         """
@@ -23,6 +27,61 @@ class TestAccount:
             str: The address.
         """
         return cft.SUPERNODE_ADDR
+
+    def test_pri_str_cons(self, chain: pv.Chain) -> None:
+        """
+        test_pri_str_cons tests constructing Account with private key string.
+
+        Args:
+            chain (pv.Chain): The chain.
+        """
+
+        acnt = pv.Account.from_pri_key_str(chain, self.PRI_KEY)
+
+        assert acnt.key_pair.pri.data == self.PRI_KEY
+        assert acnt.key_pair.pub.data == self.PUB_KEY
+        assert acnt.addr.data == self.ADDR
+
+    def test_pri_pub_cons(self, chain: pv.Chain) -> None:
+        """
+        test_pri_pub_cons tests constructing Account with private key model and public key model.
+
+        Args:
+            chain (pv.Chain): The chain.
+        """
+
+        acnt = pv.Account(chain, pv.PriKey(self.PRI_KEY), pv.PubKey(self.PUB_KEY))
+
+        assert acnt.key_pair.pri.data == self.PRI_KEY
+        assert acnt.key_pair.pub.data == self.PUB_KEY
+        assert acnt.addr.data == self.ADDR
+
+    def test_pri_only_cons(self, chain: pv.Chain) -> None:
+        """
+        test_pri_only_cons tests constructing Account only with private key model.
+
+        Args:
+            chain (pv.Chain): The chain.        
+        """
+
+        acnt = pv.Account(chain, pv.PriKey(self.PRI_KEY))
+
+        assert acnt.key_pair.pri.data == self.PRI_KEY
+        assert acnt.key_pair.pub.data == self.PUB_KEY
+        assert acnt.addr.data == self.ADDR
+
+    def test_key_match(self, chain: pv.Chain) -> None:
+        """
+        test_key_match tests the class KeyPair method validate.
+
+        Args:
+            chain (pv.Chain): The chain.
+        """
+        wrong_pub_key = "4EyuJtDzQH15qAfnTPgqa8QB4ZU1dzqihdCs13U12345"
+
+        with pytest.raises(ValueError) as e_info:
+            acnt = pv.Account(chain, pv.PriKey(self.PRI_KEY), pv.PubKey(wrong_pub_key))
+            e_info.args[0] == "Public key & private key do not match."
 
     async def test_pay(self, acnt0: pv.Account, acnt1: pv.Account) -> None:
         """
