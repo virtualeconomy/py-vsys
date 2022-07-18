@@ -141,7 +141,7 @@ class Account:
 
         Args:
             chain (ch.Chain): The chain where the account is on.
-            priKey (string): The private key string.
+            priKey (str): The private key string.
         
         Returns:
             Account: The new Account instance.
@@ -197,46 +197,6 @@ class Account:
             md.Bytes: The account's account seed hash.
         """
         return self._acnt_seed_hash
-
-    @property
-    def key_pair(self) -> md.KeyPair:
-        """
-        key_pair returns the account's key pair.
-
-        Returns:
-            md.KeyPair: The account's key pair.
-        """
-        return self._key_pair
-
-    @key_pair.setter
-    def key_pair(self, value):
-        """
-        key_pair setter sets the account's key pair with the given value.
-
-        Returns:
-            md.Addr: The account's new key pair.
-        """
-        self._key_pair = value
-
-    @property
-    def addr(self) -> md.Addr:
-        """
-        addr returns the account's address.
-
-        Returns:
-            md.Addr: The account's address.
-        """
-        return self._addr
-
-    @addr.setter
-    def addr(self, value):
-        """
-        addr setter sets the account's address with the given value.
-
-        Returns:
-            md.Addr: The account's new address.
-        """
-        self._addr = value
 
     @property
     async def bal(self) -> md.VSYS:

@@ -210,12 +210,12 @@ class Seed(Str):
             if not w in wd.WORDS_SET:
                 raise ValueError(f"Data in {cls_name} contains invalid words")
 
-    def get_acnt_seed_hash(self, nonce):
+    def get_acnt_seed_hash(self, nonce: Nonce) -> B58Str:
         """
         getAcntSeedHash gets account seed hash
 
         Args:
-            AcntSeedHash: The account seed hash.
+            nonce (Nonce): The nonce of the account.
 
         Returns:
             B58Str: The B58Str instance.
@@ -354,14 +354,14 @@ class Addr(FixedSizeB58Str):
                 f"Addr is not on the chain. The Addr has chain_id '{self.chain_id}' while the chain expects '{chain.chain_id.value}'"
             )
 
-    @staticmethod
-    def from_pub_key(pub_key, chain_id):
+    @classmethod
+    def from_pub_key(cls, pub_key: PubKey, chain_id: ch.ChainID) -> B58Str:
         """
         from_pub_key creates a new Addr instance from the given public key & chain ID.
 
         Args:
             pub_key (PubKey): The public key.
-            chain_id (chain.ChainID): The chain ID.
+            chain_id (ch.ChainID): The chain ID.
 
         Returns:
             Addr: The generated address.        
@@ -371,7 +371,7 @@ class Addr(FixedSizeB58Str):
             return hs.keccak256_hash(hs.blake2b_hash(b))
 
         raw_addr: str = (
-            chr(Addr.VER)
+            chr(cls.VER)
             + chain_id.value
             + ke_bla_hash(pub_key.bytes).decode("latin-1")[:20]
         )
@@ -379,7 +379,7 @@ class Addr(FixedSizeB58Str):
         checksum: str = ke_bla_hash(raw_addr.encode("latin-1")).decode("latin-1")[:4]
 
         b = bytes((raw_addr + checksum).encode("latin-1"))
-        return Addr.from_bytes(b)
+        return cls.from_bytes(b)
 
     def validate(self) -> None:
         super().validate()
@@ -1069,7 +1069,7 @@ class KeyPair():
     KeyPair is the data model for a key pair(public / private keys).
     """
 
-    def __init__(self, pub_key, pri_key):
+    def __init__(self, pub_key: PubKey, pri_key: PriKey) -> None:
         """
         Args:
             pub_key (PubKey): The public key.
@@ -1080,7 +1080,7 @@ class KeyPair():
 
         self.validate()
     
-    def validate(self):
+    def validate(self) -> None:
         msg = bytes('abc', 'utf-8')
         sig = curve.sign(self.pri.bytes, msg)
 
