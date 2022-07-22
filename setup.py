@@ -8,7 +8,7 @@ with open(os.path.join(this_dir, "README.md")) as f:
 
 setuptools.setup(
     name="py-vsys",
-    version="0.2.0",
+    version="0.2.1",
     description="The official Python SDK for VSYS APIs",
     long_description=long_description,
     long_description_content_type="text/markdown",
