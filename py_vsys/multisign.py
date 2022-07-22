@@ -1,3 +1,8 @@
+"""
+multisign contains the multisign logics.
+For example usage, see test/test_multisign.py
+"""
+
 import hashlib
 import functools
 from typing import Tuple, List
@@ -221,6 +226,9 @@ class MultiSignPriKey:
         Returns:
             int: The variable x.
         """
+        if len(allAs) == 1:
+            return 1
+
         prefix = 0xFD
         for _ in range(0, 31):
             prefix *= 256
@@ -364,3 +372,52 @@ class MultiSign:
         py = p[1] * zinv % BASE_FIELD_Z_P
 
         return int.to_bytes((py + 1) * modp_inv(1  - py) % BASE_FIELD_Z_P, 32, 'little')
+
+
+if __name__ == '__main__':
+    # single key
+
+    msg = b'test'
+    rand = b'\xb2\x98\xc9\xd1\x94\x7f\xcb\x83s\xa2\x00#+oly\xf7\x85H\x14\xc7Nfa;.\xa0\xc8C\xbd\xadP\xcb<\x83s\x94/\n\x8a\n\xaa\xda\x8c#\x8c\x01\x12yUOtY\xba\xb5`\xb6\xebC\x99*\xaf8\x86'
+
+    import base58
+    pk = "EV9ADJzYKZpk4MjxEkXxDSfRRSzBFnA9LEQNbepKZRFc"
+    pkb = base58.b58decode(pk)
+    
+    mpk = MultiSignPriKey(pkb)
+
+    A = mpk.A
+    allAs = (A,)
+
+    xA = mpk.get_xA(A)
+    # xAs = (xA,)
+
+    unionA = MultiSign.get_unionA(xA)
+    
+    R = mpk.get_R(msg, rand)
+    unionR = MultiSign.get_unionR(R)
+
+    s = mpk.sign(msg, rand, unionA, unionR, allAs)
+
+    mul_sig = MultiSign.get_sig(unionA, unionR, (s,))
+
+    bpA = mpk.get_bpA(A)
+
+    pub = MultiSign.get_pub(bpA)
+
+    print(list(mul_sig))
+    print(list(pub))
+
+    import axolotl_curve25519 as curve
+    valid = curve.verifySignature(pub, msg, mul_sig) == 0
+    print(valid)
+
+
+    raw_sig = curve.calculateSignature(rand, pkb, msg)
+    print(list(raw_sig))
+    valid = curve.verifySignature(pub, msg, raw_sig) == 0
+    print(valid)
+
+    # unionA
+    # unionR
+    # all As
