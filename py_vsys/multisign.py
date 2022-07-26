@@ -184,7 +184,7 @@ class MultiSignPriKey:
         a |= (1 << 254)
         return point_compress(point_mul(a, G))
 
-    def get_r(self, msg: bytes, rand: bytes) -> "Point":
+    def get_r(self, msg: bytes, rand: bytes) -> int:
         """
         get_r returns the variable r used in the XEdDSA calculation.
 
@@ -193,7 +193,7 @@ class MultiSignPriKey:
             rand (bytes): The 64-byte random bytes.
         
         Returns:
-            Point: The variable r.
+            int: The variable r.
         """
         prefix = 0xFE
         for _ in range(0, 31):
