@@ -106,33 +106,33 @@ def point_to_pub_key(P: "Point") -> bytes:
 
 
 def point_recover_x(y: int, sign: int) -> int:
-        """
-        Compute corresponding x-coordinate, with low bit corresponding to
-        sign, or raise ValueError on failure.
-        """
-        if y >= BASE_FIELD_Z_P:
-            raise ValueError("Invalid y")
+    """
+    Compute corresponding x-coordinate, with low bit corresponding to
+    sign, or raise ValueError on failure.
+    """
+    if y >= BASE_FIELD_Z_P:
+        raise ValueError("Invalid y")
 
-        x2 = (y * y - 1) * modp_inv(CURVE_CONST_D * y * y + 1)
-        if x2 == 0:
-            if sign:
-                raise ValueError("Invalid x2 & sign")
-            return 0
-        
-        # square root of -1 that mod 
-        modp_sqrt_m1 = pow(2, (BASE_FIELD_Z_P - 1) // 4, BASE_FIELD_Z_P)
+    x2 = (y * y - 1) * modp_inv(CURVE_CONST_D * y * y + 1)
+    if x2 == 0:
+        if sign:
+            raise ValueError("Invalid x2 & sign")
+        return 0
+    
+    # square root of -1 that mod 
+    modp_sqrt_m1 = pow(2, (BASE_FIELD_Z_P - 1) // 4, BASE_FIELD_Z_P)
 
-        x = pow(x2, (BASE_FIELD_Z_P + 3) // 8, BASE_FIELD_Z_P)
-        if (x * x - x2) % BASE_FIELD_Z_P != 0:
-            x = x * modp_sqrt_m1 % BASE_FIELD_Z_P
+    x = pow(x2, (BASE_FIELD_Z_P + 3) // 8, BASE_FIELD_Z_P)
+    if (x * x - x2) % BASE_FIELD_Z_P != 0:
+        x = x * modp_sqrt_m1 % BASE_FIELD_Z_P
 
-        if (x * x - x2) % BASE_FIELD_Z_P != 0:
-            raise ValueError("Invalid x")
-        
-        if (x & 1) != sign:
-            x = BASE_FIELD_Z_P - x
-        
-        return x
+    if (x * x - x2) % BASE_FIELD_Z_P != 0:
+        raise ValueError("Invalid x")
+    
+    if (x & 1) != sign:
+        x = BASE_FIELD_Z_P - x
+    
+    return x
 
 
 gy = 4 * modp_inv(5) % BASE_FIELD_Z_P
@@ -156,23 +156,23 @@ class MultiSignPriKey:
             pri_key (bytes): The private key in bytes.
         """
         self.pri_key = pri_key
+        self.a = self.get_a()
+        self.A = self.get_A()
+        self.pub_key = self.get_pub_key()
 
-    @property
-    def a(self) -> int:
+    def get_a(self) -> int:
         """
         a returns the variable a used in XEdDSA calculation. 
         """
         return int.from_bytes(self.pri_key, "little")
     
-    @property
-    def A(self) -> bytes:
+    def get_A(self) -> bytes:
         """
         A returns the variable A used in XEdDSA calculation.
         """
         return point_compress(point_mul(self.a, G))
 
-    @property
-    def pub_key(self) -> bytes:
+    def get_pub_key(self) -> bytes:
         """
         pub_key returns the public key of the private key.
         """
@@ -184,7 +184,7 @@ class MultiSignPriKey:
         a |= (1 << 254)
         return point_compress(point_mul(a, G))
 
-    def get_r(self, msg: bytes, rand: bytes) -> "Point":
+    def get_r(self, msg: bytes, rand: bytes) -> int:
         """
         get_r returns the variable r used in the XEdDSA calculation.
 
@@ -193,7 +193,7 @@ class MultiSignPriKey:
             rand (bytes): The 64-byte random bytes.
         
         Returns:
-            Point: The variable r.
+            int: The variable r.
         """
         prefix = 0xFE
         for _ in range(0, 31):
