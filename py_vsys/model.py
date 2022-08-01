@@ -197,17 +197,6 @@ class Seed(Str):
 
     def validate(self) -> None:
         super().validate()
-        # cls_name = self.__class__.__name__
-
-        # words = self.data.split(" ")
-        # if len(words) != self.WORD_CNT:
-        #     raise ValueError(
-        #         f"Data in {cls_name} must consist exactly {self.WORD_CNT} words"
-        #     )
-
-        # for w in words:
-        #     if not w in wd.WORDS_SET:
-        #         raise ValueError(f"Data in {cls_name} contains invalid words")
 
     def get_acnt_seed_hash(self, nonce: Nonce) -> B58Str:
         """
