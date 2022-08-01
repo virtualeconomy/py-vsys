@@ -372,15 +372,3 @@ class MultiSign:
         py = p[1] * zinv % BASE_FIELD_Z_P
 
         return int.to_bytes((py + 1) * modp_inv(1  - py) % BASE_FIELD_Z_P, 32, 'little')
-
-
-if __name__ == '__main__':
-    import base58
-    pks = "EV9ADJzYKZpk4MjxEkXxDSfRRSzBFnA9LEQNbepKZRFc"
-    pk = base58.b58decode(pks)
-
-    msp = MultiSignPriKey(pk)
-    print(msp.a)
-    print(list(msp.A))
-    print(list(msp.pub_key))
-    pass
