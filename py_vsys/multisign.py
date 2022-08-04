@@ -27,9 +27,6 @@ def sha512_modq(s: bytes) -> int:
     return int.from_bytes(sha512(s), "little") % GROUP_ORDER_Q
 
 
-def sha512_modp(s: bytes) -> int:
-    return int.from_bytes(sha512(s), "little") % BASE_FIELD_Z_P
-
 
 # "Point" is represented as a 4-element-tuple for performance purposes.
 Point = Tuple[int, int, int, int]
