@@ -15,7 +15,6 @@ if TYPE_CHECKING:
 from py_vsys import model as md
 from py_vsys import tx_req as tx
 from py_vsys import dbput as dp
-from py_vsys.utils.crypto import hashes as hs
 from py_vsys.utils.crypto import curve_25519 as curve
 from py_vsys import words as wd
 from py_vsys.contract import tok_ctrt_factory as tcf
