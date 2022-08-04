@@ -3,9 +3,10 @@ multisign contains the multisign logics.
 For example usage, see test/test_multisign.py
 """
 
-import hashlib
 import functools
 from typing import Tuple, List
+
+from py_vsys.utils.crypto import hashes as hs
 
 
 BASE_FIELD_Z_P = 2**255 - 19
@@ -19,12 +20,8 @@ CURVE_CONST_D = -121665 * modp_inv(121666) % BASE_FIELD_Z_P
 GROUP_ORDER_Q = 2**252 + 27742317777372353535851937790883648493
 
 
-def sha512(s):
-    return hashlib.sha512(s).digest()
-
-
 def sha512_modq(s: bytes) -> int:
-    return int.from_bytes(sha512(s), "little") % GROUP_ORDER_Q
+    return int.from_bytes(hs.sha512_hash(s), "little") % GROUP_ORDER_Q
 
 
 
