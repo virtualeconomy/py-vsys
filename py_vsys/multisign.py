@@ -156,23 +156,23 @@ class MultiSignPriKey:
 
     def get_a(self) -> int:
         """
-        a returns the variable a used in XEdDSA calculation. 
+        get_a returns the variable a used in XEdDSA calculation. 
         """
         return int.from_bytes(self.pri_key, "little")
     
     def get_A(self) -> bytes:
         """
-        A returns the variable A used in XEdDSA calculation.
+        get_A returns the variable A used in XEdDSA calculation.
         """
         return point_compress(point_mul(self.a, G))
 
     def get_pub_key(self) -> bytes:
         """
-        pub_key returns the public key of the private key.
+        get_pub_key returns the public key of the private key.
         """
         if (len(self.pri_key) != 32):
             raise ValueError("Bad size of private key")
-        h = sha512(self.pri_key)
+        h = hs.sha512_hash(self.pri_key)
         a = int.from_bytes(h[:32], "little")
         a &= (1 << 254) - 8
         a |= (1 << 254)
@@ -193,6 +193,7 @@ class MultiSignPriKey:
         for _ in range(0, 31):
             prefix *= 256
             prefix += 0xFF
+        
         prefix = int.to_bytes(prefix, 32, "big")
         return sha512_modq(prefix + self.pri_key + msg + rand)
     
@@ -275,7 +276,7 @@ class MultiSignPriKey:
             allAs (Tuple[bytes]): A tuple of variable A of all MultiSignPriKey participated into the multisign procedure.
         
         Returns:
-            Point: The variable bpA.
+            int: The signature.
         """
         r = self.get_r(msg, rand)
         x = self.get_x(*allAs)
@@ -307,7 +308,7 @@ class MultiSign:
     @staticmethod
     def get_unionR(*Rs: Tuple["Point"]) -> "Point":
         """
-        get_unionR returns the union of a collection of R.
+        get_unionR returns the union of a collection of variable R.
 
         Args:
             Rs (Tuple[Point]): A tuple of variable R of all MultiSignPriKey participated into the multisign procedure.
