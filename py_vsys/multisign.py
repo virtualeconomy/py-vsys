@@ -24,12 +24,21 @@ def sha512_modq(s: bytes) -> int:
     return int.from_bytes(hs.sha512_hash(s), "little") % GROUP_ORDER_Q
 
 
-
 # "Point" is represented as a 4-element-tuple for performance purposes.
 Point = Tuple[int, int, int, int]
 
 
 def point_add(P: "Point", Q: "Point") -> "Point":
+    """
+    point_add adds the given Points P & Q.
+
+    Args:
+        P (Point): The Point p.
+        Q (Point): The Point q.
+    
+    Returns:
+        Point: The result Point.
+    """
     PX, PY, PZ, PT = P
     QX, QY, QZ, QT = Q
 
@@ -47,6 +56,16 @@ def point_add(P: "Point", Q: "Point") -> "Point":
 
 
 def point_mul(s: int, P: "Point") -> "Point":
+    """
+    point_mul multiplies the given Point with the number.
+
+    Args:
+        s (int): The number.
+        P (Point): The Point.
+    
+    Returns:
+        Point: The result Point.
+    """
     Q = (0, 1, 1, 0)  # Neutral element
     while s > 0:
         if s & 1:
@@ -57,6 +76,16 @@ def point_mul(s: int, P: "Point") -> "Point":
 
 
 def point_equals(P: "Point", Q: "Point") -> bool:
+    """
+    point_equals checks if the given Points are equal to each other.
+
+    Args:
+        P (Point): The Point p.
+        Q (Point): The Point q.
+    
+    Returns:
+        bool: If the points are equal.
+    """
     PX, PY, PZ, PT = P
     QX, QY, QZ, QT = Q
 
@@ -68,6 +97,15 @@ def point_equals(P: "Point", Q: "Point") -> bool:
 
 
 def point_compress(P: "Point") -> bytes:
+    """
+    point_compress compresses the given point to bytes.
+
+    Args:
+        P (Point): The Point to compress.
+    
+    Returns:
+        bytes: The compression result.
+    """
     PX, PY, PZ, PT = P
     zinv = modp_inv(PZ)
     x = PX * zinv % BASE_FIELD_Z_P
@@ -76,6 +114,15 @@ def point_compress(P: "Point") -> bytes:
 
 
 def point_decompress(b: bytes) -> "Point":
+    """
+    point_decompress decompresses the bytes to a Point.
+
+    Args:
+        b (bytes): The bytes to decompress.
+    
+    Returns:
+        Point: The decompression result.
+    """
     if len(b) != 32:
         raise ValueError("Invalid input length for decompression")
     y = int.from_bytes(b, "little") 
@@ -92,6 +139,15 @@ def point_decompress(b: bytes) -> "Point":
 
 
 def point_to_pub_key(P: "Point") -> bytes:
+    """
+    point_to_pub_key returns the public key of the given Point.
+
+    Args:
+        P (Point): The Point to process.
+    
+    Returns:
+        bytes: The public key.
+    """
     PX, PY, PZ, PT = P
     zinv = modp_inv(PY)
     x = 0 * zinv % BASE_FIELD_Z_P
@@ -101,8 +157,15 @@ def point_to_pub_key(P: "Point") -> bytes:
 
 def point_recover_x(y: int, sign: int) -> int:
     """
-    Compute corresponding x-coordinate, with low bit corresponding to
+    point_recover_x computes corresponding x-coordinate, with low bit corresponding to
     sign, or raise ValueError on failure.
+
+    Args:
+        y (int): The y-coordinate.
+        sign (int): The signature.
+
+    Returns: 
+        int: The x-coordinate.
     """
     if y >= BASE_FIELD_Z_P:
         raise ValueError("Invalid y")
