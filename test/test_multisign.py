@@ -106,7 +106,6 @@ def test_multisign_two_keys(
     bpA2 = mulpk2.get_bpA(*allAs)
     bpAs = (bpA1, bpA2)
     mul_pub = pv.MultiSign.get_pub(*bpAs)
-    print(mul_pub)
 
     valid = curve.verifySignature(mul_pub, MSG, mul_sig) == 0
     assert valid is True    
