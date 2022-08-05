@@ -114,8 +114,17 @@ import py_vsys as pv
 
 # acnt: pv.Account
 # nc: pv.NFTCtrt
+# meta_data: str
+#
+# meta_data json sample:
+# {
+#	"name": "The name of the NFT",
+#	"description": "The description of the NFT",
+#	"content": "the url of the image or file",
+#	"properties": {},
+# }
 
-resp = await nc.issue(by=acnt)
+resp = await nc.issue(by=acnt, meta_data=meta_data)
 print(resp)
 ```
 Example output
