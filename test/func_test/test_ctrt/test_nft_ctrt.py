@@ -41,7 +41,7 @@ class TestNFTCtrt:
             pv.NFTCtrt: The NFTCtrt instance.
         """
         nc = new_ctrt
-        await nc.issue(acnt0,"")
+        await nc.issue(acnt0)
         await cft.wait_for_block()
         return nc
 
@@ -100,7 +100,7 @@ class TestNFTCtrt:
         nc = new_ctrt
         api = nc.chain.api
 
-        resp = await nc.issue(acnt0,"")
+        resp = await nc.issue(acnt0)
         await cft.wait_for_block()
 
         await cft.assert_tx_success(api, resp["id"])
